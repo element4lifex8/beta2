@@ -8,12 +8,18 @@
 
 /* Begin PBXBuildFile section */
 		EB06561C1BEE37F300CF8376 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06561B1BEE37F300CF8376 /* AppDelegate.swift */; };
-		EB06561E1BEE37F300CF8376 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06561D1BEE37F300CF8376 /* ViewController.swift */; };
 		EB0656211BEE37F300CF8376 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB06561F1BEE37F300CF8376 /* Main.storyboard */; };
 		EB0656231BEE37F300CF8376 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB0656221BEE37F300CF8376 /* Assets.xcassets */; };
-		EB0656261BEE37F300CF8376 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB0656241BEE37F300CF8376 /* LaunchScreen.storyboard */; };
 		EB0656311BEE37F300CF8376 /* Beta2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB0656301BEE37F300CF8376 /* Beta2Tests.swift */; };
 		EB06563C1BEE37F300CF8376 /* Beta2UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06563B1BEE37F300CF8376 /* Beta2UITests.swift */; };
+		EB06564E1BEE3B4900CF8376 /* CIOHomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */; };
+		EB0656501BEE3BF200CF8376 /* CIOHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */; };
+		EB0656521BEE505B00CF8376 /* CIOButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB0656511BEE505B00CF8376 /* CIOButton.swift */; };
+		EB6315281BEEB6CB009683FE /* testButt.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB6315271BEEB6CB009683FE /* testButt.swift */; };
+		EB63152A1BEEB9AA009683FE /* CIOnewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB6315291BEEB9AA009683FE /* CIOnewView.swift */; };
+		EB63152C1BF961D7009683FE /* CheckInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB63152B1BF961D7009683FE /* CheckInViewController.swift */; };
+		EB63152E1BF96241009683FE /* CheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB63152D1BF96241009683FE /* CheckInView.swift */; };
+		EB6B3FBD1C0E7BE200A6B469 /* CheckedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB6B3FBC1C0E7BE200A6B469 /* CheckedView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,10 +42,8 @@
 /* Begin PBXFileReference section */
 		EB0656181BEE37F300CF8376 /* Beta2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Beta2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB06561B1BEE37F300CF8376 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		EB06561D1BEE37F300CF8376 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		EB0656201BEE37F300CF8376 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		EB0656221BEE37F300CF8376 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		EB0656251BEE37F300CF8376 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		EB0656271BEE37F300CF8376 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EB06562C1BEE37F300CF8376 /* Beta2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Beta2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB0656301BEE37F300CF8376 /* Beta2Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Beta2Tests.swift; sourceTree = "<group>"; };
@@ -47,6 +51,14 @@
 		EB0656371BEE37F300CF8376 /* Beta2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Beta2UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB06563B1BEE37F300CF8376 /* Beta2UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Beta2UITests.swift; sourceTree = "<group>"; };
 		EB06563D1BEE37F300CF8376 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CIOHomeViewController.swift; path = ../CIOHomeViewController.swift; sourceTree = "<group>"; };
+		EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIOHomeView.swift; sourceTree = "<group>"; };
+		EB0656511BEE505B00CF8376 /* CIOButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIOButton.swift; sourceTree = "<group>"; };
+		EB6315271BEEB6CB009683FE /* testButt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = testButt.swift; sourceTree = "<group>"; };
+		EB6315291BEEB9AA009683FE /* CIOnewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIOnewView.swift; sourceTree = "<group>"; };
+		EB63152B1BF961D7009683FE /* CheckInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CheckInViewController.swift; path = Beta2/CheckInViewController.swift; sourceTree = SOURCE_ROOT; };
+		EB63152D1BF96241009683FE /* CheckInView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckInView.swift; sourceTree = "<group>"; };
+		EB6B3FBC1C0E7BE200A6B469 /* CheckedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CheckedView.swift; path = ../CheckedView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,11 +109,17 @@
 		EB06561A1BEE37F300CF8376 /* Beta2 */ = {
 			isa = PBXGroup;
 			children = (
+				EB6B3FBC1C0E7BE200A6B469 /* CheckedView.swift */,
+				EB63152B1BF961D7009683FE /* CheckInViewController.swift */,
+				EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */,
 				EB06561B1BEE37F300CF8376 /* AppDelegate.swift */,
-				EB06561D1BEE37F300CF8376 /* ViewController.swift */,
 				EB06561F1BEE37F300CF8376 /* Main.storyboard */,
+				EB63152D1BF96241009683FE /* CheckInView.swift */,
+				EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */,
+				EB6315291BEEB9AA009683FE /* CIOnewView.swift */,
+				EB0656511BEE505B00CF8376 /* CIOButton.swift */,
+				EB6315271BEEB6CB009683FE /* testButt.swift */,
 				EB0656221BEE37F300CF8376 /* Assets.xcassets */,
-				EB0656241BEE37F300CF8376 /* LaunchScreen.storyboard */,
 				EB0656271BEE37F300CF8376 /* Info.plist */,
 			);
 			path = Beta2;
@@ -192,6 +210,7 @@
 				TargetAttributes = {
 					EB0656171BEE37F300CF8376 = {
 						CreatedOnToolsVersion = 7.0.1;
+						DevelopmentTeam = WFDEGZ6LV9;
 					};
 					EB06562B1BEE37F300CF8376 = {
 						CreatedOnToolsVersion = 7.0.1;
@@ -228,7 +247,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EB0656261BEE37F300CF8376 /* LaunchScreen.storyboard in Resources */,
 				EB0656231BEE37F300CF8376 /* Assets.xcassets in Resources */,
 				EB0656211BEE37F300CF8376 /* Main.storyboard in Resources */,
 			);
@@ -255,8 +273,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EB06561E1BEE37F300CF8376 /* ViewController.swift in Sources */,
 				EB06561C1BEE37F300CF8376 /* AppDelegate.swift in Sources */,
+				EB63152E1BF96241009683FE /* CheckInView.swift in Sources */,
+				EB63152A1BEEB9AA009683FE /* CIOnewView.swift in Sources */,
+				EB0656521BEE505B00CF8376 /* CIOButton.swift in Sources */,
+				EB6315281BEEB6CB009683FE /* testButt.swift in Sources */,
+				EB06564E1BEE3B4900CF8376 /* CIOHomeViewController.swift in Sources */,
+				EB6B3FBD1C0E7BE200A6B469 /* CheckedView.swift in Sources */,
+				EB0656501BEE3BF200CF8376 /* CIOHomeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -264,6 +288,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB63152C1BF961D7009683FE /* CheckInViewController.swift in Sources */,
 				EB0656311BEE37F300CF8376 /* Beta2Tests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -298,14 +323,6 @@
 				EB0656201BEE37F300CF8376 /* Base */,
 			);
 			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		EB0656241BEE37F300CF8376 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				EB0656251BEE37F300CF8376 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -398,10 +415,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = Beta2/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.anuJ.Beta2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -409,10 +429,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = Beta2/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.anuJ.Beta2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};
@@ -483,6 +506,7 @@
 				EB0656421BEE37F300CF8376 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		EB0656431BEE37F300CF8376 /* Build configuration list for PBXNativeTarget "Beta2Tests" */ = {
 			isa = XCConfigurationList;
@@ -491,6 +515,7 @@
 				EB0656451BEE37F300CF8376 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		EB0656461BEE37F300CF8376 /* Build configuration list for PBXNativeTarget "Beta2UITests" */ = {
 			isa = XCConfigurationList;
@@ -499,6 +524,7 @@
 				EB0656481BEE37F300CF8376 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
