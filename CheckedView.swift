@@ -9,8 +9,28 @@
 import UIKit
 
 class CheckedView: UIView {
+    let restNameDefaultKey = "CheckInView.restName"
+    private let sharedRestName = NSUserDefaults.standardUserDefaults()
+    
+    var restNameHistory: [String] {
+        get
+        {
+            return sharedRestName.objectForKey(restNameDefaultKey) as? [String] ?? []
+        }
+        set
+        {
+            sharedRestName.setObject(newValue, forKey: restNameDefaultKey)
+        }
+    }
+    
 
     @IBOutlet weak var previewRestText: UITextView!
+        {
+        didSet{
+            previewRestText.text = "\(restNameHistory)"
+        }
+
+    }
     
     /*
     // Only override drawRect: if you perform custom drawing.

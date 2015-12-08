@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EB03E57D1C150669009A55F1 /* TestTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */; };
+		EB03E57F1C15096C009A55F1 /* CheckedOutListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */; };
 		EB06561C1BEE37F300CF8376 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06561B1BEE37F300CF8376 /* AppDelegate.swift */; };
-		EB0656211BEE37F300CF8376 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB06561F1BEE37F300CF8376 /* Main.storyboard */; };
 		EB0656231BEE37F300CF8376 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB0656221BEE37F300CF8376 /* Assets.xcassets */; };
 		EB0656311BEE37F300CF8376 /* Beta2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB0656301BEE37F300CF8376 /* Beta2Tests.swift */; };
 		EB06563C1BEE37F300CF8376 /* Beta2UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06563B1BEE37F300CF8376 /* Beta2UITests.swift */; };
@@ -20,6 +21,7 @@
 		EB63152C1BF961D7009683FE /* CheckInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB63152B1BF961D7009683FE /* CheckInViewController.swift */; };
 		EB63152E1BF96241009683FE /* CheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB63152D1BF96241009683FE /* CheckInView.swift */; };
 		EB6B3FBD1C0E7BE200A6B469 /* CheckedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB6B3FBC1C0E7BE200A6B469 /* CheckedView.swift */; };
+		EB6B3FC01C0FDBBB00A6B469 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB6B3FBE1C0FDBBB00A6B469 /* Main.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,9 +42,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestTableViewCell.swift; sourceTree = "<group>"; };
+		EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckedOutListViewController.swift; sourceTree = "<group>"; };
 		EB0656181BEE37F300CF8376 /* Beta2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Beta2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB06561B1BEE37F300CF8376 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		EB0656201BEE37F300CF8376 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		EB0656221BEE37F300CF8376 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EB0656271BEE37F300CF8376 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EB06562C1BEE37F300CF8376 /* Beta2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Beta2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -59,6 +62,7 @@
 		EB63152B1BF961D7009683FE /* CheckInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CheckInViewController.swift; path = Beta2/CheckInViewController.swift; sourceTree = SOURCE_ROOT; };
 		EB63152D1BF96241009683FE /* CheckInView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckInView.swift; sourceTree = "<group>"; };
 		EB6B3FBC1C0E7BE200A6B469 /* CheckedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CheckedView.swift; path = ../CheckedView.swift; sourceTree = "<group>"; };
+		EB6B3FBF1C0FDBBB00A6B469 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,7 +117,9 @@
 				EB63152B1BF961D7009683FE /* CheckInViewController.swift */,
 				EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */,
 				EB06561B1BEE37F300CF8376 /* AppDelegate.swift */,
-				EB06561F1BEE37F300CF8376 /* Main.storyboard */,
+				EB6B3FBE1C0FDBBB00A6B469 /* Main.storyboard */,
+				EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */,
+				EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */,
 				EB63152D1BF96241009683FE /* CheckInView.swift */,
 				EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */,
 				EB6315291BEEB9AA009683FE /* CIOnewView.swift */,
@@ -248,7 +254,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EB0656231BEE37F300CF8376 /* Assets.xcassets in Resources */,
-				EB0656211BEE37F300CF8376 /* Main.storyboard in Resources */,
+				EB6B3FC01C0FDBBB00A6B469 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,10 +281,12 @@
 			files = (
 				EB06561C1BEE37F300CF8376 /* AppDelegate.swift in Sources */,
 				EB63152E1BF96241009683FE /* CheckInView.swift in Sources */,
+				EB03E57D1C150669009A55F1 /* TestTableViewCell.swift in Sources */,
 				EB63152A1BEEB9AA009683FE /* CIOnewView.swift in Sources */,
 				EB0656521BEE505B00CF8376 /* CIOButton.swift in Sources */,
 				EB6315281BEEB6CB009683FE /* testButt.swift in Sources */,
 				EB06564E1BEE3B4900CF8376 /* CIOHomeViewController.swift in Sources */,
+				EB03E57F1C15096C009A55F1 /* CheckedOutListViewController.swift in Sources */,
 				EB6B3FBD1C0E7BE200A6B469 /* CheckedView.swift in Sources */,
 				EB0656501BEE3BF200CF8376 /* CIOHomeView.swift in Sources */,
 			);
@@ -317,10 +325,10 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		EB06561F1BEE37F300CF8376 /* Main.storyboard */ = {
+		EB6B3FBE1C0FDBBB00A6B469 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				EB0656201BEE37F300CF8376 /* Base */,
+				EB6B3FBF1C0FDBBB00A6B469 /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
