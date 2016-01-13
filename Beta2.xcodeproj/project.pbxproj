@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		EB03E57D1C150669009A55F1 /* TestTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */; };
 		EB03E57F1C15096C009A55F1 /* CheckedOutListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */; };
+		EB03E5C01C25A7F4009A55F1 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB03E5BF1C25A7F4009A55F1 /* FBSDKCoreKit.framework */; };
+		EB03E5C21C25FE72009A55F1 /* FBloginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB03E5C11C25FE72009A55F1 /* FBloginViewController.swift */; };
+		EB03E5C51C387750009A55F1 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB03E5C41C387750009A55F1 /* FBSDKLoginKit.framework */; };
+		EB03E5C71C387758009A55F1 /* Bolts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB03E5C61C387758009A55F1 /* Bolts.framework */; };
 		EB06561C1BEE37F300CF8376 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06561B1BEE37F300CF8376 /* AppDelegate.swift */; };
 		EB0656231BEE37F300CF8376 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB0656221BEE37F300CF8376 /* Assets.xcassets */; };
 		EB0656311BEE37F300CF8376 /* Beta2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB0656301BEE37F300CF8376 /* Beta2Tests.swift */; };
@@ -44,6 +48,11 @@
 /* Begin PBXFileReference section */
 		EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestTableViewCell.swift; sourceTree = "<group>"; };
 		EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckedOutListViewController.swift; sourceTree = "<group>"; };
+		EB03E5BF1C25A7F4009A55F1 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKCoreKit.framework; path = ../../FacebookSDK/FBSDKCoreKit.framework; sourceTree = "<group>"; };
+		EB03E5C11C25FE72009A55F1 /* FBloginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FBloginViewController.swift; sourceTree = "<group>"; };
+		EB03E5C31C3864FF009A55F1 /* Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
+		EB03E5C41C387750009A55F1 /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKLoginKit.framework; path = ../../FacebookSDK/FBSDKLoginKit.framework; sourceTree = "<group>"; };
+		EB03E5C61C387758009A55F1 /* Bolts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Bolts.framework; path = ../../FacebookSDK/Bolts.framework; sourceTree = "<group>"; };
 		EB0656181BEE37F300CF8376 /* Beta2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Beta2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB06561B1BEE37F300CF8376 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EB0656221BEE37F300CF8376 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -70,6 +79,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB03E5C71C387758009A55F1 /* Bolts.framework in Frameworks */,
+				EB03E5C51C387750009A55F1 /* FBSDKLoginKit.framework in Frameworks */,
+				EB03E5C01C25A7F4009A55F1 /* FBSDKCoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,9 +102,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		EB03E5BA1C25A76E009A55F1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				EB03E5C61C387758009A55F1 /* Bolts.framework */,
+				EB03E5C41C387750009A55F1 /* FBSDKLoginKit.framework */,
+				EB03E5BF1C25A7F4009A55F1 /* FBSDKCoreKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		EB06560F1BEE37F300CF8376 = {
 			isa = PBXGroup;
 			children = (
+				EB03E5BA1C25A76E009A55F1 /* Frameworks */,
 				EB06561A1BEE37F300CF8376 /* Beta2 */,
 				EB06562F1BEE37F300CF8376 /* Beta2Tests */,
 				EB06563A1BEE37F300CF8376 /* Beta2UITests */,
@@ -117,7 +140,9 @@
 				EB63152B1BF961D7009683FE /* CheckInViewController.swift */,
 				EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */,
 				EB06561B1BEE37F300CF8376 /* AppDelegate.swift */,
+				EB03E5C31C3864FF009A55F1 /* Bridging-Header.h */,
 				EB6B3FBE1C0FDBBB00A6B469 /* Main.storyboard */,
+				EB03E5C11C25FE72009A55F1 /* FBloginViewController.swift */,
 				EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */,
 				EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */,
 				EB63152D1BF96241009683FE /* CheckInView.swift */,
@@ -288,6 +313,7 @@
 				EB06564E1BEE3B4900CF8376 /* CIOHomeViewController.swift in Sources */,
 				EB03E57F1C15096C009A55F1 /* CheckedOutListViewController.swift in Sources */,
 				EB6B3FBD1C0E7BE200A6B469 /* CheckedView.swift in Sources */,
+				EB03E5C21C25FE72009A55F1 /* FBloginViewController.swift in Sources */,
 				EB0656501BEE3BF200CF8376 /* CIOHomeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -425,6 +451,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = /Users/jasonjohnston/Documents/FacebookSDK;
 				INFOPLIST_FILE = Beta2/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.anuJ.Beta2;
@@ -439,6 +466,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = /Users/jasonjohnston/Documents/FacebookSDK;
 				INFOPLIST_FILE = Beta2/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.anuJ.Beta2;
@@ -478,6 +506,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.anuJ.Beta2UITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Beta2/Bridging-Header.h";
 				TEST_TARGET_NAME = Beta2;
 				USES_XCTRUNNER = YES;
 			};
@@ -490,6 +519,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.anuJ.Beta2UITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Beta2/Bridging-Header.h";
 				TEST_TARGET_NAME = Beta2;
 				USES_XCTRUNNER = YES;
 			};
