@@ -7,10 +7,29 @@
 //
 
 import UIKit
+import FBSDKCoreKit
+import FBSDKLoginKit
 
-class CIOHomeViewController: UIViewController {
+class CIOHomeViewController: UIViewController   {
 
 
+    override func viewDidLoad()
+    {
+        super.viewDidLoad()
+        //check for an existing token at load.
+        if (FBSDKAccessToken.currentAccessToken() == nil)
+        {
+            performSegueWithIdentifier("LoginScreen", sender: nil)
+        }
+    }
+    
+    
+    @IBAction func LogoutButton(sender: UIButton) {
+        //code to force logout
+        let loginManager = FBSDKLoginManager()
+        loginManager.logOut()
+        performSegueWithIdentifier("LoginScreen", sender: nil)
+    }
   /*  @IBAction func InHomeButton(sender: UIButton) {
         print("Home: \(sender)")
     }*/

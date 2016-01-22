@@ -12,7 +12,8 @@ import FBSDKLoginKit
 
 class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
 
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
         //check for an existing token at load.
         if (FBSDKAccessToken.currentAccessToken() == nil)
@@ -25,35 +26,61 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
             loginView.readPermissions = ["public_profile", "email", "user_friends"]
             loginView.delegate = self
         }
+        //If token exist, user had already logged in, seque to CIO Home
         else
         {
             print("Logged in..")
             print( FBSDKAccessToken.currentAccessToken().tokenString!)
+            let request = FBSDKGraphRequest(graphPath:"/me/friends", parameters: nil) //["fields" : "email" : "name"]);
+        
+            request.startWithCompletionHandler
+            {
+                (connection : FBSDKGraphRequestConnection!, result : AnyObject!, error : NSError!) -> Void in
+                if error == nil
+                {
+                    //print friend boken
+                    let resultdict = result as! NSDictionary
+                    let data : NSArray = resultdict.objectForKey("data") as! NSArray
+                    print("data \(data)")
+                    for i in 0..<data.count
+                    {
+                        let valueDict : NSDictionary = data[i] as! NSDictionary
+                        let id = valueDict.objectForKey("id") as! String
+                        print("the id value is \(id)")
+                        let fbFriendName = valueDict.objectForKey("name") as! String
+                        print ("name \(fbFriendName)")
+                    }
+                }
+                else
+                {
+                    print("Error Getting Friends \(error)");
+                }
+            }
+            /*code to force logout
+            let loginManager = FBSDKLoginManager()
+            loginManager.logOut()*/
             performSegueWithIdentifier("goHome", sender: nil)
-            //let loginManager = FBSDKLoginManager()
-            //loginManager.logOut()
+            
         }
-        /*
-        var loginButton = FBSDKLoginButton()
-        loginButton.readPermissions = ["public_profile", "email", "user_friends"]
-        loginButton.center = self.view.center
-        loginButton.delegate = self
-        self.view.addSubview(loginButton)*/
+
     }
     
     // Facebook Delegate Methods
-    //fun used to know if the user did login correctly and if they did you can grab their information.
-    func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
+    //func used to know if the user did login correctly and if they did you can grab their information.
+    func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!)
+    {
         print("User Logged In")
         
         if ((error) != nil)
         {
             // Process error
         }
-        else if result.isCancelled {
-            // Handle cancellations
+        else if result.isCancelled
+        {
+            print("User canceled login, this needs to be handled")
         }
-        else {
+        else
+        {
             // If you ask for multiple permissions at once, you
             // should check if specific permissions missing
             if result.grantedPermissions.contains("email")
@@ -61,38 +88,19 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                 // Do work
             }
         }
-        performSegueWithIdentifier("goHome", sender: nil)
-        
-    }
-    
-    func loginButtonDidLogOut(loginButton: FBSDKLoginButton!) {
-        print("User Logged Out")
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
-    /* MARK: - Facebook Login
-    
-    func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!)
-    {
-        if error == nil
-        {
-            print("Login complete.")
-            self.performSegueWithIdentifier("showNew", sender: self)
-        }
-        else
-        {
-            print(error.localizedDescription)
-        }
+        performSegueWithIdentifier("profileSteps", sender: nil)
         
     }
     
     func loginButtonDidLogOut(loginButton: FBSDKLoginButton!)
     {
-        print("User logged out...")
-    }*/
+        print("User Logged Out")
+    }
 
+    override func didReceiveMemoryWarning()
+    {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+    
 }
