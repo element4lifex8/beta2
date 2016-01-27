@@ -8,11 +8,12 @@
 
 import UIKit
 
+
 class ProfileStepsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        addLabelBorders()
         // Do any additional setup after loading the view.
     }
 
@@ -20,11 +21,19 @@ class ProfileStepsViewController: UIViewController {
     {
         performSegueWithIdentifier("skipProfileSetup", sender: nil)
     }
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
+
     
+    @IBOutlet weak var step1Label: UILabel!
+    @IBOutlet weak var skipLabel: UIButton!
+
+    func addLabelBorders()
+    {
+        step1Label.layer.borderWidth = 1
+        step1Label.layer.borderColor = UIColor.blackColor().CGColor
+        //skipLabel.layer.masksToBounds = true
+        skipLabel.layer.cornerRadius = 8
+        skipLabel.layer.borderWidth = 1
+    }
 
     /*
     // MARK: - Navigation
