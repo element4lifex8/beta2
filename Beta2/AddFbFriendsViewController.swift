@@ -43,6 +43,25 @@ class AddFbFriendsViewController: UIViewController {
 
                     self.friendImage.image = UIImage(data: imgdata!)
                     
+                    /*udemy example not showing image when using same url var
+                let imgdata = NSURLSession.sharedSession().dataTaskWithURL(url!)
+                {
+                //urldata contains the data that comes back when the urldata is loaded
+                (urldata, response, error) -> Void in
+                if error != nil
+                {
+                print (error)
+                }
+                else
+                {
+                if let fbImage = UIImage(data: urldata!)
+                {
+                self.friendImage.image = fbImage
+                }
+                }
+                self.friendImage.contentMode = .ScaleAspectFill
+                }*/
+
                 }
                 else
                 {
@@ -51,7 +70,7 @@ class AddFbFriendsViewController: UIViewController {
         }
         //only print 5 of the non-authorized friends to not overrun the buffer
         let unAuthrequest = FBSDKGraphRequest(graphPath:"/me/taggable_friends?limit=5", parameters: nil) //["fields" : "email" : "name"]);
-        
+
         unAuthrequest.startWithCompletionHandler
             {
                 (connection : FBSDKGraphRequestConnection!, result : AnyObject!, error : NSError!) -> Void in

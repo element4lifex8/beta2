@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Firebase
 
 class CheckInView: UIView {
 
@@ -28,8 +29,11 @@ class CheckInView: UIView {
     
     @IBAction func SaveRestField(sender: UIButton) {
         let restNameText = CheckInRestField.text!
-        restNameHistory += [restNameText]
-        print ("Rest name \(restNameText)")
+        if(!restNameText.isEmpty)
+        {
+            restNameHistory += [restNameText]
+            print ("Rest name \(restNameText)")
+        }
         
     }
 

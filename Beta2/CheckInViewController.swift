@@ -13,7 +13,6 @@ class CheckInViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("good")
         // Do any additional setup after loading the view.
     }
 
