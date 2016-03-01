@@ -9,9 +9,24 @@
 import UIKit
 import FBSDKCoreKit
 import FBSDKLoginKit
+import Firebase
 
 class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
-
+    
+    let currUserDefaultKey = "FBloginVC.currUser"
+    private let sharedFbUser = NSUserDefaults.standardUserDefaults()
+    
+    var currUser: NSString {
+        get
+        {
+            return (sharedFbUser.objectForKey(currUserDefaultKey) as? NSString)!
+        }
+        set
+        {
+            sharedFbUser.setObject(newValue, forKey: currUserDefaultKey)
+        }
+    }
+    
     override func viewDidLoad()
     {
         super.viewDidLoad()
@@ -29,8 +44,8 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
         //If token exist, user had already logged in, seque to CIO Home
         else
         {
-            print("Logged in..")
-            print( FBSDKAccessToken.currentAccessToken().tokenString!)
+            print("Token existed when it shouldn't have..")
+            /*print( FBSDKAccessToken.currentAccessToken().tokenString!)
             let request = FBSDKGraphRequest(graphPath:"/me/friends", parameters: nil) //["fields" : "email" : "name"]);
         
             request.startWithCompletionHandler
@@ -59,7 +74,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
             /*code to force logout
             let loginManager = FBSDKLoginManager()
             loginManager.logOut()*/
-            performSegueWithIdentifier("goHome", sender: nil)
+            performSegueWithIdentifier("goHome", sender: nil)*/
             
         }
 
@@ -69,11 +84,10 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
     //func used to know if the user did login correctly and if they did you can grab their information.
     func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!)
     {
-        print("User Logged In")
         
         if ((error) != nil)
         {
-            // Process error
+            print("Error occured during FB login: \(error)")
         }
         else if result.isCancelled
         {
@@ -81,6 +95,34 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
         }
         else
         {
+            let ref = Firebase(url: "https://check-inout.firebaseio.com")
+            let usersRef = ref.childByAppendingPath("users")
+            //use current access token from loggedd in user to pass to firebase's login auth func
+            let accessToken = FBSDKAccessToken.currentAccessToken().tokenString
+            ref.authWithOAuthProvider("facebook", token: accessToken, withCompletionBlock: { error, authData in
+                if error != nil
+                {
+                    print("Login failed \(error)")
+                }
+                else
+                {
+                    self.currUser = (authData.providerData["id"] as? NSString)!
+                    print("Logged in  \(self.currUser)")
+                    let newUser = ["displayName1": (authData.providerData["displayName"] as? NSString)!,
+                        "email": (authData.providerData["email"] as? NSString)!]
+                     /*TO update one field only:
+                    let emailPath = "\(self.currUser)/email"
+                    let email = (authData.providerData["email"] as? NSString)!
+                    usersRef.updateChildValues([emailPath:email])*/
+                // Create a child path with a key set to the uid underneath the "users" node
+                // This creates a URL path like the following:
+                //  - https://<YOUR-FIREBASE-APP>.firebaseio.com/users/<uid>
+                ref.childByAppendingPath("users").childByAppendingPath(self.currUser as String).setValue(newUser)
+                }
+            })
+        
+
+
             // If you ask for multiple permissions at once, you
             // should check if specific permissions missing
             if result.grantedPermissions.contains("email")
@@ -89,6 +131,32 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
             }
         }
         performSegueWithIdentifier("profileSteps", sender: nil)
+        
+        /*let request = FBSDKGraphRequest(graphPath:"/me/friends", parameters: nil) //["fields" : "email" : "name"]);
+        
+        request.startWithCompletionHandler
+            {
+                (connection : FBSDKGraphRequestConnection!, result : AnyObject!, error : NSError!) -> Void in
+                if error == nil
+                {
+                    //print friend boken
+                    let resultdict = result as! NSDictionary
+                    let data : NSArray = resultdict.objectForKey("data") as! NSArray
+                    print("data \(data)")
+                    for i in 0..<data.count
+                    {
+                        let valueDict : NSDictionary = data[i] as! NSDictionary
+                        let id = valueDict.objectForKey("id") as! String
+                        print("the id value is \(id)")
+                        let fbFriendName = valueDict.objectForKey("name") as! String
+                        print ("name \(fbFriendName)")
+                    }
+                }
+                else
+                {
+                    print("Error Getting Friends \(error)");
+                }
+        }*/
         
     }
     

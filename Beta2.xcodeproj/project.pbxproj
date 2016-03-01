@@ -27,6 +27,7 @@
 		EB1959CA1C62C585001E0F62 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C91C62C585001E0F62 /* Security.framework */; };
 		EB1959CC1C62C58D001E0F62 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */; };
 		EB1959D11C62C646001E0F62 /* Firebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959D01C62C646001E0F62 /* Firebase.framework */; };
+		EB49A2E51C78ED45006F16AB /* checkList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB49A2E41C78ED45006F16AB /* checkList.swift */; };
 		EB63152A1BEEB9AA009683FE /* CIOnewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB6315291BEEB9AA009683FE /* CIOnewView.swift */; };
 		EB63152C1BF961D7009683FE /* CheckInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB63152B1BF961D7009683FE /* CheckInViewController.swift */; };
 		EB63152E1BF96241009683FE /* CheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB63152D1BF96241009683FE /* CheckInView.swift */; };
@@ -89,6 +90,7 @@
 		EB1959C91C62C585001E0F62 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		EB1959D01C62C646001E0F62 /* Firebase.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Firebase.framework; path = ../../Firebase/Firebase.framework; sourceTree = "<group>"; };
+		EB49A2E41C78ED45006F16AB /* checkList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = checkList.swift; sourceTree = "<group>"; };
 		EB6315291BEEB9AA009683FE /* CIOnewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIOnewView.swift; sourceTree = "<group>"; };
 		EB63152B1BF961D7009683FE /* CheckInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CheckInViewController.swift; path = Beta2/CheckInViewController.swift; sourceTree = SOURCE_ROOT; };
 		EB63152D1BF96241009683FE /* CheckInView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckInView.swift; sourceTree = "<group>"; };
@@ -196,17 +198,16 @@
 		EB06561A1BEE37F300CF8376 /* Beta2 */ = {
 			isa = PBXGroup;
 			children = (
+				EB49A2E61C7BE649006F16AB /* Facebook */,
 				EB6B3FBC1C0E7BE200A6B469 /* CheckedView.swift */,
 				EB63152B1BF961D7009683FE /* CheckInViewController.swift */,
 				EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */,
 				EB06561B1BEE37F300CF8376 /* AppDelegate.swift */,
 				EB03E5C31C3864FF009A55F1 /* Bridging-Header.h */,
 				EB6B3FBE1C0FDBBB00A6B469 /* Main.storyboard */,
-				EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */,
-				EB03E5C11C25FE72009A55F1 /* FBloginViewController.swift */,
-				EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */,
 				EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */,
 				EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */,
+				EB49A2E41C78ED45006F16AB /* checkList.swift */,
 				EB63152D1BF96241009683FE /* CheckInView.swift */,
 				EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */,
 				EB6315291BEEB9AA009683FE /* CIOnewView.swift */,
@@ -233,6 +234,16 @@
 				EB06563D1BEE37F300CF8376 /* Info.plist */,
 			);
 			path = Beta2UITests;
+			sourceTree = "<group>";
+		};
+		EB49A2E61C7BE649006F16AB /* Facebook */ = {
+			isa = PBXGroup;
+			children = (
+				EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */,
+				EB03E5C11C25FE72009A55F1 /* FBloginViewController.swift */,
+				EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */,
+			);
+			name = Facebook;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -418,6 +429,7 @@
 			files = (
 				EB06561C1BEE37F300CF8376 /* AppDelegate.swift in Sources */,
 				EB85D5551C51B5B200F2E29F /* ProfileStepsViewController.swift in Sources */,
+				EB49A2E51C78ED45006F16AB /* checkList.swift in Sources */,
 				EB63152E1BF96241009683FE /* CheckInView.swift in Sources */,
 				EB03E57D1C150669009A55F1 /* TestTableViewCell.swift in Sources */,
 				EB63152A1BEEB9AA009683FE /* CIOnewView.swift in Sources */,
