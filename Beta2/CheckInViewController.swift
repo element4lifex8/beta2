@@ -11,12 +11,20 @@ import Firebase
 
 class CheckInViewController: UIViewController {
 
-    
+  
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
     }
 
+    func notifyUser()
+    {
+        let alertController = UIAlertController(title: "Check In Out", message:
+            "Saved!", preferredStyle: UIAlertControllerStyle.Alert)
+        alertController.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.Default,handler: nil))
+        
+        self.presentViewController(alertController, animated: true, completion: nil)
+    }
     /*
     // MARK: - Navigation
 

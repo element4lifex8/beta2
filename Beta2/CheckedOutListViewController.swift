@@ -13,6 +13,7 @@ class CheckedOutListViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         var ref = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
         // Retrieve new posts as they are added to your database
         ref.observeEventType(.ChildAdded, withBlock: { snapshot in
@@ -20,6 +21,16 @@ class CheckedOutListViewController: UITableViewController {
             print(snapshot.value.objectForKey("category")!)
             print(snapshot.childrenCount)
         })
+/*
+        // Get a reference to our posts
+       var ref = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
+        
+        // Attach a closure to read the data at our posts reference
+        ref.observeEventType(.Value, withBlock: { snapshot in
+            print(snapshot.value)
+            }, withCancelBlock: { error in
+                print(error.description)
+        })*/
 
         // Do any additional setup after loading the view.
     }

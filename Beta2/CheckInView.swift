@@ -37,21 +37,66 @@ class CheckInView: UIView {
         }
     }
     
+    var dictArr = [[String:String]]()
+    var categoryDict = ["category" : "true"]
+      @IBAction func categorySelect(sender: UIButton) {
+        categoryDict = ["category" : sender.currentTitle!]
+        dictArr.append(categoryDict)
+    }
+    
+    //var cityDict = ["city" : "true"]
+    var cityDict = [String: String]()
+    @IBAction func citySelect(sender: UIButton) {
+        cityDict = ["city" : sender.currentTitle!]
+        dictArr.append(cityDict)
+    }
+    
     @IBAction func SaveRestField(sender: UIButton) {
         let restNameText = CheckInRestField.text!
-        if(!restNameText.isEmpty)
+        let dictArrLength = dictArr.count
+        print("dict arr \(dictArrLength)")
+        if(!restNameText.isEmpty && restNameText != "Check in Here")
         {
             print("saving to firebase")
-            let userCheckedPath = "checked/\(self.currUser)"
-            // Create a reference to a Firebase location
+                // Create a reference to a Firebase location
             let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
-            var enteredArr = restNameText.componentsSeparatedByString(",")
+            
             // Write data to Firebase
-            refChecked.updateChildValues([enteredArr[0]:true])
-            refChecked.childByAppendingPath(enteredArr[0]).updateChildValues(["city":enteredArr[1],"category":enteredArr[2]])
+            refChecked.updateChildValues([restNameText:true])
+            //let userRef = refChecked.childByAppendingPath(restNameText)
+            var keys = [String]()
+            print ("\(dictArr)")
+            for i in 0 ..< dictArr.count
+            {
+                for (key,value) in dictArr[i]
+                {
+                    if keys.contains(key)  //Store children of existing entry
+                    {
+                        refChecked.childByAppendingPath(restNameText).childByAppendingPath(key).updateChildValues([value:"true"])
+                    }
+                    else    //Create new child under the establishment's name
+                    {
+                        keys.append(key)
+                        refChecked.childByAppendingPath(restNameText).updateChildValues([key:value])
+                    }
+                }
+            }
+            //Save to NSUser defaults
             restNameHistory += [restNameText]
+            dictArr.removeAll()     //Remove elements so the following check in doesn't overwrite the previous
+            CheckInRestField.text = "Check in Here"
+            //notifyUser()
         }
         
+    }
+    
+    func notifyUser()
+    {
+        let alertController = UIAlertController(title: "Check In Out", message:
+            "Saved!", preferredStyle: UIAlertControllerStyle.Alert)
+        alertController.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.Default,handler: nil))
+        
+        //self.presentViewController(alertController, animated: true, completion: nil)
     }
 
     func createPlaceDict(entered : String) -> Dictionary<String,String>
