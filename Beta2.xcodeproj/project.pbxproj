@@ -41,6 +41,9 @@
 		EBA4D0FF1C6423E800BB459F /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C71C62C57E001E0F62 /* CFNetwork.framework */; };
 		EBA4D1001C6423F100BB459F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C91C62C585001E0F62 /* Security.framework */; };
 		EBA4D1011C6423FC00BB459F /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */; };
+		EBAC6D061CC855C20060BC73 /* OutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBAC6D051CC855C20060BC73 /* OutViewController.swift */; };
+		EBE70DF01CC58EBA00F6DCE3 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE70DEE1CC58EBA00F6DCE3 /* FBSDKCoreKit.framework */; };
+		EBE70DF11CC58EBA00F6DCE3 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE70DEF1CC58EBA00F6DCE3 /* FBSDKLoginKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -101,6 +104,9 @@
 		EB85D5641C5982F000F2E29F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		EBA4D0FB1C6423DB00BB459F /* libc++.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.1.dylib"; path = "../../../../../usr/lib/libc++.1.dylib"; sourceTree = "<group>"; };
 		EBA4D0FC1C6423DB00BB459F /* libicucore.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.A.dylib; path = ../../../../../usr/lib/libicucore.A.dylib; sourceTree = "<group>"; };
+		EBAC6D051CC855C20060BC73 /* OutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutViewController.swift; sourceTree = "<group>"; };
+		EBE70DEE1CC58EBA00F6DCE3 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKCoreKit.framework; path = ../../FacebookSDK/FBSDKCoreKit.framework; sourceTree = "<group>"; };
+		EBE70DEF1CC58EBA00F6DCE3 /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKLoginKit.framework; path = ../../FacebookSDK/FBSDKLoginKit.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,7 +116,9 @@
 			files = (
 				EB1959CC1C62C58D001E0F62 /* SystemConfiguration.framework in Frameworks */,
 				EB1959CA1C62C585001E0F62 /* Security.framework in Frameworks */,
+				EBE70DF11CC58EBA00F6DCE3 /* FBSDKLoginKit.framework in Frameworks */,
 				EB1959C81C62C57E001E0F62 /* CFNetwork.framework in Frameworks */,
+				EBE70DF01CC58EBA00F6DCE3 /* FBSDKCoreKit.framework in Frameworks */,
 				EB1959C61C62C575001E0F62 /* libc++.tbd in Frameworks */,
 				EB1959C41C62C56B001E0F62 /* libicucore.tbd in Frameworks */,
 				EB1959D11C62C646001E0F62 /* Firebase.framework in Frameworks */,
@@ -156,6 +164,8 @@
 		EB03E5BA1C25A76E009A55F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				EBE70DEE1CC58EBA00F6DCE3 /* FBSDKCoreKit.framework */,
+				EBE70DEF1CC58EBA00F6DCE3 /* FBSDKLoginKit.framework */,
 				EBA4D0FB1C6423DB00BB459F /* libc++.1.dylib */,
 				EBA4D0FC1C6423DB00BB459F /* libicucore.A.dylib */,
 				EB1959D01C62C646001E0F62 /* Firebase.framework */,
@@ -205,6 +215,7 @@
 				EB06561B1BEE37F300CF8376 /* AppDelegate.swift */,
 				EB03E5C31C3864FF009A55F1 /* Bridging-Header.h */,
 				EB6B3FBE1C0FDBBB00A6B469 /* Main.storyboard */,
+				EBAC6D051CC855C20060BC73 /* OutViewController.swift */,
 				EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */,
 				EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */,
 				EB49A2E41C78ED45006F16AB /* checkList.swift */,
@@ -436,6 +447,7 @@
 				EB85D5571C540E6800F2E29F /* AddFbFriendsViewController.swift in Sources */,
 				EB0656521BEE505B00CF8376 /* CIOButton.swift in Sources */,
 				EB06564E1BEE3B4900CF8376 /* CIOHomeViewController.swift in Sources */,
+				EBAC6D061CC855C20060BC73 /* OutViewController.swift in Sources */,
 				EB03E57F1C15096C009A55F1 /* CheckedOutListViewController.swift in Sources */,
 				EB6B3FBD1C0E7BE200A6B469 /* CheckedView.swift in Sources */,
 				EB03E5C21C25FE72009A55F1 /* FBloginViewController.swift in Sources */,

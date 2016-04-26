@@ -41,7 +41,7 @@ class AddFbFriendsViewController: UIViewController {
                     let imgdata = NSData(contentsOfURL: url!) //make sure your image in this url does exist, otherwise unwrap in a if let check
                     self.friendImage.contentMode = .ScaleAspectFill
 
-                    self.friendImage.image = UIImage(data: imgdata!)
+                    //self.friendImage.image = UIImage(data: imgdata!)
                     
                     /*udemy example not showing image when using same url var
                 let imgdata = NSURLSession.sharedSession().dataTaskWithURL(url!)

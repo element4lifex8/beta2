@@ -13,6 +13,14 @@ class CheckInView: UIView {
 
     @IBOutlet weak var CheckInRestField: UITextField!
     
+
+    
+    
+    var placesArr = [String]()
+    var arrSize = Int()
+    var ref: Firebase!
+    var userRef: Firebase!
+    
     let restNameDefaultKey = "CheckInView.restName"
     private let sharedRestName = NSUserDefaults.standardUserDefaults()
     
@@ -40,15 +48,25 @@ class CheckInView: UIView {
     var dictArr = [[String:String]]()
     var categoryDict = ["category" : "true"]
       @IBAction func categorySelect(sender: UIButton) {
+        //check to make sure category has not alreaddy been selected
+        //if(dictArr.contains($0.values.contains(sender.currentTitle!)))
         categoryDict = ["category" : sender.currentTitle!]
-        dictArr.append(categoryDict)
-    }
+        //if dictArr does not contain the selected category already then add it to the dictArr
+        //uses closure for contains func as described here: http://stackoverflow.com/questions/34081580/array-of-any-and-contains
+        if(!dictArr.contains({element in return (element == categoryDict)}))
+        {
+            dictArr.append(categoryDict)}
+        }
     
     //var cityDict = ["city" : "true"]
     var cityDict = [String: String]()
     @IBAction func citySelect(sender: UIButton) {
         cityDict = ["city" : sender.currentTitle!]
-        dictArr.append(cityDict)
+        //Prevent from being able to add the same city twice to the dictArr
+        if(!dictArr.contains({element in return (element == cityDict)}))
+        {
+            dictArr.append(cityDict)
+        }
     }
     
     @IBAction func SaveRestField(sender: UIButton) {
@@ -60,24 +78,27 @@ class CheckInView: UIView {
             print("saving to firebase")
                 // Create a reference to a Firebase location
             let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
-            
-            // Write data to Firebase
+            let refCheckedPlaces = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
+            // Write establishment name to user's collection
             refChecked.updateChildValues([restNameText:true])
+            // Write establishment name to places collection
+            refCheckedPlaces.updateChildValues([restNameText:true])
             //let userRef = refChecked.childByAppendingPath(restNameText)
             var keys = [String]()
-            print ("\(dictArr)")
+            
+            //update "user places" to contain the establishment and its categories
             for i in 0 ..< dictArr.count
             {
                 for (key,value) in dictArr[i]
                 {
                     if keys.contains(key)  //Store children of existing entry
                     {
-                        refChecked.childByAppendingPath(restNameText).childByAppendingPath(key).updateChildValues([value:"true"])
+                        refCheckedPlaces.childByAppendingPath(restNameText).childByAppendingPath(key).updateChildValues([value:"true"])
                     }
                     else    //Create new child under the establishment's name
                     {
                         keys.append(key)
-                        refChecked.childByAppendingPath(restNameText).updateChildValues([key:value])
+                        refCheckedPlaces.childByAppendingPath(restNameText).updateChildValues([key:value])
                     }
                 }
             }
