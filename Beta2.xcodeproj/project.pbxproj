@@ -32,7 +32,6 @@
 		EB63152C1BF961D7009683FE /* CheckInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB63152B1BF961D7009683FE /* CheckInViewController.swift */; };
 		EB63152E1BF96241009683FE /* CheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB63152D1BF96241009683FE /* CheckInView.swift */; };
 		EB6B3FBD1C0E7BE200A6B469 /* CheckedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB6B3FBC1C0E7BE200A6B469 /* CheckedView.swift */; };
-		EB6B3FC01C0FDBBB00A6B469 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB6B3FBE1C0FDBBB00A6B469 /* Main.storyboard */; };
 		EB85D5551C51B5B200F2E29F /* ProfileStepsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */; };
 		EB85D5571C540E6800F2E29F /* AddFbFriendsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */; };
 		EB85D5701C5982F000F2E29F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB85D5641C5982F000F2E29F /* CoreData.framework */; };
@@ -42,6 +41,7 @@
 		EBA4D1001C6423F100BB459F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C91C62C585001E0F62 /* Security.framework */; };
 		EBA4D1011C6423FC00BB459F /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */; };
 		EBAC6D061CC855C20060BC73 /* OutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBAC6D051CC855C20060BC73 /* OutViewController.swift */; };
+		EBAC6D2E1CD02D430060BC73 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EBAC6D2C1CD02D430060BC73 /* Main.storyboard */; };
 		EBE70DF01CC58EBA00F6DCE3 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE70DEE1CC58EBA00F6DCE3 /* FBSDKCoreKit.framework */; };
 		EBE70DF11CC58EBA00F6DCE3 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE70DEF1CC58EBA00F6DCE3 /* FBSDKLoginKit.framework */; };
 /* End PBXBuildFile section */
@@ -98,13 +98,13 @@
 		EB63152B1BF961D7009683FE /* CheckInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CheckInViewController.swift; path = Beta2/CheckInViewController.swift; sourceTree = SOURCE_ROOT; };
 		EB63152D1BF96241009683FE /* CheckInView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckInView.swift; sourceTree = "<group>"; };
 		EB6B3FBC1C0E7BE200A6B469 /* CheckedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CheckedView.swift; path = ../CheckedView.swift; sourceTree = "<group>"; };
-		EB6B3FBF1C0FDBBB00A6B469 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileStepsViewController.swift; sourceTree = "<group>"; };
 		EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFbFriendsViewController.swift; sourceTree = "<group>"; };
 		EB85D5641C5982F000F2E29F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		EBA4D0FB1C6423DB00BB459F /* libc++.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.1.dylib"; path = "../../../../../usr/lib/libc++.1.dylib"; sourceTree = "<group>"; };
 		EBA4D0FC1C6423DB00BB459F /* libicucore.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.A.dylib; path = ../../../../../usr/lib/libicucore.A.dylib; sourceTree = "<group>"; };
 		EBAC6D051CC855C20060BC73 /* OutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutViewController.swift; sourceTree = "<group>"; };
+		EBAC6D2D1CD02D430060BC73 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		EBE70DEE1CC58EBA00F6DCE3 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKCoreKit.framework; path = ../../FacebookSDK/FBSDKCoreKit.framework; sourceTree = "<group>"; };
 		EBE70DEF1CC58EBA00F6DCE3 /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKLoginKit.framework; path = ../../FacebookSDK/FBSDKLoginKit.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -214,9 +214,9 @@
 				EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */,
 				EB06561B1BEE37F300CF8376 /* AppDelegate.swift */,
 				EB03E5C31C3864FF009A55F1 /* Bridging-Header.h */,
-				EB6B3FBE1C0FDBBB00A6B469 /* Main.storyboard */,
 				EBAC6D051CC855C20060BC73 /* OutViewController.swift */,
 				EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */,
+				EBAC6D2C1CD02D430060BC73 /* Main.storyboard */,
 				EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */,
 				EB49A2E41C78ED45006F16AB /* checkList.swift */,
 				EB63152D1BF96241009683FE /* CheckInView.swift */,
@@ -365,7 +365,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EB0656231BEE37F300CF8376 /* Assets.xcassets in Resources */,
-				EB6B3FC01C0FDBBB00A6B469 /* Main.storyboard in Resources */,
+				EBAC6D2E1CD02D430060BC73 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -488,10 +488,10 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		EB6B3FBE1C0FDBBB00A6B469 /* Main.storyboard */ = {
+		EBAC6D2C1CD02D430060BC73 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				EB6B3FBF1C0FDBBB00A6B469 /* Base */,
+				EBAC6D2D1CD02D430060BC73 /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
