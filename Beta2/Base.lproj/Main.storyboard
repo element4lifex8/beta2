@@ -259,6 +259,9 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="Home Page Background" translatesAutoresizingMaskIntoConstraints="NO" id="pyk-A7-S6f">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                            </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Check" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="36" translatesAutoresizingMaskIntoConstraints="NO" id="KDl-aC-DLN">
                                 <rect key="frame" x="30" y="74" width="560" height="165"/>
                                 <fontDescription key="fontDescription" name="TimesNewRomanPS-BoldMT" family="Times New Roman" pointSize="48"/>
@@ -568,6 +571,9 @@
             <point key="canvasLocation" x="2619" y="-1390"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="Home Page Background" width="375" height="667"/>
+    </resources>
     <inferredMetricsTieBreakers>
         <segue reference="Geq-cn-6Bs"/>
     </inferredMetricsTieBreakers>

@@ -16,8 +16,6 @@
 		EB03E5C71C387758009A55F1 /* Bolts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB03E5C61C387758009A55F1 /* Bolts.framework */; };
 		EB06561C1BEE37F300CF8376 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06561B1BEE37F300CF8376 /* AppDelegate.swift */; };
 		EB0656231BEE37F300CF8376 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB0656221BEE37F300CF8376 /* Assets.xcassets */; };
-		EB0656311BEE37F300CF8376 /* Beta2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB0656301BEE37F300CF8376 /* Beta2Tests.swift */; };
-		EB06563C1BEE37F300CF8376 /* Beta2UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06563B1BEE37F300CF8376 /* Beta2UITests.swift */; };
 		EB06564E1BEE3B4900CF8376 /* CIOHomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */; };
 		EB0656501BEE3BF200CF8376 /* CIOHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */; };
 		EB0656521BEE505B00CF8376 /* CIOButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB0656511BEE505B00CF8376 /* CIOButton.swift */; };
@@ -79,11 +77,7 @@
 		EB0656221BEE37F300CF8376 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EB0656271BEE37F300CF8376 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EB06562C1BEE37F300CF8376 /* Beta2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Beta2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EB0656301BEE37F300CF8376 /* Beta2Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Beta2Tests.swift; sourceTree = "<group>"; };
-		EB0656321BEE37F300CF8376 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EB0656371BEE37F300CF8376 /* Beta2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Beta2UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EB06563B1BEE37F300CF8376 /* Beta2UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Beta2UITests.swift; sourceTree = "<group>"; };
-		EB06563D1BEE37F300CF8376 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CIOHomeViewController.swift; path = ../CIOHomeViewController.swift; sourceTree = "<group>"; };
 		EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIOHomeView.swift; sourceTree = "<group>"; };
 		EB0656511BEE505B00CF8376 /* CIOButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIOButton.swift; sourceTree = "<group>"; };
@@ -188,8 +182,6 @@
 			children = (
 				EB03E5BA1C25A76E009A55F1 /* Frameworks */,
 				EB06561A1BEE37F300CF8376 /* Beta2 */,
-				EB06562F1BEE37F300CF8376 /* Beta2Tests */,
-				EB06563A1BEE37F300CF8376 /* Beta2UITests */,
 				EB0656191BEE37F300CF8376 /* Products */,
 				96F790DFF3C7E0B823B5B01E /* Pods */,
 			);
@@ -227,24 +219,6 @@
 				EB0656271BEE37F300CF8376 /* Info.plist */,
 			);
 			path = Beta2;
-			sourceTree = "<group>";
-		};
-		EB06562F1BEE37F300CF8376 /* Beta2Tests */ = {
-			isa = PBXGroup;
-			children = (
-				EB0656301BEE37F300CF8376 /* Beta2Tests.swift */,
-				EB0656321BEE37F300CF8376 /* Info.plist */,
-			);
-			path = Beta2Tests;
-			sourceTree = "<group>";
-		};
-		EB06563A1BEE37F300CF8376 /* Beta2UITests */ = {
-			isa = PBXGroup;
-			children = (
-				EB06563B1BEE37F300CF8376 /* Beta2UITests.swift */,
-				EB06563D1BEE37F300CF8376 /* Info.plist */,
-			);
-			path = Beta2UITests;
 			sourceTree = "<group>";
 		};
 		EB49A2E61C7BE649006F16AB /* Facebook */ = {
@@ -460,7 +434,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				EB63152C1BF961D7009683FE /* CheckInViewController.swift in Sources */,
-				EB0656311BEE37F300CF8376 /* Beta2Tests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -468,7 +441,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EB06563C1BEE37F300CF8376 /* Beta2UITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
