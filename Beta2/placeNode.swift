@@ -31,6 +31,26 @@ struct placeNode {
         self.ref = nil
     }
     
+    mutating func addCity(cityName: String)
+    {
+        if self.city == nil{
+            self.city = [cityName]
+        }
+        else{
+            self.city?.append(cityName)
+        }
+    }
+    
+    mutating func addCategory(catName: String)
+    {
+        if self.category == nil{
+            self.category = [catName]
+        }
+        else{
+            self.category?.append(catName)
+        }
+    }
+    
 //    init(snapshot: FDataSnapshot) {
 //        key = snapshot.key
 //        name = snapshot.value["name"] as! String
