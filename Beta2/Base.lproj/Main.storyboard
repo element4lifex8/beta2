@@ -385,7 +385,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                             </imageView>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Check In Here" borderStyle="roundedRect" textAlignment="natural" clearsOnBeginEditing="YES" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="yXC-Nu-0qj">
-                                <rect key="frame" x="30" y="140" width="300" height="30"/>
+                                <rect key="frame" x="45" y="140" width="300" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="BGh-K8-B8r"/>
                                     <constraint firstAttribute="width" constant="300" id="gJO-TM-z1h"/>
@@ -394,13 +394,15 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="249" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JSP-Eh-pq0">
-                                <rect key="frame" x="100" y="514" width="118" height="66"/>
+                                <rect key="frame" x="100" y="514" width="200" height="66"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="66" id="hVo-iR-eKj"/>
-                                    <constraint firstAttribute="width" constant="118" id="wmy-Na-r3A"/>
+                                    <constraint firstAttribute="width" constant="200" id="wmy-Na-r3A"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="28"/>
-                                <state key="normal" title="Submit"/>
+                                <state key="normal" title="Submit">
+                                    <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                </state>
                                 <connections>
                                     <action selector="SaveRestField:" destination="73K-Wi-PQi" eventType="touchUpInside" id="Ce9-V1-HNK"/>
                                 </connections>
@@ -413,17 +415,21 @@
                             <constraint firstAttribute="trailingMargin" secondItem="JSP-Eh-pq0" secondAttribute="trailing" id="RT8-3D-CFK"/>
                             <constraint firstItem="tXM-j9-UR8" firstAttribute="top" secondItem="WG3-Io-EfA" secondAttribute="top" id="SvQ-i6-o1A"/>
                             <constraint firstAttribute="trailingMargin" secondItem="JSP-Eh-pq0" secondAttribute="trailing" id="Yhu-aH-RiG"/>
-                            <constraint firstItem="yXC-Nu-0qj" firstAttribute="leading" secondItem="WG3-Io-EfA" secondAttribute="leadingMargin" constant="10" id="ceE-bd-Ug5"/>
+                            <constraint firstItem="JSP-Eh-pq0" firstAttribute="top" secondItem="tXM-j9-UR8" secondAttribute="bottom" constant="550" id="a4R-XA-5vR"/>
+                            <constraint firstItem="yXC-Nu-0qj" firstAttribute="leading" secondItem="WG3-Io-EfA" secondAttribute="leadingMargin" constant="25" id="ceE-bd-Ug5"/>
                             <constraint firstItem="tXM-j9-UR8" firstAttribute="leading" secondItem="WG3-Io-EfA" secondAttribute="leading" id="i0d-13-L7M"/>
                             <constraint firstItem="JSP-Eh-pq0" firstAttribute="leading" secondItem="WG3-Io-EfA" secondAttribute="leading" constant="100" id="jzG-09-U1C"/>
                             <constraint firstItem="tXM-j9-UR8" firstAttribute="bottom" secondItem="yxq-Nx-6ay" secondAttribute="top" id="ldp-EN-pR2"/>
                             <constraint firstItem="JSP-Eh-pq0" firstAttribute="top" secondItem="bLw-q2-PEK" secondAttribute="bottom" constant="60" id="pk3-2S-r2k"/>
+                            <constraint firstItem="JSP-Eh-pq0" firstAttribute="top" secondItem="tXM-j9-UR8" secondAttribute="top" id="qQP-ZB-ywT"/>
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
                                 <exclude reference="RT8-3D-CFK"/>
                                 <exclude reference="Yhu-aH-RiG"/>
+                                <exclude reference="a4R-XA-5vR"/>
                                 <exclude reference="pk3-2S-r2k"/>
+                                <exclude reference="qQP-ZB-ywT"/>
                             </mask>
                         </variation>
                     </view>
