@@ -19,6 +19,8 @@
 		EB06564E1BEE3B4900CF8376 /* CIOHomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */; };
 		EB0656501BEE3BF200CF8376 /* CIOHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */; };
 		EB0656521BEE505B00CF8376 /* CIOButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB0656511BEE505B00CF8376 /* CIOButton.swift */; };
+		EB1405C41D300526001D3924 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB85D5641C5982F000F2E29F /* CoreData.framework */; };
+		EB1405C71D3007B1001D3924 /* CheckedCoreData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = EB1405C51D3007B1001D3924 /* CheckedCoreData.xcdatamodeld */; };
 		EB1959C41C62C56B001E0F62 /* libicucore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C31C62C56B001E0F62 /* libicucore.tbd */; };
 		EB1959C61C62C575001E0F62 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C51C62C575001E0F62 /* libc++.tbd */; };
 		EB1959C81C62C57E001E0F62 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C71C62C57E001E0F62 /* CFNetwork.framework */; };
@@ -85,6 +87,7 @@
 		EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CIOHomeViewController.swift; path = ../CIOHomeViewController.swift; sourceTree = "<group>"; };
 		EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIOHomeView.swift; sourceTree = "<group>"; };
 		EB0656511BEE505B00CF8376 /* CIOButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIOButton.swift; sourceTree = "<group>"; };
+		EB1405C61D3007B1001D3924 /* CheckedCoreData.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CheckedCoreData.xcdatamodel; sourceTree = "<group>"; };
 		EB1959C31C62C56B001E0F62 /* libicucore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.tbd; path = usr/lib/libicucore.tbd; sourceTree = SDKROOT; };
 		EB1959C51C62C575001E0F62 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		EB1959C71C62C57E001E0F62 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -116,6 +119,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB1405C41D300526001D3924 /* CoreData.framework in Frameworks */,
 				EB1959CC1C62C58D001E0F62 /* SystemConfiguration.framework in Frameworks */,
 				EB1959CA1C62C585001E0F62 /* Security.framework in Frameworks */,
 				EBE70DF11CC58EBA00F6DCE3 /* FBSDKLoginKit.framework in Frameworks */,
@@ -213,6 +217,7 @@
 				EB63152B1BF961D7009683FE /* CheckInViewController.swift */,
 				EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */,
 				EB06561B1BEE37F300CF8376 /* AppDelegate.swift */,
+				EB1405C51D3007B1001D3924 /* CheckedCoreData.xcdatamodeld */,
 				EB03E5C31C3864FF009A55F1 /* Bridging-Header.h */,
 				EBAC6D051CC855C20060BC73 /* OutViewController.swift */,
 				EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */,
@@ -442,6 +447,7 @@
 				EB6B3FBD1C0E7BE200A6B469 /* CheckedView.swift in Sources */,
 				EBBA52E41D0DBA3E0047E22A /* CheckedOutViewController.swift in Sources */,
 				EB03E5C21C25FE72009A55F1 /* FBloginViewController.swift in Sources */,
+				EB1405C71D3007B1001D3924 /* CheckedCoreData.xcdatamodeld in Sources */,
 				EB0656501BEE3BF200CF8376 /* CIOHomeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -700,6 +706,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		EB1405C51D3007B1001D3924 /* CheckedCoreData.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				EB1405C61D3007B1001D3924 /* CheckedCoreData.xcdatamodel */,
+			);
+			currentVersion = EB1405C61D3007B1001D3924 /* CheckedCoreData.xcdatamodel */;
+			path = CheckedCoreData.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = EB0656101BEE37F300CF8376 /* Project object */;
 }

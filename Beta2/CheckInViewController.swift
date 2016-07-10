@@ -8,13 +8,14 @@
 
 import UIKit
 import Firebase
+import CoreData
 
 class CheckInViewController: UIViewController, UIScrollViewDelegate {
-
     var dictArr = [[String:String]]()
     var placesDict = [String : String]()
-    var cityButtonList = ["Annapolis", "Ann Arbor", "Detroit", "DC", "+"]
-    var catButtonList = ["Brunch", "Dinner", "Park", "+"]
+    var cityButtonList = ["+"]
+    var catButtonList = ["Brunch", "Dinner", "Park"]
+    var cityButtonCoreData = [NSManagedObject]()
     var placesArr = [String]()
     var arrSize = Int()
     var ref: Firebase!
@@ -73,6 +74,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
             {
                 let newCityLoc = cityButtonList.count - 1
                 cityButtonList.insert(addButtonText, atIndex: newCityLoc)
+                saveCityButton(addButtonText)
                 CheckInRestField.text = "Check in Here"
                 isEnteringCity = false
                 createCityButtons()
@@ -205,8 +207,95 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         catScrollContainerView.frame = CGRectMake(0, 0, catScrollView.contentSize.width, catScrollView.contentSize.height)
     }
     
+    
+    //save City button to CoreData for persistance
+    func saveCityButton(city: String)
+    {
+        //Get Reference to NSManagedObjectContext
+        //The managed object context lives as a property of the application delegate
+        let appDelegate =
+            UIApplication.sharedApplication().delegate as! AppDelegate
+        //use the object context to set up a new managed object to be "commited" to CoreData
+        let managedContext = appDelegate.managedObjectContext
+        
+        //Get my CoreData Entity and attach it to a managed context object
+        let entity =  NSEntityDescription.entityForName("CityButton",
+                                                        inManagedObjectContext:managedContext)
+        //create a new managed object and insert it into the managed object context
+        let cityButtonMgObj = NSManagedObject(entity: entity!,
+                                            insertIntoManagedObjectContext: managedContext)
+        
+        //Using the managed object context set the "name" attribute to the parameter passed to this func
+        cityButtonMgObj.setValue(city, forKey: "city")
+        
+        //save to CoreData, inside do block in case error is thrown
+        do {
+            try managedContext.save()
+            //Insert the managed object that was saved to disk into the array used to populate the table
+            cityButtonCoreData.append(cityButtonMgObj)
+        } catch let error as NSError  {
+            print("Could not save \(error), \(error.userInfo)")
+        }
+
+    }
+    
+    //Retrieve from CoreData
+    func retrieveCityButtons()
+    {
+        //pull up the application delegate and grab a reference to its managed object context
+        let appDelegate =
+            UIApplication.sharedApplication().delegate as! AppDelegate
+        
+        let managedContext = appDelegate.managedObjectContext
+        
+        //Setting a fetch request’s entity property, or alternatively initializing it with init(entityName:), fetches all objects of a particular entity
+        //Fetch request could also be used to grab objects meeting certain criteria
+        let fetchRequest = NSFetchRequest(entityName: "CityButton")
+        
+        //executeFetchRequest() returns an array of managed objects that meets the criteria specified by the fetch request
+        do {
+            //fetchRequests asks for city button entity, try catch syntax used to handle errors
+            let cityButtonEntity =
+                try managedContext.executeFetchRequest(fetchRequest)
+            cityButtonCoreData = cityButtonEntity as! [NSManagedObject]
+            //iterate over all attributes in City button entity
+            for i in 0 ..< cityButtonCoreData.count{
+                let cityButtonAttr = cityButtonCoreData[i]
+                //optional chain anyObject to string and store in cityButtonArray
+                if let cityNameStr = cityButtonAttr.valueForKey("city") as? String
+                {
+                    //add city name to cityButtonlist if the city doesn't already exists
+                    if(!cityButtonList.contains({element in return (element == cityNameStr)}))
+                    {
+                        cityButtonList.append(cityNameStr)
+                    }
+                }
+            }
+        
+        }
+        catch let error as NSError {
+            print("Could not fetch \(error), \(error.userInfo)")
+        }
+        
+    }
+
+//    func sortListWithPlus(str1: string, str2: String)
+
     func createCityButtons()
     {
+        //Update city button array to be current with all cities in CoreData Entity CityButton
+        retrieveCityButtons()
+        
+        //sort list of city buttons before printing
+        //Move + sign to end of sort
+        cityButtonList.sortInPlace({(s1:String, s2:String) -> Bool in
+            if(s1 == "+" || s2 == "+"){
+                return s1 > s2
+            }
+            else{
+                return s1 < s2
+            }
+        })
         //remove all previously existing buttons from view to re-draw alternate loop to cat buttons
         for case let btn as UIButton in cityScrollContainerView.subviews{
                 btn.removeFromSuperview()
