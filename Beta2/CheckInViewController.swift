@@ -11,10 +11,13 @@ import Firebase
 import CoreData
 
 class CheckInViewController: UIViewController, UIScrollViewDelegate {
+    
+//    Class properties and instances
+    
     var dictArr = [[String:String]]()
     var placesDict = [String : String]()
     var cityButtonList = ["+"]
-    var catButtonList = ["Brunch", "Dinner", "Park"]
+    var catButtonList = ["THis is the longest name in America", "Bar", "Breakfast", "Brunch", "Beaches", "Night Club", "Desert", "Dinner", "Food Trucks", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing"]
     var cityButtonCoreData = [NSManagedObject]()
     var placesArr = [String]()
     var arrSize = Int()
@@ -55,16 +58,56 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
+//  Layout views in view controller
+    
+    //Since the bounds of the view controller's view is not ready in viewDidLoad, anything that will be calculated based off the view's bounds directly or indirectly must not be put in viewDidLoad (so we put it in did layout subviews
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        //setup City scroll view
+        cityScrollView = UIScrollView()
+        cityScrollView.delegate = self
+        //setup Category scroll view
+        catScrollView = UIScrollView()
+        catScrollView.delegate = self
+        //setup container view
+        cityScrollContainerView = UIView()
+        createCityButtons()
+        
+        //setup category container view
+        catScrollContainerView = UIView()
+        createCategoryButtons()
+     }
+    
+    //Since the bounds of the view controller's view is not ready in viewDidLoad, I like to do frame setting in viewDidLayoutSubviews
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        //create frame on screen of scroll view that is 250px from top of screen and the width of the screen and a height of 120px
+        cityScrollView.frame = CGRectMake(0, 250, view.frame.size.width, 120)
+        //we are basing the container view's frame on the scroll view's content size
+        cityScrollContainerView.frame = CGRectMake(0, 0, cityScrollView.contentSize.width, cityScrollView.contentSize.height)
+        
+        //setup category scroll frame
+        catScrollView.frame = CGRectMake(0, 368, view.frame.size.width, 120)
+        
+        catScrollContainerView.frame = CGRectMake(0, 0, catScrollView.contentSize.width, catScrollView.contentSize.height)
+    }
+   
+    
     @IBOutlet weak var CheckInRestField: UITextField!
     
+//    Collect data from text box and determine if it is for adding new city or to save check in to firebase
+    
+    //Action triggered when submit button is pressed
     @IBAction func SaveRestField(sender: UIButton) {
         //Create a new button
-        if(isEnteringCity || isEnteringCategory)
+        if(isEnteringCity)
         {
             let addButtonText = CheckInRestField.text!
             let cityDefaultText = "Enter new city button name"
             let catDefaultText = "Enter new category button name"
-            if(addButtonText == cityDefaultText || addButtonText == catDefaultText)
+            if(addButtonText == cityDefaultText || addButtonText == catDefaultText || addButtonText.isEmpty)
             {
                 CheckInRestField.text = "Check in Here"
                 isEnteringCity = false
@@ -88,7 +131,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
                 createCategoryButtons()
             }
         }
-        //Save a city Check in entry
+            //Save a city Check in entry
         else
         {
             let restNameText = CheckInRestField.text!
@@ -125,6 +168,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
+//    Select attributes for check in
     
     @IBAction func categorySelect(sender: UIButton) {
         sender.highlighted = true
@@ -135,6 +179,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         }
         else
         {
+            makeButtonSelected(sender)
             let categoryDict = ["category" : sender.currentTitle!]
             checkObj.addCategory(sender.currentTitle!)
             
@@ -149,7 +194,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
     
     
     @IBAction func citySelect(sender: UIButton) {
-        sender.highlighted = true
+        
         if(sender.currentTitle! == "+")
         {
             CheckInRestField.text = "Enter new city button name"
@@ -157,12 +202,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         }
         else
         {
+            makeButtonSelected(sender)
             let cityDict = ["city" : sender.currentTitle!]   //var cityDict = ["city" : "true"]
-            /*if checkObj.city == nil{
-             let tempArr = [sender.currentTitle!]
-             checkObj.city = tempArr
-             }
-             else{checkObj.city!.append(sender.currentTitle!)}*/
             checkObj.addCity(sender.currentTitle!)
             //Prevent from being able to add the same city twice to the dictArr
             if(!dictArr.contains({element in return (element == cityDict)}))
@@ -172,41 +213,39 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
-
-    //Since the bounds of the view controller's view is not ready in viewDidLoad, anything that will be calculated based off the view's bounds directly or indirectly must not be put in viewDidLoad (so we put it in did layout subviews
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        //setup City scroll view
-        cityScrollView = UIScrollView()
-        cityScrollView.delegate = self
-        //setup Category scroll view
-        catScrollView = UIScrollView()
-        catScrollView.delegate = self
-        //setup container view
-        cityScrollContainerView = UIView()
-        createCityButtons()
-        
-        //setup category container view
-        catScrollContainerView = UIView()
-        createCategoryButtons()
-     }
     
-    //Since the bounds of the view controller's view is not ready in viewDidLoad, I like to do frame setting in viewDidLayoutSubviews
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+//    Manage and create new buttons
+    
+    func makeButtonSelected(button: UIButton) {
+        let checkImage = UIImage(named: "Check Symbol")
+        button.setImage(checkImage, forState: .Selected)
+        let imageSize: CGSize = checkImage!.size
         
-        //create frame on screen of scroll view that is 250px from top of screen and the width of the screen and a height of 120px
-        cityScrollView.frame = CGRectMake(0, 250, view.frame.size.width, 120)
-        //we are basing the container view's frame on the scroll view's content size
-        cityScrollContainerView.frame = CGRectMake(0, 0, cityScrollView.contentSize.width, cityScrollView.contentSize.height)
+        //User can select and deslect buttons
+        //Sender.state = [.Normal, .Highlighted], append or delete .Selected
+        button.selected = button.state == .Highlighted ? true : false
         
-        //setup category scroll frame
-        catScrollView.frame = CGRectMake(0, 368, view.frame.size.width, 120)
-        
-        catScrollContainerView.frame = CGRectMake(0, 0, catScrollView.contentSize.width, catScrollView.contentSize.height)
+        //Format location of check mark to be placed beneath button title
+        if(button.selected){
+            if let titleLabel = button.titleLabel {
+                let spacing: CGFloat = button.frame.size.height / 3 //put check mark in botton 3rd of button
+                //Shift title left (using negative value for left param) by the width of the image so text stays centered
+                button.titleEdgeInsets = UIEdgeInsetsMake(0.0, -imageSize.width, 0, 0.0)
+                let labelString = NSString(string: titleLabel.text!)
+                let titleSize = labelString.sizeWithAttributes([NSFontAttributeName: titleLabel.font])
+                //Shift image down by adding top edge inset of the size of the title + desired space
+                //Shift image right by subtracting right inset by the width of the title
+                button.imageEdgeInsets = UIEdgeInsetsMake(titleSize.height + spacing, 0.0, 0.0, -titleSize.width)
+                let edgeOffset = abs(titleSize.height - imageSize.height) / 2.0;
+                button.contentEdgeInsets = UIEdgeInsetsMake(edgeOffset, 0.0, edgeOffset, 0.0)
+                button.backgroundColor = UIColor(white: 1, alpha: 0.5)
+            }
+        }
+        else{
+            button.backgroundColor = UIColor.clearColor()
+            button.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
+        }
     }
-    
     
     //save City button to CoreData for persistance
     func saveCityButton(city: String)
@@ -314,7 +353,12 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         button.backgroundColor = UIColor.clearColor()
         button.layer.borderWidth = 2.0
         button.layer.borderColor = UIColor.whiteColor().CGColor
+        button.titleEdgeInsets = UIEdgeInsetsMake(0, 5, 0, 5)
+        button.titleLabel!.adjustsFontSizeToFitWidth = true;
+        button.titleLabel!.minimumScaleFactor = 0.8;
         button.setTitle(cityText, forState: .Normal)
+            
+//        button.setBackgroundImage(UIImage(named: "Check Symbol"), forState: .Normal)
         button.addTarget(self, action: #selector(CheckInViewController.citySelect(_:)), forControlEvents: .TouchUpInside)
         cityScrollContainerView.addSubview(button)
         }
@@ -342,7 +386,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
             button.backgroundColor = UIColor.clearColor()
             button.layer.borderWidth = 2.0
             button.layer.borderColor = UIColor.whiteColor().CGColor
+            button.titleLabel!.adjustsFontSizeToFitWidth = true;
+            button.titleLabel!.minimumScaleFactor = 0.8;
             button.setTitle(catText, forState: .Normal)
+            button.titleEdgeInsets = UIEdgeInsetsMake(0, 5, 0, 5)
             button.addTarget(self, action: #selector(CheckInViewController.categorySelect(_:)), forControlEvents: .TouchUpInside)
             catScrollContainerView.addSubview(button)
             button.setNeedsLayout()
