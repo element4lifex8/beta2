@@ -16,8 +16,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
     
     var dictArr = [[String:String]]()
     var placesDict = [String : String]()
-    var cityButtonList = ["+"]
-    var catButtonList = ["THis is the longest name in America", "Bar", "Breakfast", "Brunch", "Beaches", "Night Club", "Desert", "Dinner", "Food Trucks", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing"]
+    var cityButtonList: [String] = ["+"]
+    var catButtonList = ["Bar", "Breakfast", "Brunch", "Beaches", "Night Club", "Desert", "Dinner", "Food Trucks", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing"]
     var cityButtonCoreData = [NSManagedObject]()
     var placesArr = [String]()
     var arrSize = Int()
@@ -279,7 +279,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
     }
     
     //Retrieve from CoreData
-    func retrieveCityButtons()
+    func retrieveCityButtons() -> [NSManagedObject]
     {
         //pull up the application delegate and grab a reference to its managed object context
         let appDelegate =
@@ -293,6 +293,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         
         //executeFetchRequest() returns an array of managed objects that meets the criteria specified by the fetch request
         do {
+            //Sort fetch requests ascending
+            let sortDescriptor = NSSortDescriptor(key: "city", ascending: true)
+            let sortDescriptors = [sortDescriptor]
+            fetchRequest.sortDescriptors = sortDescriptors
             //fetchRequests asks for city button entity, try catch syntax used to handle errors
             let cityButtonEntity =
                 try managedContext.executeFetchRequest(fetchRequest)
@@ -306,7 +310,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
                     //add city name to cityButtonlist if the city doesn't already exists
                     if(!cityButtonList.contains({element in return (element == cityNameStr)}))
                     {
-                        cityButtonList.append(cityNameStr)
+                        //Insert new element before the final plus sign in the list
+                        cityButtonList.insert(cityNameStr, atIndex: cityButtonList.count - 1)
                     }
                 }
             }
@@ -316,16 +321,19 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
             print("Could not fetch \(error), \(error.userInfo)")
         }
         
+        return cityButtonCoreData
     }
 
 //    func sortListWithPlus(str1: string, str2: String)
 
     func createCityButtons()
     {
+        let buttonSpacing = 25
+        let buttonRad = 100
         //Update city button array to be current with all cities in CoreData Entity CityButton
         retrieveCityButtons()
         
-        //sort list of city buttons before printing
+        /*sort list of city buttons before printing
         //Move + sign to end of sort
         cityButtonList.sortInPlace({(s1:String, s2:String) -> Bool in
             if(s1 == "+" || s2 == "+"){
@@ -334,12 +342,12 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
             else{
                 return s1 < s2
             }
-        })
+        })*/
         //remove all previously existing buttons from view to re-draw alternate loop to cat buttons
         for case let btn as UIButton in cityScrollContainerView.subviews{
                 btn.removeFromSuperview()
         }
-        cityScrollView.contentSize = CGSizeMake(CGFloat((cityButtonList.count * 100) + ((cityButtonList.count  + 1) * 25)), 120) //Length of scroll view is the number of 100px buttons plus the number of 25px spacing plus an extra space for the final button
+        cityScrollView.contentSize = CGSizeMake(CGFloat((cityButtonList.count * buttonRad) + ((cityButtonList.count  + 1) * buttonSpacing)), 120) //Length of scroll view is the number of 100px buttons plus the number of 25px spacing plus an extra space for the final button, 120 high
         
         //Add container view to scroll view
         cityScrollView.addSubview(cityScrollContainerView)
@@ -348,7 +356,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         //view.setNeedsDisplay()
         //Add button to scroll view's container view
         for (index,cityText) in cityButtonList.enumerate(){
-        let button = UIButton(frame: CGRect(x: (index * 100) + ((index+1)*25), y: 0, width: 100, height: 100))   // X, Y, width, height
+        let button = UIButton(frame: CGRect(x: (index * buttonRad) + ((index+1)*buttonSpacing), y: 0, width: buttonRad, height: buttonRad))   // X, Y, width, height
         button.layer.cornerRadius = 0.5 * button.bounds.size.width
         button.backgroundColor = UIColor.clearColor()
         button.layer.borderWidth = 2.0
@@ -357,9 +365,11 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         button.titleLabel!.adjustsFontSizeToFitWidth = true;
         button.titleLabel!.minimumScaleFactor = 0.8;
         button.setTitle(cityText, forState: .Normal)
-            
-//        button.setBackgroundImage(UIImage(named: "Check Symbol"), forState: .Normal)
+        //add target actions for button tap
         button.addTarget(self, action: #selector(CheckInViewController.citySelect(_:)), forControlEvents: .TouchUpInside)
+        //add target actions for long press on button
+        let longGesture = UILongPressGestureRecognizer(target: self, action: #selector(CheckInViewController.displayCityDeleteButton(_:)))
+        button.addGestureRecognizer(longGesture)
         cityScrollContainerView.addSubview(button)
         }
     }
@@ -392,10 +402,55 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
             button.titleEdgeInsets = UIEdgeInsetsMake(0, 5, 0, 5)
             button.addTarget(self, action: #selector(CheckInViewController.categorySelect(_:)), forControlEvents: .TouchUpInside)
             catScrollContainerView.addSubview(button)
-            button.setNeedsLayout()
+            //button.setNeedsLayout()
         }
 
     }
+    
+    func displayCityDeleteButton(sender: UILongPressGestureRecognizer)
+    {
+        let buttonSpacing = 25
+        let buttonRad = 100
+        let tapLocation = sender.locationInView(self.cityScrollView)
+
+        //Determine associated button receiving long press by calculatin location
+        for i in 0..<cityButtonList.count{
+            let locBegin = (i * buttonRad) + ((i+1)*buttonSpacing)
+            let locEnd = ((i + 1) * buttonRad) + ((i + 2)*buttonSpacing)
+            if(Int(tapLocation.x) > locBegin && Int(tapLocation.x) < locEnd){
+                //Custom button used to contain the button enum so that the delete function has a reference to the City
+                let button = DeleteCityUIButton(frame: CGRect(x: locBegin, y: 0, width: buttonRad / 3, height: buttonRad / 3))
+                button.buttonEnum = i
+                button.layer.cornerRadius = 0.5 * button.bounds.size.width
+                button.backgroundColor = UIColor(white: 0.75, alpha: 0.9)
+                button.setTitle("X", forState: .Normal)
+                button.setTitleColor(UIColor.blackColor(), forState: .Normal)
+                button.addTarget(self, action: #selector(CheckInViewController.deleteCity(_:)), forControlEvents: .TouchUpInside)
+                cityScrollContainerView.addSubview(button)
+            }
+        }
+    }
+    
+    func deleteCity(sender: DeleteCityUIButton){
+        let buttonEnum = sender.buttonEnum
+        print(buttonEnum)
+        sender.removeFromSuperview()
+        let coreData = retrieveCityButtons()  //store list of city attributes from cityButton entity
+//        Remove City from Core Data
+        //The managed object context lives as a property of the application delegate
+        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        //use the object context to set up a new managed object to be "commited" to CoreData
+        let managedContext = appDelegate.managedObjectContext
+        //sorted city attributes can be selected by the button Enum
+        managedContext.deleteObject(coreData[buttonEnum] as NSManagedObject)
+        do {
+            try managedContext.save()   //Updated core data with the deleted attribute
+        }catch _ {
+        }
+        cityButtonList.removeAtIndex(buttonEnum)
+        createCityButtons() //redraw Buttons
+    }
+
 
 //    @IBAction func touchUp() {
 //            //Create allert
