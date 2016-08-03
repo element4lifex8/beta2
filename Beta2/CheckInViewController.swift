@@ -14,6 +14,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
     
 //    Class properties and instances
     
+    @IBOutlet var checkInView: CheckInView!
     var dictArr = [[String:String]]()
     var placesDict = [String : String]()
     var cityButtonList: [String] = ["+"]
@@ -72,11 +73,16 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         catScrollView.delegate = self
         //setup container view
         cityScrollContainerView = UIView()
+        //add a tap action that will remove any present delete city buttons
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(CheckInViewController.clearCityDeleteButton(_:)))
+        cityScrollView.addGestureRecognizer(tapGesture)
         createCityButtons()
         
         //setup category container view
         catScrollContainerView = UIView()
         createCategoryButtons()
+        //Enable touch interaction with background view so that delete buttons can be cleared when user touces screen
+        checkInView.userInteractionEnabled = true
      }
     
     //Since the bounds of the view controller's view is not ready in viewDidLoad, I like to do frame setting in viewDidLayoutSubviews
@@ -94,6 +100,19 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         catScrollContainerView.frame = CGRectMake(0, 0, catScrollView.contentSize.width, catScrollView.contentSize.height)
     }
    
+    //Detect when user taps outside of scroll views and remove any delete city buttons if they are present
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        
+        super.touchesBegan(touches, withEvent: event)
+        
+        if let touch: UITouch = touches.first{
+            if (touch.view == checkInView){
+                for case let btn as DeleteCityUIButton in cityScrollContainerView.subviews{
+                    btn.removeFromSuperview()
+                }
+            }
+        }
+    }
     
     @IBOutlet weak var CheckInRestField: UITextField!
     
@@ -115,8 +134,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
             }
             else if(isEnteringCity)
             {
-                let newCityLoc = cityButtonList.count - 1
-                cityButtonList.insert(addButtonText, atIndex: newCityLoc)
+                //let newCityLoc = cityButtonList.count - 1
+                //cityButtonList.insert(addButtonText, atIndex: newCityLoc)
                 saveCityButton(addButtonText)
                 CheckInRestField.text = "Check in Here"
                 isEnteringCity = false
@@ -271,7 +290,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         do {
             try managedContext.save()
             //Insert the managed object that was saved to disk into the array used to populate the table
-            cityButtonCoreData.append(cityButtonMgObj)
+            //cityButtonCoreData.append(cityButtonMgObj)
         } catch let error as NSError  {
             print("Could not save \(error), \(error.userInfo)")
         }
@@ -311,7 +330,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
                     if(!cityButtonList.contains({element in return (element == cityNameStr)}))
                     {
                         //Insert new element before the final plus sign in the list
-                        cityButtonList.insert(cityNameStr, atIndex: cityButtonList.count - 1)
+                        cityButtonList.insert(cityNameStr, atIndex: i)
                     }
                 }
             }
@@ -364,6 +383,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         button.titleEdgeInsets = UIEdgeInsetsMake(0, 5, 0, 5)
         button.titleLabel!.adjustsFontSizeToFitWidth = true;
         button.titleLabel!.minimumScaleFactor = 0.8;
+        button.titleLabel!.lineBreakMode = .ByTruncatingTail
         button.setTitle(cityText, forState: .Normal)
         //add target actions for button tap
         button.addTarget(self, action: #selector(CheckInViewController.citySelect(_:)), forControlEvents: .TouchUpInside)
@@ -424,6 +444,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
                 button.layer.cornerRadius = 0.5 * button.bounds.size.width
                 button.backgroundColor = UIColor(white: 0.75, alpha: 0.9)
                 button.setTitle("X", forState: .Normal)
+                button.titleLabel?.font = UIFont.systemFontOfSize(CGFloat(buttonRad / 4), weight: UIFontWeightBold)
                 button.setTitleColor(UIColor.blackColor(), forState: .Normal)
                 button.addTarget(self, action: #selector(CheckInViewController.deleteCity(_:)), forControlEvents: .TouchUpInside)
                 cityScrollContainerView.addSubview(button)
@@ -431,9 +452,15 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
+    func clearCityDeleteButton(sender: UITapGestureRecognizer)
+    {
+        for case let btn as DeleteCityUIButton in cityScrollContainerView.subviews{
+            btn.removeFromSuperview()
+        }
+    }
+    
     func deleteCity(sender: DeleteCityUIButton){
         let buttonEnum = sender.buttonEnum
-        print(buttonEnum)
         sender.removeFromSuperview()
         let coreData = retrieveCityButtons()  //store list of city attributes from cityButton entity
 //        Remove City from Core Data
