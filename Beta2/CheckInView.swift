@@ -9,7 +9,22 @@
 import UIKit
 import Firebase
 
+
+//CA Layer extension used to allow runtime property to be set on the text box's view for borderUIColor  
+
+extension CALayer {
+    var borderUIColor: UIColor {
+        set {
+            self.borderColor = newValue.CGColor
+        }
+        
+        get {
+            return UIColor(CGColor: self.borderColor!)
+        }
+    }
+}
 class CheckInView: UIView {
+    
 
 //    @IBOutlet weak var CheckInRestField: UITextField!
 //    

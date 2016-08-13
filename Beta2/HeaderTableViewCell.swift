@@ -12,6 +12,21 @@ class HeaderTableViewCell: UITableViewCell {
 
     @IBOutlet weak var tableCellValue: UILabel!
     
+    @IBOutlet weak var headerView: UIView!
+    
+    func addSeperator(tableViewWidth: CGFloat){
+        //Add table view top seperator
+        let px = 1 / UIScreen.mainScreen().scale    //determinte 1 pixel size instead of using 1 point
+        let frame = CGRectMake(0, 0, tableViewWidth, px)
+        let topLine: UIView = UIView(frame: frame)
+        let bottomframe = CGRectMake(0, headerView.frame.size.height-px, tableViewWidth, px)
+        let bottomLine: UIView = UIView(frame: bottomframe)
+        self.headerView.addSubview(topLine)
+        self.headerView.addSubview(bottomLine)
+        topLine.backgroundColor = UIColor.whiteColor()
+        bottomLine.backgroundColor = UIColor.whiteColor()
+    }
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

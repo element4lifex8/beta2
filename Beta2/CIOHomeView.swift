@@ -8,6 +8,20 @@
 
 import UIKit
 
+//CA Layer extension used to allow runtime property to be set on the text box's view for borderUIColor
+
+extension CALayer {
+    var buttBorUIColor: UIColor {
+        set {
+            self.borderColor = newValue.CGColor
+        }
+        
+        get {
+            return UIColor(CGColor: self.borderColor!)
+        }
+    }
+}
+
 class CIOHomeView: UIView {
 
     //@IBOutlet weak var CheckText: UILabel!

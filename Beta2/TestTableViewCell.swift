@@ -12,7 +12,7 @@ class TestTableViewCell: UITableViewCell {
 
     
     @IBOutlet weak var tableCellValue: UILabel!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

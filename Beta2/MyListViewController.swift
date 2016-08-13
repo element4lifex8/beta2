@@ -1,18 +1,17 @@
 //
-//  CheckedOutListViewController.swift
+//  MyListViewController.swift
 //  Beta2
 //
-//  Created by Jason Johnston on 12/6/15.
-//  Copyright © 2015 anuJ. All rights reserved.
+//  Created by Jason Johnston on 8/7/16.
+//  Copyright © 2016 anuJ. All rights reserved.
 //
 
 import UIKit
 import Firebase
 import Foundation
 
-class CheckedOutListViewController: UITableViewController {
+class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
-    
     var placesArr = [String]()
     var tableData = [String]()
     var placeObj = placeNode()
@@ -28,36 +27,43 @@ class CheckedOutListViewController: UITableViewController {
     var userRef: Firebase!
     var placesRef: Firebase!
     var headerCount = 0
+
+    @IBOutlet weak var tableView: UITableView!
     
     let currUserDefaultKey = "FBloginVC.currUser"
     private let sharedFbUser = NSUserDefaults.standardUserDefaults()
-
-
+    
+    
     var currUser: NSString {
         get
         {
             return (sharedFbUser.objectForKey(currUserDefaultKey) as? NSString)!
         }
     }
-
-    let restNameDefaultKey = "CheckInView.restName"
-    private let sharedRestName = NSUserDefaults.standardUserDefaults()
-    
-    var restNameHistory: [String] {
-        get
-        {
-            return sharedRestName.objectForKey(restNameDefaultKey) as? [String] ?? []
-        }
-        set
-        {
-            sharedRestName.setObject(newValue, forKey: restNameDefaultKey)
-        }
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        tableView.registerClass(TestTableViewCell.self,
-//                                forCellReuseIdentifier: "Cell")
+        //setup tableView delegates
+        self.tableView.dataSource=self;
+        self.tableView.delegate=self;
+        //remove left padding from tableview seperators
+        tableView.layoutMargins = UIEdgeInsetsZero
+        tableView.separatorInset = UIEdgeInsetsZero
+        tableView.registerClass(TestTableViewCell.self,forCellReuseIdentifier: "Cell")
+        self.tableView.backgroundColor=UIColor.clearColor()
+        
+        //table view header seperator
+//        let px = 1 / UIScreen.mainScreen().scale
+//        let frame = CGRectMake(0, 0, self.tableView.frame.size.width, px)
+//        let line: UIView = UIView(frame: frame)
+//        self.tableView.tableHeaderView = line
+//        line.backgroundColor = self.tableView.separatorColor
+//        
+//        let bottomframe = CGRectMake(0, tableView.frame.size.height-1, self.tableView.frame.size.width, px)
+//        let bottomLine: UIView = UIView(frame: bottomframe)
+//        self.tableView.tableHeaderView = bottomLine
+//        bottomLine.backgroundColor = self.tableView.separatorColor
+        
         userRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
         placesRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
         //Retrieve List of checked out places in curr user's list
@@ -71,38 +77,10 @@ class CheckedOutListViewController: UITableViewController {
                 self.sortRetrievedDataByCity()
                 self.tableView.reloadData()
             }
+
         }
-        
-//            //how to print values of a child in the returned snapshot if key name is known
-//            let childSnapshot = snapshot.childSnapshotForPath(child.key)
-//            let someValue = childSnapshot.value["someKey"] as? String
-//
-//            //how to print a child value if key name is known
-//            if(!snapshot.value != NSNull)
-//            print(snapshot.value.objectForKey("city"))
-//            print(snapshot.value.objectForKey("category")!)
-        
-        
     }
-    
-    func formatTableData(){
-        print(cityDict)
-        for (index,entry) in self.placesArr.enumerate()
-        {
-            tableData.append(entry)
-            for (key,value) in cityDict
-            {
-                if(value == index)
-                {
-                    tableData.append(key)
-                }
-            }
-            
-        }
-        self.tableView.reloadData()
-    }
-    
-    
+
     //Iterate over Dictionary of String:PlaceNode array and create a sorted Dict of the same type
     func sortRetrievedDataByCity(){
         var categoryDict = [String: [String]]()
@@ -122,12 +100,12 @@ class CheckedOutListViewController: UITableViewController {
                 if(self.citySortedDict[city] == nil){
                     //create a nested dict for each category [category:[places]]
                     for category in locPlaceNodeObj.category!{
-                            categoryDict[category]=placeArr
+                        categoryDict[category]=placeArr
                     }
                     //store [category:[places]]() in new city entry of city sorted dict
                     self.citySortedDict[city]=categoryDict
                 }
-                //else city already exists in self.citySortedDict
+                    //else city already exists in self.citySortedDict
                 else{
                     for catObj in locPlaceNodeObj.category!{
                         match = false //find out if new Place fits into existing category
@@ -154,8 +132,7 @@ class CheckedOutListViewController: UITableViewController {
         self.citySortedArr.sortInPlace(<)
         
     }
-    
-
+        
     //function receives the name of the place to look up its city and place attributes
     func retrievePlaceAttributes(place: String, completionClosure: (categoryArr: [String], cityArr: [String]) -> Void)
     {
@@ -188,7 +165,7 @@ class CheckedOutListViewController: UITableViewController {
                         let nodeDict = rootNode.value as! NSDictionary
                         for (key, _ ) in nodeDict{
                             if(attribute.key == "city"){
-                               cityArrLoc.append(key as! String)
+                                cityArrLoc.append(key as! String)
                             }
                             if(attribute.key == "category"){
                                 categoryArrLoc.append(key as! String)
@@ -206,9 +183,9 @@ class CheckedOutListViewController: UITableViewController {
             }
             completionClosure(categoryArr: categoryArrLoc, cityArr: cityArrLoc)
         })
-
+        
     }
-    
+
     //Funtion is passed the list of checked in places and retrieves the city and category attributes for each place
     func retrieveAttributesFromMaster(retrievedPlaces: [String], completionClosure: (completeTableDataArr: [String]) -> Void)
     {
@@ -238,7 +215,7 @@ class CheckedOutListViewController: UITableViewController {
             })
         }
     }
-    
+
     //Retrieve list of all checked in places for curr user
     func retrieveUserPlaces(completionClosure: (completedArr: [String]) -> Void) {
         var localPlacesArr = [String]()
@@ -247,28 +224,52 @@ class CheckedOutListViewController: UITableViewController {
             for child in snapshot.children {
                 //true if child key in the snapshot is not nil (e.g. attributes about the place exist), then unwrap and store in array
                 if let childKey = child.key{
-                   localPlacesArr.append(childKey!)
+                    localPlacesArr.append(childKey!)
                 }
             }
             completionClosure(completedArr: localPlacesArr)
         })
     }
-    
+        
+//  Table view methods
+
     //Setup section header attributes
-    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 50.0
+    func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 40.0
     }
     
-    override func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+    func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let cell = tableView.dequeueReusableCellWithIdentifier("headerCell") as! HeaderTableViewCell
+        //add separator below header
+        cell.addSeperator(tableView.frame.size.width)
+
         cell.tableCellValue.text=self.citySortedArr[section]
-        cell.tableCellValue.font = UIFont.boldSystemFontOfSize(36)
+        cell.tableCellValue.font = UIFont(name: "Avenir-HeavyOblique", size: 24)
+        cell.tableCellValue.textColor=UIColor.whiteColor()
+        //cell.backgroundColor=UIColor.clearColor()
+        //Remove seperator insets
+        cell.layoutMargins = UIEdgeInsetsZero
         return cell
     }
     
+    //Setup subheader and data cell attributes
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat
+    {
+        let tableValue = getItemWithIndexPath(indexPath)
+        //return HeaderTableViewCell if table item is a city
+        if(tableValue.isHeader){
+            return 33.0
+        }else{
+            return 50
+        }
+    }
+    
+    func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
+        cell.backgroundColor = .clearColor()
+    }
     
     //Return number of top level entries in sorted dict e.g.  num cities from [City : [Cat:[Place]]]
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return self.citySortedArr.count
     }
     
@@ -278,7 +279,7 @@ class CheckedOutListViewController: UITableViewController {
         var currPlace: String = ""
         var header = false
         let currCityAttrDict = self.citySortedDict[self.citySortedArr[indexPath.section]]     //get [Category: [Places]] for current city
-
+        
         //Iterate over each category, map indexPath through the category keys to find a Place value
         for (category,placeArr) in currCityAttrDict!{
             //Decrement index row to find where the IndexPath should point to since all category:[Place] items were combined when calculating num items
@@ -302,10 +303,10 @@ class CheckedOutListViewController: UITableViewController {
         
         
     }
-
+    
     
     //return the number of rows per section in the table
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         let currCityAttrDict = self.citySortedDict[self.citySortedArr[section]]   //get [Category: [Places]] for current city
         var catNameAndPlaceCount = currCityAttrDict?.count  //store the num categories
         //loop over all places in each category to get the full count
@@ -314,10 +315,10 @@ class CheckedOutListViewController: UITableViewController {
         }
         return catNameAndPlaceCount!
     }
-
+    
     //configures and provides a cell to display for a given row
     //gets called once for each cell that can be displayed on the current screen
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
     {
         let tableValue = getItemWithIndexPath(indexPath)
         var cellIdentifier:String
@@ -327,8 +328,11 @@ class CheckedOutListViewController: UITableViewController {
             cellIdentifier = "subheaderCell"
             //asks the table view for a cell with my cellidentifier which is the name of my custom cell class
             let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! SubheaderTableViewCell   //downcast to my cell class type
-            cell.tableCellValue.text=tableValue.place
-            cell.tableCellValue.font = UIFont.systemFontOfSize(24, weight: UIFontWeightMedium)
+            cell.tableCellValue.text="  \(tableValue.place)"
+            cell.tableCellValue.font = UIFont(name: "Avenir-Heavy", size: 24)
+            cell.tableCellValue.textColor = UIColor.whiteColor()
+            //Remove seperator insets
+            cell.layoutMargins = UIEdgeInsetsZero
             return cell
         }
         else{
@@ -336,8 +340,12 @@ class CheckedOutListViewController: UITableViewController {
             cellIdentifier = "dataCell"
             //asks the table view for a cell with my cellidentifier which is the name of my custom cell class
             let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! TestTableViewCell   //downcast to my cell class type
-            cell.tableCellValue.text=tableValue.place
-            cell.tableCellValue.font = UIFont.systemFontOfSize(18, weight: UIFontWeightLight)
+            
+            cell.tableCellValue.text = "    \(tableValue.place)"
+            cell.tableCellValue.font = UIFont(name: "Avenir-Light", size: 24)
+            cell.tableCellValue.textColor = UIColor.whiteColor()
+            //Remove seperator insets
+            cell.layoutMargins = UIEdgeInsetsZero
             return cell
         }
     }

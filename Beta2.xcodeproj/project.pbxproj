@@ -28,6 +28,7 @@
 		EB1959CC1C62C58D001E0F62 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */; };
 		EB1959D11C62C646001E0F62 /* Firebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959D01C62C646001E0F62 /* Firebase.framework */; };
 		EB49A2E51C78ED45006F16AB /* checkList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB49A2E41C78ED45006F16AB /* checkList.swift */; };
+		EB4B128D1D57B9C500F8B62C /* MyListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */; };
 		EB4C38471D453C8F00D11721 /* DeleteCityUIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */; };
 		EB4C38491D48364E00D11721 /* TableHeaderUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4C38481D48364E00D11721 /* TableHeaderUIView.swift */; };
 		EB55D6271CEBD180004D81D0 /* placeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB55D6261CEBD180004D81D0 /* placeNode.swift */; };
@@ -97,8 +98,9 @@
 		EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		EB1959D01C62C646001E0F62 /* Firebase.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Firebase.framework; path = ../../Firebase/Firebase.framework; sourceTree = "<group>"; };
 		EB49A2E41C78ED45006F16AB /* checkList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = checkList.swift; sourceTree = "<group>"; };
+		EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyListViewController.swift; sourceTree = "<group>"; };
 		EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DeleteCityUIButton.swift; path = ../DeleteCityUIButton.swift; sourceTree = "<group>"; };
-		EB4C38481D48364E00D11721 /* TableHeaderUIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableHeaderUIView.swift; sourceTree = "<group>"; };
+		EB4C38481D48364E00D11721 /* TableHeaderUIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TableHeaderUIView.swift; path = ../TableHeaderUIView.swift; sourceTree = "<group>"; };
 		EB55D6261CEBD180004D81D0 /* placeNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = placeNode.swift; sourceTree = "<group>"; };
 		EB6315291BEEB9AA009683FE /* CIOnewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIOnewView.swift; sourceTree = "<group>"; };
 		EB63152B1BF961D7009683FE /* CheckInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CheckInViewController.swift; path = Beta2/CheckInViewController.swift; sourceTree = SOURCE_ROOT; };
@@ -196,7 +198,6 @@
 		EB06560F1BEE37F300CF8376 = {
 			isa = PBXGroup;
 			children = (
-				EB4C38481D48364E00D11721 /* TableHeaderUIView.swift */,
 				EB03E5BA1C25A76E009A55F1 /* Frameworks */,
 				EB06561A1BEE37F300CF8376 /* Beta2 */,
 				EB0656191BEE37F300CF8376 /* Products */,
@@ -230,6 +231,7 @@
 				EBBA52DF1CF65B6A0047E22A /* HeaderTableViewCell.swift */,
 				EBBA52E11CFE62730047E22A /* SubheaderTableViewCell.swift */,
 				EBAC6D2C1CD02D430060BC73 /* Main.storyboard */,
+				EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */,
 				EBBA52E31D0DBA3E0047E22A /* CheckedOutViewController.swift */,
 				EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */,
 				EB55D6261CEBD180004D81D0 /* placeNode.swift */,
@@ -247,6 +249,7 @@
 		EB49A2E61C7BE649006F16AB /* Facebook */ = {
 			isa = PBXGroup;
 			children = (
+				EB4C38481D48364E00D11721 /* TableHeaderUIView.swift */,
 				EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */,
 				EB03E5C11C25FE72009A55F1 /* FBloginViewController.swift */,
 				EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */,
@@ -453,6 +456,7 @@
 				EBAC6D061CC855C20060BC73 /* OutViewController.swift in Sources */,
 				EB03E57F1C15096C009A55F1 /* CheckedOutListViewController.swift in Sources */,
 				EB6B3FBD1C0E7BE200A6B469 /* CheckedView.swift in Sources */,
+				EB4B128D1D57B9C500F8B62C /* MyListViewController.swift in Sources */,
 				EBBA52E41D0DBA3E0047E22A /* CheckedOutViewController.swift in Sources */,
 				EB03E5C21C25FE72009A55F1 /* FBloginViewController.swift in Sources */,
 				EB1405C71D3007B1001D3924 /* CheckedCoreData.xcdatamodeld in Sources */,
