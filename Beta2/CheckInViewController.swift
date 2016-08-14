@@ -258,6 +258,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
                 let edgeOffset = abs(titleSize.height - imageSize.height) / 2.0;
                 button.contentEdgeInsets = UIEdgeInsetsMake(edgeOffset, 0.0, edgeOffset, 0.0)
                 button.backgroundColor = UIColor(white: 1, alpha: 0.5)
+
             }
         }
         else{

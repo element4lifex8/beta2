@@ -10,7 +10,7 @@ import UIKit
 import Firebase
 import Foundation
 
-class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UICollectionViewDataSource, UICollectionViewDelegate {
 
     var placesArr = [String]()
     var tableData = [String]()
@@ -26,9 +26,13 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var ref: Firebase!
     var userRef: Firebase!
     var placesRef: Firebase!
+    var selectedCollection = [Int]()
     var headerCount = 0
+    var catButtonList = ["Bar", "Breakfast", "Brunch", "Beaches", "Night Club", "Desert", "Dinner", "Food Trucks", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing"]
 
     @IBOutlet weak var tableView: UITableView!
+    
+    @IBOutlet weak var collectionView: UICollectionView!
     
     let currUserDefaultKey = "FBloginVC.currUser"
     private let sharedFbUser = NSUserDefaults.standardUserDefaults()
@@ -51,19 +55,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         tableView.separatorInset = UIEdgeInsetsZero
         tableView.registerClass(TestTableViewCell.self,forCellReuseIdentifier: "Cell")
         self.tableView.backgroundColor=UIColor.clearColor()
-        
-        //table view header seperator
-//        let px = 1 / UIScreen.mainScreen().scale
-//        let frame = CGRectMake(0, 0, self.tableView.frame.size.width, px)
-//        let line: UIView = UIView(frame: frame)
-//        self.tableView.tableHeaderView = line
-//        line.backgroundColor = self.tableView.separatorColor
-//        
-//        let bottomframe = CGRectMake(0, tableView.frame.size.height-1, self.tableView.frame.size.width, px)
-//        let bottomLine: UIView = UIView(frame: bottomframe)
-//        self.tableView.tableHeaderView = bottomLine
-//        bottomLine.backgroundColor = self.tableView.separatorColor
-        
+        collectionView?.allowsMultipleSelection = true
         userRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
         placesRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
         //Retrieve List of checked out places in curr user's list
@@ -349,5 +341,91 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             return cell
         }
     }
+    
+    // MARK: - UICollectionViewDataSource protocol
+    
+    // tell the collection view how many cells to make
+    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return catButtonList.count
+    }
 
+    // make a cell for each cell index path
+    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+        let reuseIdentifier = "roundButt"
+        // get a reference to our storyboard cell
+        let cell = collectionView.dequeueReusableCellWithReuseIdentifier(reuseIdentifier, forIndexPath: indexPath) as! RoundButtCollectionViewCell
+        // Use the outlet in our custom class to get a reference to the UILabel in the cell
+//        cell.myLabel.text = catButtonList[indexPath.item]
+//        cell.myLabel.sizeToFit()
+
+        //Create label here since autolayout only worked after scroll
+        let catLabel = UILabel(frame: CGRectMake(0, 0, 86, 25))
+        catLabel.center = CGPointMake(50, 50)
+        catLabel.textAlignment = NSTextAlignment.Center
+        catLabel.text = catButtonList[indexPath.item]
+
+        catLabel.textColor = UIColor.whiteColor()
+        cell.contentView.addSubview(catLabel)
+        //set cell properties
+        cell.backgroundColor = UIColor.clearColor()
+        cell.layer.borderColor = UIColor.whiteColor().CGColor
+        cell.layer.borderWidth = 2
+        cell.layer.cornerRadius = 0.5 * cell.bounds.size.width
+        
+        if(selectedCollection.contains(indexPath.item)){
+            selectCell(cell, indexPath: indexPath)
+        }
+        
+        return cell
+    }
+
+    // MARK: - UICollectionViewDelegate protocol
+    
+    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+        if let cell = collectionView.cellForItemAtIndexPath(indexPath){
+            selectCell(cell, indexPath: indexPath)
+        }
+        //Keep track of selected items. Items are deselected when scrolled out of view
+        selectedCollection.append(indexPath.item)
+        print("Coll \(selectedCollection)")
+    }
+    
+    func collectionView(collectionView: UICollectionView, didDeselectItemAtIndexPath indexPath: NSIndexPath) {
+        let cell = collectionView.cellForItemAtIndexPath(indexPath)
+        if let imageViews = cell?.contentView.subviews{
+            for case let image as UIImageView in imageViews{
+                image.removeFromSuperview()
+            }
+        }
+        cell?.backgroundColor = UIColor.clearColor()
+        //Keep track of selected items. Items are deselected when scrolled out of view
+        if let index = selectedCollection.indexOf(indexPath.item){
+            selectedCollection.removeAtIndex(index)
+        }
+    }
+    
+    // change background color when user touches cell
+    func collectionView(collectionView: UICollectionView, didHighlightItemAtIndexPath indexPath: NSIndexPath) {
+       let cell = collectionView.cellForItemAtIndexPath(indexPath)
+        cell?.backgroundColor = UIColor(red: 0x60/255, green: 0x60/255, blue: 0x60/255, alpha: 1.0)
+    }
+
+    // change background color back when user releases touch
+    func collectionView(collectionView: UICollectionView, didUnhighlightItemAtIndexPath indexPath: NSIndexPath) {
+        let cell = collectionView.cellForItemAtIndexPath(indexPath)
+        cell?.backgroundColor = UIColor.clearColor()
+    }
+    
+    func selectCell(cell: UICollectionViewCell, indexPath: NSIndexPath)
+    {
+        let checkImage = UIImage(named: "Check Symbol")
+        let checkImageView = UIImageView(image: checkImage)
+        
+        //center check image at point 50,75
+        checkImageView.frame = CGRectMake(45, 70, 15, 15)
+        //add check image
+        cell.contentView.addSubview(checkImageView)
+        cell.backgroundColor = UIColor(white: 1, alpha: 0.5)
+    }
 }
+
