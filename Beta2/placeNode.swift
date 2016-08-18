@@ -9,7 +9,7 @@
 import Foundation
 import Firebase
 
-struct placeNode {
+public struct placeNode {
     //defined as implicitly unwrapped optionals
     var place: String?
     var category: [String]?
@@ -50,6 +50,7 @@ struct placeNode {
             self.category?.append(catName)
         }
     }
+    
     
 //    init(snapshot: FDataSnapshot) {
 //        key = snapshot.key

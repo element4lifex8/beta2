@@ -10,11 +10,12 @@ import UIKit
 import Firebase
 import Foundation
 
-class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UICollectionViewDataSource, UICollectionViewDelegate {
+class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UICollectionViewDataSource, UICollectionViewDelegate      {
 
     var placesArr = [String]()
     var tableData = [String]()
     var placeObj = placeNode()
+    var placeNodeTreeRoot = PlaceNodeTree()
     var objArr = [placeNode()]
     var namePlaceNodeDict = [String: placeNode]()
     var cityPlaceNodeDict = [String: [placeNode]]()
@@ -61,11 +62,15 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         //Retrieve List of checked out places in curr user's list
         retrieveUserPlaces() {(completedArr:[String]) in
             self.placesArr = completedArr
-            self.placeObj.place = completedArr[0]
+
             //pass list of all user's places to retrieve place attributes from master list
-            self.retrieveAttributesFromMaster(completedArr){ (completeTableDataArr: [String]) in
+            self.retrieveAttributesFromMaster(completedArr){ (placeNodeArr: [placeNode]) in
                 //localTableDataArr is concatenated list of all data, currently unused
-                self.tableDataArr = completeTableDataArr
+//                self.tableDataArr = completeTableDataArr
+                self.generateTree(placeNodeArr)
+//                let count = self.placeNodeTreeRoot.nodeCountAtDepth(1)
+//                let count = self.placeNodeTreeRoot.children![4].nodeCountAtDepth(-1)
+                self.placeNodeTreeRoot.sortChildNodes()
                 self.sortRetrievedDataByCity()
                 self.tableView.reloadData()
             }
@@ -73,6 +78,41 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
     }
 
+    func generateTree(nodeArr: [placeNode]){
+        //Loop through all place nodes, and iterate over array of categories and cities
+        for placeNode in nodeArr{
+            //I can have multiple cities for a single placeNode, or city can be nil
+            if let cities = placeNode.city{
+                for city in cities{
+                    if let existingCity = placeNodeTreeRoot.search(city)
+                    {
+                        addTreeNodeToCity(placeNode, cityNode: existingCity)
+                    }else{//Currenty city does not exist
+                        let newCityNode = PlaceNodeTree(nodeVal: city)
+                        placeNodeTreeRoot.addChild(newCityNode)
+                        addTreeNodeToCity(placeNode, cityNode: newCityNode)
+                        
+                    }
+                }
+            }
+        }
+        print(placeNodeTreeRoot)
+    }
+    
+    func addTreeNodeToCity(nodeStruct: placeNode, cityNode: PlaceNodeTree){
+        //Add place to existing city for each category
+        if let categories = nodeStruct.category{
+            for category in categories{
+                if let existingCategory = cityNode.search(category){
+                    existingCategory.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!))
+                }else{//category does not exist
+                    let newCategoryNode = PlaceNodeTree(nodeVal: category)
+                    cityNode.addChild(newCategoryNode)
+                    newCategoryNode.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!))
+                }
+            }
+        }
+    }
     //Iterate over Dictionary of String:PlaceNode array and create a sorted Dict of the same type
     func sortRetrievedDataByCity(){
         var categoryDict = [String: [String]]()
@@ -179,7 +219,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
 
     //Funtion is passed the list of checked in places and retrieves the city and category attributes for each place
-    func retrieveAttributesFromMaster(retrievedPlaces: [String], completionClosure: (completeTableDataArr: [String]) -> Void)
+    func retrieveAttributesFromMaster(retrievedPlaces: [String], completionClosure: (placeNodeArr: [placeNode]) -> Void)
     {
         var localTableDataArr = [String]()
         var locPlaceNodeArr = [placeNode]()
@@ -188,7 +228,6 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         {
             retrievePlaceAttributes(place, completionClosure: { (categoryArr: [String], cityArr: [String]) in
                 locPlaceNodeObj = placeNode()
-                locPlaceNodeArr.removeAll()
                 locPlaceNodeObj.place = place
                 localTableDataArr.append(place)
                 //store data in the place node
@@ -202,7 +241,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 //call completion closure for viewDidLoad calling function if this closure is called on last array item
                 if(index == (retrievedPlaces.count - 1)){
                     //localTableDataArr is concatenated list of all data, currently unused
-                    completionClosure(completeTableDataArr: localTableDataArr)
+                    completionClosure(placeNodeArr: locPlaceNodeArr)
                 }
             })
         }
@@ -216,7 +255,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             for child in snapshot.children {
                 //true if child key in the snapshot is not nil (e.g. attributes about the place exist), then unwrap and store in array
                 if let childKey = child.key{
-                    localPlacesArr.append(childKey!)
+                    localPlacesArr.append(childKey)
                 }
             }
             completionClosure(completedArr: localPlacesArr)
@@ -262,7 +301,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     //Return number of top level entries in sorted dict e.g.  num cities from [City : [Cat:[Place]]]
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return self.citySortedArr.count
+        return placeNodeTreeRoot.nodeCountAtDepth(1)
     }
     
     func getItemWithIndexPath(indexPath: NSIndexPath) -> (place: String,isHeader: Bool)
