@@ -87,7 +87,6 @@ class PlaceNodeTree{
                         }
                     }
                     else if(child.depth == depth){
-                        print(child.nodeValue)
                         newCount+=1
                     }
                     else{  //Only add children if current depth hasn't been reached
@@ -104,6 +103,8 @@ class PlaceNodeTree{
         
     }
     
+//    Iterative tree function
+
     func sortChildNodes() {
         var queue:[PlaceNodeTree] = [self]
         var queueNext:[PlaceNodeTree]  = []
@@ -116,7 +117,7 @@ class PlaceNodeTree{
                          //Children are sorted during the parent node's iteration, don't add leaves to queueNext
                         queueSort.append(child) //queue only holds current parent's nodes
                         if(child.children != nil){
-                            queueNext.append(child) //queue holds nodes of all parents at this depth
+                            queueNext.append(child) //queue holds nodes that are parents at this depth
                         }
                     }
                     //Sort all children for the current node
@@ -133,7 +134,64 @@ class PlaceNodeTree{
         }
         
     }
-
+    
+    //Count each node until the node matching the index path requested is reached
+    func returnNodeAtIndex(indexPath: Int) -> PlaceNodeTree?
+    {
+        var stack:[PlaceNodeTree] = [self]
+        var currentNode:PlaceNodeTree? = self
+        var visitedNodes:NSMutableSet = NSMutableSet()  //Set of Unique TreeNodes
+        var counter = -1 //Start counter at -1 to indicate root node cannot be considered for matching index path
+        var restart = false //used to determine when to call continue and restart while loop
+        var removeParent = false
+        
+        while (currentNode != nil){
+            //check the current node at the top of the stack and see if it has been counted
+            if(!(visitedNodes.containsObject(currentNode!))){
+                if(counter == indexPath) {    //check if node count matches index path
+                    return currentNode
+                }
+                visitedNodes.addObject(currentNode!)
+                counter += 1
+            }
+            //Loop over all current node's children to look for the next untraversed path
+            if let children = currentNode?.children{
+                for (childCount,child) in children.enumerate(){
+                    if(!(visitedNodes.containsObject(child))){ //check for the first child that hasn't been traversed and add to stack
+                        stack.append(child)
+                        currentNode = child
+                        restart = true
+                        break   //first child found, quit for loop
+                    }
+                    //Keep track of when the current parent has iterated through all children
+                    if(childCount == children.count - 1){ //child count enumerate is 0 based
+                        removeParent = true
+                    }
+                }
+                if(restart == true){
+                    restart = false
+                    continue    //restart while loop because there are more nodes to traverse to reach leaf
+                }
+            }
+            //Once the leaf has been reached pop the leaf and reiterate while loop until a path is reached that hasn't been traversed
+            //Don't reiterate over a leaf twice sunce this pop statement is only reached at the leaves
+            if((currentNode?.children == nil) && (currentNode?.nodeValue == (stack.last)?.nodeValue)){
+                stack.removeLast()
+            }else if(currentNode?.children == nil){
+                print("Unbalanced tree, current node is leaf \(currentNode?.nodeValue) but it is not on the Stack")
+            }
+            //Determine how to iterate over the stack, only pop parent if no more children exist
+            if(removeParent){ //Only remove the parent if all children have been iterated over, otherwise, the parent remains the current node and top of stack
+                removeParent = false
+                stack.removeLast()  //Remove parent and don't reiterate over all child nodes
+                currentNode = stack.count > 0 ? stack.last : nil
+            }else{
+                currentNode = stack.count > 0 ? stack.last : nil
+            }
+            
+        }
+        return nil  //No node was found matching index path
+    }
     
 //    Depth first count of all nodes starting at calling node
     func nodeCount() -> Int {
@@ -151,6 +209,78 @@ class PlaceNodeTree{
         }
         //reached when depth first traversal ends
         return leafCount
+    }
+    
+    
+    
+//     Unused
+    //   Try 2 Depth first search for index path
+    func returnNode(indexPath: Int) -> (Int,PlaceNodeTree?) {
+        var leafCount = 0
+        var tempCount = 0
+        var treeNode:PlaceNodeTree? = nil
+        
+        if(self.children == nil)    //enter when each leaf is reached
+        {
+            return (1, nil)  //Counts the number of leaf nodes
+        }else{
+            //Check parent node for index path before checking children
+            if(leafCount == indexPath){
+                return (leafCount, self)     //Return calling parent if matching index path
+            }else if let nodeChille = self.children{
+                for child in nodeChille {
+                    (tempCount, treeNode) = child.returnNode(indexPath)
+                    leafCount += tempCount
+                    if(leafCount == indexPath){     //Check on return for leaf node matching indexPath
+                        return (leafCount, treeNode)
+                    }
+                }
+            }
+            leafCount += 1    //Reached after all children of the current node have been counted, include current node in the count
+        }
+        //reached when depth first traversal ends
+        return (leafCount, treeNode)
+    }
+    
+    //    Depth first tree traversal to map indexPath to a node
+    func nodeAtIndexPath(indexPath: Int, nodeCount: Int) -> (currCount: Int, node: PlaceNodeTree?)  {
+        var leafCount = 0
+        var tempCount = 0
+        var parentCount = 0
+        var nodesTraversed = nodeCount
+        var retNode:PlaceNodeTree? = nil
+        if(self.children == nil)    //enter when each leaf is reached
+        {
+            if(nodeCount+1 == indexPath){   //Count the current leaf in the count of nodes traversed
+                return (1, self)
+            }
+            else{
+                return(1,nil)   //Leaves are counted by the child enumeration loop
+            }
+        }else{
+            if(nodeCount == indexPath){   //Section root node is included in Node count
+                return (1, self)  //Return 1 to Count the current node
+            }
+            else if let nodeChille = self.children{
+                for child in nodeChille {
+                    nodesTraversed += parentCount + leafCount   //enemurate starts at 0, count 1st parent node
+                    //recurse into the next depth with a count of all previously recursed nodes plus the current parent
+                    (tempCount, retNode) = child.nodeAtIndexPath(indexPath, nodeCount: nodesTraversed)
+                    if(retNode != nil)  //If child was found matching index path then end recursion
+                    {
+                        return  (nodesTraversed, retNode)
+                    }
+                    leafCount += tempCount
+                    if(leafCount + nodesTraversed == indexPath){   //Section root node is included in Node count
+                        return (nodesTraversed, self)  //Return 1 to Count the current node
+                    }
+                }
+//                parentCount += 1    //Count the current parent Node before counting it's leaves
+            }
+           
+        }
+        //reached when depth first traversal ends, leaf count holds total node count
+        return (leafCount + parentCount, retNode)
     }
     
 

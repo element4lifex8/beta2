@@ -65,19 +65,16 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
             //pass list of all user's places to retrieve place attributes from master list
             self.retrieveAttributesFromMaster(completedArr){ (placeNodeArr: [placeNode]) in
-                //localTableDataArr is concatenated list of all data, currently unused
-//                self.tableDataArr = completeTableDataArr
                 self.generateTree(placeNodeArr)
-//                let count = self.placeNodeTreeRoot.nodeCountAtDepth(1)
-//                let count = self.placeNodeTreeRoot.children![4].nodeCountAtDepth(-1)
-                self.placeNodeTreeRoot.sortChildNodes()
+                
                 self.sortRetrievedDataByCity()
                 self.tableView.reloadData()
             }
 
         }
     }
-
+    
+//Tree generation functions
     func generateTree(nodeArr: [placeNode]){
         //Loop through all place nodes, and iterate over array of categories and cities
         for placeNode in nodeArr{
@@ -113,6 +110,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             }
         }
     }
+//    Unused dict func
     //Iterate over Dictionary of String:PlaceNode array and create a sorted Dict of the same type
     func sortRetrievedDataByCity(){
         var categoryDict = [String: [String]]()
@@ -274,7 +272,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         //add separator below header
         cell.addSeperator(tableView.frame.size.width)
 
-        cell.tableCellValue.text=self.citySortedArr[section]
+        cell.tableCellValue.text=placeNodeTreeRoot.children![section].nodeValue
         cell.tableCellValue.font = UIFont(name: "Avenir-HeavyOblique", size: 24)
         cell.tableCellValue.textColor=UIColor.whiteColor()
         //cell.backgroundColor=UIColor.clearColor()
@@ -299,11 +297,12 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         cell.backgroundColor = .clearColor()
     }
     
-    //Return number of top level entries in sorted dict e.g.  num cities from [City : [Cat:[Place]]]
+    //Return number of top level entries from the first depth of the tree (Number of cities by default)
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return placeNodeTreeRoot.nodeCountAtDepth(1)
     }
     
+//    Unused Function used as a dict lookup for table data
     func getItemWithIndexPath(indexPath: NSIndexPath) -> (place: String,isHeader: Bool)
     {
         var subIndexRow = indexPath.row
@@ -325,7 +324,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 break;
             }
             else{
-                //Since the first entry was a category, need to increment the arr count
+                //Finished loop over current category and its places, need to modify subIndex to look at next category 
                 subIndexRow -= placeArr.count + 1
             }
         }
@@ -338,47 +337,54 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     //return the number of rows per section in the table
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let currCityAttrDict = self.citySortedDict[self.citySortedArr[section]]   //get [Category: [Places]] for current city
-        var catNameAndPlaceCount = currCityAttrDict?.count  //store the num categories
-        //loop over all places in each category to get the full count
-        for (_,placeArr) in currCityAttrDict!{
-            catNameAndPlaceCount! += placeArr.count
-        }
-        return catNameAndPlaceCount!
+        //Count all of the children for the current section
+        return placeNodeTreeRoot.children![section].nodeCountAtDepth(-1)
     }
     
     //configures and provides a cell to display for a given row
     //gets called once for each cell that can be displayed on the current screen
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
     {
-        let tableValue = getItemWithIndexPath(indexPath)
         var cellIdentifier:String
-        //return HeaderTableViewCell if table item is a city
-        if(tableValue.isHeader)
-        {
+
+        //the root's children are the setion headers, or cities
+        //The city becomes the root and is traversed depth first iteratively for the nth item (n=indexPath.row)
+        let treeRet = self.placeNodeTreeRoot.children![indexPath.section].returnNodeAtIndex(indexPath.row)
+        if let treeNode = treeRet{
+            if(treeNode.depth == 2){  //subheader depth
+                cellIdentifier = "subheaderCell"
+                //asks the table view for a cell with my cellidentifier which is the name of my custom cell class
+                let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! SubheaderTableViewCell   //downcast to my cell class type
+                cell.tableCellValue.text="  \(treeNode.nodeValue!)"
+                cell.tableCellValue.font = UIFont(name: "Avenir-Heavy", size: 24)
+                cell.tableCellValue.textColor = UIColor.whiteColor()
+                //Remove seperator insets
+                cell.layoutMargins = UIEdgeInsetsZero
+                return cell
+            }
+            else if(treeNode.depth == 3){
+                // Configure the cell if not Header
+                cellIdentifier = "dataCell"
+                //asks the table view for a cell with my cellidentifier which is the name of my custom cell class
+                let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! TestTableViewCell   //downcast to my cell class type
+                
+                cell.tableCellValue.text = "    \(treeNode.nodeValue!)"
+                cell.tableCellValue.font = UIFont(name: "Avenir-Light", size: 24)
+                cell.tableCellValue.textColor = UIColor.whiteColor()
+                //Remove seperator insets
+                cell.layoutMargins = UIEdgeInsetsZero
+                return cell
+            }
+        }
+
+            print("broken")
             cellIdentifier = "subheaderCell"
             //asks the table view for a cell with my cellidentifier which is the name of my custom cell class
             let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! SubheaderTableViewCell   //downcast to my cell class type
-            cell.tableCellValue.text="  \(tableValue.place)"
-            cell.tableCellValue.font = UIFont(name: "Avenir-Heavy", size: 24)
-            cell.tableCellValue.textColor = UIColor.whiteColor()
-            //Remove seperator insets
-            cell.layoutMargins = UIEdgeInsetsZero
+            cell.tableCellValue.text="Failed to retrieve cell from tree data structure"
+
             return cell
-        }
-        else{
-            // Configure the cell if not Header
-            cellIdentifier = "dataCell"
-            //asks the table view for a cell with my cellidentifier which is the name of my custom cell class
-            let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! TestTableViewCell   //downcast to my cell class type
-            
-            cell.tableCellValue.text = "    \(tableValue.place)"
-            cell.tableCellValue.font = UIFont(name: "Avenir-Light", size: 24)
-            cell.tableCellValue.textColor = UIColor.whiteColor()
-            //Remove seperator insets
-            cell.layoutMargins = UIEdgeInsetsZero
-            return cell
-        }
+
     }
     
     // MARK: - UICollectionViewDataSource protocol
@@ -393,6 +399,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         let reuseIdentifier = "roundButt"
         // get a reference to our storyboard cell
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier(reuseIdentifier, forIndexPath: indexPath) as! RoundButtCollectionViewCell
+//        Outlet no longer used and label created in code
         // Use the outlet in our custom class to get a reference to the UILabel in the cell
 //        cell.myLabel.text = catButtonList[indexPath.item]
 //        cell.myLabel.sizeToFit()
