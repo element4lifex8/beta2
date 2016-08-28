@@ -51,7 +51,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
     let currUserDefaultKey = "FBloginVC.currUser"
     private let sharedFbUser = NSUserDefaults.standardUserDefaults()
     
-    
+    //NSUser defaults stores user i
     var currUser: NSString {
         get
         {
@@ -170,9 +170,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
                 //let userRef = refChecked.childByAppendingPath(restNameText)
                 
                 //update "user places" to contain the establishment and its categories
-                for i in 0 ..< dictArr.count
+                for i in 0 ..< dictArr.count    //array of [cat/city: catName/cityName] 
                 {
-                    for (key,value) in dictArr[i]
+                    for (key,value) in dictArr[i]   //key: city or category
                     {
                         refCheckedPlaces.childByAppendingPath(restNameText).childByAppendingPath(key).updateChildValues([value:"true"])
                     }
@@ -181,7 +181,26 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
                 restNameHistory += [restNameText]
                 dictArr.removeAll()     //Remove elements so the following check in doesn't overwrite the previous
                 self.checkObj = placeNode()  //reinitalize place node for next check in
-                CheckInRestField.text = "Check in Here"
+                //Resotre check in screen to defaults
+                CheckInRestField.text = "Enter Name..."
+                for view in catScrollContainerView.subviews as [UIView] {
+                    if let btn = view as? UIButton {
+                        btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
+                        btn.selected = false
+                        if(btn.backgroundColor != UIColor.clearColor()){
+                            btn.backgroundColor = UIColor.clearColor()
+                        }
+                    }
+                }
+                for view in cityScrollContainerView.subviews as [UIView] {
+                    if let btn = view as? UIButton {
+                        btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
+                        btn.selected = false
+                        if(btn.backgroundColor != UIColor.clearColor()){
+                            btn.backgroundColor = UIColor.clearColor()
+                        }
+                    }
+                }
                 //notifyUser()
             }
         }

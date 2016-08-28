@@ -28,6 +28,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var userRef: Firebase!
     var placesRef: Firebase!
     var selectedCollection = [Int]()
+    var selectedFilters = [String]()
     var headerCount = 0
     var catButtonList = ["Bar", "Breakfast", "Brunch", "Beaches", "Night Club", "Desert", "Dinner", "Food Trucks", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing"]
 
@@ -66,8 +67,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             //pass list of all user's places to retrieve place attributes from master list
             self.retrieveAttributesFromMaster(completedArr){ (placeNodeArr: [placeNode]) in
                 self.generateTree(placeNodeArr)
-                
-                self.sortRetrievedDataByCity()
+                self.placeNodeTreeRoot.sortChildNodes()
                 self.tableView.reloadData()
             }
 
@@ -171,7 +171,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         var cityArrLoc = [String]()
         var categoryArrLoc = [String]()
         currPlacesRef = Firebase(url: "https://check-inout.firebaseio.com/checked/places/\(place)")
-        currPlacesRef.observeEventType(.Value, withBlock: { childSnapshot in
+        currPlacesRef.observeSingleEventOfType(.Value, withBlock: { childSnapshot in
             if !(childSnapshot.value is NSNull)
             {
                 //get category and city key then retreive the attribute's children
@@ -249,7 +249,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     func retrieveUserPlaces(completionClosure: (completedArr: [String]) -> Void) {
         var localPlacesArr = [String]()
         //Retrieve a list of the user's current check in list
-        userRef.observeEventType(.Value, withBlock: { snapshot in
+        userRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
             for child in snapshot.children {
                 //true if child key in the snapshot is not nil (e.g. attributes about the place exist), then unwrap and store in array
                 if let childKey = child.key{
@@ -276,21 +276,26 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         cell.tableCellValue.font = UIFont(name: "Avenir-HeavyOblique", size: 24)
         cell.tableCellValue.textColor=UIColor.whiteColor()
         //cell.backgroundColor=UIColor.clearColor()
+        cell.contentView.backgroundColor = UIColor(red: 0x40/255, green: 0x40/255, blue: 0x40/255, alpha: 1.0)
         //Remove seperator insets
         cell.layoutMargins = UIEdgeInsetsZero
-        return cell
+        return cell.contentView
     }
     
     //Setup subheader and data cell attributes
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat
     {
-        let tableValue = getItemWithIndexPath(indexPath)
-        //return HeaderTableViewCell if table item is a city
-        if(tableValue.isHeader){
-            return 33.0
+        let treeRet = self.placeNodeTreeRoot.children![indexPath.section].returnNodeAtIndex(indexPath.row)
+        if let treeNode = treeRet{
+            if(treeNode.depth == 2){ //return height for subheader
+                return 33.0
+            }else{
+                return 50
+            }
         }else{
             return 50
         }
+        
     }
     
     func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
@@ -387,6 +392,66 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     }
     
+    //Swipe to delete implementation
+    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        if editingStyle == .Delete {
+            let itemToDelete = placeNodeTreeRoot.children![indexPath.section].returnNodeAtIndex(indexPath.row)!
+            confirmDelete(itemToDelete, index: indexPath)
+        }
+    }
+    
+    //Don't allow categories to be deleted with swipe
+    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        let treeRet = self.placeNodeTreeRoot.children![indexPath.section].returnNodeAtIndex(indexPath.row)
+        if let treeNode = treeRet{
+            if(treeNode.depth == 3){
+                return true //Can only delete leaves
+            }else{
+                return false
+            }
+        }else{  //Default can't delete
+            return false
+        }
+    }
+    
+    func confirmDelete(checkInItem: PlaceNodeTree, index: NSIndexPath) {
+        let alert = UIAlertController(title: "Delete Check In", message: "Are you sure you want to permanently delete \(checkInItem)?", preferredStyle: .ActionSheet)
+        
+        let DeleteAction = UIAlertAction(title: "Delete", style: .Destructive, handler:{action in
+            let refToDelete = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)/\(checkInItem.nodeValue!)")
+            self.tableView.beginUpdates()
+            //Remove deleted item from Firebase,the tree and then table
+            refToDelete.removeValue()
+            checkInItem.parent!.removeChild(checkInItem.nodeValue!)
+            self.tableView.deleteRowsAtIndexPaths([index], withRowAnimation: .Automatic)
+            print("deleted")
+            //self.tableView.reloadData()
+            self.tableView.endUpdates()
+        })
+        let CancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+        
+        alert.addAction(DeleteAction)
+        alert.addAction(CancelAction)
+        
+        self.presentViewController(alert, animated: true, completion: nil)
+    }
+    
+    func handleDeleteTableItem(alertAction: UIAlertAction!) -> Void
+    {
+        let refToDelete = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)/\("insert index path item")")
+        tableView.beginUpdates()
+        
+        print("deleted")
+        tableView.endUpdates()
+    }
+    
+    func cancelDeleteTableItem(alertAction: UIAlertAction!) {
+        print("cancelled")
+        
+    }
+    
+//    Collection view functions
+    
     // MARK: - UICollectionViewDataSource protocol
     
     // tell the collection view how many cells to make
@@ -433,7 +498,12 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
         //Keep track of selected items. Items are deselected when scrolled out of view
         selectedCollection.append(indexPath.item)
+        selectedFilters.append(catButtonList[indexPath.item])
         print("Coll \(selectedCollection)")
+        
+        //filter tree to all categories not matching the selected category
+        placeNodeTreeRoot.displayNodeFilter(selectedFilters)
+        self.tableView.reloadData()
     }
     
     func collectionView(collectionView: UICollectionView, didDeselectItemAtIndexPath indexPath: NSIndexPath) {
@@ -444,10 +514,18 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             }
         }
         cell?.backgroundColor = UIColor.clearColor()
-        //Keep track of selected items. Items are deselected when scrolled out of view
+        //Remove selected item from list Keeping track of selected items' index path
         if let index = selectedCollection.indexOf(indexPath.item){
             selectedCollection.removeAtIndex(index)
         }
+        //Remove selected item from list Keeping track of selected items' nodeValue string
+        if let index = selectedFilters.indexOf(catButtonList[indexPath.item]){
+            selectedFilters.removeAtIndex(index)
+        }
+        
+        //filter tree to all categories not matching the selected category
+        placeNodeTreeRoot.displayNodeFilter(selectedFilters)
+        self.tableView.reloadData()
     }
     
     // change background color when user touches cell

@@ -12,9 +12,9 @@ import Foundation
 class PlaceNodeTree{
     var nodeValue: String?
     var depth: Int?
-    
     var parent: PlaceNodeTree?
     var children: [PlaceNodeTree]?
+    var displayNode: Bool   //Used for sorting, parent does not display children when false
     
     //create root node
     init()
@@ -23,6 +23,7 @@ class PlaceNodeTree{
         self.parent = nil
         self.children = nil
         self.depth = 0
+        self.displayNode = true
     }
     
     init(nodeVal: String)
@@ -31,6 +32,7 @@ class PlaceNodeTree{
         self.parent = nil
         self.children = nil
         self.depth = 0
+        self.displayNode = true
     }
     
     func setVal(nodeVal: String){
@@ -45,6 +47,23 @@ class PlaceNodeTree{
         }
         node.parent = self
         node.depth = self.depth! + 1
+        print("node added")
+    }
+    
+    func removeChild(nodeVal: String){
+        var indexToDelete:Int? = nil
+        if let childNodes = self.children{
+            for (index,child) in childNodes.enumerate(){
+                if(child.nodeValue! == nodeVal){
+                    indexToDelete = index
+                }
+            }
+        }
+        if(indexToDelete != nil){
+            children?.removeAtIndex(indexToDelete!)
+        }else{
+            print("child node not found for parent")
+        }
     }
     
     func search(value: String) -> PlaceNodeTree? {
@@ -66,13 +85,13 @@ class PlaceNodeTree{
         {
             return 0
         }else{
-            return recursiveTreeTraversal([self], depth: depth, count: 0)
+            return recursiveBreadthCount([self], depth: depth, count: 0)
         }
     }
     
 //    Breadth width recursion of the tree starting at the passed root node
         //Each succesive recursivve itertion is the next depth level 
-    func recursiveTreeTraversal(queue: [PlaceNodeTree], depth: Int, count: Int) -> Int{
+    func recursiveBreadthCount(queue: [PlaceNodeTree], depth: Int, count: Int) -> Int{
         var newCount = 0
         var queueNext:[PlaceNodeTree] = []
         
@@ -80,17 +99,19 @@ class PlaceNodeTree{
             //Iterate over each child if node contains children and add child to queueNext
             if let nodeChille = node.children{
                 for child in nodeChille {
-                    if(depth < 0){  //Count all nodes if depth = -1
-                        newCount+=1  //newCount contains a breadth width count of nodes at the current level
-                        if(child.children != nil){
-                            queueNext.append(child) //only add node to queue if there are children to traverse
+                    if(child.displayNode == true){   //Don't count child nodes that have been turned off with filtering
+                        if(depth < 0){  //Count all nodes if depth = -1
+                            newCount+=1  //newCount contains a breadth width count of nodes at the current level
+                            if(child.children != nil){
+                                queueNext.append(child) //only add node to queue if there are children to traverse
+                            }
                         }
-                    }
-                    else if(child.depth == depth){
-                        newCount+=1
-                    }
-                    else{  //Only add children if current depth hasn't been reached
-                        queueNext.append(child)
+                        else if(child.depth == depth){
+                            newCount+=1
+                        }
+                        else{  //Only add children if current depth hasn't been reached
+                            queueNext.append(child)
+                        }
                     }
                 }
             }
@@ -98,12 +119,55 @@ class PlaceNodeTree{
         if (queueNext.count == 0){  //return the count of all nodes down to this branch.
             return newCount + count //newCount is the current leaves, and count is all the parents on the path to this leaf
         }else{
-            return recursiveTreeTraversal(queueNext, depth: depth, count: newCount)   //Only need the count for one level so I don't have to add the count argument from current function call
+            return recursiveBreadthCount(queueNext, depth: depth, count: newCount)   //Only need the count for one level so I don't have to add the count argument from current function call
         }
         
     }
     
-//    Iterative tree function
+    //Function take string of nodeValue that should be removed/returned to table data. If no filter is applied return tree to default sort
+    func displayNodeFilter(filterStrings: [String]){
+        recursiveBreadthFilter([self], filter: filterStrings)
+    }
+    
+    func recursiveBreadthFilter(queue: [PlaceNodeTree], filter: [String]){
+        var queueNext:[PlaceNodeTree] = []
+        var defaultSort = false
+        if(filter.count == 0){  //if no filters exist then return tree to default sort
+            defaultSort = true
+        }
+        for node in queue{
+            //Iterate over each child if node contains children and add child to queueNext
+            if let nodeChille = node.children{
+                for child in nodeChille {
+                    //Only consider nodes for filtering if they are a category on depth 2
+                    if(child.depth == 2){
+                        if(!defaultSort){
+                            if(filter.indexOf(child.nodeValue!) != nil){   //child exists in the filter list
+                                child.displayNode = true
+                            }else{
+                                child.displayNode = false
+                            }
+                        }else{  //Display all children nodes
+                            child.displayNode = true
+                        }
+                    }
+                    if(child.children != nil){
+                        queueNext.append(child) //only add node to queue if there are children to traverse
+                    }
+                }
+            }
+        }
+        if (queueNext.count == 0){
+            return  //finished iterating
+        }else{
+            return recursiveBreadthFilter(queueNext, filter: filter)   //Continue to recurse through tree modifying node display
+        }
+        
+    }
+    
+
+
+//    Iterative tree functions
 
     func sortChildNodes() {
         var queue:[PlaceNodeTree] = [self]
@@ -157,11 +221,13 @@ class PlaceNodeTree{
             //Loop over all current node's children to look for the next untraversed path
             if let children = currentNode?.children{
                 for (childCount,child) in children.enumerate(){
-                    if(!(visitedNodes.containsObject(child))){ //check for the first child that hasn't been traversed and add to stack
-                        stack.append(child)
-                        currentNode = child
-                        restart = true
-                        break   //first child found, quit for loop
+                    if(child.displayNode == true){   //Don't include nodes that have been turned off for sorting
+                        if(!(visitedNodes.containsObject(child))){ //check for the first child that hasn't been traversed and add to stack
+                            stack.append(child)
+                            currentNode = child
+                            restart = true
+                            break   //first child found, quit for loop
+                        }
                     }
                     //Keep track of when the current parent has iterated through all children
                     if(childCount == children.count - 1){ //child count enumerate is 0 based
@@ -210,8 +276,6 @@ class PlaceNodeTree{
         //reached when depth first traversal ends
         return leafCount
     }
-    
-    
     
 //     Unused
     //   Try 2 Depth first search for index path
