@@ -30,18 +30,9 @@ class CIOHomeViewController: UIViewController   {
         loginManager.logOut()
         performSegueWithIdentifier("LoginScreen", sender: nil)
     }
-  /*  @IBAction func InHomeButton(sender: UIButton) {
-        print("Home: \(sender)")
-    }*/
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+ 
+    // put in AViewController.swift and BViewController.swift
+    @IBAction func unwindFromMyList(sender: UIStoryboardSegue) {
+        // empty
     }
-    */
-
 }

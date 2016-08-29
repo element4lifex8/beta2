@@ -110,6 +110,8 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             }
         }
     }
+    
+    
 //    Unused dict func
     //Iterate over Dictionary of String:PlaceNode array and create a sorted Dict of the same type
     func sortRetrievedDataByCity(){

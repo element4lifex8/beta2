@@ -87,19 +87,33 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
     
     //Since the bounds of the view controller's view is not ready in viewDidLoad, I like to do frame setting in viewDidLayoutSubviews
     override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+        //Locate origin of city scroll view at superview x origin - 3/4 of scroll view height
+        let scrollViewHeight:CGFloat = 120
+        let cityScrollViewY = (view.frame.size.height / 2) - (scrollViewHeight / 1.25)
+        let catScrollViewY = cityScrollViewY + scrollViewHeight
         
+        super.viewDidLayoutSubviews()
+
         //create frame on screen of scroll view that is 250px from top of screen and the width of the screen and a height of 120px
-        cityScrollView.frame = CGRectMake(0, 250, view.frame.size.width, 120)
+        cityScrollView.frame = CGRectMake(0, cityScrollViewY, view.frame.size.width, scrollViewHeight)
         //we are basing the container view's frame on the scroll view's content size
         cityScrollContainerView.frame = CGRectMake(0, 0, cityScrollView.contentSize.width, cityScrollView.contentSize.height)
+
         
         //setup category scroll frame
-        catScrollView.frame = CGRectMake(0, 368, view.frame.size.width, 120)
+        catScrollView.frame = CGRectMake(0, catScrollViewY, view.frame.size.width, 120)
         
         catScrollContainerView.frame = CGRectMake(0, 0, catScrollView.contentSize.width, catScrollView.contentSize.height)
     }
    
+    /**
+     * Called when 'return' key pressed. return NO to ignore.
+     */
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        view.endEditing(true)
+        return true
+    }
+    
     //Detect when user taps outside of scroll views and remove any delete city buttons if they are present
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
         
@@ -107,6 +121,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         
         if let touch: UITouch = touches.first{
             if (touch.view == checkInView){
+                //dismiss keyboard if present
+                CheckInRestField.resignFirstResponder()
                 for case let btn as DeleteCityUIButton in cityScrollContainerView.subviews{
                     btn.removeFromSuperview()
                 }
@@ -115,6 +131,11 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
     }
     
     @IBOutlet weak var CheckInRestField: UITextField!
+    
+    // put in AViewController.swift and BViewController.swift
+    @IBAction func unwindFromMyList(sender: UIStoryboardSegue) {
+        // empty
+    }
     
 //    Collect data from text box and determine if it is for adding new city or to save check in to firebase
     
@@ -390,9 +411,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         
         //Add container view to scroll view
         cityScrollView.addSubview(cityScrollContainerView)
+        
         //add scroll view to super view
         view.addSubview(cityScrollView)
-        //view.setNeedsDisplay()
+        
         //Add button to scroll view's container view
         for (index,cityText) in cityButtonList.enumerate(){
         let button = UIButton(frame: CGRect(x: (index * buttonRad) + ((index+1)*buttonSpacing), y: 0, width: buttonRad, height: buttonRad))   // X, Y, width, height

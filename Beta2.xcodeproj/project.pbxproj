@@ -40,6 +40,7 @@
 		EB85D5551C51B5B200F2E29F /* ProfileStepsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */; };
 		EB85D5571C540E6800F2E29F /* AddFbFriendsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */; };
 		EB85D5701C5982F000F2E29F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB85D5641C5982F000F2E29F /* CoreData.framework */; };
+		EB97CF621D73902900A3DBA1 /* ScrollViewAnchor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB97CF611D73902900A3DBA1 /* ScrollViewAnchor.swift */; };
 		EBA4D0FD1C6423DB00BB459F /* libc++.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EBA4D0FB1C6423DB00BB459F /* libc++.1.dylib */; };
 		EBA4D0FE1C6423DB00BB459F /* libicucore.A.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EBA4D0FC1C6423DB00BB459F /* libicucore.A.dylib */; };
 		EBA4D0FF1C6423E800BB459F /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C71C62C57E001E0F62 /* CFNetwork.framework */; };
@@ -113,6 +114,7 @@
 		EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileStepsViewController.swift; sourceTree = "<group>"; };
 		EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFbFriendsViewController.swift; sourceTree = "<group>"; };
 		EB85D5641C5982F000F2E29F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		EB97CF611D73902900A3DBA1 /* ScrollViewAnchor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ScrollViewAnchor.swift; path = ../ScrollViewAnchor.swift; sourceTree = "<group>"; };
 		EBA4D0FB1C6423DB00BB459F /* libc++.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.1.dylib"; path = "../../../../../usr/lib/libc++.1.dylib"; sourceTree = "<group>"; };
 		EBA4D0FC1C6423DB00BB459F /* libicucore.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.A.dylib; path = ../../../../../usr/lib/libicucore.A.dylib; sourceTree = "<group>"; };
 		EBAC6D051CC855C20060BC73 /* OutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutViewController.swift; sourceTree = "<group>"; };
@@ -226,6 +228,7 @@
 				EB6B3FBC1C0E7BE200A6B469 /* CheckedView.swift */,
 				EB63152B1BF961D7009683FE /* CheckInViewController.swift */,
 				EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */,
+				EB97CF611D73902900A3DBA1 /* ScrollViewAnchor.swift */,
 				EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */,
 				EB06561B1BEE37F300CF8376 /* AppDelegate.swift */,
 				EB1405C51D3007B1001D3924 /* CheckedCoreData.xcdatamodeld */,
@@ -452,6 +455,7 @@
 				EB4C38471D453C8F00D11721 /* DeleteCityUIButton.swift in Sources */,
 				EB5A49B31D5FDBDC00B9AB17 /* RoundButtCollectionViewCell.swift in Sources */,
 				EB49A2E51C78ED45006F16AB /* checkList.swift in Sources */,
+				EB97CF621D73902900A3DBA1 /* ScrollViewAnchor.swift in Sources */,
 				EB5A49B51D61005F00B9AB17 /* PlaceNodeTree.swift in Sources */,
 				EB63152E1BF96241009683FE /* CheckInView.swift in Sources */,
 				EB03E57D1C150669009A55F1 /* TestTableViewCell.swift in Sources */,

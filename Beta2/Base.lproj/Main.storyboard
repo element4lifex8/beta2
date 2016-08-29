@@ -628,6 +628,9 @@
                                         <exclude reference="dDu-pA-sDD"/>
                                     </mask>
                                 </variation>
+                                <connections>
+                                    <outlet property="delegate" destination="73K-Wi-PQi" id="stN-cd-O0x"/>
+                                </connections>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Nb8-9C-NYc">
                                 <rect key="frame" x="12" y="65" width="30" height="45"/>
@@ -785,7 +788,7 @@
                                             <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         </state>
                                         <connections>
-                                            <segue destination="d9b-uY-bxQ" kind="show" id="Hp4-7N-gaI"/>
+                                            <segue destination="X29-3O-otP" kind="unwind" unwindAction="unwindFromMyList:" id="pau-nh-0ba"/>
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="My List" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CcS-es-1JA">
@@ -1238,6 +1241,7 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="U8S-tt-PJO" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="X29-3O-otP" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="4614" y="141.75"/>
         </scene>
@@ -1248,7 +1252,7 @@
         <image name="myListIcon" width="20" height="21"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="Hp4-7N-gaI"/>
-        <segue reference="8zc-AM-fSt"/>
+        <segue reference="A3V-Yk-deH"/>
+        <segue reference="pC0-bG-BYT"/>
     </inferredMetricsTieBreakers>
 </document>

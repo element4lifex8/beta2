@@ -47,7 +47,6 @@ class PlaceNodeTree{
         }
         node.parent = self
         node.depth = self.depth! + 1
-        print("node added")
     }
     
     func removeChild(nodeVal: String){
