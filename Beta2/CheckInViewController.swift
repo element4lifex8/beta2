@@ -18,7 +18,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
     var dictArr = [[String:String]]()
     var placesDict = [String : String]()
     var cityButtonList: [String] = ["+"]
-    var catButtonList = ["Bar", "Breakfast", "Brunch", "Beaches", "Night Club", "Desert", "Dinner", "Food Trucks", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing"]
+    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Night Club", "Desert", "Dinner", "Food Trucks", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing", "Winery"]
     var cityButtonCoreData = [NSManagedObject]()
     var placesArr = [String]()
     var arrSize = Int()
@@ -149,7 +149,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
             let catDefaultText = "Enter new category button name"
             if(addButtonText == cityDefaultText || addButtonText == catDefaultText || addButtonText.isEmpty)
             {
-                CheckInRestField.text = "Check in Here"
+                CheckInRestField.text = "Enter Name..."
                 isEnteringCity = false
                 isEnteringCategory = false
             }
@@ -158,7 +158,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
                 //let newCityLoc = cityButtonList.count - 1
                 //cityButtonList.insert(addButtonText, atIndex: newCityLoc)
                 saveCityButton(addButtonText)
-                CheckInRestField.text = "Check in Here"
+                CheckInRestField.text = nil
                 isEnteringCity = false
                 createCityButtons()
             }
@@ -166,7 +166,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
             {
                 let newCatLoc = catButtonList.count - 1
                 catButtonList.insert(addButtonText, atIndex: newCatLoc)
-                CheckInRestField.text = "Check in Here"
+                CheckInRestField.text = "Enter Name..."
                 isEnteringCategory = false
                 createCategoryButtons()
             }
@@ -176,11 +176,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         {
             let restNameText = CheckInRestField.text!
             let dictArrLength = dictArr.count
-            print("dict arr \(dictArrLength)")
             if(!restNameText.isEmpty && restNameText != "Check in Here")
             {
                 self.checkObj.place = restNameText
-                print(checkObj)
                 // Create a reference to a Firebase location
                 let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
                 let refCheckedPlaces = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
@@ -195,6 +193,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
                 {
                     for (key,value) in dictArr[i]   //key: city or category
                     {
+                        //Store categories and cities in user list
+                        refChecked.childByAppendingPath(restNameText).childByAppendingPath(key).updateChildValues([value:"true"])
+                        //Store categories and city info in master list
                         refCheckedPlaces.childByAppendingPath(restNameText).childByAppendingPath(key).updateChildValues([value:"true"])
                     }
                 }
@@ -203,7 +204,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
                 dictArr.removeAll()     //Remove elements so the following check in doesn't overwrite the previous
                 self.checkObj = placeNode()  //reinitalize place node for next check in
                 //Resotre check in screen to defaults
-                CheckInRestField.text = "Enter Name..."
+                CheckInRestField.text = nil
                 for view in catScrollContainerView.subviews as [UIView] {
                     if let btn = view as? UIButton {
                         btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
@@ -238,15 +239,19 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         }
         else
         {
-            makeButtonSelected(sender)
             let categoryDict = ["category" : sender.currentTitle!]
-            checkObj.addCategory(sender.currentTitle!)
-            
-            //if dictArr does not contain the selected category already then add it to the dictArr
-            //uses closure for contains func as described here: http://stackoverflow.com/questions/34081580/array-of-any-and-contains
-            if(!dictArr.contains({element in return (element == categoryDict)}))
-            {
-                dictArr.append(categoryDict)
+            if(makeButtonSelected(sender)){
+                checkObj.addCategory(sender.currentTitle!)
+                //if dictArr does not contain the selected category already then add it to the dictArr
+                //uses closure for contains func as described here: http://stackoverflow.com/questions/34081580/array-of-any-and-contains
+                if(!dictArr.contains({element in return (element == categoryDict)}))
+                {
+                    dictArr.append(categoryDict)
+                }
+            }else{   //Button is being deselected
+                if let idxToDelete = dictArr.indexOf({element in return (element == categoryDict)}){
+                    dictArr.removeAtIndex(idxToDelete)
+                }
             }
         }
     }
@@ -261,21 +266,29 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
         }
         else
         {
-            makeButtonSelected(sender)
             let cityDict = ["city" : sender.currentTitle!]   //var cityDict = ["city" : "true"]
-            checkObj.addCity(sender.currentTitle!)
-            //Prevent from being able to add the same city twice to the dictArr
-            if(!dictArr.contains({element in return (element == cityDict)}))
+            if(makeButtonSelected(sender))
             {
-                dictArr.append(cityDict)
+                checkObj.addCity(sender.currentTitle!)
+                //Prevent from being able to add the same city twice to the dictArr
+                if(!dictArr.contains({element in return (element == cityDict)}))
+                {
+                    dictArr.append(cityDict)
+                }
             }
+            else{   //Button is being deselected
+                if let idxToDelete = dictArr.indexOf({element in return (element == cityDict)}){
+                        dictArr.removeAtIndex(idxToDelete)
+                    }
+            }
+            
         }
     }
     
     
 //    Manage and create new buttons
     
-    func makeButtonSelected(button: UIButton) {
+    func makeButtonSelected(button: UIButton) -> Bool {
         let checkImage = UIImage(named: "Check Symbol")
         button.setImage(checkImage, forState: .Selected)
         let imageSize: CGSize = checkImage!.size
@@ -305,6 +318,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
             button.backgroundColor = UIColor.clearColor()
             button.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
         }
+        return button.selected
     }
     
     //save City button to CoreData for persistance

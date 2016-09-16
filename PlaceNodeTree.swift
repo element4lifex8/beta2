@@ -14,6 +14,7 @@ class PlaceNodeTree{
     var depth: Int?
     var parent: PlaceNodeTree?
     var children: [PlaceNodeTree]?
+    var sibling: [String]?
     var displayNode: Bool   //Used for sorting, parent does not display children when false
     
     //create root node
@@ -22,6 +23,7 @@ class PlaceNodeTree{
         self.nodeValue = "Root"
         self.parent = nil
         self.children = nil
+        self.sibling=nil
         self.depth = 0
         self.displayNode = true
     }
@@ -39,7 +41,7 @@ class PlaceNodeTree{
         self.nodeValue = nodeVal
     }
     
-    func addChild(node: PlaceNodeTree) {
+    func addChild(node: PlaceNodeTree)->PlaceNodeTree {
         if (self.children == nil){
             self.children = [node]
         }else{
@@ -47,9 +49,21 @@ class PlaceNodeTree{
         }
         node.parent = self
         node.depth = self.depth! + 1
+        return node
     }
     
-    func removeChild(nodeVal: String){
+    func addSibling(siblings: [String]) {
+        if (self.sibling == nil){
+            self.sibling = siblings
+        }else{
+            for sib in siblings{
+                self.sibling?.append(sib)
+            }
+        }
+    }
+    
+    //Function returns tree if the deletion left the Parent childless
+    func removeChild(nodeVal: String)-> Bool{
         var indexToDelete:Int? = nil
         if let childNodes = self.children{
             for (index,child) in childNodes.enumerate(){
@@ -60,9 +74,15 @@ class PlaceNodeTree{
         }
         if(indexToDelete != nil){
             children?.removeAtIndex(indexToDelete!)
+            if(children?.count == 0 && self.depth == 2){    //Only delete current node if its an empty cat
+                //Recursively call to delete Parent if its only child was just deleted
+                self.parent?.removeChild(self.nodeValue!)
+                return true
+            }
         }else{
             print("child node not found for parent")
         }
+        return false
     }
     
     func search(value: String) -> PlaceNodeTree? {

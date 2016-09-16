@@ -76,36 +76,47 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
 //Tree generation functions
     func generateTree(nodeArr: [placeNode]){
+        var siblings:[String]? = nil
         //Loop through all place nodes, and iterate over array of categories and cities
         for placeNode in nodeArr{
             //I can have multiple cities for a single placeNode, or city can be nil
             if let cities = placeNode.city{
                 for city in cities{
+                    if (cities.count > 1){  //If multiple cities exist keep a reference to all cities
+                        if let currCityIndex = cities.indexOf(city){
+                            var mySiblings = cities
+                            mySiblings.removeAtIndex(currCityIndex)
+                            siblings = mySiblings
+                        }
+                    }
                     if let existingCity = placeNodeTreeRoot.search(city)
                     {
-                        addTreeNodeToCity(placeNode, cityNode: existingCity)
+                        addTreeNodeToCity(placeNode, cityNode: existingCity, siblings: siblings)
                     }else{//Currenty city does not exist
                         let newCityNode = PlaceNodeTree(nodeVal: city)
                         placeNodeTreeRoot.addChild(newCityNode)
-                        addTreeNodeToCity(placeNode, cityNode: newCityNode)
+                        addTreeNodeToCity(placeNode, cityNode: newCityNode, siblings: siblings)
                         
                     }
                 }
             }
         }
-        print(placeNodeTreeRoot)
     }
     
-    func addTreeNodeToCity(nodeStruct: placeNode, cityNode: PlaceNodeTree){
+    func addTreeNodeToCity(nodeStruct: placeNode, cityNode: PlaceNodeTree, siblings: [String]?){
+        var childNode: PlaceNodeTree
         //Add place to existing city for each category
         if let categories = nodeStruct.category{
             for category in categories{
                 if let existingCategory = cityNode.search(category){
-                    existingCategory.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!))
+                    childNode = existingCategory.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!))
                 }else{//category does not exist
                     let newCategoryNode = PlaceNodeTree(nodeVal: category)
                     cityNode.addChild(newCategoryNode)
-                    newCategoryNode.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!))
+                    childNode = newCategoryNode.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!))
+                }
+                if(siblings != nil){
+                    childNode.addSibling(siblings!)
                 }
             }
         }
@@ -172,7 +183,8 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         var completedAttrArr = [String]()
         var cityArrLoc = [String]()
         var categoryArrLoc = [String]()
-        currPlacesRef = Firebase(url: "https://check-inout.firebaseio.com/checked/places/\(place)")
+//        currPlacesRef = Firebase(url: "https://check-inout.firebaseio.com/checked/places/\(place)")
+        currPlacesRef = userRef.childByAppendingPath(place)
         currPlacesRef.observeSingleEventOfType(.Value, withBlock: { childSnapshot in
             if !(childSnapshot.value is NSNull)
             {
@@ -236,11 +248,11 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 locPlaceNodeArr.append(locPlaceNodeObj)
                 self.namePlaceNodeDict[place] = locPlaceNodeObj
                 for attribute in cityArr{
+                    //localTableDataArr is concatenated list of all data, currently unused
                     localTableDataArr.append(attribute)
                 }
                 //call completion closure for viewDidLoad calling function if this closure is called on last array item
                 if(index == (retrievedPlaces.count - 1)){
-                    //localTableDataArr is concatenated list of all data, currently unused
                     completionClosure(placeNodeArr: locPlaceNodeArr)
                 }
             })
@@ -396,9 +408,30 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     //Swipe to delete implementation
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        var indexPaths = [indexPath]
         if editingStyle == .Delete {
             let itemToDelete = placeNodeTreeRoot.children![indexPath.section].returnNodeAtIndex(indexPath.row)!
-            confirmDelete(itemToDelete, index: indexPath)
+//            confirmDelete(itemToDelete, index: indexPath)
+            //Delete item without providing UI alert for confirmation
+            let refToDelete = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)/\(itemToDelete.nodeValue!)")
+            self.tableView.beginUpdates()
+            //Remove deleted item from Firebase,the tree and then table
+            if(itemToDelete.sibling != nil)
+            {
+                let cityRef = refToDelete.childByAppendingPath("city").childByAppendingPath((itemToDelete.parent)!.parent!.nodeValue!)
+                cityRef.removeValue()
+            }else{
+                refToDelete.removeValue()
+            }
+            //If child is the only leaf node then delete the parent node too
+            if(itemToDelete.parent!.removeChild(itemToDelete.nodeValue!)){
+                indexPaths.append(NSIndexPath(forRow: indexPath.row - 1, inSection: indexPath.section))
+            }
+                
+            self.tableView.deleteRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
+            //self.tableView.reloadData()
+            self.tableView.endUpdates()
+
         }
     }
     
@@ -423,7 +456,12 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             let refToDelete = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)/\(checkInItem.nodeValue!)")
             self.tableView.beginUpdates()
             //Remove deleted item from Firebase,the tree and then table
-            refToDelete.removeValue()
+            if(checkInItem.sibling != nil)
+            {
+                refToDelete.childByAppendingPath("city").childByAppendingPath((checkInItem.parent)!.parent!.nodeValue!)
+            }else{
+                refToDelete.removeValue()
+            }
             checkInItem.parent!.removeChild(checkInItem.nodeValue!)
             self.tableView.deleteRowsAtIndexPaths([index], withRowAnimation: .Automatic)
             print("deleted")

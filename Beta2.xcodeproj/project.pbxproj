@@ -27,6 +27,7 @@
 		EB1959CA1C62C585001E0F62 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C91C62C585001E0F62 /* Security.framework */; };
 		EB1959CC1C62C58D001E0F62 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */; };
 		EB1959D11C62C646001E0F62 /* Firebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959D01C62C646001E0F62 /* Firebase.framework */; };
+		EB3A981F1D8B0E5100C16E89 /* CheckOutTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3A981E1D8B0E5100C16E89 /* CheckOutTabBar.swift */; };
 		EB49A2E51C78ED45006F16AB /* checkList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB49A2E41C78ED45006F16AB /* checkList.swift */; };
 		EB4B128D1D57B9C500F8B62C /* MyListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */; };
 		EB4C38471D453C8F00D11721 /* DeleteCityUIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */; };
@@ -100,6 +101,7 @@
 		EB1959C91C62C585001E0F62 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		EB1959D01C62C646001E0F62 /* Firebase.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Firebase.framework; path = ../../Firebase/Firebase.framework; sourceTree = "<group>"; };
+		EB3A981E1D8B0E5100C16E89 /* CheckOutTabBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckOutTabBar.swift; sourceTree = "<group>"; };
 		EB49A2E41C78ED45006F16AB /* checkList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = checkList.swift; sourceTree = "<group>"; };
 		EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyListViewController.swift; sourceTree = "<group>"; };
 		EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DeleteCityUIButton.swift; path = ../DeleteCityUIButton.swift; sourceTree = "<group>"; };
@@ -238,6 +240,7 @@
 				EBBA52DF1CF65B6A0047E22A /* HeaderTableViewCell.swift */,
 				EBBA52E11CFE62730047E22A /* SubheaderTableViewCell.swift */,
 				EBAC6D2C1CD02D430060BC73 /* Main.storyboard */,
+				EB3A981E1D8B0E5100C16E89 /* CheckOutTabBar.swift */,
 				EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */,
 				EB5A49B21D5FDBDC00B9AB17 /* RoundButtCollectionViewCell.swift */,
 				EBBA52E31D0DBA3E0047E22A /* CheckedOutViewController.swift */,
@@ -466,6 +469,7 @@
 				EB06564E1BEE3B4900CF8376 /* CIOHomeViewController.swift in Sources */,
 				EBBA52E21CFE62730047E22A /* SubheaderTableViewCell.swift in Sources */,
 				EBAC6D061CC855C20060BC73 /* OutViewController.swift in Sources */,
+				EB3A981F1D8B0E5100C16E89 /* CheckOutTabBar.swift in Sources */,
 				EB03E57F1C15096C009A55F1 /* CheckedOutListViewController.swift in Sources */,
 				EB6B3FBD1C0E7BE200A6B469 /* CheckedView.swift in Sources */,
 				EB4B128D1D57B9C500F8B62C /* MyListViewController.swift in Sources */,
