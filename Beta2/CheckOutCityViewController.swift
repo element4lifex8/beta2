@@ -12,6 +12,7 @@ import Firebase
 class CheckOutCityViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     @IBOutlet weak var tableView: UITableView!
+    var myCity:[String] = []
     
     var cityRef: Firebase!
     let currUserDefaultKey = "FBloginVC.currUser"
@@ -23,8 +24,6 @@ class CheckOutCityViewController: UIViewController, UITableViewDelegate, UITable
             return (sharedFbUser.objectForKey(currUserDefaultKey) as? NSString)!
         }
     }
-    
-    var myCity:[String] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -77,6 +76,12 @@ class CheckOutCityViewController: UIViewController, UITableViewDelegate, UITable
         cell.backgroundColor = .clearColor()
     }
     
+    //Setup subheader and data cell attributes
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat
+    {
+        return 50
+    }
+    
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
     }
@@ -97,7 +102,10 @@ class CheckOutCityViewController: UIViewController, UITableViewDelegate, UITable
         return cell
     }
 
-    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        let selectedItem = myCity[indexPath.row]
+        print(selectedItem)
+    }
 
 
 }

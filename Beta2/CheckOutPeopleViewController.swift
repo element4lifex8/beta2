@@ -13,7 +13,8 @@ import Foundation
 class CheckOutPeopleViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     @IBOutlet weak var tableView: UITableView!
-    
+    var myFriends:[String] = []
+    var myFriendIds: [String] = []    //list of Facebook Id's with matching index to myFriends array
     var friendsRef: Firebase!
     let currUserDefaultKey = "FBloginVC.currUser"
     private let sharedFbUser = NSUserDefaults.standardUserDefaults()
@@ -26,8 +27,6 @@ class CheckOutPeopleViewController: UIViewController, UITableViewDelegate, UITab
         }
     }
     
-    var myFriends:[String] = []
-    var peopleArr = ["Jimmy", "John", "Jackie", "Jeremy", "Jack", "Jill", "bob", "Lil"]
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tableView.dataSource=self;
@@ -40,28 +39,35 @@ class CheckOutPeopleViewController: UIViewController, UITableViewDelegate, UITab
         
         friendsRef = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
         
-        retrieveMyFriends() {(completedArr:[String]) in
-            self.myFriends = completedArr
+        retrieveMyFriends() {(friendStr:[String], friendId:[String]) in
+            self.myFriends = friendStr
+            self.myFriendIds = friendId
             self.tableView.reloadData()
         }
     }
     
-    func retrieveMyFriends(completionClosure: (completedArr: [String]) -> Void) {
-        var localPlacesArr = [String]()
+    func retrieveMyFriends(completionClosure: (friendStr: [String], friendId:[String]) -> Void) {
+        var localFriendsArr = [String]()
+        var localFriendsId = [String]()
         //Retrieve a list of the user's current check in list
-        friendsRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
-            for child in snapshot.children {
-                //true if child key in the snapshot is not nil (e.g. attributes about the place exist), then unwrap and store in array
-                if let childKey = child.key{
-                    localPlacesArr.append(childKey)
-                }
+        friendsRef.queryOrderedByChild("displayName1").observeEventType(.ChildAdded, withBlock: { snapshot in
+            //If the city is a single dict pair this snap.value will return the city name
+            if let currFriend = snapshot.value["displayName1"] as? String {
+                localFriendsArr.append(currFriend)
+                localFriendsId.append(snapshot.key)
             }
-            completionClosure(completedArr: localPlacesArr)
+            completionClosure(friendStr: localFriendsArr, friendId: localFriendsId)
         })
     }
     
     func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
         cell.backgroundColor = .clearColor()
+    }
+    
+    //Setup data cell height
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat
+    {
+        return 50
     }
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -82,5 +88,10 @@ class CheckOutPeopleViewController: UIViewController, UITableViewDelegate, UITab
         //Remove seperator insets
         cell.layoutMargins = UIEdgeInsetsZero
         return cell
+    }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        let selectedItem = myFriends[indexPath.row]
+        print(selectedItem)
     }
 }

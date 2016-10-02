@@ -286,7 +286,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         //add separator below header
         cell.addSeperator(tableView.frame.size.width)
 
-        cell.tableCellValue.text=placeNodeTreeRoot.children![section].nodeValue
+        cell.tableCellValue.text=" \(placeNodeTreeRoot.children![section].nodeValue!)"
         cell.tableCellValue.font = UIFont(name: "Avenir-HeavyOblique", size: 24)
         cell.tableCellValue.textColor=UIColor.whiteColor()
         //cell.backgroundColor=UIColor.clearColor()
