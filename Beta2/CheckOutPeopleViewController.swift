@@ -36,6 +36,12 @@ class CheckOutPeopleViewController: UIViewController, UITableViewDelegate, UITab
         tableView.separatorInset = UIEdgeInsetsZero
 //        tableView.registerClass(TestTableViewCell.self,forCellReuseIdentifier: "dataCell")
         self.tableView.backgroundColor=UIColor.clearColor()
+        //Create top cell separator for 1st cell
+        let px = 1 / UIScreen.mainScreen().scale
+        let frame = CGRectMake(0, 0, self.tableView.frame.size.width, px)
+        let line: UIView = UIView(frame: frame)
+        self.tableView.tableHeaderView = line
+        line.backgroundColor = self.tableView.separatorColor
         
         friendsRef = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
         
@@ -91,7 +97,21 @@ class CheckOutPeopleViewController: UIViewController, UITableViewDelegate, UITab
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        var myListViewController: MyListViewController!
         let selectedItem = myFriends[indexPath.row]
+        
         print(selectedItem)
+        // create var to store the UID to send to myListVC
+        let selectedUserId = myFriendIds[indexPath.row]
+        
+        //Get ref to storyboard to be able to instantiate view controller
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        myListViewController = storyboard.instantiateViewControllerWithIdentifier("MyListVC") as! MyListViewController
+        // Create an instance of myListVC and pass the variable
+        
+        myListViewController.requestedUser = selectedUserId as NSString
+        
+        // This will perform the segue and pre-load the variable for you to use
+        self.performSegueWithIdentifier("myListSegue", sender: self)
     }
 }

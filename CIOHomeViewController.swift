@@ -31,7 +31,7 @@ class CIOHomeViewController: UIViewController   {
         performSegueWithIdentifier("LoginScreen", sender: nil)
     }
  
-    // put in AViewController.swift and BViewController.swift
+    // Unwind seque from my list
     @IBAction func unwindFromMyList(sender: UIStoryboardSegue) {
         // empty
     }

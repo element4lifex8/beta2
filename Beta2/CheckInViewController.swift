@@ -132,7 +132,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
     
     @IBOutlet weak var CheckInRestField: UITextField!
     
-    // put in AViewController.swift and BViewController.swift
+    // Unwind seque from my myListVC
     @IBAction func unwindFromMyList(sender: UIStoryboardSegue) {
         // empty
     }

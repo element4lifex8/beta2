@@ -35,7 +35,12 @@ class CheckOutCityViewController: UIViewController, UITableViewDelegate, UITable
         tableView.separatorInset = UIEdgeInsetsZero
         //        tableView.registerClass(TestTableViewCell.self,forCellReuseIdentifier: "dataCell")
         self.tableView.backgroundColor=UIColor.clearColor()
-        
+        //Create top cell separator for 1st cell
+        let px = 1 / UIScreen.mainScreen().scale
+        let frame = CGRectMake(0, 0, self.tableView.frame.size.width, px)
+        let line: UIView = UIView(frame: frame)
+        self.tableView.tableHeaderView = line
+        line.backgroundColor = self.tableView.separatorColor
         cityRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
         retrieveFriendCity() {(completedArr:[String]) in
             self.myCity = completedArr

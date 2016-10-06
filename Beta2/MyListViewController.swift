@@ -33,13 +33,14 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var catButtonList = ["Bar", "Breakfast", "Brunch", "Beaches", "Night Club", "Desert", "Dinner", "Food Trucks", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing"]
 
     @IBOutlet weak var tableView: UITableView!
-    
     @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var myListHeaderLabel: UILabel!
     
     let currUserDefaultKey = "FBloginVC.currUser"
     private let sharedFbUser = NSUserDefaults.standardUserDefaults()
     
-    
+    //Store the user whose list is requested, and the current app user
+    var requestedUser: NSString? = nil
     var currUser: NSString {
         get
         {
@@ -289,7 +290,6 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         cell.tableCellValue.text=" \(placeNodeTreeRoot.children![section].nodeValue!)"
         cell.tableCellValue.font = UIFont(name: "Avenir-HeavyOblique", size: 24)
         cell.tableCellValue.textColor=UIColor.whiteColor()
-        //cell.backgroundColor=UIColor.clearColor()
         cell.contentView.backgroundColor = UIColor(red: 0x40/255, green: 0x40/255, blue: 0x40/255, alpha: 1.0)
         //Remove seperator insets
         cell.layoutMargins = UIEdgeInsetsZero
