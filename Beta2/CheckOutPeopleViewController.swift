@@ -14,7 +14,7 @@ class CheckOutPeopleViewController: UIViewController, UITableViewDelegate, UITab
 
     @IBOutlet weak var tableView: UITableView!
     var myFriends:[String] = []
-    var myFriendIds: [String] = []    //list of Facebook Id's with matching index to myFriends array
+    var myFriendIds: [NSString] = []    //list of Facebook Id's with matching index to myFriends array
     var friendsRef: Firebase!
     let currUserDefaultKey = "FBloginVC.currUser"
     private let sharedFbUser = NSUserDefaults.standardUserDefaults()
@@ -97,21 +97,33 @@ class CheckOutPeopleViewController: UIViewController, UITableViewDelegate, UITab
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        var myListViewController: MyListViewController!
-        let selectedItem = myFriends[indexPath.row]
-        
-        print(selectedItem)
-        // create var to store the UID to send to myListVC
-        let selectedUserId = myFriendIds[indexPath.row]
-        
-        //Get ref to storyboard to be able to instantiate view controller
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        myListViewController = storyboard.instantiateViewControllerWithIdentifier("MyListVC") as! MyListViewController
-        // Create an instance of myListVC and pass the variable
-        
-        myListViewController.requestedUser = selectedUserId as NSString
-        
-        // This will perform the segue and pre-load the variable for you to use
+//        // Create an instance of myListVC and pass the variable
+//        let controller = MyListViewController(nibName: "MyListViewController", bundle: nil) as MyListViewController
+//        controller.requestedUser = selectedUserId as NSString
+        // Perform seque to my List VC
         self.performSegueWithIdentifier("myListSegue", sender: self)
     }
+    //Pass the FriendId of the requested list to view
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
+        let userName = myFriends[self.tableView.indexPathForSelectedRow!.row]
+        var firstName = "Friend's List"
+        
+        //Determine the First Name of the Facebook username before the space
+        if let spaceIdx = userName.characters.indexOf(" "){
+            firstName = userName.substringToIndex(spaceIdx)
+        }
+        // Create a new variable to store the instance ofPlayerTableViewController
+        let destinationVC = segue.destinationViewController as! MyListViewController
+        destinationVC.requestedUser = myFriendIds[self.tableView.indexPathForSelectedRow!.row]
+        destinationVC.headerText = firstName
+        
+        //Deselect current row so when returning the last selected user is not still selected
+        self.tableView.deselectRowAtIndexPath(self.tableView.indexPathForSelectedRow!, animated: true)
+    }
+    
+    // Unwind seque from my myListVC
+    @IBAction func unwindFromMyList(sender: UIStoryboardSegue) {
+        // empty
+    }
+
 }

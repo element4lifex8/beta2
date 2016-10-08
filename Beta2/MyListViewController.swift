@@ -30,7 +30,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var selectedCollection = [Int]()
     var selectedFilters = [String]()
     var headerCount = 0
-    var catButtonList = ["Bar", "Breakfast", "Brunch", "Beaches", "Night Club", "Desert", "Dinner", "Food Trucks", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing"]
+    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shops", "Night Club", "Desert", "Dinner", "Food Trucks", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing", "Winery"]
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -39,17 +39,31 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     let currUserDefaultKey = "FBloginVC.currUser"
     private let sharedFbUser = NSUserDefaults.standardUserDefaults()
     
-    //Store the user whose list is requested, and the current app user
-    var requestedUser: NSString? = nil
-    var currUser: NSString {
-        get
-        {
+    //Store the user that the list items will be retrieved for
+    var currUser: NSString = ""
+    
+    //Store the user ID whose list is requested by the CheckoutPeopleVc
+    var requestedUser: NSString?
+    var headerText: String?   //Also store user's first name for header label
+    //retrieve the current app user from NSUserDefaults
+    var defaultUser: NSString {
+        get{
             return (sharedFbUser.objectForKey(currUserDefaultKey) as? NSString)!
         }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        //If another user's list was requested then requestedUser will be set
+        if let userId = requestedUser{
+            self.currUser = userId
+            if let unwrapHeader = headerText{
+                myListHeaderLabel.text = unwrapHeader
+            }
+        }else{  //If no alternate user's list was requested then display the app owner's list
+            self.currUser = defaultUser
+        }
+
         //setup tableView delegates
         self.tableView.dataSource=self;
         self.tableView.delegate=self;
@@ -539,7 +553,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         //Keep track of selected items. Items are deselected when scrolled out of view
         selectedCollection.append(indexPath.item)
         selectedFilters.append(catButtonList[indexPath.item])
-        print("Coll \(selectedCollection)")
+//        print("Coll \(selectedCollection)")
         
         //filter tree to all categories not matching the selected category
         placeNodeTreeRoot.displayNodeFilter(selectedFilters)

@@ -27,7 +27,8 @@ class CheckedOutViewController: UIViewController {
 //        var viewCont: UIViewController
 //        var previousVC: UIViewController? = nil
         let peopleHighImage = UIImage(named: "peopleButton")
-        cityPeopleButton.setImage(peopleHighImage, forState: .Selected)
+//        cityPeopleButton.setImage(peopleHighImage, forState: .Selected)
+        cityPeopleButton.setBackgroundImage(peopleHighImage, forState: .Selected)
         
         sender.selected = sender.state == .Highlighted ? true : false
        
