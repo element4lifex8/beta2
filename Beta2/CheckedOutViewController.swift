@@ -8,15 +8,27 @@
 
 import UIKit
 
+protocol sendContainerDelegate {
+    func buttonStateChange(shouldDisplayPeople: Bool)
+}
+
 class CheckedOutViewController: UIViewController {
     
     
 //    @IBOutlet weak var contentTabView: UIView!
     @IBOutlet weak var cityPeopleButton: UIButton!
     
-    @IBOutlet weak var peopleContainerView: UIView!
+//    @IBOutlet weak var peopleContainerView: UIView!
     
-    @IBOutlet weak var cityContainerView: UIView!
+    @IBOutlet weak var checkContainerView: UIView!
+    
+    //delegate used to send button state to contained VC
+    var containerDelegate: sendContainerDelegate?
+    
+    
+    //keep track of which tableview to display
+    //default view in city view
+    var willDisplayPeople:Bool = false
     
 //    var checkOutCityViewController: CheckOutCityViewController!
 //    var checkOutPeopleViewController: CheckOutPeopleViewController!
@@ -34,11 +46,11 @@ class CheckedOutViewController: UIViewController {
        
         //        Default tab is city view, when button is selected people view is shown
         if(sender.selected){
-            cityContainerView.alpha = 0
-            peopleContainerView.alpha = 1
+            willDisplayPeople = true
+             containerDelegate?.buttonStateChange(true)
         }else{
-            cityContainerView.alpha = 1
-            peopleContainerView.alpha = 0
+            willDisplayPeople = false
+            containerDelegate?.buttonStateChange(false)
         }
 
 //        Default tab is city view, when button is selected people view is shown
@@ -75,9 +87,14 @@ class CheckedOutViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+//        pressTabBar(cityPeopleButton)
+        let containedVC: CheckOutContainedViewController = CheckOutContainedViewController(nibName: "CheckOutContainedViewController", bundle: nil) as CheckOutContainedViewController
+        
+//        How to setup container view controllers the right way (didn't work for me) I don't think I was obtaining a proper reference to the VC's from the storyboard
+//        containedVC = CheckOutContainedViewController(nibName: "CheckOutContainedViewController", bundle: nil) as CheckOutContainedViewController
+        
 //        let cityHighImage = UIImage(named: "cityButton")
 //        cityPeopleButton.setImage(cityHighImage, forState: .Normal)
-        pressTabBar(cityPeopleButton)
         
         //Get ref to storyboard to be able to instantiate view controller
 //        let storyboard = UIStoryboard(name: "Main", bundle: nil)
@@ -87,6 +104,8 @@ class CheckedOutViewController: UIViewController {
 
 
     }
-}
     
+    
+}
+
 

@@ -41,6 +41,7 @@ class CheckOutCityViewController: UIViewController, UITableViewDelegate, UITable
         let line: UIView = UIView(frame: frame)
         self.tableView.tableHeaderView = line
         line.backgroundColor = self.tableView.separatorColor
+        //Firebase ref to the list of users and their check ins
         cityRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
         retrieveFriendCity() {(completedArr:[String]) in
             self.myCity = completedArr
@@ -108,8 +109,28 @@ class CheckOutCityViewController: UIViewController, UITableViewDelegate, UITable
     }
 
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        let selectedItem = myCity[indexPath.row]
-        print(selectedItem)
+//        let selectedItem = myCity[indexPath.row]
+        self.performSegueWithIdentifier("myListSegue", sender: self)
+    }
+
+    //Pass the FriendId's of the requested list to view
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
+        let cityName = myCity[self.tableView.indexPathForSelectedRow!.row]
+        
+        //Create reference to
+        
+        // Create a new variable to store the instance ofPlayerTableViewController
+        let destinationVC = segue.destinationViewController as! MyListViewController
+        destinationVC.requestedUser = myCity[self.tableView.indexPathForSelectedRow!.row]
+        destinationVC.headerText = cityName
+        
+        //Deselect current row so when returning the last selected user is not still selected
+        self.tableView.deselectRowAtIndexPath(self.tableView.indexPathForSelectedRow!, animated: true)
+    }
+    
+    // Unwind seque from my myListVC
+    @IBAction func unwindFromMyList(sender: UIStoryboardSegue) {
+        // empty
     }
 
 

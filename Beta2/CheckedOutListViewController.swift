@@ -10,6 +10,7 @@ import UIKit
 import Firebase
 import Foundation
 
+//View controller container used to simultaneously load checkOutCity and checkOutPeople data
 class CheckedOutListViewController: UITableViewController {
 
     

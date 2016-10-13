@@ -34,6 +34,7 @@
 		EB4B128D1D57B9C500F8B62C /* MyListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */; };
 		EB4C38471D453C8F00D11721 /* DeleteCityUIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */; };
 		EB4C38491D48364E00D11721 /* TableHeaderUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4C38481D48364E00D11721 /* TableHeaderUIView.swift */; };
+		EB5161C71DAAA6B600321D98 /* CheckOutContainedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5161C61DAAA6B600321D98 /* CheckOutContainedViewController.swift */; };
 		EB55D6271CEBD180004D81D0 /* placeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB55D6261CEBD180004D81D0 /* placeNode.swift */; };
 		EB5A49B51D61005F00B9AB17 /* PlaceNodeTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5A49B41D61005F00B9AB17 /* PlaceNodeTree.swift */; };
 		EB63152E1BF96241009683FE /* CheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB63152D1BF96241009683FE /* CheckInView.swift */; };
@@ -108,6 +109,7 @@
 		EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyListViewController.swift; sourceTree = "<group>"; };
 		EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DeleteCityUIButton.swift; path = ../DeleteCityUIButton.swift; sourceTree = "<group>"; };
 		EB4C38481D48364E00D11721 /* TableHeaderUIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TableHeaderUIView.swift; path = ../TableHeaderUIView.swift; sourceTree = "<group>"; };
+		EB5161C61DAAA6B600321D98 /* CheckOutContainedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckOutContainedViewController.swift; sourceTree = "<group>"; };
 		EB55D6261CEBD180004D81D0 /* placeNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = placeNode.swift; sourceTree = "<group>"; };
 		EB5A49B41D61005F00B9AB17 /* PlaceNodeTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PlaceNodeTree.swift; path = ../PlaceNodeTree.swift; sourceTree = "<group>"; };
 		EB63152B1BF961D7009683FE /* CheckInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CheckInViewController.swift; path = Beta2/CheckInViewController.swift; sourceTree = SOURCE_ROOT; };
@@ -242,6 +244,7 @@
 				EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */,
 				EB3A98221D9814BA00C16E89 /* RoundButtCollectionViewCell.swift */,
 				EBBA52E31D0DBA3E0047E22A /* CheckedOutViewController.swift */,
+				EB5161C61DAAA6B600321D98 /* CheckOutContainedViewController.swift */,
 				EB3A98241D98A6B700C16E89 /* CheckOutCityViewController.swift */,
 				EB3A982A1D99D0AF00C16E89 /* CheckOutPeopleViewController.swift */,
 				EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */,
@@ -492,6 +495,7 @@
 				EBBA52E41D0DBA3E0047E22A /* CheckedOutViewController.swift in Sources */,
 				EB03E5C21C25FE72009A55F1 /* FBloginViewController.swift in Sources */,
 				EB1405C71D3007B1001D3924 /* CheckedCoreData.xcdatamodeld in Sources */,
+				EB5161C71DAAA6B600321D98 /* CheckOutContainedViewController.swift in Sources */,
 				EB0656501BEE3BF200CF8376 /* CIOHomeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
