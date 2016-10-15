@@ -15,6 +15,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var placesArr = [String]()
     var tableData = [String]()
     var placeObj = placeNode()
+    var myPlaceNodes = [placeNode()]
     var placeNodeTreeRoot = PlaceNodeTree()
     var objArr = [placeNode()]
     var namePlaceNodeDict = [String: placeNode]()
@@ -25,13 +26,14 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var tableDataArr = [String]()
     var arrSize = Int()
     var ref: Firebase!
-    var userRef: Firebase!
     var placesRef: Firebase!
     var selectedCollection = [Int]()
     var selectedFilters = [String]()
     var headerCount = 0
     var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shops", "Night Club", "Desert", "Dinner", "Food Trucks", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing", "Winery"]
-
+    var userRef: Firebase!
+   
+    
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var myListHeaderLabel: UILabel!
@@ -40,11 +42,9 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     private let sharedFbUser = NSUserDefaults.standardUserDefaults()
     
     //Store the user that the list items will be retrieved for
-    var currUser: NSString = ""
+    var currUsers: [NSString]?
+    var currUser: String = ""
     
-    //Store the user ID whose list is requested by the CheckoutPeopleVc
-    var requestedUser: NSString?
-    var headerText: String?   //Also store user's first name for header label
     //retrieve the current app user from NSUserDefaults
     var defaultUser: NSString {
         get{
@@ -52,16 +52,26 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
     }
     
+//    Variables set by another view controller
+    //Store the user ID whose list is requested by the CheckoutPeopleVc
+    var requestedUser: NSString?
+    var headerText: String?   //Also store user's first name for header label
+    var myFriendIds:[NSString]?
+    var showAllCities: Bool?
+    
     override func viewDidLoad() {
+        var currRef: Firebase!
+        
         super.viewDidLoad()
+        userRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(defaultUser)")
         //If another user's list was requested then requestedUser will be set
-        if let userId = requestedUser{
-            self.currUser = userId
+        if let userIds = myFriendIds{
+            self.currUsers = userIds
             if let unwrapHeader = headerText{
                 myListHeaderLabel.text = unwrapHeader
             }
         }else{  //If no alternate user's list was requested then display the app owner's list
-            self.currUser = defaultUser
+            self.currUsers = [defaultUser]
         }
 
         //setup tableView delegates
@@ -73,20 +83,30 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         tableView.registerClass(TestTableViewCell.self,forCellReuseIdentifier: "Cell")
         self.tableView.backgroundColor=UIColor.clearColor()
         collectionView?.allowsMultipleSelection = true
-        userRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
         placesRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
-        //Retrieve List of checked out places in curr user's list
-        retrieveUserPlaces() {(completedArr:[String]) in
-            self.placesArr = completedArr
+        
+        //Loop over all the current users that are expected (1 if viewing my list or friend list, all friends if viewing a city only list)
+        for (numIter,friendId) in self.currUsers!.enumerate(){
+            currRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(friendId)")
+            //Retrieve List of checked out places in curr user's list
+            retrieveUserPlaces(currRef) {(completedArr:[String]) in
+                self.placesArr = completedArr
 
-            //pass list of all user's places to retrieve place attributes from master list
-            self.retrieveAttributesFromMaster(completedArr){ (placeNodeArr: [placeNode]) in
-                self.generateTree(placeNodeArr)
-                self.placeNodeTreeRoot.sortChildNodes()
-                self.tableView.reloadData()
+                //pass list of all user's places to retrieve place attributes from master list
+                self.retrieveAttributesFromMaster(currRef, retrievedPlaces: completedArr){ (placeNodeArr: [placeNode]) in
+                    for node in placeNodeArr{
+                        self.myPlaceNodes.append(node)
+                    }
+                    if(numIter == ((self.currUsers?.count)! - 1)){  //When data from all friendIds is gathered then generate tree
+                        self.generateTree(self.myPlaceNodes)
+                        self.placeNodeTreeRoot.sortChildNodes()
+                        self.tableView.reloadData()
+                    }
+                }
+
             }
-
         }
+        
     }
     
 //Tree generation functions
@@ -192,14 +212,14 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
         
     //function receives the name of the place to look up its city and place attributes
-    func retrievePlaceAttributes(place: String, completionClosure: (categoryArr: [String], cityArr: [String]) -> Void)
+    func retrievePlaceAttributes(myRef: Firebase, place: String, completionClosure: (categoryArr: [String], cityArr: [String]) -> Void)
     {
         let currPlacesRef: Firebase!
         var completedAttrArr = [String]()
         var cityArrLoc = [String]()
         var categoryArrLoc = [String]()
 //        currPlacesRef = Firebase(url: "https://check-inout.firebaseio.com/checked/places/\(place)")
-        currPlacesRef = userRef.childByAppendingPath(place)
+        currPlacesRef = myRef.childByAppendingPath(place)
         currPlacesRef.observeSingleEventOfType(.Value, withBlock: { childSnapshot in
             if !(childSnapshot.value is NSNull)
             {
@@ -246,14 +266,14 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
 
     //Funtion is passed the list of checked in places and retrieves the city and category attributes for each place
-    func retrieveAttributesFromMaster(retrievedPlaces: [String], completionClosure: (placeNodeArr: [placeNode]) -> Void)
+    func retrieveAttributesFromMaster(myRef: Firebase, retrievedPlaces: [String], completionClosure: (placeNodeArr: [placeNode]) -> Void)
     {
         var localTableDataArr = [String]()
         var locPlaceNodeArr = [placeNode]()
         var locPlaceNodeObj:placeNode = placeNode()
         for (index,place) in retrievedPlaces.enumerate()
         {
-            retrievePlaceAttributes(place, completionClosure: { (categoryArr: [String], cityArr: [String]) in
+            retrievePlaceAttributes(myRef, place: place, completionClosure: { (categoryArr: [String], cityArr: [String]) in
                 locPlaceNodeObj = placeNode()
                 locPlaceNodeObj.place = place
                 localTableDataArr.append(place)
@@ -274,19 +294,65 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
     }
 
+    
+    //    var userRef: Firebase!
+//    for userId in self.currUsers! {
+//    userRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(userId)")
+//    //Retrieve a list of the user's current check in list
+//    userRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
+//    for child in snapshot.children {
+//    //true if child key in the snapshot is not nil (e.g. attributes about the place exist), then unwrap and store in array
+//    if let childKey = child.key{
+//    localPlacesArr.append(childKey)
+//    }
+//    }
+//    completionClosure(completedArr: localPlacesArr)
+//    })
+
     //Retrieve list of all checked in places for curr user
-    func retrieveUserPlaces(completionClosure: (completedArr: [String]) -> Void) {
+    func retrieveUserPlaces(myRef: Firebase, completionClosure: (completedArr: [String]) -> Void) {
         var localPlacesArr = [String]()
-        //Retrieve a list of the user's current check in list
-        userRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
-            for child in snapshot.children {
-                //true if child key in the snapshot is not nil (e.g. attributes about the place exist), then unwrap and store in array
-                if let childKey = child.key{
-                    localPlacesArr.append(childKey)
+        
+        if(showAllCities ?? false){     //Use value of showAllCities if not nil, otherwise evaluate to false
+            //Only retrieve check ins from matching cities in the user's list
+            myRef.queryOrderedByChild("city").observeEventType(.ChildAdded, withBlock: { snapshot in
+                //If the city is a single dict pair this snap.value will return the city name
+                if let city = snapshot.value["city"] as? String {
+                    //Check if the city name matches the requested city
+                    if(city == self.headerText!){
+                        //Then store the place's name
+                        localPlacesArr.append(snapshot.key)
+                    }
+                }else{  //The current city entry has a multi entry list
+                    for child in snapshot.children {    //each child is either city or cat
+                        let rootNode = child as! FDataSnapshot
+                        //force downcast only works if root node has children, otherwise value will only be a string
+                        let nodeDict = rootNode.value as! NSDictionary
+                        for (key, _ ) in nodeDict{
+                            if(child.key == "city"){
+                                //Check if the city name matches the requested city
+                                if((key as! String) == self.headerText!){
+                                    //Then store the place's name 
+                                    localPlacesArr.append(snapshot.key)
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-            completionClosure(completedArr: localPlacesArr)
-        })
+                completionClosure(completedArr: localPlacesArr)
+            })
+        }else{
+            //Retrieve a list of the user's current check in list
+            myRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
+                for child in snapshot.children {
+                    //true if child key in the snapshot is not nil (e.g. attributes about the place exist), then unwrap and store in array
+                    if let childKey = child.key{
+                        localPlacesArr.append(childKey)
+                    }
+                }
+                completionClosure(completedArr: localPlacesArr)
+            })
+        }
     }
         
 //  Table view methods

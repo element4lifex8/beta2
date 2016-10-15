@@ -9,11 +9,13 @@
 import UIKit
 import Firebase
 
-class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, sendContainerDelegate {
+class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UITableViewDataSource{
     
-    @IBOutlet weak var cityButton: UIButton!
+    @IBOutlet weak var addButton: UIButton!
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var cityPeopleTabButton: UIButton!
     
+    //Keeps track of with button on the tab bar is selected
     var showPeopleView:Bool = false
  
     var myFriends:[String] = []
@@ -33,14 +35,6 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     }
 
     override func viewDidLoad() {
-        //set delegate to container VC to receive button state
-//        Get ref to storyboard to be able to instantiate view controller
-                let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                let containerVC = storyboard.instantiateViewControllerWithIdentifier("CheckOutViewController") as! CheckedOutViewController
-//        let containerVC: CheckedOutViewController = CheckedOutViewController(nibName: "CheckedOutViewController", bundle: nil) as CheckedOutViewController
-        containerVC.containerDelegate = self
-
-        
         super.viewDidLoad()
         self.tableView.dataSource=self
         self.tableView.delegate=self
@@ -72,15 +66,24 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         
     }
     
-    func buttonStateChange(shouldDisplayPeople: Bool){
-        print("Called delegate")
-        showPeopleView = shouldDisplayPeople
+    @IBAction func pressTabBar(sender: UIButton) {
+        let peopleHighImage = UIImage(named: "peopleButton")
+        let addPeopleImage = UIImage(named: "addFriendIcon")
+        let addCityImage = UIImage(named: "addCityIcon")
+        cityPeopleTabButton.setBackgroundImage(peopleHighImage, forState: .Selected)
+        
+        sender.selected = sender.state == .Highlighted ? true : false
+        //        Default tab is city view, when button is selected people view is shown
+        if(sender.selected){
+            showPeopleView = true
+            addButton.setBackgroundImage(addPeopleImage, forState: .Normal)
+        }else{
+            showPeopleView = false
+            addButton.setBackgroundImage(addCityImage, forState: .Normal)
+        }
         self.tableView.reloadData()
     }
     
-    @IBAction func cityPresed(sender: UIButton) {
-        print("Ciry Button")
-    }
     //Function retrieves friends and cities and returns when both retrievals are finished
     func retrieveFromFirebase(completionClosure: (finished: Bool) -> Void) {
         var finishedFriends = false, finishedCities = false
@@ -132,7 +135,7 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
                     //force downcast only works if root node has children, otherwise value will only be a string
                     let nodeDict = rootNode.value as! NSDictionary
                     for (key, _ ) in nodeDict{
-                        if(child.key == "city"){
+                         if(child.key == "city"){
                             if(!localCityArr.contains(key as! String)){
                                 localCityArr.append(key as! String)
                             }
@@ -195,17 +198,32 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     //Pass the FriendId of the requested list to view
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
         if(segue.identifier == "myListSegue"){  //only perform if going to MyListVC
-            let userName = myFriends[self.tableView.indexPathForSelectedRow!.row]
-            var firstName = "Friend's List"
-            
-            //Determine the First Name of the Facebook username before the space
-            if let spaceIdx = userName.characters.indexOf(" "){
-                firstName = userName.substringToIndex(spaceIdx)
-            }
+            var nameId: String
             // Create a new variable to store the instance ofPlayerTableViewController
             let destinationVC = segue.destinationViewController as! MyListViewController
-            destinationVC.requestedUser = myFriendIds[self.tableView.indexPathForSelectedRow!.row]
-            destinationVC.headerText = firstName
+            if(showPeopleView){
+                var userName: String = ""
+                nameId = "Friend's List"      //Default should it fail
+                if let selectedIdx = self.tableView.indexPathForSelectedRow{
+                    userName = myFriends[selectedIdx.row]
+                    destinationVC.myFriendIds = [myFriendIds[selectedIdx.row]]
+                }
+                
+                //Determine the First Name of the Facebook username before the space
+                if let spaceIdx = userName.characters.indexOf(" "){
+                    nameId = userName.substringToIndex(spaceIdx)
+                }
+            
+            }else{
+                nameId = "Friend's Cities List"      //Default should it fail
+                if let selectedIdx = self.tableView.indexPathForSelectedRow{
+                     nameId = friendCities[selectedIdx.row]
+                    destinationVC.myFriendIds = myFriendIds
+                }
+            }
+            
+            destinationVC.headerText = nameId
+            destinationVC.showAllCities = !showPeopleView
             
             //Deselect current row so when returning the last selected user is not still selected
             self.tableView.deselectRowAtIndexPath(self.tableView.indexPathForSelectedRow!, animated: true)
