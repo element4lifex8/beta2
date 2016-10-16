@@ -65,6 +65,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        //Auto Capitalize words in text box field
+        self.CheckInRestField.autocapitalizationType = .Words
         //setup City scroll view
         cityScrollView = UIScrollView()
         cityScrollView.delegate = self

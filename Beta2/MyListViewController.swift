@@ -55,13 +55,14 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
 //    Variables set by another view controller
     //Store the user ID whose list is requested by the CheckoutPeopleVc
     var requestedUser: NSString?
+    //Header text indicates is this my List, or pass in the header label from another user's list or their city
     var headerText: String?   //Also store user's first name for header label
     var myFriendIds:[NSString]?
     var showAllCities: Bool?
     
     override func viewDidLoad() {
         var currRef: Firebase!
-        
+        var userRetrievalCount:Int = 0     //Count the number of user's with their info pulled from the dataBase
         super.viewDidLoad()
         userRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(defaultUser)")
         //If another user's list was requested then requestedUser will be set
@@ -85,29 +86,75 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         collectionView?.allowsMultipleSelection = true
         placesRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
         
-        //Loop over all the current users that are expected (1 if viewing my list or friend list, all friends if viewing a city only list)
-        for (numIter,friendId) in self.currUsers!.enumerate(){
+        //Loop over all the current users that are expected (1 if viewing my list or a friend's list, all friends if viewing a city only list)
+        for friendId in self.currUsers!{
             currRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(friendId)")
-            //Retrieve List of checked out places in curr user's list
-            retrieveUserPlaces(currRef) {(completedArr:[String]) in
-                self.placesArr = completedArr
-
-                //pass list of all user's places to retrieve place attributes from master list
-                self.retrieveAttributesFromMaster(currRef, retrievedPlaces: completedArr){ (placeNodeArr: [placeNode]) in
-                    for node in placeNodeArr{
-                        self.myPlaceNodes.append(node)
-                    }
-                    if(numIter == ((self.currUsers?.count)! - 1)){  //When data from all friendIds is gathered then generate tree
+            retrieveWithRef(currRef){ (placeNodeArr: [placeNode]) in
+                userRetrievalCount += 1     //finished retrieving current user's check in info
+                for node in placeNodeArr{
+                    self.myPlaceNodes.append(node)
+                }
+                if(userRetrievalCount == (self.currUsers?.count)! ){  //When data from all friendIds is gathered then generate tree
                         self.generateTree(self.myPlaceNodes)
                         self.placeNodeTreeRoot.sortChildNodes()
                         self.tableView.reloadData()
-                    }
+                        self.myPlaceNodes.removeAll()
                 }
 
             }
+
         }
         
     }
+    
+    
+    //Retrieve list of all checked in places for curr user
+    func retrieveWithRef(myRef: Firebase, completionClosure: (placeNodeArr: [placeNode]) -> Void) {
+        var locPlaceNodeArr = [placeNode]()
+        var locPlaceNodeObj:placeNode = placeNode()
+
+        //Retrieve a list of the user's current check in list
+        myRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
+            
+            //rootNode now contains a list of all the places from the current user's Reference
+            let rootNode = snapshot as FDataSnapshot
+            //force downcast only works if root node has children, otherwise value will only be a string
+            //each entry in nodeDict now has a key of the check in's place name and a value of the city/category attributes
+            let nodeDict = rootNode.value as! NSDictionary
+            //Loop over each check in Place and parse its attributes
+            for (key, _ ) in nodeDict{
+                //Create new place node to store the current place's info
+                locPlaceNodeObj = placeNode()
+                locPlaceNodeObj.place = key as? String
+                //Get a snapshot of the current place to iterate over its attributes
+                if let placeSnap = snapshot.childSnapshotForPath(key as! String){
+                    //Iterate over each city and category child of the place's check in
+                    for placeChild in placeSnap.children{
+                         let currNode = placeChild as! FDataSnapshot
+                         //Place dict now has key of the city or cat attribute, and the value is always "true"
+                         let placeDict = currNode.value as! NSDictionary
+                        //The placeChild key tells us which type of attribute data we are currently looping over
+                        for (attrKey, _ ) in placeDict{
+                            if(placeChild.key == "city"){
+                                locPlaceNodeObj.addCity(attrKey as! String)
+                            }
+                            else if(placeChild.key == "category"){
+                                locPlaceNodeObj.addCategory(attrKey as! String)
+                            }
+                        }
+                    }
+                    
+                    locPlaceNodeArr.append(locPlaceNodeObj)
+                }
+                else{
+                    print("Created place node with no attributes. Child snapshot of \(key as!String) was nil")
+                }
+            }
+            //Call Completion cloures on completed list of place nodes from the current user's checkins
+            completionClosure(placeNodeArr: locPlaceNodeArr)
+        })
+    }
+    
     
 //Tree generation functions
     func generateTree(nodeArr: [placeNode]){
@@ -117,21 +164,27 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             //I can have multiple cities for a single placeNode, or city can be nil
             if let cities = placeNode.city{
                 for city in cities{
-                    if (cities.count > 1){  //If multiple cities exist keep a reference to all cities
-                        if let currCityIndex = cities.indexOf(city){
-                            var mySiblings = cities
-                            mySiblings.removeAtIndex(currCityIndex)
-                            siblings = mySiblings
+                   //Don't add city to tree if only displaying a certain city
+                    //First case: if showing only certain city then the city must match the header label, if show all cities is nil then just falisfy this side of the expression to remove it from being considered
+                    //Second case: show all cities is nil, then evaluate to true and print all cities
+                    //Second case: show all cities is true, then evaluate to false to put the burden on the left expression
+                    if( ((showAllCities ?? false) && (headerText! == city)) || !(showAllCities ?? false) ){
+                        if (cities.count > 1){  //If multiple cities exist keep a reference to all cities
+                            if let currCityIndex = cities.indexOf(city){
+                                var mySiblings = cities
+                                mySiblings.removeAtIndex(currCityIndex)
+                                siblings = mySiblings
+                            }
                         }
-                    }
-                    if let existingCity = placeNodeTreeRoot.search(city)
-                    {
-                        addTreeNodeToCity(placeNode, cityNode: existingCity, siblings: siblings)
-                    }else{//Currenty city does not exist
-                        let newCityNode = PlaceNodeTree(nodeVal: city)
-                        placeNodeTreeRoot.addChild(newCityNode)
-                        addTreeNodeToCity(placeNode, cityNode: newCityNode, siblings: siblings)
-                        
+                        if let existingCity = placeNodeTreeRoot.search(city)
+                        {
+                            addTreeNodeToCity(placeNode, cityNode: existingCity, siblings: siblings)
+                        }else{//Currenty city does not exist
+                            let newCityNode = PlaceNodeTree(nodeVal: city)
+                            placeNodeTreeRoot.addChild(newCityNode)
+                            addTreeNodeToCity(placeNode, cityNode: newCityNode, siblings: siblings)
+                            
+                        }
                     }
                 }
             }
@@ -210,7 +263,8 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         self.citySortedArr.sortInPlace(<)
         
     }
-        
+    
+    //Unused firebase functions that retrieved all places from one user and looked them up in the master list
     //function receives the name of the place to look up its city and place attributes
     func retrievePlaceAttributes(myRef: Firebase, place: String, completionClosure: (categoryArr: [String], cityArr: [String]) -> Void)
     {
@@ -218,7 +272,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         var completedAttrArr = [String]()
         var cityArrLoc = [String]()
         var categoryArrLoc = [String]()
-//        currPlacesRef = Firebase(url: "https://check-inout.firebaseio.com/checked/places/\(place)")
+//        print(place)
         currPlacesRef = myRef.childByAppendingPath(place)
         currPlacesRef.observeSingleEventOfType(.Value, withBlock: { childSnapshot in
             if !(childSnapshot.value is NSNull)
@@ -260,11 +314,13 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             {
                 print("attribute \(childSnapshot.key) found but contained no children")
             }
+            print("calling retrieve attributes completion")
             completionClosure(categoryArr: categoryArrLoc, cityArr: cityArrLoc)
         })
         
     }
 
+    //Unused firebase functions that retrieved all places from one user and looked them up in the master list
     //Funtion is passed the list of checked in places and retrieves the city and category attributes for each place
     func retrieveAttributesFromMaster(myRef: Firebase, retrievedPlaces: [String], completionClosure: (placeNodeArr: [placeNode]) -> Void)
     {
@@ -288,27 +344,14 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 }
                 //call completion closure for viewDidLoad calling function if this closure is called on last array item
                 if(index == (retrievedPlaces.count - 1)){
+                    print("calling retrieve from master completion")
                     completionClosure(placeNodeArr: locPlaceNodeArr)
                 }
             })
         }
     }
 
-    
-    //    var userRef: Firebase!
-//    for userId in self.currUsers! {
-//    userRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(userId)")
-//    //Retrieve a list of the user's current check in list
-//    userRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
-//    for child in snapshot.children {
-//    //true if child key in the snapshot is not nil (e.g. attributes about the place exist), then unwrap and store in array
-//    if let childKey = child.key{
-//    localPlacesArr.append(childKey)
-//    }
-//    }
-//    completionClosure(completedArr: localPlacesArr)
-//    })
-
+    //Unused firebase functions that retrieved all places from one user and looked them up in the master list
     //Retrieve list of all checked in places for curr user
     func retrieveUserPlaces(myRef: Firebase, completionClosure: (completedArr: [String]) -> Void) {
         var localPlacesArr = [String]()
@@ -333,12 +376,14 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                                 //Check if the city name matches the requested city
                                 if((key as! String) == self.headerText!){
                                     //Then store the place's name 
+//                                    print("userplace: \(snapshot.key)")
                                     localPlacesArr.append(snapshot.key)
                                 }
                             }
                         }
                     }
                 }
+                print("calling retrieve place completion")
                 completionClosure(completedArr: localPlacesArr)
             })
         }else{
@@ -493,7 +538,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             let itemToDelete = placeNodeTreeRoot.children![indexPath.section].returnNodeAtIndex(indexPath.row)!
 //            confirmDelete(itemToDelete, index: indexPath)
             //Delete item without providing UI alert for confirmation
-            let refToDelete = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)/\(itemToDelete.nodeValue!)")
+            let refToDelete = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.defaultUser)/\(itemToDelete.nodeValue!)")
             self.tableView.beginUpdates()
             //Remove deleted item from Firebase,the tree and then table
             if(itemToDelete.sibling != nil)
@@ -517,15 +562,20 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     //Don't allow categories to be deleted with swipe
     func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        let treeRet = self.placeNodeTreeRoot.children![indexPath.section].returnNodeAtIndex(indexPath.row)
-        if let treeNode = treeRet{
-            if(treeNode.depth == 3){
-                return true //Can only delete leaves
-            }else{
+        //The header text is nil unless using the check out screen, if which case you can't delete a user's checkin
+        if let _ = headerText{
+            return false    //If headerText is set then this is not the users own list so don't edit
+        }else{
+            let treeRet = self.placeNodeTreeRoot.children![indexPath.section].returnNodeAtIndex(indexPath.row)
+            if let treeNode = treeRet{
+                if(treeNode.depth == 3){
+                    return true //Can only delete leaves
+                }else{
+                    return false
+                }
+            }else{  //Default can't delete
                 return false
             }
-        }else{  //Default can't delete
-            return false
         }
     }
     
@@ -533,7 +583,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         let alert = UIAlertController(title: "Delete Check In", message: "Are you sure you want to permanently delete \(checkInItem)?", preferredStyle: .ActionSheet)
         
         let DeleteAction = UIAlertAction(title: "Delete", style: .Destructive, handler:{action in
-            let refToDelete = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)/\(checkInItem.nodeValue!)")
+            let refToDelete = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.defaultUser)/\(checkInItem.nodeValue!)")
             self.tableView.beginUpdates()
             //Remove deleted item from Firebase,the tree and then table
             if(checkInItem.sibling != nil)

@@ -97,12 +97,14 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         }
         retrieveFriendCity() {(completedArr:[String]) in
             self.friendCities = completedArr
+            self.friendCities.sortInPlace(<)
             finishedCities = true
             if(finishedFriends && finishedCities){
                 completionClosure(finished: true)
             }
         }
     }
+    
     //retrieve a list of all the user's friends
     func retrieveMyFriends(completionClosure: (friendStr: [String], friendId:[String]) -> Void) {
         var localFriendsArr = [String]()
