@@ -81,7 +81,10 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         //remove left padding from tableview seperators
         tableView.layoutMargins = UIEdgeInsetsZero
         tableView.separatorInset = UIEdgeInsetsZero
-        tableView.registerClass(TestTableViewCell.self,forCellReuseIdentifier: "Cell")
+        tableView.registerClass(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: "TableViewSectionHeaderViewIdentifier")
+//        tableView.registerClass(HeaderTableViewCell.self,forCellReuseIdentifier: "headerCell")
+//        tableView.registerClass(SubheaderTableViewCell.self,forCellReuseIdentifier: "subheaderCell")
+//        tableView.registerClass(TestTableViewCell.self,forCellReuseIdentifier: "dataCell")
         self.tableView.backgroundColor=UIColor.clearColor()
         collectionView?.allowsMultipleSelection = true
         placesRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
@@ -407,18 +410,40 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         return 40.0
     }
     
+    
+    func tableView(tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        let header = view as! UITableViewHeaderFooterView
+        
+        //Create table view top seperator
+        let px = 1 / UIScreen.mainScreen().scale    //determinte 1 pixel size instead of using 1 point
+        let frame = CGRectMake(0, 0, tableView.frame.size.width, px)
+        let topLine: UIView = UIView(frame: frame)
+        let bottomframe = CGRectMake(0, header.frame.size.height-px, tableView.frame.size.width, px)
+        let bottomLine: UIView = UIView(frame: bottomframe)
+        //Add table view top seperator
+        header.contentView.addSubview(topLine)
+        header.contentView.addSubview(bottomLine)
+        topLine.backgroundColor = UIColor.whiteColor()
+        bottomLine.backgroundColor = UIColor.whiteColor()
+        
+        //Set text size, color, and background color of header view before loading
+        header.contentView.backgroundColor = UIColor(red: 0x40/255, green: 0x40/255, blue: 0x40/255, alpha: 1.0)
+        if let textLabel = header.textLabel {
+            textLabel.font = UIFont(name: "Avenir-HeavyOblique", size: 24)
+            textLabel.textColor = UIColor.whiteColor()
+        }else{
+            print("label not ready")
+        }
+    }
+    
     func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let cell = tableView.dequeueReusableCellWithIdentifier("headerCell") as! HeaderTableViewCell
-        //add separator below header
-        cell.addSeperator(tableView.frame.size.width)
+        
+        let headerView = tableView.dequeueReusableHeaderFooterViewWithIdentifier("TableViewSectionHeaderViewIdentifier")
 
-        cell.tableCellValue.text=" \(placeNodeTreeRoot.children![section].nodeValue!)"
-        cell.tableCellValue.font = UIFont(name: "Avenir-HeavyOblique", size: 24)
-        cell.tableCellValue.textColor=UIColor.whiteColor()
-        cell.contentView.backgroundColor = UIColor(red: 0x40/255, green: 0x40/255, blue: 0x40/255, alpha: 1.0)
-        //Remove seperator insets
-        cell.layoutMargins = UIEdgeInsetsZero
-        return cell.contentView
+        headerView?.textLabel?.text = " \(placeNodeTreeRoot.children![section].nodeValue!)"
+
+        return headerView
+        
     }
     
     //Setup subheader and data cell attributes
@@ -499,7 +524,11 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 cellIdentifier = "subheaderCell"
                 //asks the table view for a cell with my cellidentifier which is the name of my custom cell class
                 let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! SubheaderTableViewCell   //downcast to my cell class type
-                cell.tableCellValue.text="  \(treeNode.nodeValue!)"
+                if let cellText = treeNode.nodeValue {
+                    cell.tableCellValue.text="  \(cellText)"
+                }else{
+                    print("category treeNode was nil")
+                }
                 cell.tableCellValue.font = UIFont(name: "Avenir-Heavy", size: 24)
                 cell.tableCellValue.textColor = UIColor.whiteColor()
                 //Remove seperator insets
@@ -511,8 +540,11 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 cellIdentifier = "dataCell"
                 //asks the table view for a cell with my cellidentifier which is the name of my custom cell class
                 let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! TestTableViewCell   //downcast to my cell class type
-                
-                cell.tableCellValue.text = "    \(treeNode.nodeValue!)"
+                if let cellText = treeNode.nodeValue {
+                    cell.tableCellValue.text="    \(cellText)"
+                }else{
+                    print("data treeNode was nil")
+                }
                 cell.tableCellValue.font = UIFont(name: "Avenir-Light", size: 24)
                 cell.tableCellValue.textColor = UIColor.whiteColor()
                 //Remove seperator insets

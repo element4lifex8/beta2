@@ -918,7 +918,7 @@
                                             <outlet property="tableCellValue" destination="5gp-bB-YJK" id="8Vr-Xi-l05"/>
                                         </connections>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="subheaderCell" id="EtW-7t-wb7" customClass="SubheaderTableViewCell" customModule="Beta2" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="subheaderCell" id="EtW-7t-wb7" customClass="SubheaderTableViewCell" customModule="Beta2" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="116" width="600" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="EtW-7t-wb7" id="dmW-d2-3qb">
@@ -1007,7 +1007,7 @@
                                             <outlet property="tableCellValue" destination="0KU-IP-8X7" id="pNW-dl-cCR"/>
                                         </connections>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="headerCell" rowHeight="40" id="KYH-uj-7xN" customClass="HeaderTableViewCell" customModule="Beta2" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" indentationWidth="10" reuseIdentifier="headerCell" rowHeight="40" id="KYH-uj-7xN" customClass="HeaderTableViewCell" customModule="Beta2" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="148" width="600" height="50"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KYH-uj-7xN" id="BKG-U7-H9C">
@@ -1018,6 +1018,7 @@
                                                     <rect key="frame" x="8" y="8" width="584" height="27"/>
                                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                                     <constraints>
+                                                        <constraint firstAttribute="width" constant="33" id="YQW-cA-A7e"/>
                                                         <constraint firstAttribute="width" constant="584" id="wj8-4Z-sep"/>
                                                     </constraints>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -1025,11 +1026,13 @@
                                                     <nil key="highlightedColor"/>
                                                     <variation key="default">
                                                         <mask key="constraints">
+                                                            <exclude reference="YQW-cA-A7e"/>
                                                             <exclude reference="wj8-4Z-sep"/>
                                                         </mask>
                                                     </variation>
                                                     <variation key="heightClass=regular-widthClass=compact">
                                                         <mask key="constraints">
+                                                            <exclude reference="YQW-cA-A7e"/>
                                                             <exclude reference="wj8-4Z-sep"/>
                                                         </mask>
                                                     </variation>
@@ -1041,6 +1044,7 @@
                                                 <constraint firstItem="j64-kx-Tiq" firstAttribute="top" secondItem="BKG-U7-H9C" secondAttribute="topMargin" id="RUW-sZ-maG"/>
                                                 <constraint firstItem="j64-kx-Tiq" firstAttribute="top" secondItem="BKG-U7-H9C" secondAttribute="topMargin" constant="-3" id="Sui-5k-kSp"/>
                                                 <constraint firstAttribute="bottomMargin" secondItem="j64-kx-Tiq" secondAttribute="bottom" constant="6" id="WjY-l1-YU4"/>
+                                                <constraint firstItem="j64-kx-Tiq" firstAttribute="top" secondItem="BKG-U7-H9C" secondAttribute="topMargin" constant="-3" id="bBe-cv-Ybd"/>
                                                 <constraint firstItem="j64-kx-Tiq" firstAttribute="leading" secondItem="BKG-U7-H9C" secondAttribute="leadingMargin" id="f4f-nZ-dMp"/>
                                                 <constraint firstItem="j64-kx-Tiq" firstAttribute="centerY" secondItem="BKG-U7-H9C" secondAttribute="centerY" id="mYE-Sz-Ehi">
                                                     <variation key="heightClass=regular-widthClass=compact" constant="0.0"/>
@@ -1055,6 +1059,7 @@
                                                     <exclude reference="RUW-sZ-maG"/>
                                                     <exclude reference="Sui-5k-kSp"/>
                                                     <exclude reference="WjY-l1-YU4"/>
+                                                    <exclude reference="bBe-cv-Ybd"/>
                                                     <exclude reference="f4f-nZ-dMp"/>
                                                     <exclude reference="mYE-Sz-Ehi"/>
                                                     <exclude reference="pND-OD-sN8"/>
@@ -1066,8 +1071,9 @@
                                                     <exclude reference="C2f-pt-YZB"/>
                                                     <exclude reference="NVn-0v-Tth"/>
                                                     <exclude reference="RUW-sZ-maG"/>
-                                                    <include reference="Sui-5k-kSp"/>
+                                                    <exclude reference="Sui-5k-kSp"/>
                                                     <exclude reference="WjY-l1-YU4"/>
+                                                    <include reference="bBe-cv-Ybd"/>
                                                     <include reference="f4f-nZ-dMp"/>
                                                     <include reference="mYE-Sz-Ehi"/>
                                                     <exclude reference="pND-OD-sN8"/>
@@ -1497,7 +1503,7 @@
         <image name="myListIcon" width="30" height="27"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="DjT-5o-7ES"/>
-        <segue reference="113-ep-pX0"/>
+        <segue reference="A3V-Yk-deH"/>
+        <segue reference="pC0-bG-BYT"/>
     </inferredMetricsTieBreakers>
 </document>
