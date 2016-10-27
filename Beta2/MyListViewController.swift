@@ -30,7 +30,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var selectedCollection = [Int]()
     var selectedFilters = [String]()
     var headerCount = 0
-    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shops", "Night Club", "Desert", "Dinner", "Food Trucks", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing", "Winery"]
+    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Night Club", "Desert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing", "Winery"]
     var userRef: Firebase!
    
     
@@ -676,6 +676,10 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         catLabel.center = CGPointMake(50, 50)
         catLabel.textAlignment = NSTextAlignment.Center
         catLabel.text = catButtonList[indexPath.item]
+        //Adjust font size to fit larger words, and truncate at end
+        catLabel.adjustsFontSizeToFitWidth = true
+        catLabel.minimumScaleFactor = 0.6
+        catLabel.lineBreakMode = .ByTruncatingTail
 
         catLabel.textColor = UIColor.whiteColor()
         cell.contentView.addSubview(catLabel)

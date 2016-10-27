@@ -18,7 +18,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var dictArr = [[String:String]]()
     var placesDict = [String : String]()
     var cityButtonList: [String] = ["+"]
-    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shops", "Night Club", "Desert", "Dinner", "Food Trucks", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing", "Winery"]
+    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shops", "Night Club", "Desert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing", "Winery"]
     var cityButtonCoreData = [NSManagedObject]()
     var placesArr = [String]()
     var arrSize = Int()
@@ -210,7 +210,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             //Save a city Check in entry
         else
         {
-            let restNameText = CheckInRestField.text!
+            var restNameText = CheckInRestField.text!
+            //Remove any trailing spaces from restNameText
+            restNameText = restNameText.stringByTrimmingCharactersInSet(.whitespaceCharacterSet())
             let dictArrLength = dictArr.count
             if(!restNameText.isEmpty && restNameText != "Enter Name...")
             {
@@ -488,14 +490,14 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         
         //Add button to scroll view's container view
         for (index,cityText) in cityButtonList.enumerate(){
-            let button = UIButton(frame: CGRect(x: (index * buttonRad) + ((index+1)*buttonSpacing), y: 0, width: buttonRad, height: buttonRad))   // X, Y, width, height
+            let button = UIButton(frame: CGRect(x: (index * buttonRad) + ((index+1)*buttonSpacing), y: 10, width: buttonRad, height: buttonRad))   // X, Y, width, height
             button.layer.cornerRadius = 0.5 * button.bounds.size.width
             button.backgroundColor = UIColor.clearColor()
             button.layer.borderWidth = 2.0
             button.layer.borderColor = UIColor.whiteColor().CGColor
             button.titleEdgeInsets = UIEdgeInsetsMake(0, 5, 0, 5)
-            button.titleLabel!.adjustsFontSizeToFitWidth = true;
-            button.titleLabel!.minimumScaleFactor = 0.8;
+            button.titleLabel!.adjustsFontSizeToFitWidth = true
+            button.titleLabel!.minimumScaleFactor = 0.6
             button.titleLabel!.lineBreakMode = .ByTruncatingTail
             button.setTitle(cityText, forState: .Normal)
             //add target actions for button tap
@@ -529,13 +531,13 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         //Add button to scroll view's container view
         
         for (index,catText) in catButtonList.enumerate(){
-            let button = UIButton(frame: CGRect(x: (index * 100) + ((index+1)*25), y: 0, width: 100, height: 100))   // X, Y, width, height
+            let button = UIButton(frame: CGRect(x: (index * 100) + ((index+1)*25), y: 10, width: 100, height: 100))   // X, Y, width, height
             button.layer.cornerRadius = 0.5 * button.bounds.size.width
             button.backgroundColor = UIColor.clearColor()
             button.layer.borderWidth = 2.0
             button.layer.borderColor = UIColor.whiteColor().CGColor
             button.titleLabel!.adjustsFontSizeToFitWidth = true;
-            button.titleLabel!.minimumScaleFactor = 0.8;
+            button.titleLabel!.minimumScaleFactor = 0.7;
             button.setTitle(catText, forState: .Normal)
             button.titleEdgeInsets = UIEdgeInsetsMake(0, 5, 0, 5)
             button.addTarget(self, action: #selector(CheckInViewController.categorySelect(_:)), forControlEvents: .TouchUpInside)
