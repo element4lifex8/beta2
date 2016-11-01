@@ -37,6 +37,10 @@
 		EB5161C71DAAA6B600321D98 /* CheckOutContainedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5161C61DAAA6B600321D98 /* CheckOutContainedViewController.swift */; };
 		EB55D6271CEBD180004D81D0 /* placeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB55D6261CEBD180004D81D0 /* placeNode.swift */; };
 		EB5A49B51D61005F00B9AB17 /* PlaceNodeTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5A49B41D61005F00B9AB17 /* PlaceNodeTree.swift */; };
+		EB61CD601DC41F4300297225 /* SegueFromLeft.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB61CD5F1DC41F4300297225 /* SegueFromLeft.swift */; };
+		EB61CD641DC4F0A800297225 /* AddPeopleViewCntroller.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB61CD631DC4F0A800297225 /* AddPeopleViewCntroller.swift */; };
+		EB61CD661DC4F50500297225 /* FriendTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB61CD651DC4F50500297225 /* FriendTableViewCell.swift */; };
+		EB61CD681DC5025400297225 /* SegueFromRight.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB61CD671DC5025400297225 /* SegueFromRight.swift */; };
 		EB63152E1BF96241009683FE /* CheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB63152D1BF96241009683FE /* CheckInView.swift */; };
 		EB6B3FBD1C0E7BE200A6B469 /* CheckedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB6B3FBC1C0E7BE200A6B469 /* CheckedView.swift */; };
 		EB85D5551C51B5B200F2E29F /* ProfileStepsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */; };
@@ -112,6 +116,10 @@
 		EB5161C61DAAA6B600321D98 /* CheckOutContainedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckOutContainedViewController.swift; sourceTree = "<group>"; };
 		EB55D6261CEBD180004D81D0 /* placeNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = placeNode.swift; sourceTree = "<group>"; };
 		EB5A49B41D61005F00B9AB17 /* PlaceNodeTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PlaceNodeTree.swift; path = ../PlaceNodeTree.swift; sourceTree = "<group>"; };
+		EB61CD5F1DC41F4300297225 /* SegueFromLeft.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SegueFromLeft.swift; path = ../SegueFromLeft.swift; sourceTree = "<group>"; };
+		EB61CD631DC4F0A800297225 /* AddPeopleViewCntroller.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddPeopleViewCntroller.swift; sourceTree = "<group>"; };
+		EB61CD651DC4F50500297225 /* FriendTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FriendTableViewCell.swift; sourceTree = "<group>"; };
+		EB61CD671DC5025400297225 /* SegueFromRight.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SegueFromRight.swift; sourceTree = "<group>"; };
 		EB63152B1BF961D7009683FE /* CheckInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CheckInViewController.swift; path = Beta2/CheckInViewController.swift; sourceTree = SOURCE_ROOT; };
 		EB63152D1BF96241009683FE /* CheckInView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckInView.swift; sourceTree = "<group>"; };
 		EB6B3FBC1C0E7BE200A6B469 /* CheckedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CheckedView.swift; path = ../CheckedView.swift; sourceTree = "<group>"; };
@@ -228,6 +236,8 @@
 		EB06561A1BEE37F300CF8376 /* Beta2 */ = {
 			isa = PBXGroup;
 			children = (
+				EB61CD5F1DC41F4300297225 /* SegueFromLeft.swift */,
+				EB61CD671DC5025400297225 /* SegueFromRight.swift */,
 				EB3A98201D9813A500C16E89 /* Table Cells */,
 				EB49A2E61C7BE649006F16AB /* Facebook */,
 				EB6B3FBC1C0E7BE200A6B469 /* CheckedView.swift */,
@@ -240,6 +250,7 @@
 				EB03E5C31C3864FF009A55F1 /* Bridging-Header.h */,
 				EBAC6D051CC855C20060BC73 /* OutViewController.swift */,
 				EBAC6D2C1CD02D430060BC73 /* Main.storyboard */,
+				EB61CD631DC4F0A800297225 /* AddPeopleViewCntroller.swift */,
 				EB47DCE41DA1BFCD00C9EC18 /* ListHeaderView.swift */,
 				EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */,
 				EB3A98221D9814BA00C16E89 /* RoundButtCollectionViewCell.swift */,
@@ -261,6 +272,7 @@
 			isa = PBXGroup;
 			children = (
 				EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */,
+				EB61CD651DC4F50500297225 /* FriendTableViewCell.swift */,
 				EBBA52DF1CF65B6A0047E22A /* HeaderTableViewCell.swift */,
 				EBBA52E11CFE62730047E22A /* SubheaderTableViewCell.swift */,
 			);
@@ -478,9 +490,12 @@
 				EB4C38471D453C8F00D11721 /* DeleteCityUIButton.swift in Sources */,
 				EB3A98231D9814BA00C16E89 /* RoundButtCollectionViewCell.swift in Sources */,
 				EB3A98251D98A6B700C16E89 /* CheckOutCityViewController.swift in Sources */,
+				EB61CD601DC41F4300297225 /* SegueFromLeft.swift in Sources */,
+				EB61CD641DC4F0A800297225 /* AddPeopleViewCntroller.swift in Sources */,
 				EB49A2E51C78ED45006F16AB /* checkList.swift in Sources */,
 				EB97CF621D73902900A3DBA1 /* ScrollViewAnchor.swift in Sources */,
 				EB5A49B51D61005F00B9AB17 /* PlaceNodeTree.swift in Sources */,
+				EB61CD661DC4F50500297225 /* FriendTableViewCell.swift in Sources */,
 				EB63152E1BF96241009683FE /* CheckInView.swift in Sources */,
 				EB03E57D1C150669009A55F1 /* TestTableViewCell.swift in Sources */,
 				EB55D6271CEBD180004D81D0 /* placeNode.swift in Sources */,
@@ -492,6 +507,7 @@
 				EB47DCE51DA1BFCE00C9EC18 /* ListHeaderView.swift in Sources */,
 				EB6B3FBD1C0E7BE200A6B469 /* CheckedView.swift in Sources */,
 				EB4B128D1D57B9C500F8B62C /* MyListViewController.swift in Sources */,
+				EB61CD681DC5025400297225 /* SegueFromRight.swift in Sources */,
 				EBBA52E41D0DBA3E0047E22A /* CheckedOutViewController.swift in Sources */,
 				EB03E5C21C25FE72009A55F1 /* FBloginViewController.swift in Sources */,
 				EB1405C71D3007B1001D3924 /* CheckedCoreData.xcdatamodeld in Sources */,
