@@ -9,7 +9,7 @@
 import UIKit
 
 protocol sendContainerDelegate {
-    func buttonStateChange(shouldDisplayPeople: Bool)
+    func buttonStateChange(_ shouldDisplayPeople: Bool)
 }
 
 class CheckedOutViewController: UIViewController {
@@ -35,17 +35,17 @@ class CheckedOutViewController: UIViewController {
 //    var viewControllers: [UIViewController] = []
 //    var selectedVC: Int = 0 //default is City
     
-    @IBAction func pressTabBar(sender: UIButton) {
+    @IBAction func pressTabBar(_ sender: UIButton) {
 //        var viewCont: UIViewController
 //        var previousVC: UIViewController? = nil
         let peopleHighImage = UIImage(named: "peopleButton")
 //        cityPeopleButton.setImage(peopleHighImage, forState: .Selected)
-        cityPeopleButton.setBackgroundImage(peopleHighImage, forState: .Selected)
+        cityPeopleButton.setBackgroundImage(peopleHighImage, for: .selected)
         
-        sender.selected = sender.state == .Highlighted ? true : false
+        sender.isSelected = sender.state == .highlighted ? true : false
        
         //        Default tab is city view, when button is selected people view is shown
-        if(sender.selected){
+        if(sender.isSelected){
             willDisplayPeople = true
              containerDelegate?.buttonStateChange(true)
         }else{

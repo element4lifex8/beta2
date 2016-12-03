@@ -17,13 +17,13 @@ class CheckOutPeopleViewController: UIViewController, UITableViewDelegate, UITab
     var myFriendIds: [NSString] = []    //list of Facebook Id's with matching index to myFriends array
     var friendsRef: Firebase!
     let currUserDefaultKey = "FBloginVC.currUser"
-    private let sharedFbUser = NSUserDefaults.standardUserDefaults()
+    fileprivate let sharedFbUser = UserDefaults.standard
     
     
     var currUser: NSString {
         get
         {
-            return (sharedFbUser.objectForKey(currUserDefaultKey) as? NSString)!
+            return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
         }
     }
     
@@ -32,13 +32,13 @@ class CheckOutPeopleViewController: UIViewController, UITableViewDelegate, UITab
         self.tableView.dataSource=self;
         self.tableView.delegate=self;
         //remove left padding from tableview seperators
-        tableView.layoutMargins = UIEdgeInsetsZero
-        tableView.separatorInset = UIEdgeInsetsZero
+        tableView.layoutMargins = UIEdgeInsets.zero
+        tableView.separatorInset = UIEdgeInsets.zero
 //        tableView.registerClass(TestTableViewCell.self,forCellReuseIdentifier: "dataCell")
-        self.tableView.backgroundColor=UIColor.clearColor()
+        self.tableView.backgroundColor=UIColor.clear
         //Create top cell separator for 1st cell
-        let px = 1 / UIScreen.mainScreen().scale
-        let frame = CGRectMake(0, 0, self.tableView.frame.size.width, px)
+        let px = 1 / UIScreen.main.scale
+        let frame = CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: px)
         let line: UIView = UIView(frame: frame)
         self.tableView.tableHeaderView = line
         line.backgroundColor = self.tableView.separatorColor
@@ -47,82 +47,86 @@ class CheckOutPeopleViewController: UIViewController, UITableViewDelegate, UITab
         
         retrieveMyFriends() {(friendStr:[String], friendId:[String]) in
             self.myFriends = friendStr
-            self.myFriendIds = friendId
+            self.myFriendIds = friendId as [NSString]
             self.tableView.reloadData()
         }
     }
     
-    func retrieveMyFriends(completionClosure: (friendStr: [String], friendId:[String]) -> Void) {
+    func retrieveMyFriends(_ completionClosure: @escaping (_ friendStr: [String], _ friendId:[String]) -> Void) {
         var localFriendsArr = [String]()
         var localFriendsId = [String]()
+        var count=10
         //Retrieve a list of the user's current check in list
-        friendsRef.queryOrderedByChild("displayName1").observeEventType(.ChildAdded, withBlock: { snapshot in
+        friendsRef.queryOrdered(byChild: "displayName1").observe(.childAdded, with: { snapshot in
             //If the city is a single dict pair this snap.value will return the city name
-            if let currFriend = snapshot.value["displayName1"] as? String {
-                localFriendsArr.append(currFriend)
-                localFriendsId.append(snapshot.key)
+            if let currFriend = snapshot?.value as? NSDictionary {
+                if count > 0{
+                    print (currFriend)
+                };count += 1
+                localFriendsArr.append((currFriend["displayName1"] as? String ?? "Default Name")!)
+                localFriendsId.append((snapshot?.key)!)
             }
-            completionClosure(friendStr: localFriendsArr, friendId: localFriendsId)
+            completionClosure(localFriendsArr, localFriendsId)
         })
     }
     
-    func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
-        cell.backgroundColor = .clearColor()
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        cell.backgroundColor = .clear
     }
     
     //Setup data cell height
-    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
     {
         return 50
     }
     
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return myFriends.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
         let cellIdentifier = "dataCell"
-        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! TestTableViewCell   //downcast to my cell class type
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! TestTableViewCell   //downcast to my cell class type
         cell.tableCellValue.text = "    \(myFriends[indexPath.row])"
-        cell.tableCellValue.textColor = UIColor.whiteColor()
-        cell.tableCellValue.font = UIFont.systemFontOfSize(24, weight: UIFontWeightLight)
+        cell.tableCellValue.textColor = UIColor.white
+        cell.tableCellValue.font = UIFont.systemFont(ofSize: 24, weight: UIFontWeightLight)
         //Remove seperator insets
-        cell.layoutMargins = UIEdgeInsetsZero
+        cell.layoutMargins = UIEdgeInsets.zero
         return cell
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 //        // Create an instance of myListVC and pass the variable
 //        let controller = MyListViewController(nibName: "MyListViewController", bundle: nil) as MyListViewController
 //        controller.requestedUser = selectedUserId as NSString
         // Perform seque to my List VC
-        self.performSegueWithIdentifier("myListSegue", sender: self)
+        self.performSegue(withIdentifier: "myListSegue", sender: self)
     }
     //Pass the FriendId of the requested list to view
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
         let userName = myFriends[self.tableView.indexPathForSelectedRow!.row]
         var firstName = "Friend's List"
         
         //Determine the First Name of the Facebook username before the space
-        if let spaceIdx = userName.characters.indexOf(" "){
-            firstName = userName.substringToIndex(spaceIdx)
+        if let spaceIdx = userName.characters.index(of: " "){
+            firstName = userName.substring(to: spaceIdx)
         }
         // Create a new variable to store the instance ofPlayerTableViewController
-        let destinationVC = segue.destinationViewController as! MyListViewController
+        let destinationVC = segue.destination as! MyListViewController
         destinationVC.requestedUser = myFriendIds[self.tableView.indexPathForSelectedRow!.row]
         destinationVC.headerText = firstName
         
         //Deselect current row so when returning the last selected user is not still selected
-        self.tableView.deselectRowAtIndexPath(self.tableView.indexPathForSelectedRow!, animated: true)
+        self.tableView.deselectRow(at: self.tableView.indexPathForSelectedRow!, animated: true)
     }
     
     // Unwind seque from my myListVC
-    @IBAction func unwindFromMyList(sender: UIStoryboardSegue) {
+    @IBAction func unwindFromMyList(_ sender: UIStoryboardSegue) {
         // empty
     }
 

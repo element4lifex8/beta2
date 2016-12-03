@@ -16,8 +16,7 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     @IBOutlet weak var cityPeopleTabButton: UIButton!
     
     //Keeps track of with button on the tab bar is selected
-    var showPeopleView:Bool = false
- 
+    var showPeopleView:Bool = false 
     var myFriends:[String] = []
     var myFriendIds: [NSString] = []    //list of Facebook Id's with matching index to myFriends array
     var friendCities:[String] = []
@@ -25,27 +24,31 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     var cityRef: Firebase!
     let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/")
     let currUserDefaultKey = "FBloginVC.currUser"
-    private let sharedFbUser = NSUserDefaults.standardUserDefaults()
+    fileprivate let sharedFbUser = UserDefaults.standard
     
     var currUser: NSString {
         get
         {
-            return (sharedFbUser.objectForKey(currUserDefaultKey) as? NSString)!
+            return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
         }
     }
 
+//    overide func viewWillAppear(animated: Bool) {
+//        super.viewWillAppear(animated)
+//        
+//    }
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tableView.dataSource=self
         self.tableView.delegate=self
         //remove left padding from tableview seperators
-        tableView.layoutMargins = UIEdgeInsetsZero
-        tableView.separatorInset = UIEdgeInsetsZero
+        tableView.layoutMargins = UIEdgeInsets.zero
+        tableView.separatorInset = UIEdgeInsets.zero
         //        tableView.registerClass(TestTableViewCell.self,forCellReuseIdentifier: "dataCell")
-        self.tableView.backgroundColor=UIColor.clearColor()
+        self.tableView.backgroundColor=UIColor.clear
         //Create top cell separator for 1st cell
-        let px = 1 / UIScreen.mainScreen().scale
-        let frame = CGRectMake(0, 0, self.tableView.frame.size.width, px)
+        let px = 1 / UIScreen.main.scale
+        let frame = CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: px)
         let line: UIView = UIView(frame: frame)
         self.tableView.tableHeaderView = line
         line.backgroundColor = self.tableView.separatorColor
@@ -66,78 +69,87 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         
     }
     
-    @IBAction func pressTabBar(sender: UIButton) {
+    @IBAction func addButtonPressed(_ sender: UIButton) {
+        if(showPeopleView){
+            self.performSegue(withIdentifier: "addPeopleSegue", sender: self)
+        }else{
+            print("add City seque not implementd")
+        }
+    }
+    
+    @IBAction func pressTabBar(_ sender: UIButton) {
         let peopleHighImage = UIImage(named: "peopleButton")
         let addPeopleImage = UIImage(named: "addFriendIcon")
         let addCityImage = UIImage(named: "addCityIcon")
-        cityPeopleTabButton.setBackgroundImage(peopleHighImage, forState: .Selected)
+        cityPeopleTabButton.setBackgroundImage(peopleHighImage, for: .selected)
         
-        sender.selected = sender.state == .Highlighted ? true : false
+        sender.isSelected = sender.state == .highlighted ? true : false
         //        Default tab is city view, when button is selected people view is shown
-        if(sender.selected){
+        if(sender.isSelected){
             showPeopleView = true
-            addButton.setBackgroundImage(addPeopleImage, forState: .Normal)
+            addButton.setBackgroundImage(addPeopleImage, for: UIControlState())
         }else{
             showPeopleView = false
-            addButton.setBackgroundImage(addCityImage, forState: .Normal)
+            addButton.setBackgroundImage(addCityImage, for: UIControlState())
         }
         self.tableView.reloadData()
     }
     
     //Function retrieves friends and cities and returns when both retrievals are finished
-    func retrieveFromFirebase(completionClosure: (finished: Bool) -> Void) {
+    func retrieveFromFirebase(_ completionClosure: @escaping (_ finished: Bool) -> Void) {
         var finishedFriends = false, finishedCities = false
         retrieveMyFriends() {(friendStr:[String], friendId:[String]) in
             self.myFriends = friendStr
-            self.myFriendIds = friendId
+            self.myFriendIds = friendId as [NSString]
             finishedFriends = true
             if(finishedFriends && finishedCities){
-                completionClosure(finished: true)
+                completionClosure(true)
             }
         }
         retrieveFriendCity() {(completedArr:[String]) in
             self.friendCities = completedArr
-            self.friendCities.sortInPlace(<)
+            self.friendCities.sort(by: <)
             finishedCities = true
             if(finishedFriends && finishedCities){
-                completionClosure(finished: true)
+                completionClosure(true)
             }
         }
     }
     
     //retrieve a list of all the user's friends
-    func retrieveMyFriends(completionClosure: (friendStr: [String], friendId:[String]) -> Void) {
+    func retrieveMyFriends(_ completionClosure: @escaping (_ friendStr: [String], _ friendId:[String]) -> Void) {
         var localFriendsArr = [String]()
         var localFriendsId = [String]()
         //Retrieve a list of the user's current check in list
-        friendsRef.queryOrderedByChild("displayName1").observeEventType(.ChildAdded, withBlock: { snapshot in
+        friendsRef.queryOrdered(byChild: "displayName1").observe(.childAdded, with: { snapshot in
             //If the city is a single dict pair this snap.value will return the city name
-            if let currFriend = snapshot.value["displayName1"] as? String {
-                localFriendsArr.append(currFriend)
-                localFriendsId.append(snapshot.key)
+            if let currFriend = snapshot?.value as? NSDictionary {
+                localFriendsArr.append((currFriend["displayName1"] as? String ?? "Default Name")!)
+                localFriendsId.append((snapshot?.key)!)
             }
-            completionClosure(friendStr: localFriendsArr, friendId: localFriendsId)
+            completionClosure(localFriendsArr, localFriendsId)
         })
     }
     
     //Retrieve a list of all of the cities the user's friends have
-    func retrieveFriendCity(completionClosure: (completedArr: [String]) -> Void) {
+    func retrieveFriendCity(_ completionClosure: @escaping (_ completedArr: [String]) -> Void) {
         var localCityArr = [String]()
         //Query ordered by child will loop each place in the cityRef
-        cityRef.queryOrderedByChild("city").observeEventType(.ChildAdded, withBlock: { snapshot in
+        cityRef.queryOrdered(byChild: "city").observe(.childAdded, with: { snapshot in
             //If the city is a single dict pair this snap.value will return the city name
-            if let city = snapshot.value["city"] as? String {
+            let nsSnapDict = snapshot?.value as? NSDictionary     //Swift 3 returns snapshot as Any? instead of ID
+            if let city = nsSnapDict?["city"] as? String {
                 //Only append city if it doesn't already exist in the local city array
                 if(!localCityArr.contains(city)){
                     localCityArr.append(city)
                 }
             }else{  //The current city entry has a multi entry list
-                for child in snapshot.children {    //each child is either city or cat
+                for child in (snapshot?.children)! {    //each child is either city or cat
                     let rootNode = child as! FDataSnapshot
                     //force downcast only works if root node has children, otherwise value will only be a string
                     let nodeDict = rootNode.value as! NSDictionary
                     for (key, _ ) in nodeDict{
-                         if(child.key == "city"){
+                         if((child as AnyObject).key == "city"){
                             if(!localCityArr.contains(key as! String)){
                                 localCityArr.append(key as! String)
                             }
@@ -145,26 +157,26 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
                     }
                 }
             }
-            completionClosure(completedArr: localCityArr)
+            completionClosure(localCityArr)
         })
     }
 
     
-    func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
-        cell.backgroundColor = .clearColor()
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        cell.backgroundColor = .clear
     }
     
     //Setup data cell height
-    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
     {
         return 50
     }
     
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if(showPeopleView){
             return myFriends.count
         }else{
@@ -172,37 +184,37 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         }
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
         let cellIdentifier = "dataCell"
-        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! TestTableViewCell   //downcast to my cell class type
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! TestTableViewCell   //downcast to my cell class type
         //display table data from either friends list or city list
         if(showPeopleView){
             cell.tableCellValue.text = "    \(myFriends[indexPath.row])"
         }else{
              cell.tableCellValue.text = "  \(friendCities[indexPath.row])"
         }
-        cell.tableCellValue.textColor = UIColor.whiteColor()
-        cell.tableCellValue.font = UIFont.systemFontOfSize(24, weight: UIFontWeightLight)
+        cell.tableCellValue.textColor = UIColor.white
+        cell.tableCellValue.font = UIFont.systemFont(ofSize: 24, weight: UIFontWeightLight)
         //Remove seperator insets
-        cell.layoutMargins = UIEdgeInsetsZero
+        cell.layoutMargins = UIEdgeInsets.zero
         return cell
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //        // Create an instance of myListVC and pass the variable
         //        let controller = MyListViewController(nibName: "MyListViewController", bundle: nil) as MyListViewController
         //        controller.requestedUser = selectedUserId as NSString
         // Perform seque to my List VC
-        self.performSegueWithIdentifier("myListSegue", sender: self)
+        self.performSegue(withIdentifier: "myListSegue", sender: self)
     }
     
     //Pass the FriendId of the requested list to view
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
         if(segue.identifier == "myListSegue"){  //only perform if going to MyListVC
             var nameId: String
             // Create a new variable to store the instance ofPlayerTableViewController
-            let destinationVC = segue.destinationViewController as! MyListViewController
+            let destinationVC = segue.destination as! MyListViewController
             if(showPeopleView){
                 var userName: String = ""
                 nameId = "Friend's List"      //Default should it fail
@@ -212,8 +224,8 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
                 }
                 
                 //Determine the First Name of the Facebook username before the space
-                if let spaceIdx = userName.characters.indexOf(" "){
-                    nameId = userName.substringToIndex(spaceIdx)
+                if let spaceIdx = userName.characters.index(of: " "){
+                    nameId = userName.substring(to: spaceIdx)
                 }
             
             }else{
@@ -228,13 +240,21 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
             destinationVC.showAllCities = !showPeopleView
             
             //Deselect current row so when returning the last selected user is not still selected
-            self.tableView.deselectRowAtIndexPath(self.tableView.indexPathForSelectedRow!, animated: true)
+            self.tableView.deselectRow(at: self.tableView.indexPathForSelectedRow!, animated: true)
         }
+        print("segue to \(segue.identifier)")
     }
     
     // Unwind seque from my myListVC
-    @IBAction func unwindFromMyList(sender: UIStoryboardSegue) {
+    @IBAction func unwindFromMyList(_ sender: UIStoryboardSegue) {
         // empty
     }
+    
+    /*override func segueForUnwindingToViewController(toViewController: UIViewController, fromViewController: UIViewController, identifier: String?) -> UIStoryboardSegue? {
+        let segueLeft:SegueFromLeft = SegueFromLeft(identifier: identifier, source: fromViewController, destination: toViewController)
+    
+        return segueLeft
+//            SegueFromLeft(identifier: identifier, source: fromViewController, destination: toViewController)
+    }*/
     
 }

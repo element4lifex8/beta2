@@ -16,12 +16,12 @@ class CheckOutCityViewController: UIViewController, UITableViewDelegate, UITable
     
     var cityRef: Firebase!
     let currUserDefaultKey = "FBloginVC.currUser"
-    private let sharedFbUser = NSUserDefaults.standardUserDefaults()
+    fileprivate let sharedFbUser = UserDefaults.standard
     
     var currUser: NSString {
         get
         {
-            return (sharedFbUser.objectForKey(currUserDefaultKey) as? NSString)!
+            return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
         }
     }
     
@@ -31,13 +31,13 @@ class CheckOutCityViewController: UIViewController, UITableViewDelegate, UITable
         self.tableView.dataSource=self;
         self.tableView.delegate=self;
         //remove left padding from tableview seperators
-        tableView.layoutMargins = UIEdgeInsetsZero
-        tableView.separatorInset = UIEdgeInsetsZero
+        tableView.layoutMargins = UIEdgeInsets.zero
+        tableView.separatorInset = UIEdgeInsets.zero
         //        tableView.registerClass(TestTableViewCell.self,forCellReuseIdentifier: "dataCell")
-        self.tableView.backgroundColor=UIColor.clearColor()
+        self.tableView.backgroundColor=UIColor.clear
         //Create top cell separator for 1st cell
-        let px = 1 / UIScreen.mainScreen().scale
-        let frame = CGRectMake(0, 0, self.tableView.frame.size.width, px)
+        let px = 1 / UIScreen.main.scale
+        let frame = CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: px)
         let line: UIView = UIView(frame: frame)
         self.tableView.tableHeaderView = line
         line.backgroundColor = self.tableView.separatorColor
@@ -49,23 +49,23 @@ class CheckOutCityViewController: UIViewController, UITableViewDelegate, UITable
         }
     }
     
-    func retrieveFriendCity(completionClosure: (completedArr: [String]) -> Void) {
+    func retrieveFriendCity(_ completionClosure: @escaping (_ completedArr: [String]) -> Void) {
         var localCityArr = [String]()
         //Query ordered by child will loop each place in the cityRef
-        cityRef.queryOrderedByChild("city").observeEventType(.ChildAdded, withBlock: { snapshot in
+        cityRef.queryOrdered(byChild: "city").observe(.childAdded, with: { snapshot in
             //If the city is a single dict pair this snap.value will return the city name
-            if let city = snapshot.value["city"] as? String {
+            if let city = snapshot?.value as? NSDictionary {
                 //Only append city if it doesn't already exist in the local city array
-                if(!localCityArr.contains(city)){
-                    localCityArr.append(city)
+                if(!localCityArr.contains(city["city"] as? String ?? "Default City")){
+                    localCityArr.append((city["city"] as? String ?? "Default City")!)
                 }
             }else{  //The current city entry has a multi entry list
-                for child in snapshot.children {    //each child is either city or cat
+                for child in (snapshot?.children)! {    //each child is either city or cat
                     let rootNode = child as! FDataSnapshot
                     //force downcast only works if root node has children, otherwise value will only be a string
                     let nodeDict = rootNode.value as! NSDictionary
                     for (key, _ ) in nodeDict{
-                        if(child.key == "city"){
+                        if((child as AnyObject).key == "city"){
                             if(!localCityArr.contains(key as! String)){
                                 localCityArr.append(key as! String)
                             }
@@ -73,63 +73,63 @@ class CheckOutCityViewController: UIViewController, UITableViewDelegate, UITable
                     }
                 }
             }
-            completionClosure(completedArr: localCityArr)
+            completionClosure(localCityArr)
         })
 
     }
         
-    func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
-        cell.backgroundColor = .clearColor()
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        cell.backgroundColor = .clear
     }
     
     //Setup subheader and data cell attributes
-    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
     {
         return 50
     }
     
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return myCity.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
         let cellIdentifier = "dataCell"
-        let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! TestTableViewCell   //downcast to my cell class type
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! TestTableViewCell   //downcast to my cell class type
         cell.tableCellValue.text = "  \(myCity[indexPath.row])"
-        cell.tableCellValue.textColor = UIColor.whiteColor()
-        cell.tableCellValue.font = UIFont.systemFontOfSize(24, weight: UIFontWeightLight)
+        cell.tableCellValue.textColor = UIColor.white
+        cell.tableCellValue.font = UIFont.systemFont(ofSize: 24, weight: UIFontWeightLight)
         //Remove seperator insets
-        cell.layoutMargins = UIEdgeInsetsZero
+        cell.layoutMargins = UIEdgeInsets.zero
         return cell
     }
 
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 //        let selectedItem = myCity[indexPath.row]
-        self.performSegueWithIdentifier("myListSegue", sender: self)
+        self.performSegue(withIdentifier: "myListSegue", sender: self)
     }
 
     //Pass the FriendId's of the requested list to view
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
         let cityName = myCity[self.tableView.indexPathForSelectedRow!.row]
         
         //Create reference to
         
         // Create a new variable to store the instance ofPlayerTableViewController
-        let destinationVC = segue.destinationViewController as! MyListViewController
-        destinationVC.requestedUser = myCity[self.tableView.indexPathForSelectedRow!.row]
+        let destinationVC = segue.destination as! MyListViewController
+        destinationVC.requestedUser = myCity[self.tableView.indexPathForSelectedRow!.row] as NSString?
         destinationVC.headerText = cityName
         
         //Deselect current row so when returning the last selected user is not still selected
-        self.tableView.deselectRowAtIndexPath(self.tableView.indexPathForSelectedRow!, animated: true)
+        self.tableView.deselectRow(at: self.tableView.indexPathForSelectedRow!, animated: true)
     }
     
     // Unwind seque from my myListVC
-    @IBAction func unwindFromMyList(sender: UIStoryboardSegue) {
+    @IBAction func unwindFromMyList(_ sender: UIStoryboardSegue) {
         // empty
     }
 

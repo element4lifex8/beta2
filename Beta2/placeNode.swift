@@ -31,7 +31,7 @@ public struct placeNode {
         self.ref = nil
     }
     
-    mutating func addCity(cityName: String)
+    mutating func addCity(_ cityName: String)
     {
         if self.city == nil{
             self.city = [cityName]
@@ -41,7 +41,7 @@ public struct placeNode {
         }
     }
     
-    mutating func addCategory(catName: String)
+    mutating func addCategory(_ catName: String)
     {
         if self.category == nil{
             self.category = [catName]

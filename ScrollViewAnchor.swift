@@ -13,7 +13,7 @@ class ScrollViewAnchor: UIScrollView {
         override init (frame : CGRect) {
             super.init(frame : frame)
             let myView = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
-            myView.backgroundColor = UIColor.redColor()
+            myView.backgroundColor = UIColor.red
 //            myView.translatesAutoresizingMaskIntoConstraints = false
             self.addSubview(myView)
             //myView.centerYAnchor.constraintEqualToAnchor(superview!.centerYAnchor).active = true
@@ -65,7 +65,7 @@ class ScrollViewAnchor: UIScrollView {
 //        let mainScreenHeight = UIScreen.mainScreen().bounds.size.height
 //        
 //        NSLayoutConstraint.activateConstraints([
-//            self.sv.topAnchor.constraintEqualToAnchor(vc?.topLayoutGuide.bottomAnchor),
+//            self.sv.topAnchor.constraintEqualToAnchor(vc?.topLayoutGuide.bottomAn     chor),
 //            self.sv.leadingAnchor.constraintEqualToAnchor(self.leadingAnchor),
 //            self.sv.bottomAnchor.constraintEqualToAnchor(vc?.bottomLayoutGuide.topAnchor),
 //            self.sv.trailingAnchor.constraintEqualToAnchor(self.trailingAnchor)

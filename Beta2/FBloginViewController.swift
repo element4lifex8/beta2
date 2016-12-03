@@ -14,16 +14,16 @@ import Firebase
 class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
 
     let currUserDefaultKey = "FBloginVC.currUser"
-    private let sharedFbUser = NSUserDefaults.standardUserDefaults()
+    fileprivate let sharedFbUser = UserDefaults.standard
     
     var currUser: NSString {
         get
         {
-            return (sharedFbUser.objectForKey(currUserDefaultKey) as? NSString)!
+            return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
         }
         set
         {
-            sharedFbUser.setObject(newValue, forKey: currUserDefaultKey)
+            sharedFbUser.set(newValue, forKey: currUserDefaultKey)
         }
     }
     
@@ -32,7 +32,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
         super.viewDidLoad()
         
         //check for an existing token at load.
-        if (FBSDKAccessToken.currentAccessToken() == nil)
+        if (FBSDKAccessToken.current() == nil)
         {
             print("Not logged in..")
             //Add facebook login button to center of view
@@ -83,8 +83,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
     
     // Facebook Delegate Methods
     //func used to know if the user did login correctly and if they did you can grab their information.
-    func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!)
-    {
+    func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error!){
         var existingUser = false
         
         if ((error) != nil)
@@ -99,22 +98,22 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
         {
             let ref = Firebase(url: "https://check-inout.firebaseio.com")
             //use current access token from loggedd in user to pass to firebase's login auth func
-            let accessToken = FBSDKAccessToken.currentAccessToken().tokenString
-            ref.authWithOAuthProvider("facebook", token: accessToken, withCompletionBlock: { error, authData in
+            let accessToken = FBSDKAccessToken.current().tokenString
+            ref?.auth(withOAuthProvider: "facebook", token: accessToken, withCompletionBlock: { error, authData in
                 if error != nil
                 {
                     print("Login failed \(error)")
                 }
                 else
                 {
-                    self.currUser = (authData.providerData["id"] as? NSString)!
+                    self.currUser = (authData?.providerData["id"] as? NSString)!
                     print("Logged in  \(self.currUser)")
                     //Check to see if user is new and has not been added to the user's list in Firebase
-                    ref.childByAppendingPath("users").observeSingleEventOfType(.Value, withBlock: { snapshot in
-                        for child in snapshot.children {
+                    ref?.child(byAppendingPath: "users").observeSingleEvent(of: .value, with: { snapshot in
+                        for child in (snapshot?.children)! {
                             //Compare current logged in user to all users stored in the database (child.key is the user id #)
-                            if let childKey = child.key{
-                                if(childKey == self.currUser){
+                            if let childKey = (child as AnyObject).key{
+                                if(childKey == self.currUser as String){
                                     existingUser = true
                                 }
                             }
@@ -129,9 +128,9 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                     // This creates a URL path like the following:
                     //  - https://<YOUR-FIREBASE-APP>.firebaseio.com/users/<uid>
                     if(!existingUser){
-                        let newUser = ["displayName1": (authData.providerData["displayName"] as? NSString)!,
-                            "email": (authData.providerData["email"] as? NSString)!]
-                        ref.childByAppendingPath("users").childByAppendingPath(self.currUser as String).setValue(newUser)
+                        let newUser = ["displayName1": (authData?.providerData["displayName"] as? NSString)!,
+                            "email": (authData?.providerData["email"] as? NSString)!]
+                        ref?.child(byAppendingPath: "users").child(byAppendingPath: self.currUser as String).setValue(newUser)
                     }
                 }
             })
@@ -144,7 +143,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
             {
                 // Do work
             }
-            performSegueWithIdentifier("profileSteps", sender: nil)
+            performSegue(withIdentifier: "profileSteps", sender: nil)
         }
         
         /*let request = FBSDKGraphRequest(graphPath:"/me/friends", parameters: nil) //["fields" : "email" : "name"]);
@@ -175,7 +174,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
         
     }
     
-    func loginButtonDidLogOut(loginButton: FBSDKLoginButton!)
+    func loginButtonDidLogOut(_ loginButton: FBSDKLoginButton!)
     {
         print("User Logged Out")
     }

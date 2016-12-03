@@ -7,6 +7,19 @@
 //
 
 import Foundation
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
 
 //Implement Tree Stucture
 class PlaceNodeTree{
@@ -37,11 +50,11 @@ class PlaceNodeTree{
         self.displayNode = true
     }
     
-    func setVal(nodeVal: String){
+    func setVal(_ nodeVal: String){
         self.nodeValue = nodeVal
     }
     
-    func addChild(node: PlaceNodeTree)->PlaceNodeTree {
+    func addChild(_ node: PlaceNodeTree)->PlaceNodeTree {
         if (self.children == nil){
             self.children = [node]
         }else{
@@ -52,7 +65,7 @@ class PlaceNodeTree{
         return node
     }
     
-    func addSibling(siblings: [String]) {
+    func addSibling(_ siblings: [String]) {
         if (self.sibling == nil){
             self.sibling = siblings
         }else{
@@ -63,17 +76,17 @@ class PlaceNodeTree{
     }
     
     //Function returns tree if the deletion left the Parent childless
-    func removeChild(nodeVal: String)-> Bool{
+    func removeChild(_ nodeVal: String)-> Bool{
         var indexToDelete:Int? = nil
         if let childNodes = self.children{
-            for (index,child) in childNodes.enumerate(){
+            for (index,child) in childNodes.enumerated(){
                 if(child.nodeValue! == nodeVal){
                     indexToDelete = index
                 }
             }
         }
         if(indexToDelete != nil){
-            children?.removeAtIndex(indexToDelete!)
+            children?.remove(at: indexToDelete!)
             if(children?.count == 0 && self.depth == 2){    //Only delete current node if its an empty cat
                 //Recursively call to delete Parent if its only child was just deleted
                 self.parent?.removeChild(self.nodeValue!)
@@ -85,7 +98,7 @@ class PlaceNodeTree{
         return false
     }
     
-    func search(value: String) -> PlaceNodeTree? {
+    func search(_ value: String) -> PlaceNodeTree? {
         if value == self.nodeValue {
             return self
         }
@@ -99,7 +112,7 @@ class PlaceNodeTree{
         return nil
     }
     
-    func nodeCountAtDepth(depth: Int) -> Int {
+    func nodeCountAtDepth(_ depth: Int) -> Int {
         if(self.children == nil)
         {
             return 0
@@ -110,7 +123,7 @@ class PlaceNodeTree{
     
 //    Breadth width recursion of the tree starting at the passed root node
         //Each succesive recursivve itertion is the next depth level 
-    func recursiveBreadthCount(queue: [PlaceNodeTree], depth: Int, count: Int) -> Int{
+    func recursiveBreadthCount(_ queue: [PlaceNodeTree], depth: Int, count: Int) -> Int{
         var newCount = 0
         var queueNext:[PlaceNodeTree] = []
         
@@ -144,11 +157,11 @@ class PlaceNodeTree{
     }
     
     //Function take string of nodeValue that should be removed/returned to table data. If no filter is applied return tree to default sort
-    func displayNodeFilter(filterStrings: [String]){
+    func displayNodeFilter(_ filterStrings: [String]){
         recursiveBreadthFilter([self], filter: filterStrings)
     }
     
-    func recursiveBreadthFilter(queue: [PlaceNodeTree], filter: [String]){
+    func recursiveBreadthFilter(_ queue: [PlaceNodeTree], filter: [String]){
         var queueNext:[PlaceNodeTree] = []
         var defaultSort = false
         if(filter.count == 0){  //if no filters exist then return tree to default sort
@@ -161,7 +174,7 @@ class PlaceNodeTree{
                     //Only consider nodes for filtering if they are a category on depth 2
                     if(child.depth == 2){
                         if(!defaultSort){
-                            if(filter.indexOf(child.nodeValue!) != nil){   //child exists in the filter list
+                            if(filter.index(of: child.nodeValue!) != nil){   //child exists in the filter list
                                 child.displayNode = true
                             }else{
                                 child.displayNode = false
@@ -205,7 +218,7 @@ class PlaceNodeTree{
                     }
                     //Sort all children for the current node
                      //Move + sign to end of sort
-                     queueSort.sortInPlace({(node1:PlaceNodeTree, node2:PlaceNodeTree) -> Bool in
+                     queueSort.sort(by: {(node1:PlaceNodeTree, node2:PlaceNodeTree) -> Bool in
                         return node1.nodeValue < node2.nodeValue
                      })
                     node.children = queueSort
@@ -219,29 +232,29 @@ class PlaceNodeTree{
     }
     
     //Count each node until the node matching the index path requested is reached
-    func returnNodeAtIndex(indexPath: Int) -> PlaceNodeTree?
+    func returnNodeAtIndex(_ indexPath: Int) -> PlaceNodeTree?
     {
         var stack:[PlaceNodeTree] = [self]
         var currentNode:PlaceNodeTree? = self
-        var visitedNodes:NSMutableSet = NSMutableSet()  //Set of Unique TreeNodes
+        let visitedNodes:NSMutableSet = NSMutableSet()  //Set of Unique TreeNodes
         var counter = -1 //Start counter at -1 to indicate root node cannot be considered for matching index path
         var restart = false //used to determine when to call continue and restart while loop
         var removeParent = false
         
         while (currentNode != nil){
             //check the current node at the top of the stack and see if it has been counted
-            if(!(visitedNodes.containsObject(currentNode!))){
+            if(!(visitedNodes.contains(currentNode!))){
                 if(counter == indexPath) {    //check if node count matches index path
                     return currentNode
                 }
-                visitedNodes.addObject(currentNode!)
+                visitedNodes.add(currentNode!)
                 counter += 1
             }
             //Loop over all current node's children to look for the next untraversed path
             if let children = currentNode?.children{
-                for (childCount,child) in children.enumerate(){
+                for (childCount,child) in children.enumerated(){
                     if(child.displayNode == true){   //Don't include nodes that have been turned off for sorting
-                        if(!(visitedNodes.containsObject(child))){ //check for the first child that hasn't been traversed and add to stack
+                        if(!(visitedNodes.contains(child))){ //check for the first child that hasn't been traversed and add to stack
                             stack.append(child)
                             currentNode = child
                             restart = true
@@ -298,7 +311,7 @@ class PlaceNodeTree{
     
 //     Unused
     //   Try 2 Depth first search for index path
-    func returnNode(indexPath: Int) -> (Int,PlaceNodeTree?) {
+    func returnNode(_ indexPath: Int) -> (Int,PlaceNodeTree?) {
         var leafCount = 0
         var tempCount = 0
         var treeNode:PlaceNodeTree? = nil
@@ -326,10 +339,10 @@ class PlaceNodeTree{
     }
     
     //    Depth first tree traversal to map indexPath to a node
-    func nodeAtIndexPath(indexPath: Int, nodeCount: Int) -> (currCount: Int, node: PlaceNodeTree?)  {
+    func nodeAtIndexPath(_ indexPath: Int, nodeCount: Int) -> (currCount: Int, node: PlaceNodeTree?)  {
         var leafCount = 0
         var tempCount = 0
-        var parentCount = 0
+        let parentCount = 0
         var nodesTraversed = nodeCount
         var retNode:PlaceNodeTree? = nil
         if(self.children == nil)    //enter when each leaf is reached

@@ -31,27 +31,27 @@ class CheckedOutListViewController: UITableViewController {
     var headerCount = 0
     
     let currUserDefaultKey = "FBloginVC.currUser"
-    private let sharedFbUser = NSUserDefaults.standardUserDefaults()
+    fileprivate let sharedFbUser = UserDefaults.standard
 
 
     var currUser: NSString {
         get
         {
-            return (sharedFbUser.objectForKey(currUserDefaultKey) as? NSString)!
+            return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
         }
     }
 
     let restNameDefaultKey = "CheckInView.restName"
-    private let sharedRestName = NSUserDefaults.standardUserDefaults()
+    fileprivate let sharedRestName = UserDefaults.standard
     
     var restNameHistory: [String] {
         get
         {
-            return sharedRestName.objectForKey(restNameDefaultKey) as? [String] ?? []
+            return sharedRestName.object(forKey: restNameDefaultKey) as? [String] ?? []
         }
         set
         {
-            sharedRestName.setObject(newValue, forKey: restNameDefaultKey)
+            sharedRestName.set(newValue, forKey: restNameDefaultKey)
         }
     }
     
@@ -88,7 +88,7 @@ class CheckedOutListViewController: UITableViewController {
     
     func formatTableData(){
         print(cityDict)
-        for (index,entry) in self.placesArr.enumerate()
+        for (index,entry) in self.placesArr.enumerated()
         {
             tableData.append(entry)
             for (key,value) in cityDict
@@ -152,30 +152,30 @@ class CheckedOutListViewController: UITableViewController {
             }
         }
         self.citySortedArr = [String] (self.citySortedDict.keys)
-        self.citySortedArr.sortInPlace(<)
+        self.citySortedArr.sort(by: <)
         
     }
     
 
     //function receives the name of the place to look up its city and place attributes
-    func retrievePlaceAttributes(place: String, completionClosure: (categoryArr: [String], cityArr: [String]) -> Void)
+    func retrievePlaceAttributes(_ place: String, completionClosure: @escaping (_ categoryArr: [String], _ cityArr: [String]) -> Void)
     {
         let currPlacesRef: Firebase!
         var completedAttrArr = [String]()
         var cityArrLoc = [String]()
         var categoryArrLoc = [String]()
         currPlacesRef = Firebase(url: "https://check-inout.firebaseio.com/checked/places/\(place)")
-        currPlacesRef.observeEventType(.Value, withBlock: { childSnapshot in
-            if !(childSnapshot.value is NSNull)
+        currPlacesRef.observe(.value, with: { childSnapshot in
+            if !(childSnapshot?.value is NSNull)
             {
                 //get category and city key then retreive the attribute's children
-                for attribute in childSnapshot.children {
+                for attribute in (childSnapshot?.children)! {
                     //check if multiple children exist beneath currrent node, will return nil if path is not only a key:value
-                    if let singleEntry = childSnapshot.childSnapshotForPath(attribute.key).value as? String{
-                        if (attribute.key == "city"){
+                    if let singleEntry = childSnapshot?.childSnapshot(forPath: (attribute as AnyObject).key).value as? String{
+                        if ((attribute as AnyObject).key == "city"){
                             cityArrLoc.append(singleEntry)   //append singld child
                         }
-                        else if (attribute.key == "category"){
+                        else if ((attribute as AnyObject).key == "category"){
                             categoryArrLoc.append(singleEntry)   //append singld child
                         }
                         else{
@@ -188,10 +188,10 @@ class CheckedOutListViewController: UITableViewController {
                         //force downcast only works if root node has children, otherwise value will only be a string
                         let nodeDict = rootNode.value as! NSDictionary
                         for (key, _ ) in nodeDict{
-                            if(attribute.key == "city"){
+                            if((attribute as AnyObject).key == "city"){
                                cityArrLoc.append(key as! String)
                             }
-                            if(attribute.key == "category"){
+                            if((attribute as AnyObject).key == "category"){
                                 categoryArrLoc.append(key as! String)
                             }
                             else{
@@ -203,20 +203,20 @@ class CheckedOutListViewController: UITableViewController {
             }
             else
             {
-                print("attribute \(childSnapshot.key) found but contained no children")
+                print("attribute \(childSnapshot?.key) found but contained no children")
             }
-            completionClosure(categoryArr: categoryArrLoc, cityArr: cityArrLoc)
+            completionClosure(categoryArrLoc, cityArrLoc)
         })
 
     }
     
     //Funtion is passed the list of checked in places and retrieves the city and category attributes for each place
-    func retrieveAttributesFromMaster(retrievedPlaces: [String], completionClosure: (completeTableDataArr: [String]) -> Void)
+    func retrieveAttributesFromMaster(_ retrievedPlaces: [String], completionClosure: @escaping (_ completeTableDataArr: [String]) -> Void)
     {
         var localTableDataArr = [String]()
         var locPlaceNodeArr = [placeNode]()
         var locPlaceNodeObj:placeNode = placeNode()
-        for (index,place) in retrievedPlaces.enumerate()
+        for (index,place) in retrievedPlaces.enumerated()
         {
             retrievePlaceAttributes(place, completionClosure: { (categoryArr: [String], cityArr: [String]) in
                 locPlaceNodeObj = placeNode()
@@ -234,46 +234,46 @@ class CheckedOutListViewController: UITableViewController {
                 //call completion closure for viewDidLoad calling function if this closure is called on last array item
                 if(index == (retrievedPlaces.count - 1)){
                     //localTableDataArr is concatenated list of all data, currently unused
-                    completionClosure(completeTableDataArr: localTableDataArr)
+                    completionClosure(localTableDataArr)
                 }
             })
         }
     }
     
     //Retrieve list of all checked in places for curr user
-    func retrieveUserPlaces(completionClosure: (completedArr: [String]) -> Void) {
+    func retrieveUserPlaces(_ completionClosure: @escaping (_ completedArr: [String]) -> Void) {
         var localPlacesArr = [String]()
         //Retrieve a list of the user's current check in list
-        userRef.observeEventType(.Value, withBlock: { snapshot in
-            for child in snapshot.children {
+        userRef.observe(.value, with: { snapshot in
+            for child in (snapshot?.children)! {
                 //true if child key in the snapshot is not nil (e.g. attributes about the place exist), then unwrap and store in array
-                if let childKey = child.key{
+                if let childKey = (child as AnyObject).key{
                    localPlacesArr.append(childKey!)
                 }
             }
-            completionClosure(completedArr: localPlacesArr)
+            completionClosure(localPlacesArr)
         })
     }
     
     //Setup section header attributes
-    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 50.0
     }
     
-    override func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let cell = tableView.dequeueReusableCellWithIdentifier("headerCell") as! HeaderTableViewCell
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "headerCell") as! HeaderTableViewCell
         cell.tableCellValue.text=self.citySortedArr[section]
-        cell.tableCellValue.font = UIFont.boldSystemFontOfSize(36)
+        cell.tableCellValue.font = UIFont.boldSystemFont(ofSize: 36)
         return cell
     }
     
     
     //Return number of top level entries in sorted dict e.g.  num cities from [City : [Cat:[Place]]]
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         return self.citySortedArr.count
     }
     
-    func getItemWithIndexPath(indexPath: NSIndexPath) -> (place: String,isHeader: Bool)
+    func getItemWithIndexPath(_ indexPath: IndexPath) -> (place: String,isHeader: Bool)
     {
         var subIndexRow = indexPath.row
         var currPlace: String = ""
@@ -306,7 +306,7 @@ class CheckedOutListViewController: UITableViewController {
 
     
     //return the number of rows per section in the table
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         let currCityAttrDict = self.citySortedDict[self.citySortedArr[section]]   //get [Category: [Places]] for current city
         var catNameAndPlaceCount = currCityAttrDict?.count  //store the num categories
         //loop over all places in each category to get the full count
@@ -318,7 +318,7 @@ class CheckedOutListViewController: UITableViewController {
 
     //configures and provides a cell to display for a given row
     //gets called once for each cell that can be displayed on the current screen
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
         let tableValue = getItemWithIndexPath(indexPath)
         var cellIdentifier:String
@@ -327,18 +327,18 @@ class CheckedOutListViewController: UITableViewController {
         {
             cellIdentifier = "subheaderCell"
             //asks the table view for a cell with my cellidentifier which is the name of my custom cell class
-            let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! SubheaderTableViewCell   //downcast to my cell class type
+            let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! SubheaderTableViewCell   //downcast to my cell class type
             cell.tableCellValue.text=tableValue.place
-            cell.tableCellValue.font = UIFont.systemFontOfSize(24, weight: UIFontWeightMedium)
+            cell.tableCellValue.font = UIFont.systemFont(ofSize: 24, weight: UIFontWeightMedium)
             return cell
         }
         else{
             // Configure the cell if not Header
             cellIdentifier = "dataCell"
             //asks the table view for a cell with my cellidentifier which is the name of my custom cell class
-            let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! TestTableViewCell   //downcast to my cell class type
+            let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! TestTableViewCell   //downcast to my cell class type
             cell.tableCellValue.text=tableValue.place
-            cell.tableCellValue.font = UIFont.systemFontOfSize(18, weight: UIFontWeightLight)
+            cell.tableCellValue.font = UIFont.systemFont(ofSize: 18, weight: UIFontWeightLight)
             return cell
         }
     }

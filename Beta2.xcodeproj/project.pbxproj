@@ -47,6 +47,7 @@
 		EB85D5571C540E6800F2E29F /* AddFbFriendsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */; };
 		EB85D5701C5982F000F2E29F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB85D5641C5982F000F2E29F /* CoreData.framework */; };
 		EB97CF621D73902900A3DBA1 /* ScrollViewAnchor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB97CF611D73902900A3DBA1 /* ScrollViewAnchor.swift */; };
+		EB9EE2CB1DD2A88900AC1FF0 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB9EE2CA1DD2A88900AC1FF0 /* Launch Screen.storyboard */; };
 		EBA4D0FD1C6423DB00BB459F /* libc++.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EBA4D0FB1C6423DB00BB459F /* libc++.1.dylib */; };
 		EBA4D0FE1C6423DB00BB459F /* libicucore.A.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EBA4D0FC1C6423DB00BB459F /* libicucore.A.dylib */; };
 		EBA4D0FF1C6423E800BB459F /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C71C62C57E001E0F62 /* CFNetwork.framework */; };
@@ -127,6 +128,7 @@
 		EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFbFriendsViewController.swift; sourceTree = "<group>"; };
 		EB85D5641C5982F000F2E29F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		EB97CF611D73902900A3DBA1 /* ScrollViewAnchor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ScrollViewAnchor.swift; path = ../ScrollViewAnchor.swift; sourceTree = "<group>"; };
+		EB9EE2CA1DD2A88900AC1FF0 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		EBA4D0FB1C6423DB00BB459F /* libc++.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.1.dylib"; path = "../../../../../usr/lib/libc++.1.dylib"; sourceTree = "<group>"; };
 		EBA4D0FC1C6423DB00BB459F /* libicucore.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.A.dylib; path = ../../../../../usr/lib/libicucore.A.dylib; sourceTree = "<group>"; };
 		EBAC6D051CC855C20060BC73 /* OutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutViewController.swift; sourceTree = "<group>"; };
@@ -263,6 +265,7 @@
 				EB63152D1BF96241009683FE /* CheckInView.swift */,
 				EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */,
 				EB0656221BEE37F300CF8376 /* Assets.xcassets */,
+				EB9EE2CA1DD2A88900AC1FF0 /* Launch Screen.storyboard */,
 				EB0656271BEE37F300CF8376 /* Info.plist */,
 			);
 			path = Beta2;
@@ -371,6 +374,7 @@
 					EB0656171BEE37F300CF8376 = {
 						CreatedOnToolsVersion = 7.0.1;
 						DevelopmentTeam = WFDEGZ6LV9;
+						LastSwiftMigration = 0810;
 					};
 					EB06562B1BEE37F300CF8376 = {
 						CreatedOnToolsVersion = 7.0.1;
@@ -407,6 +411,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB9EE2CB1DD2A88900AC1FF0 /* Launch Screen.storyboard in Resources */,
 				EB0656231BEE37F300CF8376 /* Assets.xcassets in Resources */,
 				EBAC6D2E1CD02D430060BC73 /* Main.storyboard in Resources */,
 			);
@@ -653,6 +658,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.anuJ.Beta2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -669,6 +675,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.anuJ.Beta2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

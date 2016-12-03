@@ -11,26 +11,26 @@ import UIKit
 class SegueFromRight: UIStoryboardSegue {
     override func perform()
     {
-        let src = self.sourceViewController
-        let dst = self.destinationViewController
+        let src = self.source
+        let dst = self.destination
         
         src.view.superview?.insertSubview(dst.view, aboveSubview: src.view)
-        dst.view.transform = CGAffineTransformMakeTranslation(src.view.frame.size.width, 0)
+        dst.view.transform = CGAffineTransform(translationX: src.view.frame.size.width, y: 0)
         
-        UIView.animateWithDuration(0.25,
+        UIView.animate(withDuration: 0.25,
                                    delay: 0.0,
-                                   options: UIViewAnimationOptions.CurveEaseInOut,
+                                   options: UIViewAnimationOptions(),
                                    animations: {
                                     //Move curr VC to the Left off the screen
-                                    src.view.transform = CGAffineTransformMakeTranslation(-src.view.frame.size.width, 0)
+                                    src.view.transform = CGAffineTransform(translationX: -src.view.frame.size.width, y: 0)
                                     //Slide dest V from right as Src VC is removed
-                                    dst.view.transform = CGAffineTransformMakeTranslation(0, 0)
+                                    dst.view.transform = CGAffineTransform(translationX: 0, y: 0)
             },
                                    completion: { finished in
 //                                    if let navController = src.navigationController {
 //                                        navController.pushViewController(dst, animated: true)
 //                                    }
-                                    src.presentViewController(dst, animated: false, completion: nil)
+                                    src.present(dst, animated: false, completion: nil)
             }
         )
     }

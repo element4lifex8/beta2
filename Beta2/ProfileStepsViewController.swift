@@ -17,9 +17,9 @@ class ProfileStepsViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
 
-    @IBAction func skipProfileSetup(sender: UIButton)
+    @IBAction func skipProfileSetup(_ sender: UIButton)
     {
-        performSegueWithIdentifier("skipProfileSetup", sender: nil)
+        performSegue(withIdentifier: "skipProfileSetup", sender: nil)
     }
 
     
@@ -29,7 +29,7 @@ class ProfileStepsViewController: UIViewController {
     func addLabelBorders()
     {
         step1Label.layer.borderWidth = 1
-        step1Label.layer.borderColor = UIColor.blackColor().CGColor
+        step1Label.layer.borderColor = UIColor.black.cgColor
         //skipLabel.layer.masksToBounds = true
         skipLabel.layer.cornerRadius = 8
         skipLabel.layer.borderWidth = 1

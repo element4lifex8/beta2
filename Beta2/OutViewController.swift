@@ -20,11 +20,11 @@ class OutViewController: UIViewController {
     @IBOutlet var fireRef: UITextView!
     
     let currUserDefaultKey = "FBloginVC.currUser"
-    private let sharedFbUser = NSUserDefaults.standardUserDefaults()
+    fileprivate let sharedFbUser = UserDefaults.standard
     var currUser: NSString {
         get
         {
-            return (sharedFbUser.objectForKey(currUserDefaultKey) as? NSString)!
+            return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
         }
     }
     
@@ -32,14 +32,14 @@ class OutViewController: UIViewController {
         super.viewDidLoad()
         userRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
         // Retrieve new posts as they are added to your database
-        userRef.observeEventType(.Value, withBlock: { snapshot in
+        userRef.observe(.value, with: { snapshot in
             
-            print("COunt when load \(snapshot.childrenCount)")
+            print("COunt when load \(snapshot?.childrenCount)")
             var count = 0
-            for child in snapshot.children {
+            for child in (snapshot?.children)! {
                 
                 //true if child key in the snapshot is not nil, then unwrap and store in array
-                if let childKey = child.key{
+                if let childKey = (child as AnyObject).key{
                     self.placesArr.append(childKey!)
                     self.placesStr += ("\(self.placesArr[count]) \n" )
                     count=count + 1
@@ -53,7 +53,7 @@ class OutViewController: UIViewController {
                  self.placesArr.append(child.value)
                  }*/
             }
-            self.arrSize = Int(snapshot.childrenCount)
+            self.arrSize = Int((snapshot?.childrenCount)!)
             print(self.placesArr)
             self.fireRef.text = self.placesStr
             

@@ -10,16 +10,16 @@ import UIKit
 
 class CheckedView: UIView {
     let restNameDefaultKey = "CheckInView.restName"
-    private let sharedRestName = NSUserDefaults.standardUserDefaults()
+    fileprivate let sharedRestName = UserDefaults.standard
     
     var restNameHistory: [String] {
         get
         {
-            return sharedRestName.objectForKey(restNameDefaultKey) as? [String] ?? []
+            return sharedRestName.object(forKey: restNameDefaultKey) as? [String] ?? []
         }
         set
         {
-            sharedRestName.setObject(newValue, forKey: restNameDefaultKey)
+            sharedRestName.set(newValue, forKey: restNameDefaultKey)
         }
     }
     

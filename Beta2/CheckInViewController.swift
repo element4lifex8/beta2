@@ -29,16 +29,16 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var isEnteringCity = false
     var isEnteringCategory = false
     
-    private let sharedRestName = NSUserDefaults.standardUserDefaults()
+    fileprivate let sharedRestName = UserDefaults.standard
     
     var restNameHistory: [String] {
         get
         {
-            return sharedRestName.objectForKey(restNameDefaultKey) as? [String] ?? []
+            return sharedRestName.object(forKey: restNameDefaultKey) as? [String] ?? []
         }
         set
         {
-            sharedRestName.setObject(newValue, forKey: restNameDefaultKey)
+            sharedRestName.set(newValue, forKey: restNameDefaultKey)
         }
     }
     
@@ -50,13 +50,13 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var catScrollContainerView: UIView!
     
     let currUserDefaultKey = "FBloginVC.currUser"
-    private let sharedFbUser = NSUserDefaults.standardUserDefaults()
+    fileprivate let sharedFbUser = UserDefaults.standard
     
     //NSUser defaults stores user i
     var currUser: NSString {
         get
         {
-            return (sharedFbUser.objectForKey(currUserDefaultKey) as? NSString)!
+            return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
         }
     }
     
@@ -67,7 +67,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         super.viewDidLoad()
 
         //Auto Capitalize words in text box field
-        self.CheckInRestField.autocapitalizationType = .Words
+        self.CheckInRestField.autocapitalizationType = .words
         //setup City scroll view
         cityScrollView = UIScrollView()
         cityScrollView.delegate = self
@@ -85,7 +85,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         catScrollContainerView = UIView()
         createCategoryButtons()
         //Enable touch interaction with background view so that delete buttons can be cleared when user touces screen
-        checkInView.userInteractionEnabled = true
+        checkInView.isUserInteractionEnabled = true
      }
     
     //Since the bounds of the view controller's view is not ready in viewDidLoad, I like to do frame setting in viewDidLayoutSubviews
@@ -98,32 +98,32 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         super.viewDidLayoutSubviews()
 
         //create frame on screen of scroll view that is 250px from top of screen and the width of the screen and a height of 120px
-        cityScrollView.frame = CGRectMake(0, cityScrollViewY, view.frame.size.width, scrollViewHeight)
+        cityScrollView.frame = CGRect(x: 0, y: cityScrollViewY, width: view.frame.size.width, height: scrollViewHeight)
         //we are basing the container view's frame on the scroll view's content size
-        cityScrollContainerView.frame = CGRectMake(0, 0, cityScrollView.contentSize.width, cityScrollView.contentSize.height)
+        cityScrollContainerView.frame = CGRect(x: 0, y: 0, width: cityScrollView.contentSize.width, height: cityScrollView.contentSize.height)
 
         
         //setup category scroll frame
-        catScrollView.frame = CGRectMake(0, catScrollViewY, view.frame.size.width, 120)
+        catScrollView.frame = CGRect(x: 0, y: catScrollViewY, width: view.frame.size.width, height: 120)
         
-        catScrollContainerView.frame = CGRectMake(0, 0, catScrollView.contentSize.width, catScrollView.contentSize.height)
+        catScrollContainerView.frame = CGRect(x: 0, y: 0, width: catScrollView.contentSize.width, height: catScrollView.contentSize.height)
     }
    
     /**
      * Called when 'return' key pressed. return NO to ignore.
      */
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         view.endEditing(true)
         return true
     }
     
-    func textFieldDidBeginEditing(textField: UITextField) {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
         if (textField.placeholder != nil){  //If no user information is in the textBox then clear place holder
             textField.placeholder = nil
         }
     }
     
-    func textFieldDidEndEditing(textField: UITextField) {
+    func textFieldDidEndEditing(_ textField: UITextField) {
         if(textField.text == ""){   //Restore placeholder text if no user input was received
             if(isEnteringCity){
                 textField.placeholder = "Enter new city button name"
@@ -132,7 +132,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             }
         }
     }
-    func textFieldShouldClear(textField: UITextField) -> Bool {
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
         if(textField.text?.isEmpty ?? true){        //Only clear current textField if no user input previously received
             return true
         }
@@ -142,9 +142,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     }
     
     //Detect when user taps outside of scroll views and remove any delete city buttons if they are present
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
-        super.touchesBegan(touches, withEvent: event)
+        super.touchesBegan(touches, with: event)
         
         if let touch: UITouch = touches.first{
             if (touch.view == checkInView){
@@ -155,8 +155,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 }
                 //Remove any background from the city button that was added by the touchdown event
                 for case let btn as UIButton in cityScrollContainerView.subviews{
-                    if(!btn.selected){
-                        btn.backgroundColor = UIColor.clearColor()
+                    if(!btn.isSelected){
+                        btn.backgroundColor = UIColor.clear
                     }
                 }
             }
@@ -166,14 +166,14 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     @IBOutlet weak var CheckInRestField: UITextField!
     
     // Unwind seque from my myListVC
-    @IBAction func unwindFromMyList(sender: UIStoryboardSegue) {
+    @IBAction func unwindFromMyList(_ sender: UIStoryboardSegue) {
         // empty
     }
     
 //    Collect data from text box and determine if it is for adding new city or to save check in to firebase
     
     //Action triggered when submit button is pressed
-    @IBAction func SaveRestField(sender: UIButton) {
+    @IBAction func SaveRestField(_ sender: UIButton) {
         //Create a new button
         if(isEnteringCity)
         {
@@ -200,7 +200,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             else if(isEnteringCategory)
             {
                 let newCatLoc = catButtonList.count - 1
-                catButtonList.insert(addButtonText, atIndex: newCatLoc)
+                catButtonList.insert(addButtonText, at: newCatLoc)
                 CheckInRestField.text = ""
                 CheckInRestField.placeholder = "Enter Name..."
                 isEnteringCategory = false
@@ -212,7 +212,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         {
             var restNameText = CheckInRestField.text!
             //Remove any trailing spaces from restNameText
-            restNameText = restNameText.stringByTrimmingCharactersInSet(.whitespaceCharacterSet())
+            restNameText = restNameText.trimmingCharacters(in: .whitespaces)
             let dictArrLength = dictArr.count
             if(!restNameText.isEmpty && restNameText != "Enter Name...")
             {
@@ -221,9 +221,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
                 let refCheckedPlaces = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
                 // Write establishment name to user's collection
-                refChecked.updateChildValues([restNameText:true])
+                refChecked?.updateChildValues([restNameText:true])
                 // Write establishment name to places collection
-                refCheckedPlaces.updateChildValues([restNameText:true])
+                refCheckedPlaces?.updateChildValues([restNameText:true])
                 //let userRef = refChecked.childByAppendingPath(restNameText)
                 
                 //update "user places" to contain the establishment and its categories
@@ -232,9 +232,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                     for (key,value) in dictArr[i]   //key: city or category
                     {
                         //Store categories and cities in user list
-                        refChecked.childByAppendingPath(restNameText).childByAppendingPath(key).updateChildValues([value:"true"])
+                        refChecked?.child(byAppendingPath: restNameText).child(byAppendingPath: key).updateChildValues([value:"true"])
                         //Store categories and city info in master list
-                        refCheckedPlaces.childByAppendingPath(restNameText).childByAppendingPath(key).updateChildValues([value:"true"])
+                        refCheckedPlaces?.child(byAppendingPath: restNameText).child(byAppendingPath: key).updateChildValues([value:"true"])
                     }
                 }
                 //Save to NSUser defaults
@@ -246,21 +246,22 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 for view in catScrollContainerView.subviews as [UIView] {
                     if let btn = view as? UIButton {
                         btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
-                        btn.selected = false
-                        if(btn.backgroundColor != UIColor.clearColor()){
-                            btn.backgroundColor = UIColor.clearColor()
+                        btn.isSelected = false
+                        if(btn.backgroundColor != UIColor.clear){
+                            btn.backgroundColor = UIColor.clear
                         }
                     }
                 }
                 for view in cityScrollContainerView.subviews as [UIView] {
                     if let btn = view as? UIButton {
                         btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
-                        btn.selected = false
-                        if(btn.backgroundColor != UIColor.clearColor()){
-                            btn.backgroundColor = UIColor.clearColor()
+                        btn.isSelected = false
+                        if(btn.backgroundColor != UIColor.clear){
+                            btn.backgroundColor = UIColor.clear
                         }
                     }
                 }
+                CheckInRestField.placeholder = "Enter Name..."
                 //notifyUser()
             }
         }
@@ -268,8 +269,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
 //    Select attributes for check in
     
-    @IBAction func categorySelect(sender: UIButton) {
-        sender.highlighted = true
+    @IBAction func categorySelect(_ sender: UIButton) {
+        sender.isHighlighted = true
         if(sender.currentTitle! == "+")
         {
             CheckInRestField.text = "Enter new category button name"
@@ -282,25 +283,25 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 checkObj.addCategory(sender.currentTitle!)
                 //if dictArr does not contain the selected category already then add it to the dictArr
                 //uses closure for contains func as described here: http://stackoverflow.com/questions/34081580/array-of-any-and-contains
-                if(!dictArr.contains({element in return (element == categoryDict)}))
+                if(!dictArr.contains(where: {element in return (element == categoryDict)}))
                 {
                     dictArr.append(categoryDict)
                 }
             }else{   //Button is being deselected
-                if let idxToDelete = dictArr.indexOf({element in return (element == categoryDict)}){
-                    dictArr.removeAtIndex(idxToDelete)
+                if let idxToDelete = dictArr.index(where: {element in return (element == categoryDict)}){
+                    dictArr.remove(at: idxToDelete)
                 }
             }
         }
     }
     
     
-    @IBAction func citySelect(sender: UIButton) {
+    @IBAction func citySelect(_ sender: UIButton) {
         
         if(sender.currentTitle! == "+")
         {
             //Clear the touchdown background color
-            sender.backgroundColor = UIColor.clearColor()
+            sender.backgroundColor = UIColor.clear
             CheckInRestField.placeholder = "Enter new city button name"
             isEnteringCity = true
         }
@@ -311,14 +312,14 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             {
                 checkObj.addCity(sender.currentTitle!)
                 //Prevent from being able to add the same city twice to the dictArr
-                if(!dictArr.contains({element in return (element == cityDict)}))
+                if(!dictArr.contains(where: {element in return (element == cityDict)}))
                 {
                     dictArr.append(cityDict)
                 }
             }
             else{   //Button is being deselected
-                if let idxToDelete = dictArr.indexOf({element in return (element == cityDict)}){
-                        dictArr.removeAtIndex(idxToDelete)
+                if let idxToDelete = dictArr.index(where: {element in return (element == cityDict)}){
+                        dictArr.remove(at: idxToDelete)
                     }
             }
             
@@ -326,44 +327,44 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     }
     
     //Change button background when touch down event occurs
-    @IBAction func cityCatButtBeginTouch(sender: UIButton) {
-        if(!sender.selected){
+    @IBAction func cityCatButtBeginTouch(_ sender: UIButton) {
+        if(!sender.isSelected){
             sender.backgroundColor = UIColor(red: 0x60/255, green: 0x60/255, blue: 0x60/255, alpha: 1.0)
         }
     }
     
-    @IBAction func cityCatButtTouchCancel(sender: UIButton) {
-        if(!sender.selected){
-            sender.backgroundColor = UIColor.clearColor()
+    @IBAction func cityCatButtTouchCancel(_ sender: UIButton) {
+        if(!sender.isSelected){
+            sender.backgroundColor = UIColor.clear
         }
     }
     
-    @IBAction func citCatButtEndTouch(sender: UIButton) {
-        if(!sender.selected){
-            sender.backgroundColor = UIColor.clearColor()
+    @IBAction func citCatButtEndTouch(_ sender: UIButton) {
+        if(!sender.isSelected){
+            sender.backgroundColor = UIColor.clear
         }
     }
     
     
 //    Manage and create new buttons
     
-    func makeButtonSelected(button: UIButton) -> Bool {
+    func makeButtonSelected(_ button: UIButton) -> Bool {
         let checkImage = UIImage(named: "Check Symbol")
-        button.setImage(checkImage, forState: .Selected)
+        button.setImage(checkImage, for: .selected)
         let imageSize: CGSize = checkImage!.size
         
         //User can select and deslect buttons
         //Sender.state = [.Normal, .Highlighted], append or delete .Selected
-        button.selected = button.state == .Highlighted ? true : false
+        button.isSelected = button.state == .highlighted ? true : false
         
         //Format location of check mark to be placed beneath button title
-        if(button.selected){
+        if(button.isSelected){
             if let titleLabel = button.titleLabel {
                 let spacing: CGFloat = button.frame.size.height / 3 //put check mark in botton 3rd of button
                 //Shift title left (using negative value for left param) by the width of the image so text stays centered
                 button.titleEdgeInsets = UIEdgeInsetsMake(0.0, -imageSize.width, 0, 0.0)
                 let labelString = NSString(string: titleLabel.text!)
-                let titleSize = labelString.sizeWithAttributes([NSFontAttributeName: titleLabel.font])
+                let titleSize = labelString.size(attributes: [NSFontAttributeName: titleLabel.font])
                 //Shift image down by adding top edge inset of the size of the title + desired space
                 //Shift image right by subtracting right inset by the width of the title
                 button.imageEdgeInsets = UIEdgeInsetsMake(titleSize.height + spacing, 0.0, 0.0, -titleSize.width)
@@ -374,28 +375,28 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             }
         }
         else{
-            button.backgroundColor = UIColor.clearColor()
+            button.backgroundColor = UIColor.clear
             button.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
         }
-        return button.selected
+        return button.isSelected
     }
     
     //save City button to CoreData for persistance
-    func saveCityButton(city: String)
+    func saveCityButton(_ city: String)
     {
         //Get Reference to NSManagedObjectContext
         //The managed object context lives as a property of the application delegate
         let appDelegate =
-            UIApplication.sharedApplication().delegate as! AppDelegate
+            UIApplication.shared.delegate as! AppDelegate
         //use the object context to set up a new managed object to be "commited" to CoreData
         let managedContext = appDelegate.managedObjectContext
         
         //Get my CoreData Entity and attach it to a managed context object
-        let entity =  NSEntityDescription.entityForName("CityButton",
-                                                        inManagedObjectContext:managedContext)
+        let entity =  NSEntityDescription.entity(forEntityName: "CityButton",
+                                                        in:managedContext)
         //create a new managed object and insert it into the managed object context
         let cityButtonMgObj = NSManagedObject(entity: entity!,
-                                            insertIntoManagedObjectContext: managedContext)
+                                            insertInto: managedContext)
         
         //Using the managed object context set the "name" attribute to the parameter passed to this func
         cityButtonMgObj.setValue(city, forKey: "city")
@@ -416,13 +417,13 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     {
         //pull up the application delegate and grab a reference to its managed object context
         let appDelegate =
-            UIApplication.sharedApplication().delegate as! AppDelegate
+            UIApplication.shared.delegate as! AppDelegate
         
         let managedContext = appDelegate.managedObjectContext
         
         //Setting a fetch request’s entity property, or alternatively initializing it with init(entityName:), fetches all objects of a particular entity
         //Fetch request could also be used to grab objects meeting certain criteria
-        let fetchRequest = NSFetchRequest(entityName: "CityButton")
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "CityButton")
         
         //executeFetchRequest() returns an array of managed objects that meets the criteria specified by the fetch request
         do {
@@ -432,19 +433,19 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             fetchRequest.sortDescriptors = sortDescriptors
             //fetchRequests asks for city button entity, try catch syntax used to handle errors
             let cityButtonEntity =
-                try managedContext.executeFetchRequest(fetchRequest)
+                try managedContext.fetch(fetchRequest)
             cityButtonCoreData = cityButtonEntity as! [NSManagedObject]
             //iterate over all attributes in City button entity
             for i in 0 ..< cityButtonCoreData.count{
                 let cityButtonAttr = cityButtonCoreData[i]
                 //optional chain anyObject to string and store in cityButtonArray
-                if let cityNameStr = cityButtonAttr.valueForKey("city") as? String
+                if let cityNameStr = cityButtonAttr.value(forKey: "city") as? String
                 {
                     //add city name to cityButtonlist if the city doesn't already exists
-                    if(!cityButtonList.contains({element in return (element == cityNameStr)}))
+                    if(!cityButtonList.contains(where: {element in return (element == cityNameStr)}))
                     {
                         //Insert new element before the final plus sign in the list
-                        cityButtonList.insert(cityNameStr, atIndex: i)
+                        cityButtonList.insert(cityNameStr, at: i)
                     }
                 }
             }
@@ -480,7 +481,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         for case let btn as UIButton in cityScrollContainerView.subviews{
                 btn.removeFromSuperview()
         }
-        cityScrollView.contentSize = CGSizeMake(CGFloat((cityButtonList.count * buttonRad) + ((cityButtonList.count  + 1) * buttonSpacing)), 120) //Length of scroll view is the number of 100px buttons plus the number of 25px spacing plus an extra space for the final button, 120 high
+        cityScrollView.contentSize = CGSize(width: CGFloat((cityButtonList.count * buttonRad) + ((cityButtonList.count  + 1) * buttonSpacing)), height: 120) //Length of scroll view is the number of 100px buttons plus the number of 25px spacing plus an extra space for the final button, 120 high
         
         //Add container view to scroll view
         cityScrollView.addSubview(cityScrollContainerView)
@@ -489,22 +490,22 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         view.addSubview(cityScrollView)
         
         //Add button to scroll view's container view
-        for (index,cityText) in cityButtonList.enumerate(){
+        for (index,cityText) in cityButtonList.enumerated(){
             let button = UIButton(frame: CGRect(x: (index * buttonRad) + ((index+1)*buttonSpacing), y: 10, width: buttonRad, height: buttonRad))   // X, Y, width, height
             button.layer.cornerRadius = 0.5 * button.bounds.size.width
-            button.backgroundColor = UIColor.clearColor()
+            button.backgroundColor = UIColor.clear
             button.layer.borderWidth = 2.0
-            button.layer.borderColor = UIColor.whiteColor().CGColor
+            button.layer.borderColor = UIColor.white.cgColor
             button.titleEdgeInsets = UIEdgeInsetsMake(0, 5, 0, 5)
             button.titleLabel!.adjustsFontSizeToFitWidth = true
             button.titleLabel!.minimumScaleFactor = 0.6
-            button.titleLabel!.lineBreakMode = .ByTruncatingTail
-            button.setTitle(cityText, forState: .Normal)
+            button.titleLabel!.lineBreakMode = .byTruncatingTail
+            button.setTitle(cityText, for: UIControlState())
             //add target actions for button tap
-            button.addTarget(self, action: #selector(CheckInViewController.citySelect(_:)), forControlEvents: .TouchUpInside)
+            button.addTarget(self, action: #selector(CheckInViewController.citySelect(_:)), for: .touchUpInside)
             //Functions to highlight and unhighlight when touches begin
-            button.addTarget(self, action: #selector(CheckInViewController.cityCatButtBeginTouch(_:)), forControlEvents: .TouchDown)
-            button.addTarget(self, action: #selector(CheckInViewController.cityCatButtTouchCancel(_:)), forControlEvents: .TouchDragExit)
+            button.addTarget(self, action: #selector(CheckInViewController.cityCatButtBeginTouch(_:)), for: .touchDown)
+            button.addTarget(self, action: #selector(CheckInViewController.cityCatButtTouchCancel(_:)), for: .touchDragExit)
             //add target actions for long press on button, but don't add to "+" button
             if(index != (cityButtonList.count - 1)){
                 let longGesture = UILongPressGestureRecognizer(target: self, action: #selector(CheckInViewController.displayCityDeleteButton(_:)))
@@ -522,7 +523,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 btn.removeFromSuperview()
             }
         }
-        catScrollView.contentSize = CGSizeMake(CGFloat((catButtonList.count * 100) + ((catButtonList.count  + 1) * 25)), 120)
+        catScrollView.contentSize = CGSize(width: CGFloat((catButtonList.count * 100) + ((catButtonList.count  + 1) * 25)), height: 120)
         //Add container view to scroll view
         catScrollView.addSubview(catScrollContainerView)
         //add scroll view to super view
@@ -530,31 +531,31 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         //view.setNeedsLayout()
         //Add button to scroll view's container view
         
-        for (index,catText) in catButtonList.enumerate(){
+        for (index,catText) in catButtonList.enumerated(){
             let button = UIButton(frame: CGRect(x: (index * 100) + ((index+1)*25), y: 10, width: 100, height: 100))   // X, Y, width, height
             button.layer.cornerRadius = 0.5 * button.bounds.size.width
-            button.backgroundColor = UIColor.clearColor()
+            button.backgroundColor = UIColor.clear
             button.layer.borderWidth = 2.0
-            button.layer.borderColor = UIColor.whiteColor().CGColor
+            button.layer.borderColor = UIColor.white.cgColor
             button.titleLabel!.adjustsFontSizeToFitWidth = true;
             button.titleLabel!.minimumScaleFactor = 0.7;
-            button.setTitle(catText, forState: .Normal)
+            button.setTitle(catText, for: UIControlState())
             button.titleEdgeInsets = UIEdgeInsetsMake(0, 5, 0, 5)
-            button.addTarget(self, action: #selector(CheckInViewController.categorySelect(_:)), forControlEvents: .TouchUpInside)
+            button.addTarget(self, action: #selector(CheckInViewController.categorySelect(_:)), for: .touchUpInside)
             //Functions to highlight and unhighlight when touches begin
-            button.addTarget(self, action: #selector(CheckInViewController.cityCatButtBeginTouch(_:)), forControlEvents: .TouchDown)
-            button.addTarget(self, action: #selector(CheckInViewController.cityCatButtTouchCancel(_:)), forControlEvents: .TouchDragExit)
+            button.addTarget(self, action: #selector(CheckInViewController.cityCatButtBeginTouch(_:)), for: .touchDown)
+            button.addTarget(self, action: #selector(CheckInViewController.cityCatButtTouchCancel(_:)), for: .touchDragExit)
             catScrollContainerView.addSubview(button)
             //button.setNeedsLayout()
         }
 
     }
     
-    func displayCityDeleteButton(sender: UILongPressGestureRecognizer)
+    func displayCityDeleteButton(_ sender: UILongPressGestureRecognizer)
     {
         let buttonSpacing = 25
         let buttonRad = 100
-        let tapLocation = sender.locationInView(self.cityScrollView)
+        let tapLocation = sender.location(in: self.cityScrollView)
 
         //Determine associated button receiving long press by calculating location (Don't allow "+" button to be deleted by iterating to count -1
         for i in 0..<(cityButtonList.count - 1){
@@ -566,45 +567,45 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 button.buttonEnum = i
                 button.layer.cornerRadius = 0.5 * button.bounds.size.width
                 button.backgroundColor = UIColor(white: 0.75, alpha: 0.9)
-                button.setTitle("X", forState: .Normal)
-                button.titleLabel?.font = UIFont.systemFontOfSize(CGFloat(buttonRad / 4), weight: UIFontWeightBold)
-                button.setTitleColor(UIColor.blackColor(), forState: .Normal)
-                button.addTarget(self, action: #selector(CheckInViewController.deleteCity(_:)), forControlEvents: .TouchUpInside)
+                button.setTitle("X", for: UIControlState())
+                button.titleLabel?.font = UIFont.systemFont(ofSize: CGFloat(buttonRad / 4), weight: UIFontWeightBold)
+                button.setTitleColor(UIColor.black, for: UIControlState())
+                button.addTarget(self, action: #selector(CheckInViewController.deleteCity(_:)), for: .touchUpInside)
                 cityScrollContainerView.addSubview(button)
             }
         }
     }
     
     //Used in conjunction with the added gesture on the scroll view's area not containing buttons
-    func clearCityDeleteButton(sender: UITapGestureRecognizer)
+    func clearCityDeleteButton(_ sender: UITapGestureRecognizer)
     {
         for case let btn as DeleteCityUIButton in cityScrollContainerView.subviews{
             btn.removeFromSuperview()
         }
         //For the actual city buttons remove any background color they received from the touch down event
         for case let btn as UIButton in cityScrollContainerView.subviews{
-            if(!btn.selected){
-                btn.backgroundColor = UIColor.clearColor()
+            if(!btn.isSelected){
+                btn.backgroundColor = UIColor.clear
             }
         }
     }
     
-    func deleteCity(sender: DeleteCityUIButton){
+    func deleteCity(_ sender: DeleteCityUIButton){
         let buttonEnum = sender.buttonEnum
         sender.removeFromSuperview()
         let coreData = retrieveCityButtons()  //store list of city attributes from cityButton entity
 //        Remove City from Core Data
         //The managed object context lives as a property of the application delegate
-        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         //use the object context to set up a new managed object to be "commited" to CoreData
         let managedContext = appDelegate.managedObjectContext
         //sorted city attributes can be selected by the button Enum
-        managedContext.deleteObject(coreData[buttonEnum] as NSManagedObject)
+        managedContext.delete(coreData[buttonEnum] as NSManagedObject)
         do {
             try managedContext.save()   //Updated core data with the deleted attribute
         }catch _ {
         }
-        cityButtonList.removeAtIndex(buttonEnum)
+        cityButtonList.remove(at: buttonEnum)
         createCityButtons() //redraw Buttons
     }
 

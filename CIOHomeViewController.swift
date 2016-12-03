@@ -17,22 +17,22 @@ class CIOHomeViewController: UIViewController   {
     {
         super.viewDidLoad()
         //check for an existing token at load.
-        if (FBSDKAccessToken.currentAccessToken() == nil)
+        if (FBSDKAccessToken.current() == nil)
         {
-            performSegueWithIdentifier("LoginScreen", sender: nil)
+            performSegue(withIdentifier: "LoginScreen", sender: nil)
         }
     }
     
     
-    @IBAction func LogoutButton(sender: UIButton) {
+    @IBAction func LogoutButton(_ sender: UIButton) {
         //code to force logout
         let loginManager = FBSDKLoginManager()
         loginManager.logOut()
-        performSegueWithIdentifier("LoginScreen", sender: nil)
+        performSegue(withIdentifier: "LoginScreen", sender: nil)
     }
  
     // Unwind seque from my list
-    @IBAction func unwindFromMyList(sender: UIStoryboardSegue) {
+    @IBAction func unwindFromMyList(_ sender: UIStoryboardSegue) {
         // empty
     }
 }
