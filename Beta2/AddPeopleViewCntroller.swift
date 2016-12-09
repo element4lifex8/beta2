@@ -140,7 +140,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     //Retrieve friends who have not authorized CIO
     func retrieveUnauthFacebookFriends(_ completionClosure: @escaping (_ displayName: [String], _ taggableId: [String]) -> Void){
         //Taggable friends just provides a reference list of friends that can be tagged or mentioned in stories published to Facebook
-        let unAuthrequest = FBSDKGraphRequest(graphPath:"/me/taggable_friends?limit=5000", parameters: nil) //["fields" : "email" : "name"]);
+        let unAuthrequest = FBSDKGraphRequest(graphPath:"/me/taggable_friends?limit=5000", parameters: ["fields" : "name"]);
         var unAuthFriends = [String]()
         var unAuthId = [String]()
         unAuthrequest?.start(completionHandler: { (connection, result, error) -> Void in
@@ -158,6 +158,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                 print("Error Getting Friends \(error)");
             }
           
+            completionClosure(unAuthFriends, unAuthId)
         })
     }
 
@@ -174,7 +175,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             {
                 //Result is cast to an NSDict consiting of [id: value, name: value] for auth friends
                 let resultdict = result as! NSDictionary
-                print(resultdict)
+                print("Friends \(resultdict)")
                 let data : NSArray = resultdict.object(forKey: "data") as! NSArray
 //                print("data \(data)")
                 //extract dict entries id & name as string for each authorized friend
@@ -191,7 +192,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                     }
                 }
             }
-            
+            completionClosure(authFriends, authId)
         })
     }
         

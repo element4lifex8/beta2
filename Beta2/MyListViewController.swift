@@ -30,7 +30,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var selectedCollection = [Int]()
     var selectedFilters = [String]()
     var headerCount = 0
-    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Night Club", "Desert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing", "Winery"]
+    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Desert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Site Seeing", "Winery"]
     var userRef: Firebase!
    
     

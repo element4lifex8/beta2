@@ -97,7 +97,7 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     
     //Function retrieves friends and cities and returns when both retrievals are finished
     func retrieveFromFirebase(_ completionClosure: @escaping (_ finished: Bool) -> Void) {
-        var finishedFriends = false, finishedCities = false
+        var finishedFriends = false, finishedCities = false        
         retrieveMyFriends() {(friendStr:[String], friendId:[String]) in
             self.myFriends = friendStr
             self.myFriendIds = friendId as [NSString]

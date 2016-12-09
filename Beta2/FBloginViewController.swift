@@ -16,6 +16,9 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
     let currUserDefaultKey = "FBloginVC.currUser"
     fileprivate let sharedFbUser = UserDefaults.standard
     
+    @IBAction func homeButt(_ sender: UIButton) {
+        performSegue(withIdentifier: "goHome", sender: nil)
+    }
     var currUser: NSString {
         get
         {
@@ -30,7 +33,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
     override func viewDidLoad()
     {
         super.viewDidLoad()
-        
+        print("FB login entered")
         //check for an existing token at load.
         if (FBSDKAccessToken.current() == nil)
         {
@@ -109,16 +112,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                     self.currUser = (authData?.providerData["id"] as? NSString)!
                     print("Logged in  \(self.currUser)")
                     //Check to see if user is new and has not been added to the user's list in Firebase
-                    ref?.child(byAppendingPath: "users").observeSingleEvent(of: .value, with: { snapshot in
-                        for child in (snapshot?.children)! {
-                            //Compare current logged in user to all users stored in the database (child.key is the user id #)
-                            if let childKey = (child as AnyObject).key{
-                                if(childKey == self.currUser as String){
-                                    existingUser = true
-                                }
-                            }
-                        }
-                    })
+                    
 
                      /*TO update one field only:
                     let emailPath = "\(self.currUser)/email"
@@ -127,10 +121,14 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                     // Create a child path with a key set to the uid underneath the "users" node
                     // This creates a URL path like the following:
                     //  - https://<YOUR-FIREBASE-APP>.firebaseio.com/users/<uid>
-                    if(!existingUser){
-                        let newUser = ["displayName1": (authData?.providerData["displayName"] as? NSString)!,
-                            "email": (authData?.providerData["email"] as? NSString)!]
-                        ref?.child(byAppendingPath: "users").child(byAppendingPath: self.currUser as String).setValue(newUser)
+                        
+                    self.isCurrentUser() {(user: Bool) in
+                        existingUser = user
+                        if(!existingUser){
+                            let newUser = ["displayName1": (authData?.providerData["displayName"] as? NSString)!,
+                                "email": (authData?.providerData["email"] as? NSString)!]
+                            ref?.child(byAppendingPath: "users").child(byAppendingPath: self.currUser as String).setValue(newUser)
+                        }
                     }
                 }
             })
@@ -143,8 +141,9 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
             {
                 // Do work
             }
-            performSegue(withIdentifier: "profileSteps", sender: nil)
+            self.performSegue(withIdentifier: "profileSteps", sender: nil)
         }
+        
         
         /*let request = FBSDKGraphRequest(graphPath:"/me/friends", parameters: nil) //["fields" : "email" : "name"]);
         
@@ -171,6 +170,25 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                     print("Error Getting Friends \(error)");
                 }
         }*/
+        
+    }
+    
+    func isCurrentUser(_ completionClosure: @escaping (_ isUser:  Bool) -> Void) {
+        let ref = Firebase(url: "https://check-inout.firebaseio.com")
+        var user = false
+        
+        ref?.child(byAppendingPath: "users").observeSingleEvent(of: .value, with: { snapshot in
+            for child in (snapshot?.children)! {
+                //Compare current logged in user to all users stored in the database (child.key is the user id #)
+                if let childKey = (child as AnyObject).key{
+                    //?is childkey a string?
+                    if(childKey == self.currUser as String){
+                        user = true
+                    }
+                }
+            }
+            completionClosure(user)
+        })
         
     }
     
