@@ -15,7 +15,7 @@ class CheckOutPeopleViewController: UIViewController, UITableViewDelegate, UITab
     @IBOutlet weak var tableView: UITableView!
     var myFriends:[String] = []
     var myFriendIds: [NSString] = []    //list of Facebook Id's with matching index to myFriends array
-    var friendsRef: Firebase!
+    var friendsRef: FIRDatabaseReference!
     let currUserDefaultKey = "FBloginVC.currUser"
     fileprivate let sharedFbUser = UserDefaults.standard
     
@@ -43,8 +43,8 @@ class CheckOutPeopleViewController: UIViewController, UITableViewDelegate, UITab
         self.tableView.tableHeaderView = line
         line.backgroundColor = self.tableView.separatorColor
         
-        friendsRef = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
-        
+//        friendsRef = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
+        friendsRef = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
         retrieveMyFriends() {(friendStr:[String], friendId:[String]) in
             self.myFriends = friendStr
             self.myFriendIds = friendId as [NSString]
@@ -59,12 +59,12 @@ class CheckOutPeopleViewController: UIViewController, UITableViewDelegate, UITab
         //Retrieve a list of the user's current check in list
         friendsRef.queryOrdered(byChild: "displayName1").observe(.childAdded, with: { snapshot in
             //If the city is a single dict pair this snap.value will return the city name
-            if let currFriend = snapshot?.value as? NSDictionary {
+            if let currFriend = snapshot.value as? NSDictionary {
                 if count > 0{
                     print (currFriend)
                 };count += 1
                 localFriendsArr.append((currFriend["displayName1"] as? String ?? "Default Name")!)
-                localFriendsId.append((snapshot?.key)!)
+                localFriendsId.append(snapshot.key)
             }
             completionClosure(localFriendsArr, localFriendsId)
         })

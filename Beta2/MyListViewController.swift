@@ -25,13 +25,13 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var cityDict = [String: Int]()
     var tableDataArr = [String]()
     var arrSize = Int()
-    var ref: Firebase!
-    var placesRef: Firebase!
+    var ref: FIRDatabaseReference!
+    var placesRef: FIRDatabaseReference!
     var selectedCollection = [Int]()
     var selectedFilters = [String]()
     var headerCount = 0
     var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Desert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Site Seeing", "Winery"]
-    var userRef: Firebase!
+    var userRef: FIRDatabaseReference!
    
     
     @IBOutlet weak var tableView: UITableView!
@@ -61,10 +61,11 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var showAllCities: Bool?
     
     override func viewDidLoad() {
-        var currRef: Firebase!
+        var currRef: FIRDatabaseReference!
         var userRetrievalCount:Int = 0     //Count the number of user's with their info pulled from the dataBase
         super.viewDidLoad()
-        userRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(defaultUser)")
+//        userRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(defaultUser)")
+        userRef = FIRDatabase.database().reference().child("checked/\(defaultUser)")
         //If another user's list was requested then requestedUser will be set
         if let userIds = myFriendIds{
             self.currUsers = userIds
@@ -87,11 +88,13 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
 //        tableView.registerClass(TestTableViewCell.self,forCellReuseIdentifier: "dataCell")
         self.tableView.backgroundColor=UIColor.clear
         collectionView?.allowsMultipleSelection = true
-        placesRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
+//        placesRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
+        placesRef = FIRDatabase.database().reference().child("checked/places")
         
         //Loop over all the current users that are expected (1 if viewing my list or a friend's list, all friends if viewing a city only list)
         for friendId in self.currUsers!{
-            currRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(friendId)")
+//            currRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(friendId)")
+            currRef = FIRDatabase.database().reference().child("checked/\(friendId)")
             retrieveWithRef(currRef){ (placeNodeArr: [placeNode]) in
                 userRetrievalCount += 1     //finished retrieving current user's check in info
                 for node in placeNodeArr{
@@ -112,7 +115,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     
     //Retrieve list of all checked in places for curr user
-    func retrieveWithRef(_ myRef: Firebase, completionClosure: @escaping (_ placeNodeArr: [placeNode]) -> Void) {
+    func retrieveWithRef(_ myRef: FIRDatabaseReference, completionClosure: @escaping (_ placeNodeArr: [placeNode]) -> Void) {
         var locPlaceNodeArr = [placeNode]()
         var locPlaceNodeObj:placeNode = placeNode()
 
@@ -120,7 +123,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         myRef.observeSingleEvent(of: .value, with: { snapshot in
             
             //rootNode now contains a list of all the places from the current user's Reference
-            let rootNode = snapshot! as FDataSnapshot
+            let rootNode = snapshot as FIRDataSnapshot
             //force downcast only works if root node has children, otherwise value will only be a string
             //each entry in nodeDict now has a key of the check in's place name and a value of the city/category attributes
             let nodeDict = rootNode.value as! NSDictionary
@@ -269,19 +272,19 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     //Unused firebase functions that retrieved all places from one user and looked them up in the master list
     //function receives the name of the place to look up its city and place attributes
-    func retrievePlaceAttributes(_ myRef: Firebase, place: String, completionClosure: @escaping (_ categoryArr: [String], _ cityArr: [String]) -> Void)
+    func retrievePlaceAttributes(_ myRef: FIRDatabaseReference, place: String, completionClosure: @escaping (_ categoryArr: [String], _ cityArr: [String]) -> Void)
     {
-        let currPlacesRef: Firebase!
+        let currPlacesRef: FIRDatabaseReference!
         var completedAttrArr = [String]()
         var cityArrLoc = [String]()
         var categoryArrLoc = [String]()
 //        print(place)
         currPlacesRef = myRef.child(byAppendingPath: place)
         currPlacesRef.observeSingleEvent(of: .value, with: { childSnapshot in
-            if !(childSnapshot?.value is NSNull)
+            if !(childSnapshot.value is NSNull)
             {
                 //get category and city key then retreive the attribute's children
-                for attribute in (childSnapshot?.children)! {
+                for attribute in (childSnapshot.children) {
                     //check if multiple children exist beneath currrent node, will return nil if path is not only a key:value
                     if let singleEntry = childSnapshot?.childSnapshot(forPath: (attribute as AnyObject).key).value as? String{
                         if ((attribute as AnyObject).key == "city"){
@@ -315,7 +318,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             }
             else
             {
-                print("attribute \(childSnapshot?.key) found but contained no children")
+                print("attribute \(childSnapshot.key) found but contained no children")
             }
             print("calling retrieve attributes completion")
             completionClosure(categoryArrLoc, cityArrLoc)
@@ -325,7 +328,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     //Unused firebase functions that retrieved all places from one user and looked them up in the master list
     //Funtion is passed the list of checked in places and retrieves the city and category attributes for each place
-    func retrieveAttributesFromMaster(_ myRef: Firebase, retrievedPlaces: [String], completionClosure: @escaping (_ placeNodeArr: [placeNode]) -> Void)
+    func retrieveAttributesFromMaster(_ myRef: FIRDataSnapshot, retrievedPlaces: [String], completionClosure: @escaping (_ placeNodeArr: [placeNode]) -> Void)
     {
         var localTableDataArr = [String]()
         var locPlaceNodeArr = [placeNode]()
@@ -356,7 +359,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     //Unused firebase functions that retrieved all places from one user and looked them up in the master list
     //Retrieve list of all checked in places for curr user
-    func retrieveUserPlaces(_ myRef: Firebase, completionClosure: @escaping (_ completedArr: [String]) -> Void) {
+    func retrieveUserPlaces(_ myRef: FIRDataSnapshot, completionClosure: @escaping (_ completedArr: [String]) -> Void) {
         var localPlacesArr = [String]()
         
         if(showAllCities ?? false){     //Use value of showAllCities if not nil, otherwise evaluate to false
@@ -571,13 +574,14 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             let itemToDelete = placeNodeTreeRoot.children![indexPath.section].returnNodeAtIndex(indexPath.row)!
 //            confirmDelete(itemToDelete, index: indexPath)
             //Delete item without providing UI alert for confirmation
-            let refToDelete: Firebase! = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.defaultUser)/\(itemToDelete.nodeValue!)")
+//            let refToDelete: Firebase! = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.defaultUser)/\(itemToDelete.nodeValue!)")
+            let refToDelete: FIRDatabaseReference = FIRDatabase.database().reference().child("checked/\(self.defaultUser)/\(itemToDelete.nodeValue!)")
             self.tableView.beginUpdates()
             //Remove deleted item from Firebase,the tree and then table
             if(itemToDelete.sibling != nil)
             {
                 let cityRef = refToDelete.child(byAppendingPath: "city").child(byAppendingPath: (itemToDelete.parent)!.parent!.nodeValue!)
-                cityRef?.removeValue()
+                cityRef.removeValue()
             }else{
                 refToDelete.removeValue()
             }
@@ -616,14 +620,15 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         let alert = UIAlertController(title: "Delete Check In", message: "Are you sure you want to permanently delete \(checkInItem)?", preferredStyle: .actionSheet)
         
         let DeleteAction = UIAlertAction(title: "Delete", style: .destructive, handler:{action in
-            let refToDelete = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.defaultUser)/\(checkInItem.nodeValue!)")
+//            let refToDelete = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.defaultUser)/\(checkInItem.nodeValue!)")
+            let refToDelete = FIRDatabase.database().reference().child("checked/\(self.defaultUser)/\(checkInItem.nodeValue!)")
             self.tableView.beginUpdates()
             //Remove deleted item from Firebase,the tree and then table
             if(checkInItem.sibling != nil)
             {
-                refToDelete?.child(byAppendingPath: "city").child(byAppendingPath: (checkInItem.parent)!.parent!.nodeValue!)
+                refToDelete.child(byAppendingPath: "city").child(byAppendingPath: (checkInItem.parent)!.parent!.nodeValue!)
             }else{
-                refToDelete?.removeValue()
+                refToDelete.removeValue()
             }
             checkInItem.parent!.removeChild(checkInItem.nodeValue!)
             self.tableView.deleteRows(at: [index], with: .automatic)
@@ -641,7 +646,8 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     func handleDeleteTableItem(_ alertAction: UIAlertAction!) -> Void
     {
-        let refToDelete = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)/\("insert index path item")")
+//        let refToDelete = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)/\("insert index path item")")
+        let refToDelete = FIRDatabase.database().reference().child("checked/\(self.curreUser)/\("insert index Path item")")
         tableView.beginUpdates()
         
         print("deleted")

@@ -14,7 +14,7 @@ class CheckOutCityViewController: UIViewController, UITableViewDelegate, UITable
     @IBOutlet weak var tableView: UITableView!
     var myCity:[String] = []
     
-    var cityRef: Firebase!
+    var cityRef: FIRDatabaseReference!
     let currUserDefaultKey = "FBloginVC.currUser"
     fileprivate let sharedFbUser = UserDefaults.standard
     
@@ -42,7 +42,8 @@ class CheckOutCityViewController: UIViewController, UITableViewDelegate, UITable
         self.tableView.tableHeaderView = line
         line.backgroundColor = self.tableView.separatorColor
         //Firebase ref to the list of users and their check ins
-        cityRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
+//        cityRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
+        cityRef = FIRDatabase.database().reference().child("checked/places")
         retrieveFriendCity() {(completedArr:[String]) in
             self.myCity = completedArr
             self.tableView.reloadData()
@@ -54,14 +55,14 @@ class CheckOutCityViewController: UIViewController, UITableViewDelegate, UITable
         //Query ordered by child will loop each place in the cityRef
         cityRef.queryOrdered(byChild: "city").observe(.childAdded, with: { snapshot in
             //If the city is a single dict pair this snap.value will return the city name
-            if let city = snapshot?.value as? NSDictionary {
+            if let city = snapshot.value as? NSDictionary {
                 //Only append city if it doesn't already exist in the local city array
                 if(!localCityArr.contains(city["city"] as? String ?? "Default City")){
                     localCityArr.append((city["city"] as? String ?? "Default City")!)
                 }
             }else{  //The current city entry has a multi entry list
-                for child in (snapshot?.children)! {    //each child is either city or cat
-                    let rootNode = child as! FDataSnapshot
+                for child in (snapshot.children) {    //each child is either city or cat
+                    let rootNode = child as! FIRDataSnapshot
                     //force downcast only works if root node has children, otherwise value will only be a string
                     let nodeDict = rootNode.value as! NSDictionary
                     for (key, _ ) in nodeDict{

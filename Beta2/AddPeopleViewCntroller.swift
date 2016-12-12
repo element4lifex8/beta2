@@ -14,13 +14,15 @@ import FBSDKLoginKit
 class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     @IBOutlet weak var tableView: UITableView!
-    
+    var selectedFBfriends = [FbookUserInfo]()
     var facebookAuthFriends = [String](), facebookAuthIds = [String]()
     var facebookTaggableFriends = [String](), facebooktaggableIds = [String]()
     var facebookFriendMaster = [String]()
     var myFriends:[String] = []
     var myFriendIds: [NSString] = []    //list of Facebook Id's with matching index to myFriends array
-    var friendsRef: Firebase!
+    var selectedAccessButt: [Int] = []     //List of users who are selected to add as friends
+    var selectedIds: [String] = []     //List of users id's who are selected to add as friends
+    var friendsRef: FIRDatabaseReference!
     
     let currUserDefaultKey = "FBloginVC.currUser"
     fileprivate let sharedFbUser = UserDefaults.standard
@@ -98,7 +100,8 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         line.backgroundColor = self.tableView.separatorColor
         
         
-        friendsRef = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
+//        friendsRef = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
+        friendsRef = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
         
         sortFacebookFriends(){(finished: Bool) in
             self.facebookTaggableFriends.sort(by: <)
@@ -203,9 +206,9 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         //Retrieve a list of the user's current check in list
         friendsRef.queryOrdered(byChild: "displayName1").observe(.childAdded, with: { snapshot in
             //If the city is a single dict pair this snap.value will return the city name
-            if let currFriend = snapshot?.value as? NSDictionary{
+            if let currFriend = snapshot.value as? NSDictionary{
                 localFriendsArr.append((currFriend["displayName1"] as? String ?? "Default Name")!)
-                localFriendsId.append((snapshot?.key)!)
+                localFriendsId.append((snapshot.key))
             }
             completionClosure(localFriendsArr, localFriendsId)
         })
@@ -213,16 +216,43 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     
      @IBAction func submitSelected(_ sender: UIButton) {
         print("people selected")
+//         let userChecked = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
+        let userChecked = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
+        for friend in selectedFBfriends{
+            //Add id of curr friend with their display name stored underneath
+           let friendInfo = ["displayName1" : friend.displayName!]
+        userChecked.child(byAppendingPath: friend.id!).setValue(friendInfo)
+        }
+        performSegue(withIdentifier: "returnToCheckOut", sender: self)
     }
     
-    func tapSubmit(_ sender: UITapGestureRecognizer)
-    {
-        print("tap selected")
-    }
     
     @IBAction func accessoryButtonTapped(_ sender: UIButton) {
+        let friendName = facebookTaggableFriends[sender.tag]
+        var FBfriend: FbookUserInfo
+        //check or uncheck selected friends
         sender.isSelected = sender.state == .highlighted ? true : false
-
+        if(sender.isSelected){
+            //Keep track of accessory buttons that are checked so they are reselected when scrolled back into view
+            selectedAccessButt.append(sender.tag)
+            //Add authorized friends to add to friends list, and create list of unauth friends to notify about the app.
+            //friend index will only exist if friend is an auth user
+            if let friendIndex = facebookAuthFriends.index(of: friendName){
+                FBfriend = FbookUserInfo(name: friendName, id: facebookAuthIds[friendIndex])
+            }else{
+                FBfriend = FbookUserInfo(name: friendName)
+            }
+            selectedFBfriends.append(FBfriend)
+        }else{
+            //Keep track of accessory buttons that are checked
+            if let index = selectedAccessButt.index(of: sender.tag){
+                selectedAccessButt.remove(at: index)
+            }
+            //wish I understood these closures, came from here: http://stackoverflow.com/questions/34081580/array-of-any-and-contains
+            if let fbIndex = selectedFBfriends.index(where: {$0.displayName == friendName} )    {
+                    selectedFBfriends.remove(at: fbIndex)
+            }
+        }
     }
     
     
@@ -276,6 +306,10 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
 
         cell.accessoryView = accessoryButton as UIView
         
+        //Reselect accessory button when scrolled back into view
+        if(selectedAccessButt.contains(indexPath.item)){
+            accessoryButton.isSelected = true
+        }
         //Remove seperator insets
         cell.layoutMargins = UIEdgeInsets.zero
         return cell

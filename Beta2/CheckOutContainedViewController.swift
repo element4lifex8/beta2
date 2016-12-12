@@ -20,9 +20,10 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     var myFriends:[String] = []
     var myFriendIds: [NSString] = []    //list of Facebook Id's with matching index to myFriends array
     var friendCities:[String] = []
-    var friendsRef: Firebase!
-    var cityRef: Firebase!
-    let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/")
+    var friendsRef: FIRDatabaseReference!
+    var cityRef: FIRDatabaseReference!
+//    let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/")
+    let friendsRef = FIRDatabase.database().reference().child("checked")
     let currUserDefaultKey = "FBloginVC.currUser"
     fileprivate let sharedFbUser = UserDefaults.standard
     
@@ -53,8 +54,10 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         self.tableView.tableHeaderView = line
         line.backgroundColor = self.tableView.separatorColor
         
-        friendsRef = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
-         cityRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
+//        friendsRef = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
+        friendsRef = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
+//         cityRef = Firebase(url:"https://check-inout.firebaseio.com/checked")
+        cityRef = FIRDatabase.database().reference().child("checked")
         retrieveFromFirebase{(finished:Bool)
             in
             if(finished){
@@ -101,16 +104,10 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         retrieveMyFriends() {(friendStr:[String], friendId:[String]) in
             self.myFriends = friendStr
             self.myFriendIds = friendId as [NSString]
-            finishedFriends = true
-            if(finishedFriends && finishedCities){
-                completionClosure(true)
-            }
-        }
-        retrieveFriendCity() {(completedArr:[String]) in
+            //Once I have a list of all friends, get all of their cities using their facebook id
+            self.retrieveFriendCity(friendsList: friendId) {(completedArr:[String]) in
             self.friendCities = completedArr
             self.friendCities.sort(by: <)
-            finishedCities = true
-            if(finishedFriends && finishedCities){
                 completionClosure(true)
             }
         }
@@ -123,42 +120,54 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         //Retrieve a list of the user's current check in list
         friendsRef.queryOrdered(byChild: "displayName1").observe(.childAdded, with: { snapshot in
             //If the city is a single dict pair this snap.value will return the city name
-            if let currFriend = snapshot?.value as? NSDictionary {
-                localFriendsArr.append((currFriend["displayName1"] as? String ?? "Default Name")!)
-                localFriendsId.append((snapshot?.key)!)
+            if let currFriend = snapshot.value as? NSDictionary {
+                if let displayName = currFriend["displayName1"]{
+                    localFriendsArr.append(displayName as! String)
+                    localFriendsId.append((snapshot.key))
+                }
+//                localFriendsArr.append((currFriend["displayName1"] as? String ?? "Default Name")!)
+//                localFriendsId.append((snapshot?.key)!)
             }
             completionClosure(localFriendsArr, localFriendsId)
         })
     }
     
     //Retrieve a list of all of the cities the user's friends have
-    func retrieveFriendCity(_ completionClosure: @escaping (_ completedArr: [String]) -> Void) {
+    func retrieveFriendCity(friendsList: [String], completionClosure: @escaping (_ completedArr: [String]) -> Void) {
         var localCityArr = [String]()
-        //Query ordered by child will loop each place in the cityRef
-        cityRef.queryOrdered(byChild: "city").observe(.childAdded, with: { snapshot in
-            //If the city is a single dict pair this snap.value will return the city name
-            let nsSnapDict = snapshot?.value as? NSDictionary     //Swift 3 returns snapshot as Any? instead of ID
-            if let city = nsSnapDict?["city"] as? String {
-                //Only append city if it doesn't already exist in the local city array
-                if(!localCityArr.contains(city)){
-                    localCityArr.append(city)
-                }
-            }else{  //The current city entry has a multi entry list
-                for child in (snapshot?.children)! {    //each child is either city or cat
-                    let rootNode = child as! FDataSnapshot
-                    //force downcast only works if root node has children, otherwise value will only be a string
-                    let nodeDict = rootNode.value as! NSDictionary
-                    for (key, _ ) in nodeDict{
-                         if((child as AnyObject).key == "city"){
-                            if(!localCityArr.contains(key as! String)){
-                                localCityArr.append(key as! String)
+        var loopCount = 0
+        //Loop over all the user's friends to get a list of their cities
+        for friendId in friendsList{
+            //Query ordered by child will loop each place in the cityRef
+            cityRef.child(byAppendingPath: friendId).queryOrdered(byChild: "city").observe(.childAdded, with: { snapshot in
+                //If the city is a single dict pair this snap.value will return the city name
+                let nsSnapDict = snapshot.value as? NSDictionary     //Swift 3 returns snapshot as Any? instead of ID
+                if let city = nsSnapDict?["city"] as? String {
+                    //Only append city if it doesn't already exist in the local city array
+                    if(!localCityArr.contains(city)){
+                        localCityArr.append(city)
+                    }
+                }else{  //The current city entry has a multi entry list
+                    for child in (snapshot.children) {    //each child is either city or cat
+                        let rootNode = child as! FIRDataSnapshot
+                        //force downcast only works if root node has children, otherwise value will only be a string
+                        let nodeDict = rootNode.value as! NSDictionary
+                        for (key, _ ) in nodeDict{
+                             if((child as AnyObject).key == "city"){
+                                if(!localCityArr.contains(key as! String)){
+                                    localCityArr.append(key as! String)
+                                }
                             }
                         }
                     }
                 }
+                loopCount+=1
+            })
+            //Once all friends have been looped over, call completion closure
+            if(loopCount >= friendsList.count){
+                completionClosure(localCityArr)
             }
-            completionClosure(localCityArr)
-        })
+        }
     }
 
     

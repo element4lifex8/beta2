@@ -25,9 +25,9 @@ class CheckedOutListViewController: UITableViewController {
     var cityDict = [String: Int]()
     var tableDataArr = [String]()
     var arrSize = Int()
-    var ref: Firebase!
-    var userRef: Firebase!
-    var placesRef: Firebase!
+    var ref: FIRDatabaseReference!
+    var userRef: FIRDatabaseReference!
+    var placesRef: FIRDatabaseReference!
     var headerCount = 0
     
     let currUserDefaultKey = "FBloginVC.currUser"
@@ -160,7 +160,7 @@ class CheckedOutListViewController: UITableViewController {
     //function receives the name of the place to look up its city and place attributes
     func retrievePlaceAttributes(_ place: String, completionClosure: @escaping (_ categoryArr: [String], _ cityArr: [String]) -> Void)
     {
-        let currPlacesRef: Firebase!
+        let currPlacesRef: FIRDatabaseReference!
         var completedAttrArr = [String]()
         var cityArrLoc = [String]()
         var categoryArrLoc = [String]()
@@ -169,7 +169,7 @@ class CheckedOutListViewController: UITableViewController {
             if !(childSnapshot?.value is NSNull)
             {
                 //get category and city key then retreive the attribute's children
-                for attribute in (childSnapshot?.children)! {
+                for attribute in (childSnapshot.children)! {
                     //check if multiple children exist beneath currrent node, will return nil if path is not only a key:value
                     if let singleEntry = childSnapshot?.childSnapshot(forPath: (attribute as AnyObject).key).value as? String{
                         if ((attribute as AnyObject).key == "city"){
@@ -203,7 +203,7 @@ class CheckedOutListViewController: UITableViewController {
             }
             else
             {
-                print("attribute \(childSnapshot?.key) found but contained no children")
+                print("attribute \(childSnapshot.key) found but contained no children")
             }
             completionClosure(categoryArrLoc, cityArrLoc)
         })

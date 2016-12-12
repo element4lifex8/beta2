@@ -99,10 +99,11 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
         }
         else
         {
-            let ref = Firebase(url: "https://check-inout.firebaseio.com")
+//            let ref = Firebase(url: "https://check-inout.firebaseio.com")
+            let ref = FIRDatabase.database().reference()
             //use current access token from loggedd in user to pass to firebase's login auth func
             let accessToken = FBSDKAccessToken.current().tokenString
-            ref?.auth(withOAuthProvider: "facebook", token: accessToken, withCompletionBlock: { error, authData in
+            ref.auth(withOAuthProvider: "facebook", token: accessToken, withCompletionBlock: { error, authData in
                 if error != nil
                 {
                     print("Login failed \(error)")
@@ -126,22 +127,21 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                         existingUser = user
                         if(!existingUser){
                             let newUser = ["displayName1": (authData?.providerData["displayName"] as? NSString)!,
-                                "email": (authData?.providerData["email"] as? NSString)!]
+                                           "email": (authData?.providerData["email"] as? NSString)!, "friends:" : "true"]
                             ref?.child(byAppendingPath: "users").child(byAppendingPath: self.currUser as String).setValue(newUser)
                         }
                     }
+                    
+                    // If you ask for multiple permissions at once, you
+                    // should check if specific permissions missing
+                    if result.grantedPermissions.contains("email")
+                    {
+                        // Do work
+                    }
+                    self.performSegue(withIdentifier: "profileSteps", sender: nil)
                 }
             })
-        
 
-            
-            // If you ask for multiple permissions at once, you
-            // should check if specific permissions missing
-            if result.grantedPermissions.contains("email")
-            {
-                // Do work
-            }
-            self.performSegue(withIdentifier: "profileSteps", sender: nil)
         }
         
         
@@ -174,11 +174,12 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
     }
     
     func isCurrentUser(_ completionClosure: @escaping (_ isUser:  Bool) -> Void) {
-        let ref = Firebase(url: "https://check-inout.firebaseio.com")
+//        let ref = Firebase(url: "https://check-inout.firebaseio.com")
+        let ref = FIRDatabase.database().reference()
         var user = false
         
-        ref?.child(byAppendingPath: "users").observeSingleEvent(of: .value, with: { snapshot in
-            for child in (snapshot?.children)! {
+        ref.child(byAppendingPath: "users").observeSingleEvent(of: .value, with: { snapshot in
+            for child in (snapshot.children) {
                 //Compare current logged in user to all users stored in the database (child.key is the user id #)
                 if let childKey = (child as AnyObject).key{
                     //?is childkey a string?

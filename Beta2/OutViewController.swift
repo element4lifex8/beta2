@@ -14,8 +14,8 @@ class OutViewController: UIViewController {
     var placesArr = [String]()
     var placesStr = String()
     var arrSize = Int()
-    var ref: Firebase!
-    var userRef: Firebase!
+    var ref: FIRDatabaseReference!
+    var userRef: FIRDatabaseReference!
     
     @IBOutlet var fireRef: UITextView!
     
@@ -30,13 +30,14 @@ class OutViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        userRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
+//        userRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
+        userRef = FIRDatabase.database().reference().child("checked/\(self.currUser)")
         // Retrieve new posts as they are added to your database
         userRef.observe(.value, with: { snapshot in
             
-            print("COunt when load \(snapshot?.childrenCount)")
+            print("COunt when load \(snapshot.childrenCount)")
             var count = 0
-            for child in (snapshot?.children)! {
+            for child in (snapshot.children) {
                 
                 //true if child key in the snapshot is not nil, then unwrap and store in array
                 if let childKey = (child as AnyObject).key{
@@ -53,7 +54,7 @@ class OutViewController: UIViewController {
                  self.placesArr.append(child.value)
                  }*/
             }
-            self.arrSize = Int((snapshot?.childrenCount)!)
+            self.arrSize = Int((snapshot.childrenCount))
             print(self.placesArr)
             self.fireRef.text = self.placesStr
             

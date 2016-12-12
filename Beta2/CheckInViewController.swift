@@ -8,6 +8,7 @@
 
 import UIKit
 import Firebase
+import FirebaseAnalytics
 import CoreData
 
 class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextFieldDelegate {
@@ -22,8 +23,6 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var cityButtonCoreData = [NSManagedObject]()
     var placesArr = [String]()
     var arrSize = Int()
-    var ref: Firebase!
-    var userRef: Firebase!
     var checkObj = placeNode()
     let restNameDefaultKey = "CheckInView.restName"
     var isEnteringCity = false
@@ -66,6 +65,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        //Init firebase
+        FIRApp.configure()
         //Auto Capitalize words in text box field
         self.CheckInRestField.autocapitalizationType = .words
         //setup City scroll view
@@ -218,12 +219,14 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             {
                 self.checkObj.place = restNameText
                 // Create a reference to a Firebase location
-                let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
-                let refCheckedPlaces = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
+//                let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
+                let refChecked = FIRDatabase.database().reference().child("checked/\(self.currUser)")
+//                let refCheckedPlaces = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
+                let refCheckedPlaces = FIRDatabase.database().reference().child("checked/places")
                 // Write establishment name to user's collection
-                refChecked?.updateChildValues([restNameText:true])
+                refChecked.updateChildValues([restNameText:true])
                 // Write establishment name to places collection
-                refCheckedPlaces?.updateChildValues([restNameText:true])
+                refCheckedPlaces.updateChildValues([restNameText:true])
                 //let userRef = refChecked.childByAppendingPath(restNameText)
                 
                 //update "user places" to contain the establishment and its categories
@@ -232,9 +235,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                     for (key,value) in dictArr[i]   //key: city or category
                     {
                         //Store categories and cities in user list
-                        refChecked?.child(byAppendingPath: restNameText).child(byAppendingPath: key).updateChildValues([value:"true"])
+                        refChecked.child(byAppendingPath: restNameText).child(byAppendingPath: key).updateChildValues([value:"true"])
                         //Store categories and city info in master list
-                        refCheckedPlaces?.child(byAppendingPath: restNameText).child(byAppendingPath: key).updateChildValues([value:"true"])
+                        refCheckedPlaces.child(byAppendingPath: restNameText).child(byAppendingPath: key).updateChildValues([value:"true"])
                     }
                 }
                 //Save to NSUser defaults

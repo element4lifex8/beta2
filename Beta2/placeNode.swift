@@ -14,7 +14,7 @@ public struct placeNode {
     var place: String?
     var category: [String]?
     var city: [String]?
-    let ref: Firebase?
+    let ref: FIRDatabaseReference?
     
     // Initialize from arbitrary data
     init(place: String, category: [String], city: [String]) {
