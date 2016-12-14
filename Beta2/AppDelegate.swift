@@ -18,12 +18,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     //2 facebook delegate methods
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        //Configure Firebase
+        FIRApp.configure()
         // Override point for customization after application launch.
         return FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
     }
     
     func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
-        FIRApp.configure()
         return FBSDKApplicationDelegate.sharedInstance().application(application, open: url, sourceApplication: sourceApplication, annotation: annotation)
     }
 

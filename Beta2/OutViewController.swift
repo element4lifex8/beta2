@@ -7,8 +7,9 @@
 //
 
 import UIKit
-import Firebase
+import FirebaseDatabase
 
+//Unused original file attempting to create checkout screen
 class OutViewController: UIViewController {
 
     var placesArr = [String]()
@@ -40,11 +41,11 @@ class OutViewController: UIViewController {
             for child in (snapshot.children) {
                 
                 //true if child key in the snapshot is not nil, then unwrap and store in array
-                if let childKey = (child as AnyObject).key{
-                    self.placesArr.append(childKey!)
-                    self.placesStr += ("\(self.placesArr[count]) \n" )
-                    count=count + 1
-                }
+//                if let childKey = (child as AnyObject).key{
+//                    self.placesArr.append(childKey!)
+//                    self.placesStr += ("\(self.placesArr[count]) \n" )
+//                    count=count + 1
+//                }
                 
                 //how to print values of a child in the returned snapshot if key name is known
                 //let childSnapshot = snapshot.childSnapshotForPath(child.key)

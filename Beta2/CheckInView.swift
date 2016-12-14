@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Firebase
+import FirebaseDatabase
 
 
 //CA Layer extension used to allow runtime property to be set on the text box's view for borderUIColor  

@@ -12,6 +12,7 @@
 		34DA1B1D52951E4660DF8F8A /* Pods_Beta2_Beta2UITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A626CA92CB739461AE390F9A /* Pods_Beta2_Beta2UITests.framework */; };
 		6332211A1C8910D088EF4371 /* Pods_Beta2_Beta2Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 819AB56891CE756443BABBBB /* Pods_Beta2_Beta2Tests.framework */; };
 		96BD597FCCC136E686D91259 /* Pods_Beta2Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29D6F1BF11E46502FDCE853D /* Pods_Beta2Tests.framework */; };
+		EB03B8351DFF08780002098C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EB03B8341DFF08780002098C /* GoogleService-Info.plist */; };
 		EB03E57D1C150669009A55F1 /* TestTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */; };
 		EB03E57F1C15096C009A55F1 /* CheckedOutListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */; };
 		EB03E5C01C25A7F4009A55F1 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB03E5BF1C25A7F4009A55F1 /* FBSDKCoreKit.framework */; };
@@ -29,7 +30,6 @@
 		EB1959C81C62C57E001E0F62 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C71C62C57E001E0F62 /* CFNetwork.framework */; };
 		EB1959CA1C62C585001E0F62 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C91C62C585001E0F62 /* Security.framework */; };
 		EB1959CC1C62C58D001E0F62 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */; };
-		EB1959D11C62C646001E0F62 /* Firebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959D01C62C646001E0F62 /* Firebase.framework */; };
 		EB3A98231D9814BA00C16E89 /* RoundButtCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3A98221D9814BA00C16E89 /* RoundButtCollectionViewCell.swift */; };
 		EB3A98251D98A6B700C16E89 /* CheckOutCityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3A98241D98A6B700C16E89 /* CheckOutCityViewController.swift */; };
 		EB3A982B1D99D0AF00C16E89 /* CheckOutPeopleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3A982A1D99D0AF00C16E89 /* CheckOutPeopleViewController.swift */; };
@@ -100,6 +100,7 @@
 		B677FCAB51F97DDC5284333A /* Pods-Beta2Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Beta2Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Beta2Tests/Pods-Beta2Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		C047BB918AA35091D7E44541 /* Pods-Beta2-Beta2Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Beta2-Beta2Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Beta2-Beta2Tests/Pods-Beta2-Beta2Tests.release.xcconfig"; sourceTree = "<group>"; };
 		D74715BB1562B8B46C3362C4 /* Pods-Beta2-Beta2Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Beta2-Beta2Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Beta2-Beta2Tests/Pods-Beta2-Beta2Tests.debug.xcconfig"; sourceTree = "<group>"; };
+		EB03B8341DFF08780002098C /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestTableViewCell.swift; sourceTree = "<group>"; };
 		EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckedOutListViewController.swift; sourceTree = "<group>"; };
 		EB03E5BF1C25A7F4009A55F1 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKCoreKit.framework; path = ../../FacebookSDK/FBSDKCoreKit.framework; sourceTree = "<group>"; };
@@ -121,7 +122,6 @@
 		EB1959C71C62C57E001E0F62 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		EB1959C91C62C585001E0F62 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		EB1959D01C62C646001E0F62 /* Firebase.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Firebase.framework; path = ../../Firebase/Firebase.framework; sourceTree = "<group>"; };
 		EB3A98221D9814BA00C16E89 /* RoundButtCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoundButtCollectionViewCell.swift; sourceTree = "<group>"; };
 		EB3A98241D98A6B700C16E89 /* CheckOutCityViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckOutCityViewController.swift; sourceTree = "<group>"; };
 		EB3A982A1D99D0AF00C16E89 /* CheckOutPeopleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckOutPeopleViewController.swift; sourceTree = "<group>"; };
@@ -171,7 +171,6 @@
 				EBE70DF01CC58EBA00F6DCE3 /* FBSDKCoreKit.framework in Frameworks */,
 				EB1959C61C62C575001E0F62 /* libc++.tbd in Frameworks */,
 				EB1959C41C62C56B001E0F62 /* libicucore.tbd in Frameworks */,
-				EB1959D11C62C646001E0F62 /* Firebase.framework in Frameworks */,
 				EB03E5C71C387758009A55F1 /* Bolts.framework in Frameworks */,
 				EB03E5C51C387750009A55F1 /* FBSDKLoginKit.framework in Frameworks */,
 				EB03E5C01C25A7F4009A55F1 /* FBSDKCoreKit.framework in Frameworks */,
@@ -226,11 +225,11 @@
 		EB03E5BA1C25A76E009A55F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				EB03B8341DFF08780002098C /* GoogleService-Info.plist */,
 				EBE70DEE1CC58EBA00F6DCE3 /* FBSDKCoreKit.framework */,
 				EBE70DEF1CC58EBA00F6DCE3 /* FBSDKLoginKit.framework */,
 				EBA4D0FB1C6423DB00BB459F /* libc++.1.dylib */,
 				EBA4D0FC1C6423DB00BB459F /* libicucore.A.dylib */,
-				EB1959D01C62C646001E0F62 /* Firebase.framework */,
 				EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */,
 				EB1959C91C62C585001E0F62 /* Security.framework */,
 				EB1959C71C62C57E001E0F62 /* CFNetwork.framework */,
@@ -453,6 +452,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EB9EE2CB1DD2A88900AC1FF0 /* Launch Screen.storyboard in Resources */,
+				EB03B8351DFF08780002098C /* GoogleService-Info.plist in Resources */,
 				EB0656231BEE37F300CF8376 /* Assets.xcassets in Resources */,
 				EBAC6D2E1CD02D430060BC73 /* Main.storyboard in Resources */,
 			);
@@ -731,8 +731,9 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "$(inherited)/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LIBRARY_SEARCH_PATHS = "$(inherited)/**";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -772,8 +773,9 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "$(inherited)/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LIBRARY_SEARCH_PATHS = "$(inherited)/**";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

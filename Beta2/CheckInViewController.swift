@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Firebase
+import FirebaseDatabase
 import FirebaseAnalytics
 import CoreData
 
@@ -19,7 +19,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var dictArr = [[String:String]]()
     var placesDict = [String : String]()
     var cityButtonList: [String] = ["+"]
-    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shops", "Night Club", "Desert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing", "Winery"]
+    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shops", "Night Club", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing", "Winery"]
     var cityButtonCoreData = [NSManagedObject]()
     var placesArr = [String]()
     var arrSize = Int()
@@ -65,8 +65,6 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        //Init firebase
-        FIRApp.configure()
         //Auto Capitalize words in text box field
         self.CheckInRestField.autocapitalizationType = .words
         //setup City scroll view
@@ -181,8 +179,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             let addButtonText = CheckInRestField.text!
             let cityDefaultText = "Enter new city button name"
             let catDefaultText = "Enter new category button name"
-            if(addButtonText == cityDefaultText || addButtonText == catDefaultText || addButtonText.isEmpty)
+            if(addButtonText == cityDefaultText || addButtonText == catDefaultText || addButtonText.isEmpty || addButtonText == "+")
             {
+                print("tried to enter empty city. \n Add UIAlert")
                 CheckInRestField.placeholder = "Enter Name..."
                 CheckInRestField.text = ""
                 isEnteringCity = false
@@ -306,6 +305,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             //Clear the touchdown background color
             sender.backgroundColor = UIColor.clear
             CheckInRestField.placeholder = "Enter new city button name"
+            CheckInRestField.text = ""
             isEnteringCity = true
         }
         else

@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Firebase
+import FirebaseDatabase
 import Foundation
 
 class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UICollectionViewDataSource, UICollectionViewDelegate      {
@@ -30,7 +30,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var selectedCollection = [Int]()
     var selectedFilters = [String]()
     var headerCount = 0
-    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Desert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Site Seeing", "Winery"]
+    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Site Seeing", "Winery"]
     var userRef: FIRDatabaseReference!
    
     
@@ -133,10 +133,10 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 locPlaceNodeObj = placeNode()
                 locPlaceNodeObj.place = key as? String
                 //Get a snapshot of the current place to iterate over its attributes
-                if let placeSnap = snapshot?.childSnapshot(forPath: key as! String){
+                let placeSnap = snapshot.childSnapshot(forPath: key as! String)
                     //Iterate over each city and category child of the place's check in
                     for placeChild in placeSnap.children{
-                         let currNode = placeChild as! FDataSnapshot
+                         let currNode = placeChild as! FIRDataSnapshot
                          //Place dict now has key of the city or cat attribute, and the value is always "true"
                          let placeDict = currNode.value as! NSDictionary
                         //The placeChild key tells us which type of attribute data we are currently looping over
@@ -151,10 +151,10 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     }
                     
                     locPlaceNodeArr.append(locPlaceNodeObj)
-                }
-                else{
-                    print("Created place node with no attributes. Child snapshot of \(key as!String) was nil")
-                }
+                //Previous code block was in an if let optional chain block, but now FIR snaps are not optionals
+//                else{
+//                    print("Created place node with no attributes. Child snapshot of \(key as!String) was nil")
+//                }
             }
             //Call Completion cloures on completed list of place nodes from the current user's checkins
             completionClosure(locPlaceNodeArr)
@@ -286,7 +286,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 //get category and city key then retreive the attribute's children
                 for attribute in (childSnapshot.children) {
                     //check if multiple children exist beneath currrent node, will return nil if path is not only a key:value
-                    if let singleEntry = childSnapshot?.childSnapshot(forPath: (attribute as AnyObject).key).value as? String{
+                    if let singleEntry = childSnapshot.childSnapshot(forPath: (attribute as AnyObject).key).value as? String{
                         if ((attribute as AnyObject).key == "city"){
                             cityArrLoc.append(singleEntry)   //append singld child
                         }
@@ -299,7 +299,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     }
                     else{
                         //loop over each entry in child snapshot and store in array
-                        let rootNode = attribute as! FDataSnapshot
+                        let rootNode = attribute as! FIRDataSnapshot
                         //force downcast only works if root node has children, otherwise value will only be a string
                         let nodeDict = rootNode.value as! NSDictionary
                         for (key, _ ) in nodeDict{
@@ -328,7 +328,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     //Unused firebase functions that retrieved all places from one user and looked them up in the master list
     //Funtion is passed the list of checked in places and retrieves the city and category attributes for each place
-    func retrieveAttributesFromMaster(_ myRef: FIRDataSnapshot, retrievedPlaces: [String], completionClosure: @escaping (_ placeNodeArr: [placeNode]) -> Void)
+    func retrieveAttributesFromMaster(_ myRef: FIRDatabaseReference, retrievedPlaces: [String], completionClosure: @escaping (_ placeNodeArr: [placeNode]) -> Void)
     {
         var localTableDataArr = [String]()
         var locPlaceNodeArr = [placeNode]()
@@ -359,23 +359,23 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     //Unused firebase functions that retrieved all places from one user and looked them up in the master list
     //Retrieve list of all checked in places for curr user
-    func retrieveUserPlaces(_ myRef: FIRDataSnapshot, completionClosure: @escaping (_ completedArr: [String]) -> Void) {
+    func retrieveUserPlaces(_ myRef: FIRDatabaseReference, completionClosure: @escaping (_ completedArr: [String]) -> Void) {
         var localPlacesArr = [String]()
         
         if(showAllCities ?? false){     //Use value of showAllCities if not nil, otherwise evaluate to false
             //Only retrieve check ins from matching cities in the user's list
             myRef.queryOrdered(byChild: "city").observe(.childAdded, with: { snapshot in
-                let nsSnapDict = snapshot?.value as? NSDictionary     //Swift 3 returns snapshot as Any? instead of ID
+                let nsSnapDict = snapshot.value as? NSDictionary     //Swift 3 returns snapshot as Any? instead of ID
                 //If the city is a single dict pair this snap.value will return the city name
                 if let city = nsSnapDict?["city"] as? String {
                     //Check if the city name matches the requested city
                     if(city == self.headerText!){
                         //Then store the place's name
-                        localPlacesArr.append((snapshot?.key)!)
+                        localPlacesArr.append((snapshot.key))
                     }
                 }else{  //The current city entry has a multi entry list
-                    for child in (snapshot?.children)! {    //each child is either city or cat
-                        let rootNode = child as! FDataSnapshot
+                    for child in (snapshot.children) {    //each child is either city or cat
+                        let rootNode = child as! FIRDataSnapshot
                         //force downcast only works if root node has children, otherwise value will only be a string
                         let nodeDict = rootNode.value as! NSDictionary
                         for (key, _ ) in nodeDict{
@@ -384,23 +384,27 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                                 if((key as! String) == self.headerText!){
                                     //Then store the place's name 
 //                                    print("userplace: \(snapshot.key)")
-                                    localPlacesArr.append((snapshot?.key)!)
+                                    localPlacesArr.append((snapshot.key))
                                 }
                             }
                         }
                     }
                 }
-                print("calling retrieve place completion")
                 completionClosure(localPlacesArr)
             })
         }else{
             //Retrieve a list of the user's current check in list
             myRef.observeSingleEvent(of: .value, with: { snapshot in
-                for child in (snapshot?.children)! {
+                let rootNode = snapshot as FIRDataSnapshot
+                //force downcast only works if root node has children, otherwise value will only be a string
+                //each entry in nodeDict now has a key of the check in's place name and a value of the city/category attributes
+                let nodeDict = rootNode.value as! NSDictionary
+                //Loop over each check in Place and parse its attributes
+                for (key, _ ) in nodeDict{
+                //                for child in (snapshot.children) {
                     //true if child key in the snapshot is not nil (e.g. attributes about the place exist), then unwrap and store in array
-                    if let childKey = (child as AnyObject).key{
-                        localPlacesArr.append(childKey)
-                    }
+                        localPlacesArr.append(key as! String)
+                    
                 }
                 completionClosure(localPlacesArr)
             })
@@ -647,7 +651,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     func handleDeleteTableItem(_ alertAction: UIAlertAction!) -> Void
     {
 //        let refToDelete = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)/\("insert index path item")")
-        let refToDelete = FIRDatabase.database().reference().child("checked/\(self.curreUser)/\("insert index Path item")")
+        let refToDelete = FIRDatabase.database().reference().child("checked/\(self.currUser)/\("insert index Path item")")
         tableView.beginUpdates()
         
         print("deleted")

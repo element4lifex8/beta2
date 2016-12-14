@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Firebase
+import FirebaseDatabase
 
 class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UITableViewDataSource{
     
@@ -23,7 +23,7 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     var friendsRef: FIRDatabaseReference!
     var cityRef: FIRDatabaseReference!
 //    let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/")
-    let friendsRef = FIRDatabase.database().reference().child("checked")
+    let refChecked = FIRDatabase.database().reference().child("checked")
     let currUserDefaultKey = "FBloginVC.currUser"
     fileprivate let sharedFbUser = UserDefaults.standard
     

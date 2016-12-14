@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Firebase
+import FirebaseDatabase
 import Foundation
 
 class CheckOutPeopleViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {

@@ -9,7 +9,8 @@
 import UIKit
 import FBSDKCoreKit
 import FBSDKLoginKit
-import Firebase
+import FirebaseDatabase
+import FirebaseAuth
 
 class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
 
@@ -99,18 +100,24 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
         }
         else
         {
-//            let ref = Firebase(url: "https://check-inout.firebaseio.com")
+            //Old Firebase code
+            //            let ref = Firebase(url: "https://check-inout.firebaseio.com")
+            //              let accessToken = FBSDKAccessToken.current().tokenString
+            //FIRAuth.auth()!.signIn(withOAuthProvider: "facebook", token: accessToken, withCompletionBlock: { error, authData in
+            
             let ref = FIRDatabase.database().reference()
-            //use current access token from loggedd in user to pass to firebase's login auth func
-            let accessToken = FBSDKAccessToken.current().tokenString
-            ref.auth(withOAuthProvider: "facebook", token: accessToken, withCompletionBlock: { error, authData in
+            let credential = FIRFacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
+            let authRef = FIRAuth.auth()
+            //use current access token from logged in user to pass to firebase's login auth func
+
+            authRef!.signIn(with: credential) { (user, error) in
                 if error != nil
                 {
                     print("Login failed \(error)")
                 }
                 else
                 {
-                    self.currUser = (authData?.providerData["id"] as? NSString)!
+                    self.currUser = user!.uid as NSString
                     print("Logged in  \(self.currUser)")
                     //Check to see if user is new and has not been added to the user's list in Firebase
                     
@@ -120,15 +127,15 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                     let email = (authData.providerData["email"] as? NSString)!
                     usersRef.updateChildValues([emailPath:email])*/
                     // Create a child path with a key set to the uid underneath the "users" node
-                    // This creates a URL path like the following:
+                    // This creates a URiL path like the following:
                     //  - https://<YOUR-FIREBASE-APP>.firebaseio.com/users/<uid>
                         
-                    self.isCurrentUser() {(user: Bool) in
-                        existingUser = user
+                    self.isCurrentUser() {(isUser: Bool) in
+                        existingUser = isUser
                         if(!existingUser){
-                            let newUser = ["displayName1": (authData?.providerData["displayName"] as? NSString)!,
-                                           "email": (authData?.providerData["email"] as? NSString)!, "friends:" : "true"]
-                            ref?.child(byAppendingPath: "users").child(byAppendingPath: self.currUser as String).setValue(newUser)
+                            let newUser = ["displayName1": (user?.displayName)!,
+                                           "email": (user?.email)!, "friends:" : "true"]
+                            ref.child(byAppendingPath: "users").child(byAppendingPath: self.currUser as String).setValue(newUser)
                         }
                     }
                     
@@ -140,7 +147,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                     }
                     self.performSegue(withIdentifier: "profileSteps", sender: nil)
                 }
-            })
+            }
 
         }
         
@@ -179,14 +186,20 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
         var user = false
         
         ref.child(byAppendingPath: "users").observeSingleEvent(of: .value, with: { snapshot in
-            for child in (snapshot.children) {
-                //Compare current logged in user to all users stored in the database (child.key is the user id #)
-                if let childKey = (child as AnyObject).key{
-                    //?is childkey a string?
-                    if(childKey == self.currUser as String){
-                        user = true
-                    }
+//            for child in (snapshot.children) {
+            let rootNode = snapshot as FIRDataSnapshot
+            //force downcast only works if root node has children, otherwise value will only be a string
+            //each entry in nodeDict now has a key of the check in's place name and a value of the city/category attributes
+            let nodeDict = rootNode.value as! NSDictionary
+            //Loop over each check in Place and parse its attributes
+            for (key, _ ) in nodeDict{
+            //Compare current logged in user to all users stored in the database (child.key is the user id #)
+            
+                //?is childkey a string?
+                if(key as! NSString == self.currUser){
+                    user = true
                 }
+                
             }
             completionClosure(user)
         })

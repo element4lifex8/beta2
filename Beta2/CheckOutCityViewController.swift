@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Firebase
+import FirebaseDatabase
 
 class CheckOutCityViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     

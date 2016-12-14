@@ -7,9 +7,9 @@
 //
 
 import UIKit
-import Firebase
+import FirebaseDatabase
 import Foundation
-
+//Unused view controller previously attempted to create contained view controller
 //View controller container used to simultaneously load checkOutCity and checkOutPeople data
 class CheckedOutListViewController: UITableViewController {
 
@@ -59,8 +59,10 @@ class CheckedOutListViewController: UITableViewController {
         super.viewDidLoad()
 //        tableView.registerClass(TestTableViewCell.self,
 //                                forCellReuseIdentifier: "Cell")
-        userRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
-        placesRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
+//        userRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
+        userRef = FIRDatabase.database().reference().child("checked/\(self.currUser)")
+//        placesRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
+        placesRef = FIRDatabase.database().reference().child("checked/places")
         //Retrieve List of checked out places in curr user's list
         retrieveUserPlaces() {(completedArr:[String]) in
             self.placesArr = completedArr
@@ -164,14 +166,15 @@ class CheckedOutListViewController: UITableViewController {
         var completedAttrArr = [String]()
         var cityArrLoc = [String]()
         var categoryArrLoc = [String]()
-        currPlacesRef = Firebase(url: "https://check-inout.firebaseio.com/checked/places/\(place)")
+//        currPlacesRef = Firebase(url: "https://check-inout.firebaseio.com/checked/places/\(place)")
+        currPlacesRef = FIRDatabase.database().reference().child("checked/places\(place)")
         currPlacesRef.observe(.value, with: { childSnapshot in
-            if !(childSnapshot?.value is NSNull)
+            if !(childSnapshot.value is NSNull)
             {
                 //get category and city key then retreive the attribute's children
-                for attribute in (childSnapshot.children)! {
+                for attribute in (childSnapshot.children) {
                     //check if multiple children exist beneath currrent node, will return nil if path is not only a key:value
-                    if let singleEntry = childSnapshot?.childSnapshot(forPath: (attribute as AnyObject).key).value as? String{
+                    if let singleEntry = childSnapshot.childSnapshot(forPath: (attribute as AnyObject).key).value as? String{
                         if ((attribute as AnyObject).key == "city"){
                             cityArrLoc.append(singleEntry)   //append singld child
                         }
@@ -184,7 +187,7 @@ class CheckedOutListViewController: UITableViewController {
                     }
                     else{
                         //loop over each entry in child snapshot and store in array
-                        let rootNode = attribute as! FDataSnapshot
+                        let rootNode = attribute as! FIRDataSnapshot
                         //force downcast only works if root node has children, otherwise value will only be a string
                         let nodeDict = rootNode.value as! NSDictionary
                         for (key, _ ) in nodeDict{
@@ -245,11 +248,11 @@ class CheckedOutListViewController: UITableViewController {
         var localPlacesArr = [String]()
         //Retrieve a list of the user's current check in list
         userRef.observe(.value, with: { snapshot in
-            for child in (snapshot?.children)! {
+            for child in (snapshot.children) {
                 //true if child key in the snapshot is not nil (e.g. attributes about the place exist), then unwrap and store in array
-                if let childKey = (child as AnyObject).key{
-                   localPlacesArr.append(childKey!)
-                }
+//                if let childKey = (child as AnyObject).key{
+//                   localPlacesArr.append(childKey!)
+//                }
             }
             completionClosure(localPlacesArr)
         })
