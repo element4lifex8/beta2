@@ -33,7 +33,6 @@ class CIOHomeViewController: UIViewController   {
         let loginManager = FBSDKLoginManager()
         loginManager.logOut()
         performSegue(withIdentifier: "LoginScreen", sender: nil)
-        print("Logout button segue")
     }
  
     // Unwind seque from my list

@@ -20,6 +20,86 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
     @IBAction func homeButt(_ sender: UIButton) {
         performSegue(withIdentifier: "goHome", sender: nil)
     }
+    
+    @IBAction func FacebookLoginButton(_ sender: UIButton) {
+        let facebookLogin = FBSDKLoginManager()
+        var existingUser = false
+        var newUser: [String : String] = ["displayName" : "", "email" : "", "friends" : "true"]
+        
+        facebookLogin.logIn(withReadPermissions: ["public_profile", "email"], from: self, handler:{(facebookResult, facebookError) -> Void in
+            if facebookError != nil {
+                print("Facebook login failed. Error \(facebookError)")
+            } else if (facebookResult?.isCancelled)! {
+                print("Facebook login was cancelled.")
+            } else {
+                
+                let credential = FIRFacebookAuthProvider.credential(withAccessToken:  FBSDKAccessToken.current().tokenString)
+                
+                let authRef = FIRAuth.auth()
+                //use current access token from logged in user to pass to firebase's login auth func
+              
+                authRef!.signIn(with: credential) { (user, error) in
+                    if error != nil
+                    {
+                        print("Login failed \(error)")
+                    }
+                    else
+                    {
+                        //<<If not using provider data then "facebook" is appended prior to uid
+//                        if let userId = user?.uid{
+//                            //user credential now has the string "facebook:" inserted before the facebook id
+//                            guard let beginIdx = userId.characters.index(of: ":") else{
+//                                print("Malformed facebook user id string: \(userId)")
+//                                return
+//                            }
+//                          
+//                            self.currUser = userId.substring(from: userId.index(after: beginIdx)) as NSString
+//                            print("Logged in \(self.currUser)")
+//                        }else{
+//                            print("Facebook user id not provided, login unsuccessful")
+//                        }
+                        //Check to see if user is new and has not been added to the user's list in Firebase
+                        
+                        
+                        /*TO update one field only:
+                         let emailPath = "\(self.currUser)/email"
+                         let email = (authData.providerData["email"] as? NSString)!
+                         usersRef.updateChildValues([emailPath:email])*/
+                        // Create a child path with a key set to the uid underneath the "users" node
+                        // This creates a URiL path like the following:
+                        //  - https://<YOUR-FIREBASE-APP>.firebaseio.com/users/<uid>
+                        if let providerData = user?.providerData {
+                            for entry in providerData{  //Expect only 1 entry
+                                self.currUser = entry.uid as NSString
+                                newUser = ["displayName1": (entry.displayName)!,
+                                               "email": (entry.email)!, "friends" : "true"]
+                            }
+                            
+                        }
+                        self.isCurrentUser() {(isUser: Bool) in
+                            existingUser = isUser
+                            if(!existingUser){
+                                let ref = FIRDatabase.database().reference(withPath:"users")
+                                //Append user id as root of node and newUser dict nested beneath
+                                ref.child(self.currUser as String).setValue(newUser)
+                            }
+                        }
+                        
+                        // If you ask for multiple permissions at once, you
+                        // should check if specific permissions missing
+                        if (facebookResult?.grantedPermissions.contains("email"))!
+                        {
+                            // Do work
+                        }
+                        self.performSegue(withIdentifier: "profileSteps", sender: nil)
+                    }
+                }
+            }
+        })
+
+    }
+    
+    
     var currUser: NSString {
         get
         {
@@ -34,17 +114,16 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
     override func viewDidLoad()
     {
         super.viewDidLoad()
-        print("FB login entered")
         //check for an existing token at load.
         if (FBSDKAccessToken.current() == nil)
         {
             print("Not logged in..")
             //Add facebook login button to center of view
-            let loginView : FBSDKLoginButton = FBSDKLoginButton()
-            self.view.addSubview(loginView)
-            loginView.center = self.view.center
-            loginView.readPermissions = ["public_profile", "email", "user_friends"]
-            loginView.delegate = self
+//            let loginView : FBSDKLoginButton = FBSDKLoginButton()
+//            self.view.addSubview(loginView)
+//            loginView.center = self.view.center
+//            loginView.readPermissions = ["public_profile", "email", "user_friends"]
+//            loginView.delegate = self
         }
         //If token exist, user had already logged in, seque to CIO Home
         else
@@ -85,71 +164,81 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
 
     }
     
+    //<<Unused function that would add the default facebook login icon>>
     // Facebook Delegate Methods
     //func used to know if the user did login correctly and if they did you can grab their information.
     func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error!){
         var existingUser = false
+        let ref = FIRDatabase.database().reference()
+        let facebookLogin = FBSDKLoginManager()
         
-        if ((error) != nil)
-        {
-            print("Error occured during FB login: \(error)")
-        }
-        else if result.isCancelled
-        {
-            print("User canceled login, this needs to be handled")
-        }
-        else
-        {
+//        if ((error) != nil)
+//        {
+//            print("Error occured during FB login: \(error)")
+//        }
+//        else if result.isCancelled
+//        {
+//            print("User canceled login, this needs to be handled")
+//        }
+//        else
+//        {
             //Old Firebase code
             //            let ref = Firebase(url: "https://check-inout.firebaseio.com")
             //              let accessToken = FBSDKAccessToken.current().tokenString
             //FIRAuth.auth()!.signIn(withOAuthProvider: "facebook", token: accessToken, withCompletionBlock: { error, authData in
-            
-            let ref = FIRDatabase.database().reference()
-            let credential = FIRFacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
-            let authRef = FIRAuth.auth()
-            //use current access token from logged in user to pass to firebase's login auth func
+        facebookLogin.logIn(withReadPermissions: ["public_profile", "email"], from: self, handler:
+        {(facebookResult, facebookError) -> Void in
+            if facebookError != nil {
+                print("Facebook login failed. Error \(facebookError)")
+            } else if (facebookResult?.isCancelled)! {
+                print("Facebook login was cancelled.")
+            } else {
+                
+                let credential = FIRFacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
+                let authRef = FIRAuth.auth()
+                //use current access token from logged in user to pass to firebase's login auth func
 
-            authRef!.signIn(with: credential) { (user, error) in
-                if error != nil
-                {
-                    print("Login failed \(error)")
-                }
-                else
-                {
-                    self.currUser = user!.uid as NSString
-                    print("Logged in  \(self.currUser)")
-                    //Check to see if user is new and has not been added to the user's list in Firebase
-                    
-
-                     /*TO update one field only:
-                    let emailPath = "\(self.currUser)/email"
-                    let email = (authData.providerData["email"] as? NSString)!
-                    usersRef.updateChildValues([emailPath:email])*/
-                    // Create a child path with a key set to the uid underneath the "users" node
-                    // This creates a URiL path like the following:
-                    //  - https://<YOUR-FIREBASE-APP>.firebaseio.com/users/<uid>
-                        
-                    self.isCurrentUser() {(isUser: Bool) in
-                        existingUser = isUser
-                        if(!existingUser){
-                            let newUser = ["displayName1": (user?.displayName)!,
-                                           "email": (user?.email)!, "friends:" : "true"]
-                            ref.child(byAppendingPath: "users").child(byAppendingPath: self.currUser as String).setValue(newUser)
-                        }
-                    }
-                    
-                    // If you ask for multiple permissions at once, you
-                    // should check if specific permissions missing
-                    if result.grantedPermissions.contains("email")
+                authRef!.signIn(with: credential) { (user, error) in
+                    if error != nil
                     {
-                        // Do work
+                        print("Login failed \(error)")
                     }
-                    self.performSegue(withIdentifier: "profileSteps", sender: nil)
+                    else
+                    {
+                        self.currUser = user!.uid as NSString
+                        print("Logged in  \(self.currUser)")
+                        //Check to see if user is new and has not been added to the user's list in Firebase
+                        
+
+                         /*TO update one field only:
+                        let emailPath = "\(self.currUser)/email"
+                        let email = (authData.providerData["email"] as? NSString)!
+                        usersRef.updateChildValues([emailPath:email])*/
+                        // Create a child path with a key set to the uid underneath the "users" node
+                        // This creates a URiL path like the following:
+                        //  - https://<YOUR-FIREBASE-APP>.firebaseio.com/users/<uid>
+                            
+                        self.isCurrentUser() {(isUser: Bool) in
+                            existingUser = isUser
+                            if(!existingUser){
+                                let newUser = ["displayName1": (user?.displayName)!,
+                                               "email": (user?.email)!, "friends:" : "true"]
+                                ref.child(byAppendingPath: "users").child(byAppendingPath: self.currUser as String).setValue(newUser)
+                            }
+                        }
+                        
+                        // If you ask for multiple permissions at once, you
+                        // should check if specific permissions missing
+                        if result.grantedPermissions.contains("email")
+                        {
+                            // Do work
+                        }
+                        self.performSegue(withIdentifier: "profileSteps", sender: nil)
+                    }
                 }
             }
-
-        }
+        })
+    
         
         
         /*let request = FBSDKGraphRequest(graphPath:"/me/friends", parameters: nil) //["fields" : "email" : "name"]);
@@ -182,10 +271,10 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
     
     func isCurrentUser(_ completionClosure: @escaping (_ isUser:  Bool) -> Void) {
 //        let ref = Firebase(url: "https://check-inout.firebaseio.com")
-        let ref = FIRDatabase.database().reference()
+        let ref = FIRDatabase.database().reference(withPath: "users")
         var user = false
         
-        ref.child(byAppendingPath: "users").observeSingleEvent(of: .value, with: { snapshot in
+        ref.observeSingleEvent(of: .value, with: { snapshot in
 //            for child in (snapshot.children) {
             let rootNode = snapshot as FIRDataSnapshot
             //force downcast only works if root node has children, otherwise value will only be a string

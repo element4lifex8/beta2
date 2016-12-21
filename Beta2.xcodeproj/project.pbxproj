@@ -101,6 +101,7 @@
 		C047BB918AA35091D7E44541 /* Pods-Beta2-Beta2Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Beta2-Beta2Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Beta2-Beta2Tests/Pods-Beta2-Beta2Tests.release.xcconfig"; sourceTree = "<group>"; };
 		D74715BB1562B8B46C3362C4 /* Pods-Beta2-Beta2Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Beta2-Beta2Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Beta2-Beta2Tests/Pods-Beta2-Beta2Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		EB03B8341DFF08780002098C /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		EB03B8361E06D06E0002098C /* Beta2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Beta2.entitlements; sourceTree = "<group>"; };
 		EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestTableViewCell.swift; sourceTree = "<group>"; };
 		EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckedOutListViewController.swift; sourceTree = "<group>"; };
 		EB03E5BF1C25A7F4009A55F1 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKCoreKit.framework; path = ../../FacebookSDK/FBSDKCoreKit.framework; sourceTree = "<group>"; };
@@ -271,6 +272,7 @@
 		EB06561A1BEE37F300CF8376 /* Beta2 */ = {
 			isa = PBXGroup;
 			children = (
+				EB03B8361E06D06E0002098C /* Beta2.entitlements */,
 				EB61CD5F1DC41F4300297225 /* SegueFromLeft.swift */,
 				EB61CD671DC5025400297225 /* SegueFromRight.swift */,
 				EB3A98201D9813A500C16E89 /* Table Cells */,
@@ -415,6 +417,11 @@
 						CreatedOnToolsVersion = 7.0.1;
 						DevelopmentTeam = WFDEGZ6LV9;
 						LastSwiftMigration = 0810;
+						SystemCapabilities = {
+							com.apple.Keychain = {
+								enabled = 0;
+							};
+						};
 					};
 					EB06562B1BEE37F300CF8376 = {
 						CreatedOnToolsVersion = 7.0.1;

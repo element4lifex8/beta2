@@ -147,6 +147,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         var unAuthFriends = [String]()
         var unAuthId = [String]()
         unAuthrequest?.start(completionHandler: { (connection, result, error) -> Void in
+            print("unauth entered")
             if error == nil{
                 let resultdict = result as! NSDictionary
                 let data : NSArray = resultdict.object(forKey: "data") as! NSArray
@@ -315,4 +316,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         return cell
     }
 
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        print("Broke:segue to \(segue.identifier)")
+    }
 }
