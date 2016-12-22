@@ -11,9 +11,13 @@ import UIKit
 
 class ProfileStepsViewController: UIViewController {
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        addTextBoxBorder()
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
-        addLabelBorders()
+//        addLabelBorders()
         // Do any additional setup after loading the view.
     }
 
@@ -22,9 +26,25 @@ class ProfileStepsViewController: UIViewController {
         performSegue(withIdentifier: "skipProfileSetup", sender: nil)
     }
 
+    @IBOutlet weak var homeCityTextBox: UIView!
+    @IBOutlet weak var addCityTextBox: UITextField!
     
     @IBOutlet weak var step1Label: UILabel!
     @IBOutlet weak var skipLabel: UIButton!
+    
+    func addTextBoxBorder(){
+        //Create underline bar for home city and additional city text boxes
+        let px = 1 / UIScreen.main.scale    //determinte 1 pixel size instead of using 1 point
+        let homeCityFrame = CGRect(x: homeCityTextBox.frame.minX, y: homeCityTextBox.frame.maxY, width: homeCityTextBox.frame.size.width, height: px)
+        let homeCityLine: UIView = UIView(frame: homeCityFrame)
+        homeCityLine.backgroundColor = UIColor.black
+        let addCityFrame = CGRect(x: addCityTextBox.frame.minX, y: addCityTextBox.frame.maxY, width: homeCityTextBox.frame.size.width, height: px)
+        let addCityLine: UIView = UIView(frame: addCityFrame)
+        addCityLine.backgroundColor = UIColor.black
+        //Add underline to view
+        view.addSubview(homeCityLine)
+        view.addSubview(addCityLine) 
+    }
 
     func addLabelBorders()
     {
