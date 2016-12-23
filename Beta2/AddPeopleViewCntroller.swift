@@ -303,7 +303,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         accessoryButton.setImage(checkImage, for: .selected)
 //        accessoryButton.contentMode = .ScaleAspectFill
         accessoryButton.tag = indexPath.row //store row index of selected button
-        accessoryButton.addTarget(self, action: #selector(AddPeopleViewCntroller.accessoryButtonTapped(_:)), for: .touchUpInside)
+//        accessoryButton.addTarget(self, action: #selector(AddPeopleViewCntroller.accessoryButtonTapped(_:)), for: .touchUpInside)
 
         cell.accessoryView = accessoryButton as UIView
         
@@ -316,6 +316,9 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         return cell
     }
 
+    override func performSegue(withIdentifier identifier: String, sender: Any?) {
+        print("Force segue \(identifier)")
+    }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         print("Broke:segue to \(segue.identifier)")
     }
