@@ -38,6 +38,8 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
 //        super.viewWillAppear(animated)
 //        
 //    }
+    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tableView.dataSource=self
@@ -139,7 +141,7 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         //Loop over all the user's friends to get a list of their cities
         for friendId in friendsList{
             //Query ordered by child will loop each place in the cityRef
-            cityRef.child(byAppendingPath: friendId).queryOrdered(byChild: "city").observe(.childAdded, with: { snapshot in
+            cityRef.child(friendId).queryOrdered(byChild: "city").observe(.childAdded, with: { snapshot in
                 //If the city is a single dict pair this snap.value will return the city name
                 let nsSnapDict = snapshot.value as? NSDictionary     //Swift 3 returns snapshot as Any? instead of ID
                 if let city = nsSnapDict?["city"] as? String {
@@ -162,11 +164,11 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
                     }
                 }
                 loopCount+=1
+                //Once all friends have been looped over, call completion closure
+                if(loopCount >= friendsList.count){
+                    completionClosure(localCityArr)
+                }
             })
-            //Once all friends have been looped over, call completion closure
-            if(loopCount >= friendsList.count){
-                completionClosure(localCityArr)
-            }
         }
     }
 
@@ -251,7 +253,6 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
             //Deselect current row so when returning the last selected user is not still selected
             self.tableView.deselectRow(at: self.tableView.indexPathForSelectedRow!, animated: true)
         }
-        print("segue to \(segue.identifier)")
     }
     
     // Unwind seque from my myListVC

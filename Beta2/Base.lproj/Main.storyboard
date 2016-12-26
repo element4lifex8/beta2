@@ -1610,6 +1610,7 @@
                             </mask>
                         </variation>
                     </view>
+                    <navigationItem key="navigationItem" id="vYp-Ee-QqF"/>
                     <connections>
                         <outlet property="tableView" destination="NPv-hk-mtB" id="p8e-gD-CI6"/>
                         <segue destination="F5Z-PP-fCT" kind="custom" identifier="returnToCheckOut" customClass="SegueFromLeft" customModule="Beta2" customModuleProvider="target" id="9c7-Ct-W18"/>
@@ -1914,7 +1915,7 @@
                         <outlet property="cityPeopleTabButton" destination="TJw-zH-v6O" id="oWD-eF-TgO"/>
                         <outlet property="tableView" destination="MFH-Rt-gw4" id="TEQ-OV-Jgy"/>
                         <segue destination="dny-DR-OUK" kind="custom" identifier="myListSegue" customClass="SegueFromRight" customModule="Beta2" customModuleProvider="target" id="113-ep-pX0"/>
-                        <segue destination="fP4-ov-NpD" kind="custom" identifier="addPeopleSegue" customClass="SegueFromLeft" customModule="Beta2" customModuleProvider="target" id="6bs-N6-6yd"/>
+                        <segue destination="fP4-ov-NpD" kind="custom" identifier="addPeopleSegue" customClass="SegueFromRight" customModule="Beta2" customModuleProvider="target" id="6bs-N6-6yd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lt1-Fy-oRU" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1936,7 +1937,7 @@
     <inferredMetricsTieBreakers>
         <segue reference="Mfs-ZW-6UY"/>
         <segue reference="Wdq-Gz-4fs"/>
-        <segue reference="VL1-aN-paN"/>
-        <segue reference="pC0-bG-BYT"/>
+        <segue reference="8zc-AM-fSt"/>
+        <segue reference="9c7-Ct-W18"/>
     </inferredMetricsTieBreakers>
 </document>

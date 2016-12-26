@@ -11,6 +11,18 @@ import FirebaseDatabase
 import FBSDKCoreKit
 import FBSDKLoginKit
 
+extension String{
+    func lastName() -> String{
+        var lastName: String = ""
+        //Find from end of string the location of the space that prcedes the last name
+        if let rangeOfSpace = self.range(of: " ", options: .backwards) {
+            //Convert the range returned by the space to an index and return the string from the space to end of dispay name
+            lastName = self.substring(from: rangeOfSpace.upperBound)
+        }
+        return lastName
+    }
+}
+
 class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     @IBOutlet weak var tableView: UITableView!
@@ -104,7 +116,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         friendsRef = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
         
         sortFacebookFriends(){(finished: Bool) in
-            self.facebookTaggableFriends.sort(by: <)
+            self.facebookTaggableFriends.sort(by: {$0.lastName() < $1.lastName()})
             self.tableView.reloadData()
         }
        
@@ -147,7 +159,6 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         var unAuthFriends = [String]()
         var unAuthId = [String]()
         unAuthrequest?.start(completionHandler: { (connection, result, error) -> Void in
-            print("unauth entered")
             if error == nil{
                 let resultdict = result as! NSDictionary
                 let data : NSArray = resultdict.object(forKey: "data") as! NSArray
@@ -280,7 +291,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         let checkImage = UIImage(named: "tableAccessoryCheck")
         let cellIdentifier = "friendCell"
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! FriendTableViewCell   //downcast to my cell class type
-        //display table data from either friends list or city list
+        //display table data from taggable friends which includes auth and unauth friends
         cell.nameLabel.text = "    \(facebookTaggableFriends[indexPath.row])"
         cell.nameLabel.textColor = UIColor.black
         cell.nameLabel.font = UIFont(name: "Avenir-Light", size: 18)
@@ -303,7 +314,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         accessoryButton.setImage(checkImage, for: .selected)
 //        accessoryButton.contentMode = .ScaleAspectFill
         accessoryButton.tag = indexPath.row //store row index of selected button
-//        accessoryButton.addTarget(self, action: #selector(AddPeopleViewCntroller.accessoryButtonTapped(_:)), for: .touchUpInside)
+        accessoryButton.addTarget(self, action: #selector(AddPeopleViewCntroller.accessoryButtonTapped(_:)), for: .touchUpInside)
 
         cell.accessoryView = accessoryButton as UIView
         
@@ -316,10 +327,4 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         return cell
     }
 
-    override func performSegue(withIdentifier identifier: String, sender: Any?) {
-        print("Force segue \(identifier)")
-    }
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        print("Broke:segue to \(segue.identifier)")
-    }
 }

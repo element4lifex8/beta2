@@ -68,6 +68,8 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                         // Create a child path with a key set to the uid underneath the "users" node
                         // This creates a URiL path like the following:
                         //  - https://<YOUR-FIREBASE-APP>.firebaseio.com/users/<uid>
+                        
+                        //Provider data is an optional array, unwrap the optional then iterate over the 1 expected array entry to gather uid, displayName, and email parameters
                         if let providerData = user?.providerData {
                             for entry in providerData{  //Expect only 1 entry
                                 self.currUser = entry.uid as NSString
