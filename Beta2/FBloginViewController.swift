@@ -17,9 +17,6 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
     let currUserDefaultKey = "FBloginVC.currUser"
     fileprivate let sharedFbUser = UserDefaults.standard
     
-    @IBAction func homeButt(_ sender: UIButton) {
-        performSegue(withIdentifier: "goHome", sender: nil)
-    }
     
     @IBAction func FacebookLoginButton(_ sender: UIButton) {
         let facebookLogin = FBSDKLoginManager()

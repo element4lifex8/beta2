@@ -12,6 +12,7 @@ import Firebase
 public struct placeNode {
     //defined as implicitly unwrapped optionals
     var place: String?
+    var placeId: String?
     var category: [String]?
     var city: [String]?
     let ref: FIRDatabaseReference?
@@ -19,6 +20,7 @@ public struct placeNode {
     // Initialize from arbitrary data
     init(place: String, category: [String], city: [String]) {
         self.place = place
+        self.placeId = nil
         self.category = category
         self.city = city
         self.ref = nil
@@ -26,6 +28,7 @@ public struct placeNode {
     
     init() {
         self.place = nil
+        self.placeId = nil
         self.category = nil
         self.city = nil
         self.ref = nil

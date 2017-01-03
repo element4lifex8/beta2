@@ -10,8 +10,10 @@ import UIKit
 import FirebaseDatabase
 import FirebaseAnalytics
 import CoreData
+import CoreLocation
+import GooglePlaces
 
-class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextFieldDelegate {
+class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextFieldDelegate, CLLocationManagerDelegate, UITableViewDelegate, UITableViewDataSource {
     
 //    Class properties and instances
     
@@ -20,13 +22,20 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var placesDict = [String : String]()
     var cityButtonList: [String] = ["+"]
     var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shops", "Night Club", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing", "Winery"]
-    var cityButtonCoreData = [NSManagedObject]()
     var placesArr = [String]()
     var arrSize = Int()
     var checkObj = placeNode()
     let restNameDefaultKey = "CheckInView.restName"
     var isEnteringCity = false
     var isEnteringCategory = false
+    //Array of options for autocomplete
+    var autoCompleteArray = [String]()
+    var googlePrediction = [GMSAutocompletePrediction]()
+    var autoCompleteTableView: UITableView?
+    //Google places client
+    var placesClient: GMSPlacesClient!
+    //Location manager for detecting user's location
+    var locationManager: CLLocationManager? = nil
     
     fileprivate let sharedRestName = UserDefaults.standard
     
@@ -67,6 +76,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
 
         //Auto Capitalize words in text box field
         self.CheckInRestField.autocapitalizationType = .words
+        //Add target to check in rest field that detects when a change occurs
+        self.CheckInRestField.addTarget(self, action: #selector(CheckInViewController.googleAutoComplete(_:)),
+                  for: UIControlEvents.editingChanged)
         //setup City scroll view
         cityScrollView = UIScrollView()
         cityScrollView.delegate = self
@@ -85,6 +97,31 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         createCategoryButtons()
         //Enable touch interaction with background view so that delete buttons can be cleared when user touces screen
         checkInView.isUserInteractionEnabled = true
+        
+        //Create autocomplete table view 
+        let autoCompleteFrame = CGRect(x: CheckInRestField.frame.minX, y: CheckInRestField.frame.maxY, width: CheckInRestField.frame.size.width, height: 120)
+        autoCompleteTableView = UITableView(frame: autoCompleteFrame, style: UITableViewStyle.plain)
+        autoCompleteTableView?.delegate = self;
+        autoCompleteTableView?.dataSource = self;
+        autoCompleteTableView?.isHidden = true;
+        autoCompleteTableView?.isScrollEnabled = true;
+        autoCompleteTableView?.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        view.addSubview(autoCompleteTableView!)
+        
+        //gooogle Places setup
+        placesClient = GMSPlacesClient.shared()
+        //Initialize CL Location manager so a users current location can be determined
+        self.locationManager = CLLocationManager()
+        
+        if CLLocationManager.authorizationStatus() == .notDetermined{
+            locationManager?.requestAlwaysAuthorization()
+        }
+        
+        locationManager?.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager?.distanceFilter = 200
+        locationManager?.delegate = self
+        startUpdatingLocation()
+
      }
     
     //Since the bounds of the view controller's view is not ready in viewDidLoad, I like to do frame setting in viewDidLayoutSubviews
@@ -130,6 +167,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 textField.placeholder = "Enter Name..."
             }
         }
+        autoCompleteTableView?.isHidden = true
     }
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
         if(textField.text?.isEmpty ?? true){        //Only clear current textField if no user input previously received
@@ -138,6 +176,15 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         else{    //If text field is not empty then don't clear
             return false
         }
+    }
+    
+    //Confirm to CL location delegate
+    func startUpdatingLocation() {
+        self.locationManager?.startUpdatingLocation()
+    }
+    
+    func stopUpdatingLocation() {
+        self.locationManager?.stopUpdatingLocation()
     }
     
     //Detect when user taps outside of scroll views and remove any delete city buttons if they are present
@@ -162,6 +209,32 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         }
     }
     
+    //TableView delegate functions
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return googlePrediction.count
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 33.0
+    }
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        cell.textLabel?.text = googlePrediction[indexPath.row].attributedFullText.string
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        CheckInRestField.text = googlePrediction[indexPath.row].attributedPrimaryText.string
+        //Store placeId object to be stored in firebase with the check in
+        checkObj.placeId = googlePrediction[indexPath.row].placeID
+        autoCompleteTableView?.isHidden = true
+    }
+    
     @IBOutlet weak var CheckInRestField: UITextField!
     
     // Unwind seque from my myListVC
@@ -178,38 +251,44 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         {
             let addButtonText = CheckInRestField.text!
             let cityDefaultText = "Enter new city button name"
-            let catDefaultText = "Enter new category button name"
-            if(addButtonText == cityDefaultText || addButtonText == catDefaultText || addButtonText.isEmpty || addButtonText == "+")
+//            let catDefaultText = "Enter new category button name"
+            if(addButtonText == cityDefaultText || addButtonText.isEmpty || addButtonText == "+")
             {
-                print("tried to enter empty city. \n Add UIAlert")
+                let alert = UIAlertController(title: "Invalid City", message: "You attempted to create a city button but did not provide a city name.", preferredStyle: .alert)
+                let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+                alert.addAction(CancelAction)
+                self.present(alert, animated: true, completion: nil)
                 CheckInRestField.placeholder = "Enter Name..."
                 CheckInRestField.text = ""
                 isEnteringCity = false
                 isEnteringCategory = false
             }
-            else if(isEnteringCity)
+            else
             {
-                //let newCityLoc = cityButtonList.count - 1
-                //cityButtonList.insert(addButtonText, atIndex: newCityLoc)
                 saveCityButton(addButtonText)
                 CheckInRestField.text = ""
                 CheckInRestField.placeholder = "Enter Name..."
                 isEnteringCity = false
                 createCityButtons()
             }
-            else if(isEnteringCategory)
-            {
-                let newCatLoc = catButtonList.count - 1
-                catButtonList.insert(addButtonText, at: newCatLoc)
-                CheckInRestField.text = ""
-                CheckInRestField.placeholder = "Enter Name..."
-                isEnteringCategory = false
-                createCategoryButtons()
-            }
+            //No Longer supporting user supported categories
+//            else if(isEnteringCategory)
+//            {
+//                let newCatLoc = catButtonList.count - 1
+//                catButtonList.insert(addButtonText, at: newCatLoc)
+//                CheckInRestField.text = ""
+//                CheckInRestField.placeholder = "Enter Name..."
+//                isEnteringCategory = false
+//                createCategoryButtons()
+//            }
         }
             //Save a city Check in entry
         else
         {
+            if(checkObj.placeId == nil)
+            {
+                print("not a google prediction")
+            }
             var restNameText = CheckInRestField.text!
             //Remove any trailing spaces from restNameText
             restNameText = restNameText.trimmingCharacters(in: .whitespaces)
@@ -240,7 +319,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                     }
                 }
                 //Save to NSUser defaults
-                restNameHistory += [restNameText]
+//                restNameHistory += [restNameText]
                 dictArr.removeAll()     //Remove elements so the following check in doesn't overwrite the previous
                 self.checkObj = placeNode()  //reinitalize place node for next check in
                 //Resotre check in screen to defaults
@@ -335,7 +414,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             sender.backgroundColor = UIColor(red: 0x60/255, green: 0x60/255, blue: 0x60/255, alpha: 1.0)
         }
     }
-    
+    //Even with these cancel funcs I am at times able to achieve the modified background color from the above function that is not cleared when a long touch is canceled
     @IBAction func cityCatButtTouchCancel(_ sender: UIButton) {
         if(!sender.isSelected){
             sender.backgroundColor = UIColor.clear
@@ -347,8 +426,78 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             sender.backgroundColor = UIColor.clear
         }
     }
+   
+    
+    @IBAction func printLikelyLocation(_ sender: UIButton) {
+        placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
+            if let error = error {
+                print("Pick Place error: \(error.localizedDescription)")
+                return
+            }
+
+//            Notes about the likelihood values:
+//            
+//            The likelihood provides a relative probability of the place being the best match within the list of returned places for a single request. You can't compare likelihoods across different requests.
+//            The value of the likelihood will be between 0 and 1.0.
+//            The sum of the likelihoods in a returned array of GMSPlaceLikelihood objects is always less than or equal to 1.0. Note that the sum isn't necessarily 1.0.
+            if let placeLikelihoodList = placeLikelihoodList {
+                let place = placeLikelihoodList.likelihoods.first?.place
+                if let place = place {
+                    print("name label: \(place.name)")
+                    print("address label: \(place.formattedAddress?.components(separatedBy: ", ").joined(separator: "\n"))")
+                }
+            }
+        })
+    }
+    
+    func googleAutoComplete(_ textField: UITextField) {
+        if let checkInString = CheckInRestField.text{
+            if(checkInString.characters.count >= 3){
+                autoCompleteTableView?.isHidden = false
+                placeAutocomplete(queryText: checkInString)
+            }else{
+                autoCompleteTableView?.isHidden = true
+            }
+        }
+    }
+    
+    func placeAutocomplete(queryText: String) {
+        //Remove previous entries in autocomplete array
+        autoCompleteArray.removeAll()
+        let filter = GMSAutocompleteFilter()
+        filter.type = .establishment
+        placesClient.autocompleteQuery(queryText, bounds: coordinateBounds(), filter: filter, callback: {(results, error) -> Void in
+            if let error = error {
+                print("Autocomplete error \(error)")
+                return
+            }
+            if let results = results {
+                for result in results {
+//                    result.attributedPrimaryText.string contains the name of the spot
+//                    result.attributedSecondaryText.string contains the address to the spot
+                    self.googlePrediction.append(result)
+                    self.autoCompleteArray.append(result.attributedFullText.string)
+                }
+            }
+            self.autoCompleteTableView?.reloadData()
+        })
+    }
+    
+    func coordinateBounds() -> GMSCoordinateBounds{
+        var coordBounds: GMSCoordinateBounds?
+        let coordinates = locationManager?.location?.coordinate//CLLocationCoordinate2D(latitude: 37.788204, longitude: -122.411937)
+        if let center = coordinates{
+            let northEast = CLLocationCoordinate2D(latitude: center.latitude + 0.001, longitude: center.longitude + 0.001)
+            let southWest = CLLocationCoordinate2D(latitude: center.latitude - 0.001, longitude: center.longitude - 0.001)
+            coordBounds = GMSCoordinateBounds(coordinate: northEast, coordinate: southWest)
+        }else{
+            print("Couldn't access current location")
+        }
+        return coordBounds!
+    }
     
     
+
 //    Manage and create new buttons
     
     func makeButtonSelected(_ button: UIButton) -> Bool {
@@ -387,37 +536,44 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     //save City button to CoreData for persistance
     func saveCityButton(_ city: String)
     {
-        //Get Reference to NSManagedObjectContext
-        //The managed object context lives as a property of the application delegate
-        let appDelegate =
-            UIApplication.shared.delegate as! AppDelegate
-        //use the object context to set up a new managed object to be "commited" to CoreData
-        let managedContext = appDelegate.managedObjectContext
-        
-        //Get my CoreData Entity and attach it to a managed context object
-        let entity =  NSEntityDescription.entity(forEntityName: "CityButton",
-                                                        in:managedContext)
-        //create a new managed object and insert it into the managed object context
-        let cityButtonMgObj = NSManagedObject(entity: entity!,
-                                            insertInto: managedContext)
-        
-        //Using the managed object context set the "name" attribute to the parameter passed to this func
-        cityButtonMgObj.setValue(city, forKey: "city")
-        
-        //save to CoreData, inside do block in case error is thrown
-        do {
-            try managedContext.save()
-            //Insert the managed object that was saved to disk into the array used to populate the table
-            //cityButtonCoreData.append(cityButtonMgObj)
-        } catch let error as NSError  {
-            print("Could not save \(error), \(error.userInfo)")
+        if(self.cityButtonList.contains(city)){
+            let alert = UIAlertController(title: "City Button Previously Exists", message: "Can't create button for \"\(city)\" because it already exists", preferredStyle: .alert)
+            let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+            alert.addAction(CancelAction)
+            self.present(alert, animated: true, completion: nil)
+        }else{   //Save city to core data
+            //Get Reference to NSManagedObjectContext
+            //The managed object context lives as a property of the application delegate
+            let appDelegate =
+                UIApplication.shared.delegate as! AppDelegate
+            //use the object context to set up a new managed object to be "commited" to CoreData
+            let managedContext = appDelegate.managedObjectContext
+            
+            //Get my CoreData Entity and attach it to a managed context object
+            let entity =  NSEntityDescription.entity(forEntityName: "CityButton",
+                                                            in:managedContext)
+            //create a new managed object and insert it into the managed object context
+            let cityButtonMgObj = NSManagedObject(entity: entity!,
+                                                insertInto: managedContext)
+            
+            //Using the managed object context set the "name" attribute to the parameter passed to this func
+            cityButtonMgObj.setValue(city, forKey: "city")
+            
+            //save to CoreData, inside do block in case error is thrown
+            do {
+                try managedContext.save()
+                //Insert the managed object that was saved to disk into the array used to populate the table
+                //cityButtonCoreData.append(cityButtonMgObj)
+            } catch let error as NSError  {
+                print("Could not save \(error), \(error.userInfo)")
+            }
         }
-
     }
     
     //Retrieve from CoreData
     func retrieveCityButtons() -> [NSManagedObject]
     {
+        var cityButtonCoreData = [NSManagedObject]()
         //pull up the application delegate and grab a reference to its managed object context
         let appDelegate =
             UIApplication.shared.delegate as! AppDelegate
@@ -428,8 +584,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         //Fetch request could also be used to grab objects meeting certain criteria
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "CityButton")
         
-        //executeFetchRequest() returns an array of managed objects that meets the criteria specified by the fetch request
         do {
+            var cityCount = 0   //Keep track of the city button indices
             //Sort fetch requests ascending
             let sortDescriptor = NSSortDescriptor(key: "city", ascending: true)
             let sortDescriptors = [sortDescriptor]
@@ -447,8 +603,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                     //add city name to cityButtonlist if the city doesn't already exists
                     if(!cityButtonList.contains(where: {element in return (element == cityNameStr)}))
                     {
+                        
                         //Insert new element before the final plus sign in the list
-                        cityButtonList.insert(cityNameStr, at: i)
+                        self.cityButtonList.insert(cityNameStr, at: cityCount)
+                        cityCount += 1
                     }
                 }
             }

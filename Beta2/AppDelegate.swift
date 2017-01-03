@@ -10,6 +10,7 @@ import UIKit
 import FBSDKCoreKit
 import CoreData
 import Firebase
+import GooglePlaces
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -18,6 +19,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     //2 facebook delegate methods
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        //Enable google places api key
+        GMSPlacesClient.provideAPIKey("AIzaSyB8COnSC8mussFtzbaMjfrUFJ9VdM0QTo4")
         //Configure Firebase
         FIRApp.configure()
         //enable firebase to work offline

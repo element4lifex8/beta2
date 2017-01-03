@@ -11,18 +11,6 @@ import FirebaseDatabase
 import FBSDKCoreKit
 import FBSDKLoginKit
 
-extension String{
-    func lastName() -> String{
-        var lastName: String = ""
-        //Find from end of string the location of the space that prcedes the last name
-        if let rangeOfSpace = self.range(of: " ", options: .backwards) {
-            //Convert the range returned by the space to an index and return the string from the space to end of dispay name
-            lastName = self.substring(from: rangeOfSpace.upperBound)
-        }
-        return lastName
-    }
-}
-
 class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     @IBOutlet weak var tableView: UITableView!

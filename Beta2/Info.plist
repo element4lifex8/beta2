@@ -91,5 +91,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Check In Out will only use your location to aid your ability to find nearby establishments</string>
 </dict>
 </plist>
