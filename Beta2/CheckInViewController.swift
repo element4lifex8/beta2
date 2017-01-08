@@ -28,10 +28,13 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     let restNameDefaultKey = "CheckInView.restName"
     var isEnteringCity = false
     var isEnteringCategory = false
-    //Array of options for autocomplete
-    var autoCompleteArray = [String]()
-    var googlePrediction = [GMSAutocompletePrediction]()
+    var autoCompleteArray = [String]()  //Table data containing string from google prediction array
+    var googlePrediction = [GMSAutocompletePrediction]()    //Array containing all data returned for each google autocomplete entry
     var autoCompleteTableView: UITableView?
+    let autoCompleteFrameMaxHeight = 120
+    let autoCompleteCellHeight = 33
+    let googleImageView = UIImageView(image: UIImage(named: "poweredByGoogle")) //Google attribution image view
+    var tableContainerView: UIView?     //Container view for autocomplete table so border and rounded edges can be achieved
     //Google places client
     var placesClient: GMSPlacesClient!
     //Location manager for detecting user's location
@@ -99,14 +102,28 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         checkInView.isUserInteractionEnabled = true
         
         //Create autocomplete table view 
-        let autoCompleteFrame = CGRect(x: CheckInRestField.frame.minX, y: CheckInRestField.frame.maxY, width: CheckInRestField.frame.size.width, height: 120)
+        let autoCompleteFrame = CGRect(x: CheckInRestField.frame.minX, y: CheckInRestField.frame.maxY, width: CheckInRestField.frame.size.width, height: CGFloat(self.autoCompleteFrameMaxHeight))
         autoCompleteTableView = UITableView(frame: autoCompleteFrame, style: UITableViewStyle.plain)
         autoCompleteTableView?.delegate = self;
         autoCompleteTableView?.dataSource = self;
         autoCompleteTableView?.isHidden = true;
         autoCompleteTableView?.isScrollEnabled = true;
         autoCompleteTableView?.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        autoCompleteTableView?.layer.cornerRadius = 15
         view.addSubview(autoCompleteTableView!)
+        
+        //create image view for the center of the footer view
+        let googleFrame = CGRect(x: (autoCompleteFrame.width - googleImageView.frame.width) / 2, y: 0, width: googleImageView.frame.width, height: googleImageView.frame.height)
+        let googs = UIImageView(frame: googleFrame)
+        googs.addSubview(googleImageView)
+        
+        //create google attribution for bottom of table
+        let tableFooterFrame = CGRect(x: 0, y: 0, width: autoCompleteFrame.width, height: googleImageView.frame.height)
+        let tableFooterView = UIView(frame: tableFooterFrame)
+        tableFooterView.addSubview(googs)
+        
+        //Set autocomplete footer view with google attribution this way so that footer doesn't float
+        autoCompleteTableView?.tableFooterView = tableFooterView
         
         //gooogle Places setup
         placesClient = GMSPlacesClient.shared()
@@ -215,7 +232,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 33.0
+        return CGFloat(autoCompleteCellHeight)
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -235,12 +252,15 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         autoCompleteTableView?.isHidden = true
     }
     
+
     @IBOutlet weak var CheckInRestField: UITextField!
     
     // Unwind seque from my myListVC
     @IBAction func unwindFromMyList(_ sender: UIStoryboardSegue) {
         // empty
     }
+    //Get outlet to list icon so I can determine when to end the check animation that occurs after check in
+    @IBOutlet weak var myListIcon: UIButton!
     
 //    Collect data from text box and determine if it is for adding new city or to save check in to firebase
     
@@ -295,6 +315,23 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             let dictArrLength = dictArr.count
             if(!restNameText.isEmpty && restNameText != "Enter Name...")
             {
+                //Firebase Keys must be non-empty and cannot contain '.' '#' '$' '[' or ']'
+                if let index = restNameText.characters.index(of: ".") {
+                    restNameText.remove(at: index)
+                }
+                if let index = restNameText.characters.index(of: "#") {
+                    restNameText.remove(at: index)
+                }
+                if let index = restNameText.characters.index(of: "$") {
+                    restNameText.remove(at: index)
+                }
+                if let index = restNameText.characters.index(of: "[") {
+                    restNameText.remove(at: index)
+                }
+                if let index = restNameText.characters.index(of: "]") {
+                    restNameText.remove(at: index)
+                }
+                
                 self.checkObj.place = restNameText
                 // Create a reference to a Firebase location
 //                let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
@@ -342,6 +379,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                         }
                     }
                 }
+                
+                //perform check animation signaling check in complete
+                animateCheckComplete()
+                
                 CheckInRestField.placeholder = "Enter Name..."
                 //notifyUser()
             }
@@ -453,7 +494,6 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     func googleAutoComplete(_ textField: UITextField) {
         if let checkInString = CheckInRestField.text{
             if(checkInString.characters.count >= 3){
-                autoCompleteTableView?.isHidden = false
                 placeAutocomplete(queryText: checkInString)
             }else{
                 autoCompleteTableView?.isHidden = true
@@ -462,8 +502,6 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     }
     
     func placeAutocomplete(queryText: String) {
-        //Remove previous entries in autocomplete array
-        autoCompleteArray.removeAll()
         let filter = GMSAutocompleteFilter()
         filter.type = .establishment
         placesClient.autocompleteQuery(queryText, bounds: coordinateBounds(), filter: filter, callback: {(results, error) -> Void in
@@ -471,6 +509,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 print("Autocomplete error \(error)")
                 return
             }
+            //Remove previous entries in autocomplete arrays
+            //AUtoCompleteArray is table data, and maps 1 to 1 to the complete data set contained in googlePrediction array
+            self.autoCompleteArray.removeAll()
+            self.googlePrediction.removeAll()
             if let results = results {
                 for result in results {
 //                    result.attributedPrimaryText.string contains the name of the spot
@@ -478,6 +520,26 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                     self.googlePrediction.append(result)
                     self.autoCompleteArray.append(result.attributedFullText.string)
                 }
+            }
+            //Determine if the number of entries in the array of table data will exceed the default table frame size of 120pt (~3 tables entries). Shrink table if less than 3 table entries expected
+            let newTableSize = (self.autoCompleteArray.count * self.autoCompleteCellHeight) + Int(self.googleImageView.frame.height)
+            var tableFrame = self.autoCompleteTableView?.frame;
+            
+            if(newTableSize < self.autoCompleteFrameMaxHeight){
+                tableFrame?.size.height = CGFloat(newTableSize);
+                self.autoCompleteTableView?.frame = tableFrame!;
+                self.autoCompleteTableView?.setNeedsDisplay()
+            }else if(Int((tableFrame?.height)!) < self.autoCompleteFrameMaxHeight){  //If table was previously shrunk then resize to max table size
+                tableFrame?.size.height = CGFloat(self.autoCompleteFrameMaxHeight);
+                self.autoCompleteTableView?.frame = tableFrame!;
+                self.autoCompleteTableView?.setNeedsDisplay()
+            }
+            
+            //Hide auto complete table view if no autocomplete entries exist
+            if(self.autoCompleteArray.count == 0){
+                self.autoCompleteTableView?.isHidden = true
+            }else{
+                self.autoCompleteTableView?.isHidden = false
             }
             self.autoCompleteTableView?.reloadData()
         })
@@ -490,8 +552,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             let northEast = CLLocationCoordinate2D(latitude: center.latitude + 0.001, longitude: center.longitude + 0.001)
             let southWest = CLLocationCoordinate2D(latitude: center.latitude - 0.001, longitude: center.longitude - 0.001)
             coordBounds = GMSCoordinateBounds(coordinate: northEast, coordinate: southWest)
-        }else{
-            print("Couldn't access current location")
+        }else{  //If user has location services turned off then return coordinates of 0,0 to do a default search
+            print("User's location services are likely off")
+            let coordNone = CLLocationCoordinate2D(latitude: CLLocationDegrees(0), longitude: CLLocationDegrees(0))
+            coordBounds = GMSCoordinateBounds(coordinate: coordNone , coordinate: coordNone)
         }
         return coordBounds!
     }
@@ -805,7 +869,43 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
 //        
 //    }
 
-    
+    func animateCheckComplete() {
+        let checkImage = UIImageView(image: UIImage(named: "animationCheck"))
+        //Get starting point for check image
+        let textFieldCenterX = CheckInRestField.frame.minX + (CheckInRestField.frame.width / 2)
+        let textFieldCenterY = CheckInRestField.frame.minY
+        //Get final point for check image animate
+        let checkListCenterX = myListIcon.frame.minX + (myListIcon.frame.width / 2)
+        let checkListCenterY = myListIcon.frame.minY + (myListIcon.frame.height / 2)
+        //Create check image view located in the center of the text box
+        var checkFrame = CGRect(x: textFieldCenterX, y: textFieldCenterY, width: checkImage.frame.width, height: checkImage.frame.height)
+        let checkContainer = UIImageView(frame: checkFrame)
+        checkContainer.addSubview(checkImage)
+        view.addSubview(checkContainer)
+        //Define the mid point that the check will jump to(dependant on size of check mark) before falling to final point at my list icon
+        let bounds = checkContainer.bounds
+        let midFrame = checkFrame.offsetBy(dx: -bounds.size.height * 2, dy: -(bounds.size.height * 2))
+        
+        UIView.animateKeyframes(withDuration: 1, delay: 0, options: .calculationModeCubic, animations: {
+            
+            UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.3) {
+                checkContainer.frame = midFrame
+            }
+            checkFrame.origin.x = checkListCenterX
+            checkFrame.origin.y = checkListCenterY
+            UIView.addKeyframe(withRelativeStartTime: 0.3, relativeDuration: 0.7) {
+                checkContainer.frame = checkFrame
+            }
+        }, completion: { finished in
+            UIView.animate(withDuration: 0.3, animations: {
+                checkContainer.alpha = 0.0
+            }, completion: { finished in
+                    checkContainer.removeFromSuperview()
+            })
+
+        })
+    }
+
     func notifyUser()
     {
 //        let alert = UIAlertController(title: "Checked In",

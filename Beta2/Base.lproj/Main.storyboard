@@ -829,7 +829,7 @@
                                 <rect key="frame" x="237" y="518" width="50" height="30"/>
                                 <state key="normal" title="Google"/>
                                 <connections>
-                                    <action selector="autoComplete:" destination="73K-Wi-PQi" eventType="touchUpInside" id="zqp-qq-5YT"/>
+                                    <action selector="printLikelyLocation:" destination="73K-Wi-PQi" eventType="touchUpInside" id="mI8-7E-urH"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -939,6 +939,7 @@
                     <connections>
                         <outlet property="CheckInRestField" destination="yXC-Nu-0qj" id="tAM-XQ-5vN"/>
                         <outlet property="checkInView" destination="WG3-Io-EfA" id="XSW-Cx-ebZ"/>
+                        <outlet property="myListIcon" destination="8fX-tS-Drm" id="JgV-g9-7ID"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="PEz-qQ-KZe" userLabel="First Responder" sceneMemberID="firstResponder"/>
