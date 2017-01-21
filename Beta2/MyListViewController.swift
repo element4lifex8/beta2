@@ -91,6 +91,26 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
 //        placesRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
         placesRef = FIRDatabase.database().reference().child("checked/places")
         
+        //Create container view then loading for activity indicator to prevent background from overshadowing white color
+        let loadingView: UIView = UIView()
+        
+        loadingView.frame = CGRect(x: 0,y: 0,width: 80,height: 80)
+        loadingView.center = view.center
+        loadingView.backgroundColor = UIColor(red: 0x44/255, green: 0x44/255, blue: 0x44/255, alpha: 0.7)
+        loadingView.clipsToBounds = true
+        loadingView.layer.cornerRadius = 10
+        
+        //Start activity indicator while making Firebase request
+        let activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView(frame:   CGRect(x: 0, y: 0, width: 50, height: 50)) as UIActivityIndicatorView
+        activityIndicator.center = CGPoint(x: loadingView.frame.size.width / 2,y: loadingView.frame.size.height / 2);
+//        activityIndicator.backgroundColor = UIColor(red: 0x60/255, green: 0x60/255, blue: 0x60/255, alpha: 0.3)
+        activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.whiteLarge
+        activityIndicator.hidesWhenStopped = true
+        
+        loadingView.addSubview(activityIndicator)
+        view.addSubview(loadingView)
+        activityIndicator.startAnimating()
+        
         //Loop over all the current users that are expected (1 if viewing my list or a friend's list, all friends if viewing a city only list)
         for friendId in self.currUsers!{
 //            currRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(friendId)")
@@ -105,6 +125,8 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                         self.placeNodeTreeRoot.sortChildNodes()
                         self.tableView.reloadData()
                         self.myPlaceNodes.removeAll()
+                        activityIndicator.stopAnimating()
+                        loadingView.removeFromSuperview()
                 }
 
             }

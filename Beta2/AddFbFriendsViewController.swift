@@ -120,8 +120,30 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
         //        friendsRef = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
         friendsRef = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
         
+        //Create container view then loading for activity indicator to prevent background from overshadowing white color
+        let loadingView: UIView = UIView()
+        
+        loadingView.frame = CGRect(x: 0,y: 0,width: 80,height: 80)
+        loadingView.center = view.center
+        loadingView.backgroundColor = UIColor(red: 0x44/255, green: 0x44/255, blue: 0x44/255, alpha: 0.7)
+        loadingView.clipsToBounds = true
+        loadingView.layer.cornerRadius = 10
+
+        
+        //Start activity indicator while making Firebase request
+        let activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView(frame:   CGRect(x: 0, y: 0, width: 50,  height: 50)) as UIActivityIndicatorView
+        activityIndicator.center = CGPoint(x: loadingView.frame.size.width / 2,y: loadingView.frame.size.height / 2);
+        activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.whiteLarge
+        activityIndicator.hidesWhenStopped = true
+        
+        loadingView.addSubview(activityIndicator)
+        view.addSubview(loadingView)
+        activityIndicator.startAnimating()
+        
         sortFacebookFriends(){(finished: Bool) in
             self.facebookTaggableFriends.sort(by: {$0.lastName() < $1.lastName()})
+            activityIndicator.stopAnimating()
+            loadingView.removeFromSuperview()
             self.tableView.reloadData()
         }
 

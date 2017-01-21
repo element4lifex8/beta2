@@ -4,6 +4,7 @@
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
         <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
@@ -896,10 +897,10 @@
                                 <exclude reference="a4R-XA-5vR"/>
                                 <exclude reference="pk3-2S-r2k"/>
                                 <exclude reference="qQP-ZB-ywT"/>
-                                <exclude reference="UF6-Vl-Uef"/>
-                                <exclude reference="UI6-EL-OCw"/>
                                 <exclude reference="u7q-q3-wyx"/>
                                 <exclude reference="zKj-EY-I4w"/>
+                                <exclude reference="UF6-Vl-Uef"/>
+                                <exclude reference="UI6-EL-OCw"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=regular-widthClass=compact">
@@ -928,10 +929,10 @@
                                 <include reference="vdS-rE-Ri2"/>
                                 <exclude reference="JS1-67-Ujc"/>
                                 <exclude reference="jzG-09-U1C"/>
-                                <include reference="UF6-Vl-Uef"/>
-                                <exclude reference="UI6-EL-OCw"/>
                                 <include reference="u7q-q3-wyx"/>
                                 <include reference="zKj-EY-I4w"/>
+                                <include reference="UF6-Vl-Uef"/>
+                                <exclude reference="UI6-EL-OCw"/>
                             </mask>
                         </variation>
                     </view>
@@ -1777,7 +1778,7 @@
                                             <segue destination="d9b-uY-bxQ" kind="custom" customClass="SegueFromLeft" customModule="Beta2" customModuleProvider="target" id="DjT-5o-7ES"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3cC-ye-FR7">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3cC-ye-FR7">
                                         <rect key="frame" x="263" y="21" width="40" height="61"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="40" id="9BK-hU-10E"/>
@@ -2032,7 +2033,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lt1-Fy-oRU" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3090" y="219.75"/>
+            <point key="canvasLocation" x="3090" y="219.71830985915494"/>
         </scene>
     </scenes>
     <resources>
@@ -2049,8 +2050,8 @@
         <image name="pagenation num3" width="40" height="10"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="A3V-Yk-deH"/>
-        <segue reference="pC0-bG-BYT"/>
-        <segue reference="Hvx-hp-kNF"/>
+        <segue reference="VL1-aN-paN"/>
+        <segue reference="DjT-5o-7ES"/>
+        <segue reference="8zc-AM-fSt"/>
     </inferredMetricsTieBreakers>
 </document>

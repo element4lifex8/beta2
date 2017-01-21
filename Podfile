@@ -4,7 +4,7 @@
 
 #source 'https://github.com/CocoaPods/Specs.git'
 
-platform :ios, '9.0'
+platform :ios, '10.0'
  use_frameworks!
 
 target 'Beta2' do

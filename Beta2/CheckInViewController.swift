@@ -492,11 +492,15 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     }
     
     func googleAutoComplete(_ textField: UITextField) {
-        if let checkInString = CheckInRestField.text{
-            if(checkInString.characters.count >= 3){
-                placeAutocomplete(queryText: checkInString)
-            }else{
-                autoCompleteTableView?.isHidden = true
+        //Don't auto complete city names
+        if(!isEnteringCity){
+            if let checkInString = CheckInRestField.text{
+                //Start querying google database with at minimum 3 chars
+                if(checkInString.characters.count >= 3){
+                    placeAutocomplete(queryText: checkInString)
+                }else{
+                    autoCompleteTableView?.isHidden = true
+                }
             }
         }
     }
@@ -875,8 +879,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         let textFieldCenterX = CheckInRestField.frame.minX + (CheckInRestField.frame.width / 2)
         let textFieldCenterY = CheckInRestField.frame.minY
         //Get final point for check image animate
-        let checkListCenterX = myListIcon.frame.minX + (myListIcon.frame.width / 2)
-        let checkListCenterY = myListIcon.frame.minY + (myListIcon.frame.height / 2)
+        //My list icon has title insets 20 from top and 20 from right, split that by half and incorporate into point location to have check end in center or button
+        let checkListCenterX = myListIcon.frame.minX + 7
+        let checkListCenterY = myListIcon.frame.minY + (myListIcon.frame.height / 2) - 3
         //Create check image view located in the center of the text box
         var checkFrame = CGRect(x: textFieldCenterX, y: textFieldCenterY, width: checkImage.frame.width, height: checkImage.frame.height)
         let checkContainer = UIImageView(frame: checkFrame)

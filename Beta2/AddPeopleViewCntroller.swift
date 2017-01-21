@@ -34,6 +34,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         }
     }
     
+    
     //Must add submit button in viewDidAppear so that it is added over top of the tablewview (bringSubview to front in viewDidLoad would not put the view on top of the tableview
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -99,12 +100,33 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         self.tableView.tableHeaderView = line
         line.backgroundColor = self.tableView.separatorColor
         
+        //Create container view then loading for activity indicator to prevent background from overshadowing white color
+        let loadingView: UIView = UIView()
+        
+        loadingView.frame = CGRect(x: 0,y: 0,width: 80,height: 80)
+        loadingView.center = view.center
+        loadingView.backgroundColor = UIColor(red: 0x44/255, green: 0x44/255, blue: 0x44/255, alpha: 0.7)
+        loadingView.clipsToBounds = true
+        loadingView.layer.cornerRadius = 10
+        
+        
+        //Start activity indicator while making Firebase request
+        let activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView(frame:   CGRect(x: 0, y: 0, width: 50,  height: 50)) as UIActivityIndicatorView
+        activityIndicator.center = CGPoint(x: loadingView.frame.size.width / 2,y: loadingView.frame.size.height / 2);
+        activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.whiteLarge
+        activityIndicator.hidesWhenStopped = true
+        
+        loadingView.addSubview(activityIndicator)
+        view.addSubview(loadingView)
+        activityIndicator.startAnimating()
         
 //        friendsRef = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
         friendsRef = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
         
         sortFacebookFriends(){(finished: Bool) in
             self.facebookTaggableFriends.sort(by: {$0.lastName() < $1.lastName()})
+            activityIndicator.stopAnimating()
+            loadingView.removeFromSuperview()
             self.tableView.reloadData()
         }
        
@@ -178,19 +200,15 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             {
                 //Result is cast to an NSDict consiting of [id: value, name: value] for auth friends
                 let resultdict = result as! NSDictionary
-                print("Friends \(resultdict)")
                 let data : NSArray = resultdict.object(forKey: "data") as! NSArray
-//                print("data \(data)")
                 //extract dict entries id & name as string for each authorized friend
                 for i in 0..<data.count
                 {
                     let valueDict : NSDictionary = data[i] as! NSDictionary
                     if let id = valueDict.object(forKey: "id"){
                         authId.append(id as! String)
-//                        print("the id value is \(id)")
                     }
                     if let fbFriendName = valueDict.object(forKey: "name"){
-    //                    print ("name \(fbFriendName)")
                         authFriends.append(fbFriendName  as! String)
                     }
                 }

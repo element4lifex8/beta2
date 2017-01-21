@@ -34,10 +34,6 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         }
     }
 
-//    overide func viewWillAppear(animated: Bool) {
-//        super.viewWillAppear(animated)
-//        
-//    }
     
 
     override func viewDidLoad() {
@@ -56,6 +52,26 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         self.tableView.tableHeaderView = line
         line.backgroundColor = self.tableView.separatorColor
         
+        //Create container view then loading for activity indicator to prevent background from overshadowing white color
+        let loadingView: UIView = UIView()
+        
+        loadingView.frame = CGRect(x: 0,y: 0,width: 80,height: 80)
+        loadingView.center = view.center
+        loadingView.backgroundColor = UIColor(red: 0x44/255, green: 0x44/255, blue: 0x44/255, alpha: 0.7)
+        loadingView.clipsToBounds = true
+        loadingView.layer.cornerRadius = 10
+        
+        //Start activity indicator while making Firebase request
+        let activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView(frame:   CGRect(x: 0, y: 0, width: 50, height: 50)) as UIActivityIndicatorView
+        activityIndicator.center = CGPoint(x: loadingView.frame.size.width / 2,y: loadingView.frame.size.height / 2);
+        //        activityIndicator.backgroundColor = UIColor(red: 0x60/255, green: 0x60/255, blue: 0x60/255, alpha: 0.3)
+        activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.whiteLarge
+        activityIndicator.hidesWhenStopped = true
+        
+        loadingView.addSubview(activityIndicator)
+        view.addSubview(loadingView)
+        activityIndicator.startAnimating()
+        
 //        friendsRef = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
         friendsRef = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
 //         cityRef = Firebase(url:"https://check-inout.firebaseio.com/checked")
@@ -64,6 +80,8 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
             in
             if(finished){
                 self.tableView.reloadData()
+                activityIndicator.stopAnimating()
+                loadingView.removeFromSuperview()
             }
         }
 //        var buttonWatch:Bool = showPeopleView{
@@ -92,9 +110,14 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         //        Default tab is city view, when button is selected people view is shown
         if(sender.isSelected){
             showPeopleView = true
-            addButton.setBackgroundImage(addPeopleImage, for: UIControlState())
+            //Set image location and remove background of add button when changing image so that image doesn't stretch
+            addButton.setBackgroundImage(nil, for: UIControlState())
+            addButton.titleEdgeInsets.top = 8.0
+            addButton.titleEdgeInsets.right = 7.0
+            addButton.setImage(addPeopleImage, for: UIControlState())
         }else{
             showPeopleView = false
+            addButton.setImage(nil, for: UIControlState())
             addButton.setBackgroundImage(addCityImage, for: UIControlState())
         }
         self.tableView.reloadData()

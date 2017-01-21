@@ -14,7 +14,6 @@
 		96BD597FCCC136E686D91259 /* Pods_Beta2Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29D6F1BF11E46502FDCE853D /* Pods_Beta2Tests.framework */; };
 		EB03B8351DFF08780002098C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EB03B8341DFF08780002098C /* GoogleService-Info.plist */; };
 		EB03E57D1C150669009A55F1 /* TestTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */; };
-		EB03E57F1C15096C009A55F1 /* CheckedOutListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */; };
 		EB03E5C01C25A7F4009A55F1 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB03E5BF1C25A7F4009A55F1 /* FBSDKCoreKit.framework */; };
 		EB03E5C21C25FE72009A55F1 /* FBloginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB03E5C11C25FE72009A55F1 /* FBloginViewController.swift */; };
 		EB03E5C51C387750009A55F1 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB03E5C41C387750009A55F1 /* FBSDKLoginKit.framework */; };
@@ -30,14 +29,11 @@
 		EB1959C81C62C57E001E0F62 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C71C62C57E001E0F62 /* CFNetwork.framework */; };
 		EB1959CA1C62C585001E0F62 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C91C62C585001E0F62 /* Security.framework */; };
 		EB1959CC1C62C58D001E0F62 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */; };
-		EB3A98231D9814BA00C16E89 /* RoundButtCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3A98221D9814BA00C16E89 /* RoundButtCollectionViewCell.swift */; };
 		EB3A98251D98A6B700C16E89 /* CheckOutCityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3A98241D98A6B700C16E89 /* CheckOutCityViewController.swift */; };
 		EB3A982B1D99D0AF00C16E89 /* CheckOutPeopleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3A982A1D99D0AF00C16E89 /* CheckOutPeopleViewController.swift */; };
 		EB47DCE51DA1BFCE00C9EC18 /* ListHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB47DCE41DA1BFCD00C9EC18 /* ListHeaderView.swift */; };
-		EB49A2E51C78ED45006F16AB /* checkList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB49A2E41C78ED45006F16AB /* checkList.swift */; };
 		EB4B128D1D57B9C500F8B62C /* MyListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */; };
 		EB4C38471D453C8F00D11721 /* DeleteCityUIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */; };
-		EB4C38491D48364E00D11721 /* TableHeaderUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4C38481D48364E00D11721 /* TableHeaderUIView.swift */; };
 		EB5161C71DAAA6B600321D98 /* CheckOutContainedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5161C61DAAA6B600321D98 /* CheckOutContainedViewController.swift */; };
 		EB55D6271CEBD180004D81D0 /* placeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB55D6261CEBD180004D81D0 /* placeNode.swift */; };
 		EB5A49B51D61005F00B9AB17 /* PlaceNodeTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5A49B41D61005F00B9AB17 /* PlaceNodeTree.swift */; };
@@ -46,7 +42,7 @@
 		EB61CD661DC4F50500297225 /* FriendTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB61CD651DC4F50500297225 /* FriendTableViewCell.swift */; };
 		EB61CD681DC5025400297225 /* SegueFromRight.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB61CD671DC5025400297225 /* SegueFromRight.swift */; };
 		EB63152E1BF96241009683FE /* CheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB63152D1BF96241009683FE /* CheckInView.swift */; };
-		EB6B3FBD1C0E7BE200A6B469 /* CheckedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB6B3FBC1C0E7BE200A6B469 /* CheckedView.swift */; };
+		EB6EDD991E32EED200FB09F9 /* RoundButtCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3A98221D9814BA00C16E89 /* RoundButtCollectionViewCell.swift */; };
 		EB85D5551C51B5B200F2E29F /* ProfileStepsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */; };
 		EB85D5571C540E6800F2E29F /* AddFbFriendsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */; };
 		EB85D5701C5982F000F2E29F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB85D5641C5982F000F2E29F /* CoreData.framework */; };
@@ -57,11 +53,9 @@
 		EBA4D0FF1C6423E800BB459F /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C71C62C57E001E0F62 /* CFNetwork.framework */; };
 		EBA4D1001C6423F100BB459F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C91C62C585001E0F62 /* Security.framework */; };
 		EBA4D1011C6423FC00BB459F /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */; };
-		EBAC6D061CC855C20060BC73 /* OutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBAC6D051CC855C20060BC73 /* OutViewController.swift */; };
 		EBAC6D2E1CD02D430060BC73 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EBAC6D2C1CD02D430060BC73 /* Main.storyboard */; };
 		EBBA52E01CF65B6A0047E22A /* HeaderTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBBA52DF1CF65B6A0047E22A /* HeaderTableViewCell.swift */; };
 		EBBA52E21CFE62730047E22A /* SubheaderTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBBA52E11CFE62730047E22A /* SubheaderTableViewCell.swift */; };
-		EBBA52E41D0DBA3E0047E22A /* CheckedOutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBBA52E31D0DBA3E0047E22A /* CheckedOutViewController.swift */; };
 		EBBA52E51D0F831B0047E22A /* CheckInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB63152B1BF961D7009683FE /* CheckInViewController.swift */; };
 		EBBAB1A61DFB6E7100048916 /* FbookUserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBBAB1A51DFB6E7100048916 /* FbookUserInfo.swift */; };
 		EBE70DF01CC58EBA00F6DCE3 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE70DEE1CC58EBA00F6DCE3 /* FBSDKCoreKit.framework */; };
@@ -410,7 +404,7 @@
 		EB0656101BEE37F300CF8376 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = anuJ;
 				TargetAttributes = {
 					EB0656171BEE37F300CF8376 = {
@@ -624,7 +618,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EB4C38491D48364E00D11721 /* TableHeaderUIView.swift in Sources */,
+				EB6EDD991E32EED200FB09F9 /* RoundButtCollectionViewCell.swift in Sources */,
 				EBBA52E01CF65B6A0047E22A /* HeaderTableViewCell.swift in Sources */,
 				EBBA52E51D0F831B0047E22A /* CheckInViewController.swift in Sources */,
 				EB3A982B1D99D0AF00C16E89 /* CheckOutPeopleViewController.swift in Sources */,
@@ -632,11 +626,9 @@
 				EB06561C1BEE37F300CF8376 /* AppDelegate.swift in Sources */,
 				EB85D5551C51B5B200F2E29F /* ProfileStepsViewController.swift in Sources */,
 				EB4C38471D453C8F00D11721 /* DeleteCityUIButton.swift in Sources */,
-				EB3A98231D9814BA00C16E89 /* RoundButtCollectionViewCell.swift in Sources */,
 				EB3A98251D98A6B700C16E89 /* CheckOutCityViewController.swift in Sources */,
 				EB61CD601DC41F4300297225 /* SegueFromLeft.swift in Sources */,
 				EB61CD641DC4F0A800297225 /* AddPeopleViewCntroller.swift in Sources */,
-				EB49A2E51C78ED45006F16AB /* checkList.swift in Sources */,
 				EB97CF621D73902900A3DBA1 /* ScrollViewAnchor.swift in Sources */,
 				EB5A49B51D61005F00B9AB17 /* PlaceNodeTree.swift in Sources */,
 				EB61CD661DC4F50500297225 /* FriendTableViewCell.swift in Sources */,
@@ -646,13 +638,9 @@
 				EB85D5571C540E6800F2E29F /* AddFbFriendsViewController.swift in Sources */,
 				EB06564E1BEE3B4900CF8376 /* CIOHomeViewController.swift in Sources */,
 				EBBA52E21CFE62730047E22A /* SubheaderTableViewCell.swift in Sources */,
-				EBAC6D061CC855C20060BC73 /* OutViewController.swift in Sources */,
-				EB03E57F1C15096C009A55F1 /* CheckedOutListViewController.swift in Sources */,
 				EB47DCE51DA1BFCE00C9EC18 /* ListHeaderView.swift in Sources */,
-				EB6B3FBD1C0E7BE200A6B469 /* CheckedView.swift in Sources */,
 				EB4B128D1D57B9C500F8B62C /* MyListViewController.swift in Sources */,
 				EB61CD681DC5025400297225 /* SegueFromRight.swift in Sources */,
-				EBBA52E41D0DBA3E0047E22A /* CheckedOutViewController.swift in Sources */,
 				EB03E5C21C25FE72009A55F1 /* FBloginViewController.swift in Sources */,
 				EB1405C71D3007B1001D3924 /* CheckedCoreData.xcdatamodeld in Sources */,
 				EB5161C71DAAA6B600321D98 /* CheckOutContainedViewController.swift in Sources */,
@@ -714,8 +702,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -723,7 +713,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)/**";
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -739,7 +729,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "$(inherited)/**";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LIBRARY_SEARCH_PATHS = "$(inherited)/**";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -762,8 +752,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -771,7 +763,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)/**";
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -781,10 +773,11 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "$(inherited)/**";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LIBRARY_SEARCH_PATHS = "$(inherited)/**";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -800,7 +793,11 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					/Users/jasonjohnston/Documents/FacebookSDK,
-					"$(inherited)/**",
+					"$(inherited)",
+				);
+				"FRAMEWORK_SEARCH_PATHS[arch=*]" = (
+					/Users/jasonjohnston/Documents/FacebookSDK,
+					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)/**",
@@ -834,7 +831,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					/Users/jasonjohnston/Documents/FacebookSDK,
-					"$(inherited)/**",
+					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)/**",
