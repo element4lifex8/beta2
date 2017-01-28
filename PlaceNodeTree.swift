@@ -24,6 +24,7 @@ fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 //Implement Tree Stucture
 class PlaceNodeTree{
     var nodeValue: String?
+    var nodePlaceId: String?
     var depth: Int?
     var parent: PlaceNodeTree?
     var children: [PlaceNodeTree]?
@@ -34,6 +35,7 @@ class PlaceNodeTree{
     init()
     {
         self.nodeValue = "Root"
+        self.nodePlaceId = nil
         self.parent = nil
         self.children = nil
         self.sibling=nil
@@ -44,6 +46,17 @@ class PlaceNodeTree{
     init(nodeVal: String)
     {
         self.nodeValue = nodeVal
+        self.nodePlaceId = nil
+        self.parent = nil
+        self.children = nil
+        self.depth = 0
+        self.displayNode = true
+    }
+    
+    init(nodeVal: String, placeId: String)
+    {
+        self.nodeValue = nodeVal
+        self.nodePlaceId = placeId
         self.parent = nil
         self.children = nil
         self.depth = 0

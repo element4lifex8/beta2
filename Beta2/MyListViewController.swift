@@ -158,17 +158,26 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 let placeSnap = snapshot.childSnapshot(forPath: key as! String)
                     //Iterate over each city and category child of the place's check in
                     for placeChild in placeSnap.children{
-                         let currNode = placeChild as! FIRDataSnapshot
-                         //Place dict now has key of the city or cat attribute, and the value is always "true"
-                         let placeDict = currNode.value as! NSDictionary
-                        //The placeChild key tells us which type of attribute data we are currently looping over
-                        for (attrKey, _ ) in placeDict{
-                            if((placeChild as AnyObject).key == "city"){
-                                locPlaceNodeObj.addCity(attrKey as! String)
+                        let currNode = placeChild as! FIRDataSnapshot
+                         //If Place dict can be unwrapped as NSDictionary then it now has key of the city or cat attribute, and the value is always "true"
+                        //If place Dict can't be unwrapped then the key value pair is the google place id
+                        if let placeDict = currNode.value as? NSDictionary{
+                            //The placeChild key tells us which type of attribute data we are currently looping over
+                            for (attrKey, _ ) in placeDict{
+                                if((placeChild as AnyObject).key == "city"){
+                                    locPlaceNodeObj.addCity(attrKey as! String)
+                                }
+                                else if((placeChild as AnyObject).key == "category"){
+                                    locPlaceNodeObj.addCategory(attrKey as! String)
+                                }
                             }
-                            else if((placeChild as AnyObject).key == "category"){
-                                locPlaceNodeObj.addCategory(attrKey as! String)
+                        }else{
+                            if let placeId = currNode.value as? String{
+                                locPlaceNodeObj.placeId = placeId
+                            }else{
+                                print("Malformed firebase entry for \(locPlaceNodeObj.place)")
                             }
+                            
                         }
                     }
                     
@@ -221,15 +230,26 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     func addTreeNodeToCity(_ nodeStruct: placeNode, cityNode: PlaceNodeTree, siblings: [String]?){
         var childNode: PlaceNodeTree
+        
         //Add place to existing city for each category
         if let categories = nodeStruct.category{
             for category in categories{
                 if let existingCategory = cityNode.search(category){
-                    childNode = existingCategory.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!))
+                    //create PlaceNodeTree object depending on whether the user used google Autocomplete which provides a google place id
+                    //Couldn't create the placeNodeTree obj as variable or the generate tree func was failing 
+                    if let placeId = nodeStruct.placeId{
+                        childNode = existingCategory.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!, placeId: placeId))
+                    }else{
+                        childNode = existingCategory.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!))
+                    }
                 }else{//category does not exist
                     let newCategoryNode = PlaceNodeTree(nodeVal: category)
                     cityNode.addChild(newCategoryNode)
-                    childNode = newCategoryNode.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!))
+                    if let placeId = nodeStruct.placeId{
+                        childNode = newCategoryNode.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!, placeId: placeId))
+                    }else{
+                        childNode = newCategoryNode.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!))
+                    }
                 }
                 if(siblings != nil){
                     childNode.addSibling(siblings!)
@@ -583,15 +603,55 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             }
         }
 
-            print("broken")
-            cellIdentifier = "subheaderCell"
-            //asks the table view for a cell with my cellidentifier which is the name of my custom cell class
-            let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! SubheaderTableViewCell   //downcast to my cell class type
-            cell.tableCellValue.text="Failed to retrieve cell from tree data structure"
+        //Below section only executes if the tree is malformed
+        cellIdentifier = "subheaderCell"
+        //asks the table view for a cell with my cellidentifier which is the name of my custom cell class
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! SubheaderTableViewCell   //downcast to my cell class type
+        cell.tableCellValue.text="Failed to retrieve Check In"
 
-            return cell
+        return cell
 
     }
+    
+//    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "dataCell", for: indexPath) as! TestTableViewCell   //downcast to my cell class type
+//        cell.accessoryType = .detailButton
+////        cell.contentView.backgroundColor = UIColor.clear
+//        print("Might select")
+////        tableView.backgroundColor = UIColor.clearColor() // Whatever color you like
+////        cell.appearance().selectedBackgroundView = clearView
+//        return indexPath
+//    }
+//    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) {
+//        let itemToSelect = placeNodeTreeRoot.children![indexPath.section].returnNodeAtIndex(indexPath.row)!
+//        if (itemToSelect.nodePlaceId != nil){
+//            let cell = tableView.dequeueReusableCell(withIdentifier: "dataCell", for: indexPath) as! TestTableViewCell   //downcast to my cell class type
+//            cell.accessoryType = .detailButton
+//            cell.contentView.backgroundColor = UIColor.clear
+//        }
+////        cell.selectionStyle = UITableViewCellSelectionStyle.none
+//    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let itemToSelect = placeNodeTreeRoot.children![indexPath.section].returnNodeAtIndex(indexPath.row)!
+        if (itemToSelect.nodePlaceId != nil){
+            let cell = tableView.dequeueReusableCell(withIdentifier: "dataCell", for: indexPath) as! TestTableViewCell   //downcast to my cell class type
+            cell.accessoryType = .detailButton
+////            cell.contentView.backgroundColor = UIColor.clear
+        }
+
+    }
+//
+//    func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
+//        print("accessory button \(indexPath.row)")
+//    }
+//    
+//    func tableView(_ tableView: UITableView, willDeselectRowAt indexPath: IndexPath) -> IndexPath? {
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "dataCell", for: indexPath) as! TestTableViewCell   //downcast to my cell class type
+//        cell.accessoryType = .none
+//        return indexPath
+//    }
+    
     
     //Swipe to delete implementation
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {

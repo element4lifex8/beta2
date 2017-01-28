@@ -305,10 +305,6 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             //Save a city Check in entry
         else
         {
-            if(checkObj.placeId == nil)
-            {
-                print("not a google prediction")
-            }
             var restNameText = CheckInRestField.text!
             //Remove any trailing spaces from restNameText
             restNameText = restNameText.trimmingCharacters(in: .whitespaces)
@@ -343,6 +339,13 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 // Write establishment name to places collection
                 refCheckedPlaces.updateChildValues([restNameText:true])
                 //let userRef = refChecked.childByAppendingPath(restNameText)
+                //Store place ID with the check in if the user used google's autocomplete
+                if(checkObj.placeId != nil)
+                {
+                    refChecked.child(byAppendingPath: restNameText).updateChildValues(["placeId":checkObj.placeId!])
+                }else{
+                    print("not a google prediction")
+                }
                 
                 //update "user places" to contain the establishment and its categories
                 for i in 0 ..< dictArr.count    //array of [cat/city: catName/cityName] 
