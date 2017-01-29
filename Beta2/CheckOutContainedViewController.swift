@@ -173,16 +173,20 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
                         localCityArr.append(city)
                     }
                 }else{  //The current city entry has a multi entry list
-                    for child in (snapshot.children) {    //each child is either city or cat
+                    for child in (snapshot.children) {    //each child is either city, cat or place ID
                         let rootNode = child as! FIRDataSnapshot
                         //force downcast only works if root node has children, otherwise value will only be a string
-                        let nodeDict = rootNode.value as! NSDictionary
-                        for (key, _ ) in nodeDict{
-                             if((child as AnyObject).key == "city"){
-                                if(!localCityArr.contains(key as! String)){
-                                    localCityArr.append(key as! String)
+                        //If nodeDict can't be unwrapped then the key value pair is the google place id
+                        if let nodeDict = rootNode.value as? NSDictionary{
+                            for (key, _ ) in nodeDict{
+                                 if((child as AnyObject).key == "city"){
+                                    if(!localCityArr.contains(key as! String)){
+                                        localCityArr.append(key as! String)
+                                    }
                                 }
                             }
+                        }else{
+                            print("got a place ID for \(rootNode.value)")
                         }
                     }
                 }

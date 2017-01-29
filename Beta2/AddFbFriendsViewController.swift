@@ -286,7 +286,7 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
             {
                 //Result is cast to an NSDict consiting of [id: value, name: value] for auth friends
                 let resultdict = result as! NSDictionary
-                print("Friends \(resultdict)")
+//prints out auth friends                print("Friends \(resultdict)")
                 let data : NSArray = resultdict.object(forKey: "data") as! NSArray
                 //                print("data \(data)")
                 //extract dict entries id & name as string for each authorized friend
