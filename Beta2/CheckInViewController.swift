@@ -100,7 +100,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         createCategoryButtons()
         //Enable touch interaction with background view so that delete buttons can be cleared when user touces screen
         checkInView.isUserInteractionEnabled = true
-        
+        print(CheckInRestField.frame.size.width)
         //Create autocomplete table view 
         let autoCompleteFrame = CGRect(x: CheckInRestField.frame.minX, y: CheckInRestField.frame.maxY, width: CheckInRestField.frame.size.width, height: CGFloat(self.autoCompleteFrameMaxHeight))
         autoCompleteTableView = UITableView(frame: autoCompleteFrame, style: UITableViewStyle.plain)
@@ -242,6 +242,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         cell.textLabel?.text = googlePrediction[indexPath.row].attributedFullText.string
+        cell.textLabel?.adjustsFontSizeToFitWidth = true
+        cell.textLabel?.minimumScaleFactor = 0.6
+        cell.textLabel?.lineBreakMode = .byTruncatingTail
         return cell
     }
     
@@ -471,7 +474,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         }
     }
    
-    
+    //Function was used to display google's guess at the likely location
     @IBAction func printLikelyLocation(_ sender: UIButton) {
         placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
             if let error = error {
@@ -694,7 +697,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
 
     func createCityButtons()
     {
-        let buttonSpacing = 25
+        let buttonSpacing = 13
         let buttonRad = 100
         //Update city button array to be current with all cities in CoreData Entity CityButton
         retrieveCityButtons()
@@ -749,13 +752,14 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
     func createCategoryButtons()
     {
+        let buttonSpacing = 13
         //remove all previously existing buttons from view to re-draw
         for view in catScrollContainerView.subviews as [UIView] {
             if let btn = view as? UIButton {
                 btn.removeFromSuperview()
             }
         }
-        catScrollView.contentSize = CGSize(width: CGFloat((catButtonList.count * 100) + ((catButtonList.count  + 1) * 25)), height: 120)
+        catScrollView.contentSize = CGSize(width: CGFloat((catButtonList.count * 100) + ((catButtonList.count  + 1) * buttonSpacing)), height: 120)
         //Add container view to scroll view
         catScrollView.addSubview(catScrollContainerView)
         //add scroll view to super view
@@ -764,7 +768,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         //Add button to scroll view's container view
         
         for (index,catText) in catButtonList.enumerated(){
-            let button = UIButton(frame: CGRect(x: (index * 100) + ((index+1)*25), y: 10, width: 100, height: 100))   // X, Y, width, height
+            let button = UIButton(frame: CGRect(x: (index * 100) + ((index+1) * buttonSpacing), y: 10, width: 100, height: 100))   // X, Y, width, height
             button.layer.cornerRadius = 0.5 * button.bounds.size.width
             button.backgroundColor = UIColor.clear
             button.layer.borderWidth = 2.0
