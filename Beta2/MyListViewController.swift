@@ -613,46 +613,6 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     }
     
-//    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: "dataCell", for: indexPath) as! TestTableViewCell   //downcast to my cell class type
-//        cell.accessoryType = .detailButton
-////        cell.contentView.backgroundColor = UIColor.clear
-//        print("Might select")
-////        tableView.backgroundColor = UIColor.clearColor() // Whatever color you like
-////        cell.appearance().selectedBackgroundView = clearView
-//        return indexPath
-//    }
-//    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) {
-//        let itemToSelect = placeNodeTreeRoot.children![indexPath.section].returnNodeAtIndex(indexPath.row)!
-//        if (itemToSelect.nodePlaceId != nil){
-//            let cell = tableView.dequeueReusableCell(withIdentifier: "dataCell", for: indexPath) as! TestTableViewCell   //downcast to my cell class type
-//            cell.accessoryType = .detailButton
-//            cell.contentView.backgroundColor = UIColor.clear
-//        }
-////        cell.selectionStyle = UITableViewCellSelectionStyle.none
-//    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let itemToSelect = placeNodeTreeRoot.children![indexPath.section].returnNodeAtIndex(indexPath.row)!
-        if (itemToSelect.nodePlaceId != nil){
-            let cell = tableView.dequeueReusableCell(withIdentifier: "dataCell", for: indexPath) as! TestTableViewCell   //downcast to my cell class type
-            cell.accessoryType = .detailButton
-////            cell.contentView.backgroundColor = UIColor.clear
-        }
-
-    }
-//
-//    func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
-//        print("accessory button \(indexPath.row)")
-//    }
-//    
-//    func tableView(_ tableView: UITableView, willDeselectRowAt indexPath: IndexPath) -> IndexPath? {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: "dataCell", for: indexPath) as! TestTableViewCell   //downcast to my cell class type
-//        cell.accessoryType = .none
-//        return indexPath
-//    }
-    
-    
     //Swipe to delete implementation
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         var indexPaths = [indexPath]

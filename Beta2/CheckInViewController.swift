@@ -241,10 +241,12 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.textLabel?.text = googlePrediction[indexPath.row].attributedFullText.string
-        cell.textLabel?.adjustsFontSizeToFitWidth = true
-        cell.textLabel?.minimumScaleFactor = 0.6
-        cell.textLabel?.lineBreakMode = .byTruncatingTail
+//        if(!isEnteringCity){
+            cell.textLabel?.text = googlePrediction[indexPath.row].attributedFullText.string
+            cell.textLabel?.adjustsFontSizeToFitWidth = true
+            cell.textLabel?.minimumScaleFactor = 0.6
+            cell.textLabel?.lineBreakMode = .byTruncatingTail
+//        }
         return cell
     }
     
@@ -432,6 +434,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             sender.backgroundColor = UIColor.clear
             CheckInRestField.placeholder = "Enter new city button name"
             CheckInRestField.text = ""
+            //Remove auto complete if the user was previously typing an entry and decided to add city
+            autoCompleteTableView?.isHidden = true
             isEnteringCity = true
         }
         else
@@ -499,21 +503,43 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
     func googleAutoComplete(_ textField: UITextField) {
         //Don't auto complete city names
-        if(!isEnteringCity){
+//        if(!isEnteringCity){
             if let checkInString = CheckInRestField.text{
                 //Start querying google database with at minimum 3 chars
-                if(checkInString.characters.count >= 3){
+                if(checkInString.characters.count >= 3 && (checkInString.characters.count % 2 != 0)){
                     placeAutocomplete(queryText: checkInString)
-                }else{
+                }else if (checkInString.characters.count < 3){
                     autoCompleteTableView?.isHidden = true
                 }
             }
-        }
+//        }
     }
+    
+//    func cityAutoComplete(queryText: String){
+//        let filter = GMSAutocompleteFilter()
+//        filter.type = .
+//        filter.type = .city
+//        placesClient.autocompleteQuery(queryText, bounds: coordinateBounds(), filter: filter, callback: {(results, error) -> Void in
+//            if let error = error {
+//                print("Autocomplete error \(error)")
+//                return
+//            }
+//            
+//            //Remove previous entries in autocomplete arrays
+//            //AUtoCompleteArray is table data, and maps 1 to 1 to the complete data set contained in googlePrediction array
+//            self.autoCompleteArray.removeAll()
+//            self.googlePrediction.removeAll()
+//        }
+//    
+//    }
     
     func placeAutocomplete(queryText: String) {
         let filter = GMSAutocompleteFilter()
-        filter.type = .establishment
+        if(isEnteringCity){
+            filter.type = .city
+        }else{
+            filter.type = .establishment
+        }
         placesClient.autocompleteQuery(queryText, bounds: coordinateBounds(), filter: filter, callback: {(results, error) -> Void in
             if let error = error {
                 print("Autocomplete error \(error)")
@@ -550,6 +576,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 self.autoCompleteTableView?.isHidden = true
             }else{
                 self.autoCompleteTableView?.isHidden = false
+                self.view.bringSubview(toFront: self.autoCompleteTableView!)
             }
             self.autoCompleteTableView?.reloadData()
         })
