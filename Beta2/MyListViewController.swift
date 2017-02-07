@@ -613,6 +613,15 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     }
     
+    //Segue to place Deets when data cell is selected
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        //        // Create an instance of myListVC and pass the variable
+        //        let controller = MyListViewController(nibName: "MyListViewController", bundle: nil) as MyListViewController
+        //        controller.requestedUser = selectedUserId as NSString
+        // Perform seque to my List VC
+        self.performSegue(withIdentifier: "placeDeetsSegue", sender: self)
+    }
+    
     //Swipe to delete implementation
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         var indexPaths = [indexPath]
@@ -704,6 +713,13 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         print("cancelled")
         
     }
+    
+//    //Create index for tableview
+//    func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
+////        return title.characters[0]
+//        return
+//    }
+    
     
 //    Collection view functions
     
@@ -809,6 +825,30 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         //add check image
         cell.contentView.addSubview(checkImageView)
         cell.backgroundColor = UIColor(white: 1, alpha: 0.5)
+    }
+    
+    //Pass the placeId of the placeDeets view
+    override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
+        //Don't perform prepare for segue when unwinding from list
+        if(segue.identifier == "placeDeetsSegue"){
+            let destinationVC = segue.destination as! PlaceDeetsViewController
+            //get place id for selected place
+            //Get index path of selected cell then get corresponding tree node
+            if let itemPath = self.tableView.indexPathForSelectedRow{
+                if let selectedNode = self.placeNodeTreeRoot.children![itemPath.section].returnNodeAtIndex(itemPath.row){
+                    destinationVC.titleText = selectedNode.nodeValue!
+                    destinationVC.placeId = selectedNode.nodePlaceId
+                }
+            }
+        }
+        
+//        self.tableView.deselectRow(at: self.tableView.indexPathForSelectedRow!, animated: true)
+        
+    }
+    
+    // Unwind seque from my myListVC
+    @IBAction func unwindFromPlaceDeets(_ sender: UIStoryboardSegue) {
+        // empty
     }
 }
 

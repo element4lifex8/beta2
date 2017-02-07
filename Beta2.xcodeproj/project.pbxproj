@@ -12,6 +12,9 @@
 		34DA1B1D52951E4660DF8F8A /* Pods_Beta2_Beta2UITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A626CA92CB739461AE390F9A /* Pods_Beta2_Beta2UITests.framework */; };
 		6332211A1C8910D088EF4371 /* Pods_Beta2_Beta2Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 819AB56891CE756443BABBBB /* Pods_Beta2_Beta2Tests.framework */; };
 		96BD597FCCC136E686D91259 /* Pods_Beta2Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29D6F1BF11E46502FDCE853D /* Pods_Beta2Tests.framework */; };
+		EB003CAD1E436597004E7451 /* PlaceDeetsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB003CAC1E436597004E7451 /* PlaceDeetsViewController.swift */; };
+		EB003CAF1E436783004E7451 /* AddressTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB003CAE1E436783004E7451 /* AddressTableViewCell.swift */; };
+		EB003CB31E4368A1004E7451 /* PlaceDeetsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB003CB21E4368A1004E7451 /* PlaceDeetsTableViewCell.swift */; };
 		EB03B8351DFF08780002098C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EB03B8341DFF08780002098C /* GoogleService-Info.plist */; };
 		EB03E57D1C150669009A55F1 /* TestTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */; };
 		EB03E5C01C25A7F4009A55F1 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB03E5BF1C25A7F4009A55F1 /* FBSDKCoreKit.framework */; };
@@ -94,6 +97,9 @@
 		B677FCAB51F97DDC5284333A /* Pods-Beta2Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Beta2Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Beta2Tests/Pods-Beta2Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		C047BB918AA35091D7E44541 /* Pods-Beta2-Beta2Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Beta2-Beta2Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Beta2-Beta2Tests/Pods-Beta2-Beta2Tests.release.xcconfig"; sourceTree = "<group>"; };
 		D74715BB1562B8B46C3362C4 /* Pods-Beta2-Beta2Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Beta2-Beta2Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Beta2-Beta2Tests/Pods-Beta2-Beta2Tests.debug.xcconfig"; sourceTree = "<group>"; };
+		EB003CAC1E436597004E7451 /* PlaceDeetsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaceDeetsViewController.swift; sourceTree = "<group>"; };
+		EB003CAE1E436783004E7451 /* AddressTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressTableViewCell.swift; sourceTree = "<group>"; };
+		EB003CB21E4368A1004E7451 /* PlaceDeetsTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PlaceDeetsTableViewCell.swift; path = Pods/../PlaceDeetsTableViewCell.swift; sourceTree = SOURCE_ROOT; };
 		EB03B8341DFF08780002098C /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		EB03B8361E06D06E0002098C /* Beta2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Beta2.entitlements; sourceTree = "<group>"; };
 		EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestTableViewCell.swift; sourceTree = "<group>"; };
@@ -272,6 +278,7 @@
 				EB3A98201D9813A500C16E89 /* Table Cells */,
 				EB49A2E61C7BE649006F16AB /* Facebook */,
 				EB6B3FBC1C0E7BE200A6B469 /* CheckedView.swift */,
+				EB003CAC1E436597004E7451 /* PlaceDeetsViewController.swift */,
 				EB63152B1BF961D7009683FE /* CheckInViewController.swift */,
 				EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */,
 				EB97CF611D73902900A3DBA1 /* ScrollViewAnchor.swift */,
@@ -305,6 +312,8 @@
 			children = (
 				EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */,
 				EB61CD651DC4F50500297225 /* FriendTableViewCell.swift */,
+				EB003CAE1E436783004E7451 /* AddressTableViewCell.swift */,
+				EB003CB21E4368A1004E7451 /* PlaceDeetsTableViewCell.swift */,
 				EBBA52DF1CF65B6A0047E22A /* HeaderTableViewCell.swift */,
 				EBBA52E11CFE62730047E22A /* SubheaderTableViewCell.swift */,
 			);
@@ -623,11 +632,14 @@
 				EBBA52E51D0F831B0047E22A /* CheckInViewController.swift in Sources */,
 				EB3A982B1D99D0AF00C16E89 /* CheckOutPeopleViewController.swift in Sources */,
 				EBBAB1A61DFB6E7100048916 /* FbookUserInfo.swift in Sources */,
+				EB003CB31E4368A1004E7451 /* PlaceDeetsTableViewCell.swift in Sources */,
 				EB06561C1BEE37F300CF8376 /* AppDelegate.swift in Sources */,
 				EB85D5551C51B5B200F2E29F /* ProfileStepsViewController.swift in Sources */,
 				EB4C38471D453C8F00D11721 /* DeleteCityUIButton.swift in Sources */,
+				EB003CAF1E436783004E7451 /* AddressTableViewCell.swift in Sources */,
 				EB3A98251D98A6B700C16E89 /* CheckOutCityViewController.swift in Sources */,
 				EB61CD601DC41F4300297225 /* SegueFromLeft.swift in Sources */,
+				EB003CAD1E436597004E7451 /* PlaceDeetsViewController.swift in Sources */,
 				EB61CD641DC4F0A800297225 /* AddPeopleViewCntroller.swift in Sources */,
 				EB97CF621D73902900A3DBA1 /* ScrollViewAnchor.swift in Sources */,
 				EB5A49B51D61005F00B9AB17 /* PlaceNodeTree.swift in Sources */,

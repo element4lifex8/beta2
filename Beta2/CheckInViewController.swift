@@ -187,6 +187,14 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         autoCompleteTableView?.isHidden = true
     }
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        //If user is entering a city then a clear button appears in the text field to cancel city input
+        if(isEnteringCity && !(textField.text?.isEmpty)!){  //Don't remove from city mode when clearing placeholder text
+            CheckInRestField.clearButtonMode = .never
+            isEnteringCity = false
+            textField.placeholder = "Enter Name..."
+            return true
+        }
+        
         if(textField.text?.isEmpty ?? true){        //Only clear current textField if no user input previously received
             return true
         }
@@ -264,6 +272,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     @IBAction func unwindFromMyList(_ sender: UIStoryboardSegue) {
         // empty
     }
+    
+    
     //Get outlet to list icon so I can determine when to end the check animation that occurs after check in
     @IBOutlet weak var myListIcon: UIButton!
     
@@ -294,6 +304,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 CheckInRestField.text = ""
                 CheckInRestField.placeholder = "Enter Name..."
                 isEnteringCity = false
+                //Remove clear button after city is checked in
+                CheckInRestField.clearButtonMode = .never
                 createCityButtons()
             }
             //No Longer supporting user supported categories
@@ -392,7 +404,11 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 animateCheckComplete()
                 
                 CheckInRestField.placeholder = "Enter Name..."
-                //notifyUser()
+            }else{//If user hits submit with empty check in display alert
+                let alert = UIAlertController(title: "Empty Check In", message: "You attempted to add a Check In but did not provide a name.", preferredStyle: .alert)
+                let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+                alert.addAction(CancelAction)
+                self.present(alert, animated: true, completion: nil)
             }
         }
     }
@@ -434,6 +450,25 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             sender.backgroundColor = UIColor.clear
             CheckInRestField.placeholder = "Enter new city button name"
             CheckInRestField.text = ""
+            //Add clear button to text field that will be used as a cancel city entry, change color
+            CheckInRestField.clearButtonMode = .whileEditing
+            if let clearButton = CheckInRestField.value(forKey: "_clearButton") as? UIButton{
+                // Create a template copy of the original button image
+                let templateImage =  clearButton.imageView?.image?.withRenderingMode(.alwaysTemplate)
+                // Set the template image copy as the button image
+                clearButton.setImage(templateImage, for: .normal)
+                // Finally, set the image color
+                clearButton.tintColor = .white
+
+            }
+//            if let searchTextField = CheckInRestField.searchBar.valueForKey("_searchField") as? UITextField, let clearButton = searchTextField.valueForKey("_clearButton") as? UIButton {
+//                // Create a template copy of the original button image
+//                let templateImage =  clearButton.imageView?.image?.imageWithRenderingMode(.AlwaysTemplate)
+//                // Set the template image copy as the button image
+//                clearButton.setImage(templateImage, forState: .Normal)
+//                // Finally, set the image color
+//                clearButton.tintColor = .redColor()
+//            }
             //Remove auto complete if the user was previously typing an entry and decided to add city
             autoCompleteTableView?.isHidden = true
             isEnteringCity = true
@@ -502,36 +537,15 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     }
     
     func googleAutoComplete(_ textField: UITextField) {
-        //Don't auto complete city names
-//        if(!isEnteringCity){
-            if let checkInString = CheckInRestField.text{
-                //Start querying google database with at minimum 3 chars
-                if(checkInString.characters.count >= 3 && (checkInString.characters.count % 2 != 0)){
-                    placeAutocomplete(queryText: checkInString)
-                }else if (checkInString.characters.count < 3){
-                    autoCompleteTableView?.isHidden = true
-                }
+        if let checkInString = CheckInRestField.text{
+            //Start querying google database with at minimum 3 chars
+            if(checkInString.characters.count >= 3 && (checkInString.characters.count % 2 != 0)){
+                placeAutocomplete(queryText: checkInString)
+            }else if (checkInString.characters.count < 3){
+                autoCompleteTableView?.isHidden = true
             }
-//        }
+        }
     }
-    
-//    func cityAutoComplete(queryText: String){
-//        let filter = GMSAutocompleteFilter()
-//        filter.type = .
-//        filter.type = .city
-//        placesClient.autocompleteQuery(queryText, bounds: coordinateBounds(), filter: filter, callback: {(results, error) -> Void in
-//            if let error = error {
-//                print("Autocomplete error \(error)")
-//                return
-//            }
-//            
-//            //Remove previous entries in autocomplete arrays
-//            //AUtoCompleteArray is table data, and maps 1 to 1 to the complete data set contained in googlePrediction array
-//            self.autoCompleteArray.removeAll()
-//            self.googlePrediction.removeAll()
-//        }
-//    
-//    }
     
     func placeAutocomplete(queryText: String) {
         let filter = GMSAutocompleteFilter()
@@ -615,7 +629,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             if let titleLabel = button.titleLabel {
                 let spacing: CGFloat = button.frame.size.height / 3 //put check mark in botton 3rd of button
                 //Shift title left (using negative value for left param) by the width of the image so text stays centered
-                button.titleEdgeInsets = UIEdgeInsetsMake(0.0, -imageSize.width, 0, 0.0)
+                //Preserve previous title edge insets by adding 5 to left and right
+                button.titleEdgeInsets = UIEdgeInsetsMake(0.0, -imageSize.width + 5, 0, 5)
                 let labelString = NSString(string: titleLabel.text!)
                 let titleSize = labelString.size(attributes: [NSFontAttributeName: titleLabel.font])
                 //Shift image down by adding top edge inset of the size of the title + desired space
@@ -629,7 +644,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         }
         else{
             button.backgroundColor = UIColor.clear
-            button.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
+            button.titleEdgeInsets = UIEdgeInsetsMake(0.0, 5, 0, 5) //prevent text from shift when removing check image, preserve original inset of 5 from button creation
         }
         return button.isSelected
     }
@@ -704,11 +719,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                     //add city name to cityButtonlist if the city doesn't already exists
                     if(!cityButtonList.contains(where: {element in return (element == cityNameStr)}))
                     {
-                        
                         //Insert new element before the final plus sign in the list
                         self.cityButtonList.insert(cityNameStr, at: cityCount)
-                        cityCount += 1
                     }
+                    cityCount += 1
                 }
             }
         
@@ -731,7 +745,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         
         /*sort list of city buttons before printing
         //Move + sign to end of sort
-        cityButtonList.sortInPlace({(s1:String, s2:String) -> Bool in
+        cityButtonList.sorted(by: {(s1:String, s2:String) -> Bool in
             if(s1 == "+" || s2 == "+"){
                 return s1 > s2
             }
@@ -816,7 +830,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
     func displayCityDeleteButton(_ sender: UILongPressGestureRecognizer)
     {
-        let buttonSpacing = 25
+        let buttonSpacing = 13
         let buttonRad = 100
         let tapLocation = sender.location(in: self.cityScrollView)
 
