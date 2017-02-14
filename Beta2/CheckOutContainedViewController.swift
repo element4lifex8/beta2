@@ -185,8 +185,8 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
                                     }
                                 }
                             }
-                        }else{
-                            print("got a place ID for \(rootNode.value)")
+                        }else{  //Enters this block when a place ID is found
+//                            print("got a place ID for \(rootNode.value)")
                         }
                     }
                 }

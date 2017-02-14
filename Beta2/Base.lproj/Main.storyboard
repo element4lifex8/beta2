@@ -1487,14 +1487,14 @@
                                         </state>
                                         <variation key="default">
                                             <mask key="constraints">
-                                                <exclude reference="nUQ-78-WGK"/>
                                                 <exclude reference="SeR-Qa-kLy"/>
+                                                <exclude reference="nUQ-78-WGK"/>
                                             </mask>
                                         </variation>
                                         <variation key="heightClass=regular-widthClass=compact">
                                             <mask key="constraints">
-                                                <include reference="nUQ-78-WGK"/>
                                                 <include reference="SeR-Qa-kLy"/>
+                                                <include reference="nUQ-78-WGK"/>
                                             </mask>
                                         </variation>
                                         <connections>
@@ -1508,7 +1508,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
-                                <color key="backgroundColor" red="0.23529411759999999" green="0.23529411759999999" blue="0.23529411759999999" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="backgroundColor" red="0.15686274509803921" green="0.15686274509803921" blue="0.15686274509803921" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="hV9-V8-FZo" secondAttribute="trailing" constant="15" id="7yM-b4-3qy"/>
                                     <constraint firstItem="hV9-V8-FZo" firstAttribute="leading" secondItem="3zy-rt-1A5" secondAttribute="trailing" constant="5" id="BhB-RL-92K"/>
@@ -1716,7 +1716,7 @@
                                         </variation>
                                     </label>
                                 </subviews>
-                                <color key="backgroundColor" red="0.23529411764705882" green="0.23529411764705882" blue="0.23529411764705882" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" red="0.15686274509803921" green="0.15686274509803921" blue="0.15686274509803921" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="100" id="AlP-yw-Gv3"/>
                                     <constraint firstItem="o5s-hv-Lyz" firstAttribute="leading" secondItem="FoK-xb-Kqs" secondAttribute="leading" constant="12" id="Db4-HF-F3v"/>
@@ -1986,7 +1986,7 @@
                                         </connections>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" red="0.23529411764705882" green="0.23529411764705882" blue="0.23529411764705882" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="backgroundColor" red="0.15686274509803921" green="0.15686274509803921" blue="0.15686274509803921" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="3cC-ye-FR7" secondAttribute="trailing" constant="17" id="2MA-xB-0sZ"/>
                                     <constraint firstItem="3cC-ye-FR7" firstAttribute="top" secondItem="Bo7-Yk-eHK" secondAttribute="top" constant="35" id="DTo-Cf-GfY">

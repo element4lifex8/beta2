@@ -70,7 +70,31 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
         }
     }
-    
+    override func viewDidAppear(_ animated: Bool) {
+        //Create autocomplete table view in View did appear because constraints to resize text box had not yet been added during viewDidLoad
+        let autoCompleteFrame = CGRect(x: CheckInRestField.frame.minX, y: CheckInRestField.frame.maxY, width: CheckInRestField.frame.size.width, height: CGFloat(self.autoCompleteFrameMaxHeight))
+        autoCompleteTableView = UITableView(frame: autoCompleteFrame, style: UITableViewStyle.plain)
+        autoCompleteTableView?.delegate = self;
+        autoCompleteTableView?.dataSource = self;
+        autoCompleteTableView?.isHidden = true;
+        autoCompleteTableView?.isScrollEnabled = true;
+        autoCompleteTableView?.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        autoCompleteTableView?.layer.cornerRadius = 15
+        view.addSubview(autoCompleteTableView!)
+        
+        //create image view for the center of the footer view
+        let googleFrame = CGRect(x: (autoCompleteFrame.width - googleImageView.frame.width) / 2, y: 0, width: googleImageView.frame.width, height: googleImageView.frame.height)
+        let googs = UIImageView(frame: googleFrame)
+        googs.addSubview(googleImageView)
+        
+        //create google attribution for bottom of table
+        let tableFooterFrame = CGRect(x: 0, y: 0, width: autoCompleteFrame.width, height: googleImageView.frame.height)
+        let tableFooterView = UIView(frame: tableFooterFrame)
+        tableFooterView.addSubview(googs)
+        
+        //Set autocomplete footer view with google attribution this way so that footer doesn't float
+        autoCompleteTableView?.tableFooterView = tableFooterView
+    }
 //  Layout views in view controller
     
     //Since the bounds of the view controller's view is not ready in viewDidLoad, anything that will be calculated based off the view's bounds directly or indirectly must not be put in viewDidLoad (so we put it in did layout subviews
@@ -100,30 +124,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         createCategoryButtons()
         //Enable touch interaction with background view so that delete buttons can be cleared when user touces screen
         checkInView.isUserInteractionEnabled = true
-        print(CheckInRestField.frame.size.width)
-        //Create autocomplete table view 
-        let autoCompleteFrame = CGRect(x: CheckInRestField.frame.minX, y: CheckInRestField.frame.maxY, width: CheckInRestField.frame.size.width, height: CGFloat(self.autoCompleteFrameMaxHeight))
-        autoCompleteTableView = UITableView(frame: autoCompleteFrame, style: UITableViewStyle.plain)
-        autoCompleteTableView?.delegate = self;
-        autoCompleteTableView?.dataSource = self;
-        autoCompleteTableView?.isHidden = true;
-        autoCompleteTableView?.isScrollEnabled = true;
-        autoCompleteTableView?.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        autoCompleteTableView?.layer.cornerRadius = 15
-        view.addSubview(autoCompleteTableView!)
-        
-        //create image view for the center of the footer view
-        let googleFrame = CGRect(x: (autoCompleteFrame.width - googleImageView.frame.width) / 2, y: 0, width: googleImageView.frame.width, height: googleImageView.frame.height)
-        let googs = UIImageView(frame: googleFrame)
-        googs.addSubview(googleImageView)
-        
-        //create google attribution for bottom of table
-        let tableFooterFrame = CGRect(x: 0, y: 0, width: autoCompleteFrame.width, height: googleImageView.frame.height)
-        let tableFooterView = UIView(frame: tableFooterFrame)
-        tableFooterView.addSubview(googs)
-        
-        //Set autocomplete footer view with google attribution this way so that footer doesn't float
-        autoCompleteTableView?.tableFooterView = tableFooterView
+       
         
         //gooogle Places setup
         placesClient = GMSPlacesClient.shared()

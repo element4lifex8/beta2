@@ -31,6 +31,9 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var selectedFilters = [String]()
     var headerCount = 0
     var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Site Seeing", "Winery"]
+    //Create list of tableview indexes
+    let sectionIndexes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+    var sectionWithObjects = [String]()
     var userRef: FIRDatabaseReference!
    
     
@@ -121,16 +124,24 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     self.myPlaceNodes.append(node)
                 }
                 if(userRetrievalCount == (self.currUsers?.count)! ){  //When data from all friendIds is gathered then generate tree
-                        self.generateTree(self.myPlaceNodes)
-                        self.placeNodeTreeRoot.sortChildNodes()
-                        self.tableView.reloadData()
-                        self.myPlaceNodes.removeAll()
-                        activityIndicator.stopAnimating()
-                        loadingView.removeFromSuperview()
+                    self.generateTree(self.myPlaceNodes)
+                    self.placeNodeTreeRoot.sortChildNodes()
+                    self.tableView.reloadData()
+                    self.myPlaceNodes.removeAll()
+                    activityIndicator.stopAnimating()
+                    loadingView.removeFromSuperview()
+                
+                    //Populate array of sections with objects so that index points to correct section
+                    for i in 0..<self.placeNodeTreeRoot.nodeCountAtDepth(1){
+                        let firstIdx = self.placeNodeTreeRoot.children![i].nodeValue!.startIndex
+                        if let firstChar = self.placeNodeTreeRoot.children![i].nodeValue?[firstIdx]{
+                            self.sectionWithObjects.append(String(describing:firstChar))
+                        }
+                    }
+
                 }
 
             }
-
         }
         
     }
@@ -496,13 +507,65 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
     }
     
+    //Parameters are the name of letter in the alphabet from the tableview index, and the index is that letters position in the alphabet
+    open func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
+        //  if resultSearchController.isActive { return 0 }
+//        self.tableView.scrollToRow(at: IndexPath(row: 0, section: index), at: UITableViewScrollPosition.top , animated: false)
+
+        //sectionWithObjects contains the first letter of each city in the user's list
+        //If a city exists that starts with the same letter as the one selected then return that item
+        if let indexExists = sectionWithObjects.index(of: title){
+            return indexExists
+        }else{//find the min item closest to the selected element
+            //Convert letter to its numeric place in the alphabet by indexing into an array of the alphabet
+            let alphabet = Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ".characters)
+
+            //use enumerated to loop over entire array, $0.1 is the element returned by enumerated ($0.0 would be the index)
+            let closestIndex = sectionWithObjects.enumerated().min(by: {
+                //Find alphabetic placement of the search string
+                guard let searchIdx = alphabet.index(of: title.characters.first!) else {
+                    print("Bull")
+                    return false}
+                //Get the first item of each comparison as a character
+                let char0 = ($0.1.characters.first)!
+                let char1 = ($1.1.characters.first)!
+                //Get a numerical value of the first letter of city names and find the one closest to the selected table index (this closures using the min function came from stack overflow: http://stackoverflow.com/a/32569928/5495979
+                guard let loc0 = alphabet.index(of: char0) else {return false}
+                guard let loc1 = alphabet.index(of: char1) else {return false}
+                return (abs(loc0 - searchIdx) < abs(loc1 - searchIdx))
+            })
+            //If the closest match was discovered to the tapped index then return the index matching that section number, or return to beginning of
+            if let closestMatch = closestIndex?.offset{
+                return closestMatch
+            }else{
+                //If closest match search fails then return the currently viewed section (will return user to top of current section
+                let indexPaths = tableView.indexPathsForVisibleRows
+                if let myIdx = indexPaths?[0].section{
+                    return myIdx
+                }else{
+                    return 0
+                }
+            }
+        }
+    }
+    
+    //Display the entire alphabet in section index titles
+    func sectionIndexTitles(for tableView: UITableView) -> [String]? {
+        return sectionIndexes
+    }
+    //    //Create index for tableview
+    //    func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
+    ////        return title.characters[0]
+    //        return
+    //    }
+    
     //Setup subheader and data cell attributes
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
     {
         let treeRet = self.placeNodeTreeRoot.children![indexPath.section].returnNodeAtIndex(indexPath.row)
         if let treeNode = treeRet{
             if(treeNode.depth == 2){ //return height for subheader
-                return 33.0
+                return 40.0
             }else{
                 return 50
             }
@@ -565,7 +628,6 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
         var cellIdentifier:String
-
         //the root's children are the setion headers, or cities
         //The city becomes the root and is traversed depth first iteratively for the nth item (n=indexPath.row)
         let treeRet = self.placeNodeTreeRoot.children![indexPath.section].returnNodeAtIndex(indexPath.row)
@@ -713,12 +775,6 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         print("cancelled")
         
     }
-    
-//    //Create index for tableview
-//    func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
-////        return title.characters[0]
-//        return
-//    }
     
     
 //    Collection view functions

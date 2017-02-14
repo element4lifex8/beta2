@@ -92,9 +92,19 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                 return
             }
             
-            self.placeAddress = place.formattedAddress!
-            self.placePhoneNumber = place.phoneNumber!
-            self.placeWebsite = String(describing: place.website!)
+            if let address = place.formattedAddress{
+                 self.placeAddress = address
+            }
+            if let phoneNum = place.phoneNumber {
+                    self.placePhoneNumber = phoneNum
+            }
+            if let websiteURL = place.website{
+                self.placeWebsite = String(describing:websiteURL)
+            }
+            
+            //Keep track of the number of times POI or establishment appears and subtract from total index
+            //and since index is 0 based and count is 1 based start at 1
+            var stupidTypes = 1
             //Concatenate string of place types
             for (index,item) in (place.types).enumerated(){
                 //Add place types if they aren't the obvious ones
@@ -102,17 +112,23 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                     //Spaces are retrieved with an underscore instead, replace with space
                     let type = item.replacingOccurrences(of: "_", with: " ")
                     //Don't add comma seperated value if last entry in the list
-                    if index < (place.types).count - 1{
+                    if index < (place.types).count - stupidTypes{
                         self.placeTypes += "\(type), "
                     }else{
                         self.placeTypes += type
                     }
+                }else{
+                    stupidTypes += 1
                 }
             }
-            self.placeAddress = place.formattedAddress!
-            print("Place name \(place.name)")
-            print("Place address \(place.formattedAddress)")
-            print("Place placeID \(place.placeID)")
+            //remove trailing comma and space if the last entries in place type were establishment and place of interest
+            self.placeTypes = self.placeTypes.trimmingCharacters(in: .whitespaces)
+            //Check if last character (before the null character) is a comma
+            let idx = self.placeTypes.index(self.placeTypes.endIndex, offsetBy: -1)
+            if(self.placeTypes[idx] == ","){
+                self.placeTypes = self.placeTypes.substring(to: idx)
+            }
+                    
             //Call completion closure so table view for details can be populated
             completionClosure(true)
         })
@@ -232,6 +248,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                 print("Incorrectly constructed phone number")
                 break
             }
+
             UIApplication.shared.open(number, options: [:], completionHandler: nil)
             break
             
