@@ -19,6 +19,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
     //Store the place ID whose info is requested by the MyListVC
     var placeId: String?
     var titleText: String?
+    var categories: [String]?
     
     //Variables retrieved using google place ID
     var placeAddress: String = ""
@@ -67,7 +68,18 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
             view.addSubview(loadingView)
             activityIndicator.startAnimating()
             
-            //Kick off asynch call retrieve opening hours using places web api in hopes it will complete before retrieving the rest of the data with the ios api
+            //Store categories that were passed from mylist:
+            if let cats = self.categories{
+                for (index,cat) in cats.enumerated(){
+                    if(index == 0){
+                        self.placeTypes = cat
+                    }else{
+                        self.placeTypes = self.placeTypes + "/" + cat
+                    }
+                }
+            }
+            
+            //Kick off asynch call retrieve opening hours using places web api and add to dispatch group in function
             retrieveOpenHours(placeId: placeId)
             //Add retrieval of place details from places ios Api to dispatch group
             self.myGroup.enter()

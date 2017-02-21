@@ -262,7 +262,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     let newCategoryNode = PlaceNodeTree(nodeVal: category)
                     cityNode.addChild(newCategoryNode)
                     if let placeId = nodeStruct.placeId{
-                        childNode = newCategoryNode.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!, placeId: placeId))
+                        childNode = newCategoryNode.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!, placeId: placeId, categories: categories))
                     }else{
                         childNode = newCategoryNode.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!))
                     }
@@ -916,6 +916,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 if let selectedNode = self.placeNodeTreeRoot.children![itemPath.section].returnNodeAtIndex(itemPath.row){
                     destinationVC.titleText = selectedNode.nodeValue!
                     destinationVC.placeId = selectedNode.nodePlaceId
+                    destinationVC.categories = selectedNode.categories
                 }
             }
         }

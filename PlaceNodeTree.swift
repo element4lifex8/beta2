@@ -29,6 +29,7 @@ class PlaceNodeTree{
     var parent: PlaceNodeTree?
     var children: [PlaceNodeTree]?
     var sibling: [String]?
+    var categories: [String]?
     var displayNode: Bool   //Used for sorting, parent does not display children when false
     
     //create root node
@@ -38,7 +39,8 @@ class PlaceNodeTree{
         self.nodePlaceId = nil
         self.parent = nil
         self.children = nil
-        self.sibling=nil
+        self.sibling=nil    //sibling cities
+        self.categories = nil
         self.depth = 0
         self.displayNode = true
     }
@@ -49,6 +51,8 @@ class PlaceNodeTree{
         self.nodePlaceId = nil
         self.parent = nil
         self.children = nil
+        self.sibling = nil
+        self.categories = nil
         self.depth = 0
         self.displayNode = true
     }
@@ -59,6 +63,20 @@ class PlaceNodeTree{
         self.nodePlaceId = placeId
         self.parent = nil
         self.children = nil
+        self.sibling = nil
+        self.categories = nil
+        self.depth = 0
+        self.displayNode = true
+    }
+    
+    init(nodeVal: String, placeId: String, categories: [String])
+    {
+        self.nodeValue = nodeVal
+        self.nodePlaceId = placeId
+        self.parent = nil
+        self.children = nil
+        self.sibling = nil
+        self.categories = categories
         self.depth = 0
         self.displayNode = true
     }
