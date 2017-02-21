@@ -90,6 +90,11 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
 //        tableView.registerClass(SubheaderTableViewCell.self,forCellReuseIdentifier: "subheaderCell")
 //        tableView.registerClass(TestTableViewCell.self,forCellReuseIdentifier: "dataCell")
         self.tableView.backgroundColor=UIColor.clear
+        
+        //modify color of tableview index and background color
+        tableView.sectionIndexColor = .white
+        tableView.sectionIndexBackgroundColor = UIColor(red: 0x40/255, green: 0x40/255, blue: 0x40/255, alpha: 1)
+        tableView.sectionIndexTrackingBackgroundColor = UIColor(red: 0x60/255, green: 0x60/255, blue: 0x60/255, alpha: 1)
         collectionView?.allowsMultipleSelection = true
 //        placesRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
         placesRef = FIRDatabase.database().reference().child("checked/places")
@@ -645,6 +650,8 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 cell.tableCellValue.textColor = UIColor.white
                 //Remove seperator insets
                 cell.layoutMargins = UIEdgeInsets.zero
+                //Prevent selecting sub header cell from calling didSelectRowAt
+                cell.isUserInteractionEnabled = false
                 return cell
             }
             else if(treeNode.depth == 3){
@@ -824,6 +831,9 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     // MARK: - UICollectionViewDelegate protocol
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        //find the top cell that is visible and go to the begginning of its section after sorting
+        let visibleCells = self.tableView.indexPathsForVisibleRows
+        let currSection = visibleCells?[0].section
         if let cell = collectionView.cellForItem(at: indexPath){
             selectCell(cell, indexPath: indexPath)
         }
@@ -835,9 +845,17 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         //filter tree to all categories not matching the selected category
         placeNodeTreeRoot.displayNodeFilter(selectedFilters)
         self.tableView.reloadData()
+        //Scroll to begging of section of previous location
+        if let section = currSection{
+            self.tableView.scrollToRow(at: IndexPath(row: 0, section: section), at: UITableViewScrollPosition.top , animated: false)
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        //find the top cell that is visible and go to the begginning of its section after sorting
+        let visibleCells = self.tableView.indexPathsForVisibleRows
+        let currSection = visibleCells?[0].section
+
         let cell = collectionView.cellForItem(at: indexPath)
         if let imageViews = cell?.contentView.subviews{
             for case let image as UIImageView in imageViews{
@@ -857,6 +875,10 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         //filter tree to all categories not matching the selected category
         placeNodeTreeRoot.displayNodeFilter(selectedFilters)
         self.tableView.reloadData()
+        //Scroll to begging of section of previous location
+        if let section = currSection{
+            self.tableView.scrollToRow(at: IndexPath(row: 0, section: section), at: UITableViewScrollPosition.top , animated: false)
+        }
     }
     
     // change background color when user touches cell
@@ -902,7 +924,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
     }
     
-    // Unwind seque from my myListVC
+    // Unwind seque from my PlaceDeets
     @IBAction func unwindFromPlaceDeets(_ sender: UIStoryboardSegue) {
         // empty
     }

@@ -23,9 +23,11 @@ class ProfileStepsViewController: UIViewController {
         self.addCityButton.layer.borderWidth = 1.0
         self.addCityButton.layer.borderColor = UIColor.black.cgColor
         
+        
 //        addLabelBorders()
         // Do any additional setup after loading the view.
     }
+    
 
     @IBOutlet weak var homeCityTextBox: UITextField!
     @IBOutlet weak var addCityTextBox: UITextField!
@@ -115,5 +117,10 @@ class ProfileStepsViewController: UIViewController {
         // Pass the selected object to the new view controller.
     }
     */
+    
+    // Unwind seque always bypassed and up the chain past the login VC to CIO home view 
+    @IBAction func unwindToProfileSteps(_ sender: UIStoryboardSegue) {
+        // empty
+    }
 
 }

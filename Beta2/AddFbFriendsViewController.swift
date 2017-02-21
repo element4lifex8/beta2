@@ -46,10 +46,10 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
     }
 
 
-    @IBAction func skipProfileSetup(_ sender: UIButton)
-    {
-        performSegue(withIdentifier: "segueToHome", sender: nil)
-    }
+//    @IBAction func skipProfileSetup(_ sender: UIButton)
+//    {
+//        performSegue(withIdentifier: "segueToHome", sender: nil)
+//    }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -391,15 +391,15 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
         let cellIdentifier = "friendCell"
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! FriendTableViewCell   //downcast to my cell class type
         //display table data from taggable friends which includes auth and unauth friends
-        cell.nameLabel.text = "    \(facebookTaggableFriends[indexPath.row])"
+        cell.nameLabel.text = "\(facebookTaggableFriends[indexPath.row])"
         cell.nameLabel.textColor = UIColor.black
         cell.nameLabel.font = UIFont(name: "Avenir-Light", size: 18)
         //Set available tag
         if(facebookAuthFriends.contains(facebookTaggableFriends[indexPath.row]))
         {
-            cell.isAvailableLabel.text = "    Available"
+            cell.isAvailableLabel.text = "Available"
         }else{
-            cell.isAvailableLabel.text = "    Invite to Check-In-Out"
+            cell.isAvailableLabel.text = "Invite to Check-In-Out"
         }
         cell.isAvailableLabel.textColor = UIColor.black
         cell.isAvailableLabel.font = UIFont(name: "Avenir-Light", size: 12)
@@ -425,6 +425,7 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
         cell.layoutMargins = UIEdgeInsets.zero
         return cell
     }
+    
 
 //    var authList = Array<String>()
 //    var unAuthList = Array<String>()

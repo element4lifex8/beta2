@@ -13,7 +13,7 @@ import FirebaseDatabase
 import FirebaseAuth
 
 class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
-
+    var unwindPerformed = false
     let currUserDefaultKey = "FBloginVC.currUser"
     fileprivate let sharedFbUser = UserDefaults.standard
     
@@ -29,6 +29,24 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
             } else if (facebookResult?.isCancelled)! {
                 print("Facebook login was cancelled.")
             } else {
+                
+                //Show activity monitor while waiting
+                let loadingView: UIView = UIView()
+                
+                loadingView.frame = CGRect(x: 0,y: 0,width: 80,height: 80)
+                loadingView.center = self.view.center
+                loadingView.backgroundColor = UIColor(red: 0x44/255, green: 0x44/255, blue: 0x44/255, alpha: 0.7)
+                loadingView.clipsToBounds = true
+                loadingView.layer.cornerRadius = 10
+                //Start activity indicator while making google request
+                let activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView(frame:   CGRect(x: 0, y: 0, width: 50,  height: 50)) as UIActivityIndicatorView
+                activityIndicator.center = CGPoint(x: loadingView.frame.size.width / 2,y: loadingView.frame.size.height / 2);
+                activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.whiteLarge
+                activityIndicator.hidesWhenStopped = true
+                
+                loadingView.addSubview(activityIndicator)
+                self.view.addSubview(loadingView)
+                activityIndicator.startAnimating()
                 
                 let credential = FIRFacebookAuthProvider.credential(withAccessToken:  FBSDKAccessToken.current().tokenString)
                 
@@ -90,7 +108,10 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                         {
                             // Do work
                         }
-                        self.performSegue(withIdentifier: "profileSteps", sender: nil)
+                        
+                        activityIndicator.stopAnimating()
+                        loadingView.removeFromSuperview()
+//                        self.performSegue(withIdentifier: "profileSteps", sender: nil)
                     }
                 }
             }
@@ -107,6 +128,15 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
         set
         {
             sharedFbUser.set(newValue, forKey: currUserDefaultKey)
+        }
+    }
+    
+    //ViewDidAppear will be called after returning from the FBSDKContainerVC where the user logins in 
+     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        //Don't segue to profile steps if performing an unwind
+        if (FBSDKAccessToken.current() != nil && !unwindPerformed){
+           self.performSegue(withIdentifier: "profileSteps", sender: nil)
         }
     }
     
@@ -162,6 +192,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
         }
 
     }
+    
     
     //<<Unused function that would add the default facebook login icon>>
     // Facebook Delegate Methods
@@ -303,6 +334,19 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
     {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    // Unwind seque always bypassed and return to CIO Home
+    @IBAction func unwindToStartFbLogin(_ sender: UIStoryboardSegue) {
+        // empty
+        print("Start FB Login Segue")
+    }
+    
+    
+    override func canPerformUnwindSegueAction(_ action: Selector, from fromViewController: UIViewController, withSender sender: Any) -> Bool {
+        //Check if unwind segue was performed so that viewDidLoad can guard against seguing to profile steps on an unwind
+        unwindPerformed = true
+        return false
     }
     
 }

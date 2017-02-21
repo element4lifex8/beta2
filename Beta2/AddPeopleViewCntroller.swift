@@ -298,15 +298,15 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         let cellIdentifier = "friendCell"
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! FriendTableViewCell   //downcast to my cell class type
         //display table data from taggable friends which includes auth and unauth friends
-        cell.nameLabel.text = "    \(facebookTaggableFriends[indexPath.row])"
+        cell.nameLabel.text = "\(facebookTaggableFriends[indexPath.row])"
         cell.nameLabel.textColor = UIColor.black
         cell.nameLabel.font = UIFont(name: "Avenir-Light", size: 18)
         //Set available tag
         if(facebookAuthFriends.contains(facebookTaggableFriends[indexPath.row]))
         {
-            cell.isAvailableLabel.text = "    Available"
+            cell.isAvailableLabel.text = "Available"
         }else{
-            cell.isAvailableLabel.text = "    Invite to Check-In-Out"
+            cell.isAvailableLabel.text = "Invite to Check-In-Out"
         }
         cell.isAvailableLabel.textColor = UIColor.black
         cell.isAvailableLabel.font = UIFont(name: "Avenir-Light", size: 12)
