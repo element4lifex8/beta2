@@ -831,9 +831,22 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     // MARK: - UICollectionViewDelegate protocol
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        var currSection: Int = 0
+        //Keep track of whether a section exists to scroll to
+        var canScroll: Bool = false
         //find the top cell that is visible and go to the begginning of its section after sorting
-        let visibleCells = self.tableView.indexPathsForVisibleRows
-        let currSection = visibleCells?[0].section
+        if(tableView.numberOfSections > 0){
+            let visibleCells = self.tableView.indexPathsForVisibleRows
+            //If a section is empty and only contains the header view it doesn't count as a visible cell
+            if( (visibleCells?.count ?? 0 ) > 0){
+                if let section = visibleCells?[0].section{
+                    currSection = section
+                    canScroll = true
+                }
+            }
+        }
+        
+
         if let cell = collectionView.cellForItem(at: indexPath){
             selectCell(cell, indexPath: indexPath)
         }
@@ -846,16 +859,28 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         placeNodeTreeRoot.displayNodeFilter(selectedFilters)
         self.tableView.reloadData()
         //Scroll to begging of section of previous location
-        if let section = currSection{
-            self.tableView.scrollToRow(at: IndexPath(row: 0, section: section), at: UITableViewScrollPosition.top , animated: false)
+        
+        if (tableView.numberOfRows(inSection: currSection) > 0 && canScroll){
+            self.tableView.scrollToRow(at: IndexPath(row: 0, section: currSection), at: UITableViewScrollPosition.top , animated: false)
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        var currSection: Int = 0
+        //Keep track of whether a section exists to scroll to
+        var canScroll: Bool = false
         //find the top cell that is visible and go to the begginning of its section after sorting
-        let visibleCells = self.tableView.indexPathsForVisibleRows
-        let currSection = visibleCells?[0].section
-
+        if(tableView.numberOfSections > 0){
+            let visibleCells = self.tableView.indexPathsForVisibleRows
+            //If a section is empty and only contains the header view it doesn't count as a visible cell
+            if( (visibleCells?.count ?? 0 ) > 0){
+                if let section = visibleCells?[0].section{
+                    currSection = section
+                    canScroll = true
+                }
+            }
+        }
+        
         let cell = collectionView.cellForItem(at: indexPath)
         if let imageViews = cell?.contentView.subviews{
             for case let image as UIImageView in imageViews{
@@ -876,8 +901,8 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         placeNodeTreeRoot.displayNodeFilter(selectedFilters)
         self.tableView.reloadData()
         //Scroll to begging of section of previous location
-        if let section = currSection{
-            self.tableView.scrollToRow(at: IndexPath(row: 0, section: section), at: UITableViewScrollPosition.top , animated: false)
+        if (tableView.numberOfRows(inSection: currSection) > 0 && canScroll){
+            self.tableView.scrollToRow(at: IndexPath(row: 0, section: currSection), at: UITableViewScrollPosition.top , animated: false)
         }
     }
     
