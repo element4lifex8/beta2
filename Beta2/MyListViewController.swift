@@ -254,13 +254,14 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     //create PlaceNodeTree object depending on whether the user used google Autocomplete which provides a google place id
                     //Couldn't create the placeNodeTree obj as variable or the generate tree func was failing 
                     if let placeId = nodeStruct.placeId{
-                        childNode = existingCategory.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!, placeId: placeId))
+                        childNode = existingCategory.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!, placeId: placeId, categories: categories))
                     }else{
                         childNode = existingCategory.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!))
                     }
                 }else{//category does not exist
                     let newCategoryNode = PlaceNodeTree(nodeVal: category)
-                    cityNode.addChild(newCategoryNode)
+                    //Add child returns a refence to the node that now resides in the tree
+                    let _ = cityNode.addChild(newCategoryNode)
                     if let placeId = nodeStruct.placeId{
                         childNode = newCategoryNode.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!, placeId: placeId, categories: categories))
                     }else{

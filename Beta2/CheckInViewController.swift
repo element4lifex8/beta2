@@ -21,10 +21,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var dictArr = [[String:String]]()
     var placesDict = [String : String]()
     var cityButtonList: [String] = ["+"]
-    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shops", "Night Club", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Parks", "Site Seeing", "Winery"]
+    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shops", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Site Seeing", "Winery"]
     var placesArr = [String]()
     var arrSize = Int()
-    var checkObj = placeNode()
+    var checkObj = placeNode()  //Appears that this model is filled out, but its actually the dict array contents that are written to the backen
     let restNameDefaultKey = "CheckInView.restName"
     var isEnteringCity = false
     var isEnteringCategory = false
@@ -39,6 +39,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var placesClient: GMSPlacesClient!
     //Location manager for detecting user's location
     var locationManager: CLLocationManager? = nil
+    
+    //Hack to reiterate through check in process after we notify the user they checked in without autocomplete
+    var customCheckIn = false
     
     fileprivate let sharedRestName = UserDefaults.standard
     
@@ -60,16 +63,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var catScrollView: UIScrollView!
     var catScrollContainerView: UIView!
     
-    let currUserDefaultKey = "FBloginVC.currUser"
-    fileprivate let sharedFbUser = UserDefaults.standard
     
-    //NSUser defaults stores user i
-    var currUser: NSString {
-        get
-        {
-            return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
-        }
-    }
+    //NSUser defaults stores user and a helper class is user to return this value
+    var currUser = Helpers().returnCurrUser()
+    
     override func viewDidAppear(_ animated: Bool) {
         //Create autocomplete table view in View did appear because constraints to resize text box had not yet been added during viewDidLoad
         let autoCompleteFrame = CGRect(x: CheckInRestField.frame.minX, y: CheckInRestField.frame.maxY, width: CheckInRestField.frame.size.width, height: CGFloat(self.autoCompleteFrameMaxHeight))
@@ -264,6 +261,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         //Store placeId object to be stored in firebase with the check in
         checkObj.placeId = googlePrediction[indexPath.row].placeID
         autoCompleteTableView?.isHidden = true
+        //dismiss keyboard if present
+        CheckInRestField.resignFirstResponder()
     }
     
 
@@ -346,65 +345,120 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                     restNameText.remove(at: index)
                 }
                 
-                self.checkObj.place = restNameText
-                // Create a reference to a Firebase location
-//                let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
-                let refChecked = FIRDatabase.database().reference().child("checked/\(self.currUser)")
-//                let refCheckedPlaces = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
-                let refCheckedPlaces = FIRDatabase.database().reference().child("checked/places")
-                // Write establishment name to user's collection
-                refChecked.updateChildValues([restNameText:true])
-                // Write establishment name to places collection
-                refCheckedPlaces.updateChildValues([restNameText:true])
-                //let userRef = refChecked.childByAppendingPath(restNameText)
-                //Store place ID with the check in if the user used google's autocomplete
-                if(checkObj.placeId != nil)
-                {
-                    refChecked.child(byAppendingPath: restNameText).updateChildValues(["placeId":checkObj.placeId!])
-                }else{
-                    print("not a google prediction")
-                }
+                //Make sure user has added one city and one category, or prompt the user and have them try again
+                if(dictArr.contains(where: {($0.keys).contains("city")}) && dictArr.contains(where: {($0.keys).contains("category")})){      
                 
-                //update "user places" to contain the establishment and its categories
-                for i in 0 ..< dictArr.count    //array of [cat/city: catName/cityName] 
-                {
-                    for (key,value) in dictArr[i]   //key: city or category
-                    {
-                        //Store categories and cities in user list
-                        refChecked.child(byAppendingPath: restNameText).child(byAppendingPath: key).updateChildValues([value:"true"])
-                        //Store categories and city info in master list
-                        refCheckedPlaces.child(byAppendingPath: restNameText).child(byAppendingPath: key).updateChildValues([value:"true"])
-                    }
-                }
-                //Save to NSUser defaults
-//                restNameHistory += [restNameText]
-                dictArr.removeAll()     //Remove elements so the following check in doesn't overwrite the previous
-                self.checkObj = placeNode()  //reinitalize place node for next check in
-                //Resotre check in screen to defaults
-                CheckInRestField.text = nil
-                for view in catScrollContainerView.subviews as [UIView] {
-                    if let btn = view as? UIButton {
-                        btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
-                        btn.isSelected = false
-                        if(btn.backgroundColor != UIColor.clear){
-                            btn.backgroundColor = UIColor.clear
+                    self.checkObj.place = restNameText
+                    // Create a reference to a Firebase location
+    //                let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
+                    let refChecked = FIRDatabase.database().reference().child("checked/\(self.currUser)")
+    //                let refCheckedPlaces = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
+                    let refCheckedPlaces = FIRDatabase.database().reference().child("checked/places")
+                    // Write establishment name to user's collection
+
+                    //Don't create new Place in the refCheckedPlaces ref ("Places" category) if another user has already created this place
+                    //Check if the user had entered this place before and stop them from doing it again
+                    findPlaceInFirebase(placeName: restNameText, userRef: refChecked, placesRef: refCheckedPlaces){ (userDoubleEntry: Bool, placeExistsMaster: Bool) in
+                        
+                        //Add place to user's list if its not a repeat check in
+                        if(!userDoubleEntry){
+                            
+                            //Store place Name and place ID with the check in if the user used google's autocomplete
+                            if(self.checkObj.placeId != nil)
+                            {
+                                refChecked.updateChildValues([restNameText:true])
+                                refChecked.child(restNameText).updateChildValues(["placeId":self.checkObj.placeId!])
+                            }else if(self.customCheckIn == false){  //Have the user confirm that they want to check in without using auto complete
+                                let alert = UIAlertController(title: "Is this a custom Check In?", message: "You didn't use auto complete for this check in. Are you sure this place exists and that you want to check it in under this name?.", preferredStyle: .alert)
+                                //Exit function if user clicks now and allow them to reconfigure the check in
+                                let CancelAction = UIAlertAction(title: "No", style: .cancel, handler: nil)
+                                //Async call to create button would complete function, so I return after presenting, and if the user wishes I will reiterate through the function
+                                let ConfirmAction = UIAlertAction(title: "Yes", style: .default, handler: { UIAlertAction in
+                                    //Skip this part on the next iteration so add the place name now
+                                    refChecked.updateChildValues([restNameText:true])
+                                    self.customCheckIn = true
+                                    self.SaveRestField(UIButton(type: .custom))
+                                })
+                                alert.addAction(ConfirmAction)
+                                alert.addAction(CancelAction)
+                                self.present(alert, animated: true, completion: nil)
+                                return
+                            }
+                            
+                        }else{  //Notify the user and skip the process if they have previously checked in here
+                            let alert = UIAlertController(title: "Reapeated Check In Out", message: "You must really like this place, you've already added \(restNameText) to your List. Please add a new place to Check In Out!", preferredStyle: .alert)
+                            //Exit function if user clicks now and allow them to reconfigure the check in
+                            let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+                            alert.addAction(CancelAction)
+                            self.present(alert, animated: true, completion: nil)
+                            //Before returning I don't want the user to retain the current place ID and then change the name to something not matching this place ID so I will clear it
+                                self.checkObj.placeId = nil
+                            return
                         }
-                    }
-                }
-                for view in cityScrollContainerView.subviews as [UIView] {
-                    if let btn = view as? UIButton {
-                        btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
-                        btn.isSelected = false
-                        if(btn.backgroundColor != UIColor.clear){
-                            btn.backgroundColor = UIColor.clear
+                        
+                        if(!placeExistsMaster){
+                        // Write establishment name to places collection
+                            refCheckedPlaces.updateChildValues([restNameText:true])
+                            //Store place ID with the check in if the user used google's autocomplete
+                            if(self.checkObj.placeId != nil)
+                            {
+                                 refCheckedPlaces.child( restNameText).updateChildValues(["placeId":self.checkObj.placeId!])
+                            }
                         }
-                    }
+                        //Add user id to the checked in place in the master list
+                        refCheckedPlaces.child(restNameText).child("users").updateChildValues([self.currUser:"true"])
+                        
+                        
+                        //update user's and master list with the city & categories chosen by this user
+                        for i in 0 ..< self.dictArr.count    //array of [cat/city: catName/cityName]
+                        {
+                            for (key,value) in self.dictArr[i]   //key: city or category
+                            {
+                                //Store categories and cities in user list
+                                refChecked.child(restNameText).child(key).updateChildValues([value:"true"])
+                                //Store categories and city info in master list
+                                refCheckedPlaces.child( restNameText).child(byAppendingPath: key).updateChildValues([value:"true"])
+                            }
+                        }
+                        //Save to NSUser defaults
+        //                restNameHistory += [restNameText]
+                        
+                        self.dictArr.removeAll()     //Remove elements so the following check in doesn't overwrite the previous
+                        self.checkObj = placeNode()  //reinitalize place node for next check in
+                    
+                        //Restore check in screen to defaults
+                        self.CheckInRestField.text = nil
+                        for view in self.catScrollContainerView.subviews as [UIView] {
+                            if let btn = view as? UIButton {
+                                btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
+                                btn.isSelected = false
+                                if(btn.backgroundColor != UIColor.clear){
+                                    btn.backgroundColor = UIColor.clear
+                                }
+                            }
+                        }
+                        for view in self.cityScrollContainerView.subviews as [UIView] {
+                            if let btn = view as? UIButton {
+                                btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
+                                btn.isSelected = false
+                                if(btn.backgroundColor != UIColor.clear){
+                                    btn.backgroundColor = UIColor.clear
+                                }
+                            }
+                        }
+                        
+                        //perform check animation signaling check in complete
+                        self.animateCheckComplete()
+                        
+                        self.CheckInRestField.placeholder = "Enter Name..."
+                    }//Finish closure after checking whether the place had already been added to the back end
+                }else{//End of if checking for a city and a catagory being selected
+                    let alert = UIAlertController(title: "Give me some details here!", message: "Please make sure you selected a city and category button so I know where \(restNameText) belongs in your list :)", preferredStyle: .alert)
+                    //Exit function if user clicks now and allow them to reconfigure the check in
+                    let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+                    alert.addAction(CancelAction)
+                    self.present(alert, animated: true, completion: nil)
                 }
-                
-                //perform check animation signaling check in complete
-                animateCheckComplete()
-                
-                CheckInRestField.placeholder = "Enter Name..."
             }else{//If user hits submit with empty check in display alert
                 let alert = UIAlertController(title: "Empty Check In", message: "You attempted to add a Check In but did not provide a name.", preferredStyle: .alert)
                 let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
@@ -535,6 +589,39 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 }
             }
         })
+    }
+    
+    func findPlaceInFirebase(placeName : String, userRef: FIRDatabaseReference, placesRef: FIRDatabaseReference, _ completionClosure: @escaping (_ userDoubleEntry: Bool, _ placeExistsMaster: Bool) -> Void) {
+        //create dispatch group to wait for both entries to complete before calling completion closure
+        let myGroup = DispatchGroup()
+        
+        //These values will be set to true if the placeName is found in fireBase
+        var userHasChecked = false
+        var placesHasChecked = false
+        
+        myGroup.enter()
+        //Check if the user has checked this in before, if this closure is not entered then no entry was found
+        userRef.child( placeName).observeSingleEvent(of: .value, with: { snapshot in
+            //If the place exists I will be able to unwrap the snapshot of its contents as an NSDictionary
+            if let placeFound = snapshot.value as? NSDictionary{
+                userHasChecked = true
+            }
+            myGroup.leave()
+        })
+        
+        myGroup.enter()
+        //Check if another user has checked in here before and the place resides in the master restaurant
+        placesRef.child(byAppendingPath: placeName).observeSingleEvent(of: .value, with: { snapshot in
+            if let placeFound = snapshot.value as? NSDictionary{
+                placesHasChecked = true
+            }
+            myGroup.leave()
+        })
+        
+        myGroup.notify(queue: .main){
+            completionClosure(userHasChecked, placesHasChecked)
+        }
+        
     }
     
     func googleAutoComplete(_ textField: UITextField) {

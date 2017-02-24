@@ -299,6 +299,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
         
     }
     
+    /* to do : just make a reference to the user's facebook id and try to get data from that ref in firebase, if it fails then isUser returns with a value of false*/
     func isCurrentUser(_ completionClosure: @escaping (_ isUser:  Bool) -> Void) {
 //        let ref = Firebase(url: "https://check-inout.firebaseio.com")
         let ref = FIRDatabase.database().reference(withPath: "users")

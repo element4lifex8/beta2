@@ -8,6 +8,7 @@
 
 import UIKit
 import GooglePlaces
+import FirebaseDatabase
 
 class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
@@ -27,6 +28,10 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
     var placePhoneNumber: String = ""
     var placeTypes: String = ""
     var openNow : String = ""
+    var placeCoordinates: CLLocationCoordinate2D?
+    var googleCityState = [String : String]()
+    //retrieve number of friends with this check in from firebase
+    var friendString: String = ""
     //Google places client
     var placesClient: GMSPlacesClient!
     //Google places web api uses different api key than ios app
@@ -34,7 +39,11 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
     //use dispatch groups to make async call using google places web api and google places ios api then fire async call to reload tableview
     var myGroup = DispatchGroup()
     
+    //Helper file returns get propery of the existing user's facebook ID
+    var currUser = Helpers().returnCurrUser()
+    
     //Enumerated defines for table entries
+    let addressCell = 0
     let phoneNumCell = 1
     let websiteCell = 2
     
@@ -79,16 +88,25 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                 }
             }
             
+            self.myGroup.enter()
+            //Retrieve an array of my friends facebook Id's and pass to a function that compares the check in's user list to my friend list
+            gatherFriendList(){(myFriends: [String]) in
+                
+                //Kick off asynch call to firebase to determine if other friends have also checked in at this place
+                self.countNumFriends(friendList: myFriends)
+                self.myGroup.leave()  //Leave group that was entered before gathering friend list, since the countNumFriends enters its own dispatch group
+            }
+            
             //Kick off asynch call retrieve opening hours using places web api and add to dispatch group in function
             retrieveOpenHours(placeId: placeId)
             //Add retrieval of place details from places ios Api to dispatch group
             self.myGroup.enter()
-            //Reload table view data after completiong cloure call signals that place deets were found
+            //Reload table view data after completion cloure call signals that place deets were found
             retrievePlaceData(placeId: placeId){ (deetsComplete: Bool) in
                 //Once the other details have been retrieved notify dispatch group
                 self.myGroup.leave()
             }
-            //Fire async call once places ios and web api calls have finish
+            //Fire async call once places ios and web api, and firebase calls have finish
             myGroup.notify(queue: .main) {
                 activityIndicator.stopAnimating()
                 loadingView.removeFromSuperview()
@@ -128,6 +146,51 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
         //Label is centered but I only want text to grow to the point of reaching the left back button, which is 72px from the left edge of screen
         let maxWidth = screenWidth - (72 * 2)
         self.titleLabel.preferredMaxLayoutWidth = maxWidth
+    }
+    
+    func gatherFriendList(_ completionClosure: @escaping ( _ myFriends: [String]) -> Void){
+        //Array to hold friends that will be returned by completion closure
+        var tempFriends: [String] = [String]()
+        //firebase ref to current user's friends
+        let friendRef = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
+        friendRef.observeSingleEvent(of: .value, with: { snapshot in
+            //Each item under friends is a user:"true" dictionary item
+            if let friendList = snapshot.value as? NSDictionary{
+                //Loop over each friend and store in temp array
+                for (user, _) in friendList{
+                    tempFriends.append(user as! String)
+                }
+            }
+            completionClosure(tempFriends)
+        })
+    }
+    
+    func countNumFriends(friendList:[String]){
+        var numFriends = 0
+        //Reference to master list
+        let refCheckedPlaces = FIRDatabase.database().reference().child("checked/places")
+        guard let placeName = self.titleText else {return}
+        let myRef = refCheckedPlaces.child(placeName).child("users")
+        //Get a list of all of my current friends:
+        
+        //Add firebase retrieval to dispatch group
+        myGroup.enter()
+        //Retrieve a list of the user's current check in list
+        myRef.observeSingleEvent(of: .value, with: { snapshot in
+
+            //Each item under the places check in is a user:"true" dictionary item
+            if let currUsers = snapshot.value as? NSDictionary{
+                //Loop over each user who has checked in here and see that user is in my friend's list
+                for (user, _) in currUsers{
+                    if( friendList.contains(user as! String) ){
+                       numFriends += 1
+                    }
+                }
+            }
+            
+            self.friendString = "\(numFriends) friends with this Check In Out"
+            self.myGroup.leave()
+        })
     }
     
     func getDayOfWeek() -> String? {
@@ -172,6 +235,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
         }
         
     }
+    
     
     func retrieveOpenHours(placeId: String){
         //Hours must be retrieved using async web api
@@ -243,6 +307,37 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
             if let websiteURL = place.website{
                 self.placeWebsite = String(describing:websiteURL)
             }
+            
+            //Get the place coordinates and then the city, state, country so we can open the maps page reliably
+            self.placeCoordinates = place.coordinate
+            
+            //Address components apprar to a dictionary of [type : name]
+            //Cast to dictionary where the keys are the location type
+            if let addressArray = place.addressComponents as NSArray?{
+                for i in 0..<addressArray.count {
+                    //Cast each enty in the array
+                    let dics : GMSAddressComponent = addressArray[i] as! GMSAddressComponent
+                    let str : NSString = dics.type as NSString
+                    
+                    if (str == "country") {
+                        self.googleCityState["Country"] = dics.name
+                    }
+                    //State of the check in
+                    else if (str == "administrative_area_level_1") {
+                        self.googleCityState["State"] = dics.name
+                    }
+                        //State of the check in
+                    else if (str == "locality") {
+                        self.googleCityState["City"] = dics.name
+                    }
+                    //County of the Check in
+//                    else if (str == "administrative_area_level_2") {
+//                        self.googleCityState?["City"] = dics.name
+//                    }
+                }
+            }
+
+            
             
 //            //Keep track of the number of times POI or establishment appears and subtract from total index
 //            //and since index is 0 based and count is 1 based start at 1
@@ -350,7 +445,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
             let deetsCell: PlaceDeetsTableViewCell = tableView.dequeueReusableCell(withIdentifier: deetsCellIdentifier, for: indexPath) as! PlaceDeetsTableViewCell
             deetsCell.iconImage.image = UIImage(named: "peopleMultiplierIcon")
             deetsCell.iconImage.contentMode = .center
-            deetsCell.deetsLabel.text = "Num Friends"
+            deetsCell.deetsLabel.text = self.friendString
             deetsCell.deetsLabel.font = UIFont(name: "Avenir-Light", size: 16)
             deetsCell.selectionStyle = .none
             return deetsCell
@@ -366,6 +461,70 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch(indexPath.row){
+            //open googleMaps with coordinates
+            case self.addressCell:
+                var latitude, longitude: CLLocationDegrees
+                if let coord = self.placeCoordinates{
+                    latitude = coord.latitude
+                    longitude = coord.longitude
+                }else{
+                    break
+                }
+                //Need to replace and spaces in a places name with "+", and unwrap optional
+                guard var placePlus = self.titleText?.replacingOccurrences(of: " ", with: "+") else {break}
+                //Google balks at certain characters in url name string so remove funny characters
+                //Firebase Keys must be non-empty and cannot contain '.' '#' '$' '[' or ']'
+                if let index = placePlus.characters.index(of: ".") {
+                    placePlus.remove(at: index)
+                }
+                if let index = placePlus.characters.index(of: "#") {
+                    placePlus.remove(at: index)
+                }
+                if let index = placePlus.characters.index(of: "$") {
+                    placePlus.remove(at: index)
+                }
+                if let index = placePlus.characters.index(of: "[") {
+                    placePlus.remove(at: index)
+                }
+                if let index = placePlus.characters.index(of: "]") {
+                    placePlus.remove(at: index)
+                }
+                if let index = placePlus.characters.index(of: "&") {
+                    placePlus.remove(at: index)
+                }
+                //Create query in the url string of place name+city+state+country
+                var cityState: String = ""
+                if var city = self.googleCityState["City"]{
+                    city = city.replacingOccurrences(of: " ", with: "+")
+                    cityState = city
+                }
+                if var state = self.googleCityState["State"]{
+                    state = state.replacingOccurrences(of: " ", with: "+")
+                    if (!cityState.isEmpty){
+                        cityState += "+\(state)"
+                    }else{
+                        cityState = state
+                    }
+                }
+                if var country = self.googleCityState["Country"]{
+                    country = country.replacingOccurrences(of: " ", with: "+")
+                    if (!cityState.isEmpty){
+                        cityState += "+\(country)"
+                    }else{
+                        cityState = country
+                    }
+                }
+                let mapsString = "comgooglemaps://?q=\(placePlus)+\(cityState)&center=\(latitude),\(longitude)=14&views=traffic"
+                let mapsUrl = URL(string: mapsString)
+                guard let urlWrapper = mapsUrl else {break}
+                //Open google maps and query the name of the place at the coordinates provided from the places api
+                if (UIApplication.shared.canOpenURL(URL(string:"comgooglemaps://")!)) {
+                    UIApplication.shared.open   (urlWrapper)
+                } else {
+                    print("Can't use comgooglemaps://");
+                }
+                break
+            
             //open telephone app and call place
             case self.phoneNumCell:
                 var telNum = self.placePhoneNumber
@@ -415,6 +574,35 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                 break
         }
         self.tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    //Allow copy paste for cells:
+    func tableView(_ tableView: UITableView, shouldShowMenuForRowAt indexPath: IndexPath) -> Bool {
+        if(indexPath.row == self.addressCell){
+            let cell = tableView.cellForRow(at: indexPath) as! AddressTableViewCell
+            return (cell.detailTextLabel?.text != nil)
+        }else{
+            let cell = tableView.cellForRow(at: indexPath) as! PlaceDeetsTableViewCell
+            return (cell.deetsLabel?.text != nil)
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, canPerformAction action: Selector, forRowAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
+        return action == #selector(copy(_:))
+    }
+    
+    func tableView(_ tableView: UITableView, performAction action: Selector, forRowAt indexPath: IndexPath, withSender sender: Any?) {
+        if action == #selector(copy(_:)) {
+            if(indexPath.row == self.addressCell){
+                let cell = tableView.cellForRow(at: indexPath) as! AddressTableViewCell
+                let pasteboard = UIPasteboard.general
+                pasteboard.string = cell.topLabel?.text
+            }else{
+                let cell = tableView.cellForRow(at: indexPath) as! PlaceDeetsTableViewCell
+                let pasteboard = UIPasteboard.general
+                pasteboard.string = cell.deetsLabel?.text
+            }
+        }
     }
     
 }
