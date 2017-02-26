@@ -51,17 +51,52 @@ class ProfileStepsViewController: UIViewController {
     @IBAction func proceedButtonPressed(_ sender: UIButton) {
         if let cityText = homeCityTextBox.text{
             if(cityText != ""){
-            print("Home city: \(homeCityTextBox.text)")
-            performSegue(withIdentifier: "segueToAddFriends", sender: nil)
+                saveHomeCity(cityText)
+                print("Home city: \(homeCityTextBox.text)")
+                performSegue(withIdentifier: "segueToAddFriends", sender: nil)
             }else{
-                print("Please add a home city to proceed. Empty found")
+                missingHomeAlert()
             }
         }else{
-            print("Please add a home city to proceed. Nil found")
+            missingHomeAlert()
         }
     }
     
+    func missingHomeAlert(){
+        let alert = UIAlertController(title: "Missing Home City", message: "Tell us your home city and we'll make it easier for you to check in around town.", preferredStyle: .alert)
+        let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alert.addAction(CancelAction)
+        self.present(alert, animated: true, completion: nil)
+    }
     
+    func saveHomeCity(_ homeCity: String){
+        //Get Reference to NSManagedObjectContext
+        //The managed object context lives as a property of the application delegate
+        let appDelegate =
+            UIApplication.shared.delegate as! AppDelegate
+        //use the object context to set up a new managed object to be "commited" to CoreData
+        let managedContext = appDelegate.managedObjectContext
+        
+        //Get my CoreData Entity and attach it to a managed context object
+        let entity =  NSEntityDescription.entity(forEntityName: "CityButton",
+                                                 in:managedContext)
+        //create a new managed object and insert it into the managed object context
+        let cityButtonMgObj = NSManagedObject(entity: entity!,
+                                              insertInto: managedContext)
+        
+        //Using the managed object context set the "name" attribute to the parameter passed to this func
+        cityButtonMgObj.setValue(homeCity, forKey: "homeCity")
+        
+        //save to CoreData, inside do block in case error is thrown
+        do {
+            try managedContext.save()
+            //Insert the managed object that was saved to disk into the array used to populate the table
+            //cityButtonCoreData.append(cityButtonMgObj)
+        } catch let error as NSError  {
+            print("Could not save \(error), \(error.userInfo)")
+        }
+
+    }
     func addTextBoxBorder(){
         //Create underline bar for home city and additional city text boxes
         let px = 1 / UIScreen.main.scale    //determinte 1 pixel size instead of using 1 point
@@ -118,7 +153,26 @@ class ProfileStepsViewController: UIViewController {
     }
     */
     
-    // Unwind seque always bypassed and up the chain past the login VC to CIO home view 
+    //Dismiss keyboard if clicking away from text box
+    //Detect when user taps outside of scroll views and remove any delete city buttons if they are present
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        super.touchesBegan(touches, with: event)
+        
+        if let touch: UITouch = touches.first{
+            homeCityTextBox.resignFirstResponder()
+            addCityTextBox.resignFirstResponder()
+        }
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        view.endEditing(true)
+        addCityTextBox.resignFirstResponder()
+        homeCityTextBox.resignFirstResponder()
+        return true
+    }
+    
+    // Unwind seque always bypassed and up the chain past the login VC to CIO home view
     @IBAction func unwindToProfileSteps(_ sender: UIStoryboardSegue) {
         // empty
     }

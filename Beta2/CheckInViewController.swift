@@ -39,6 +39,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var placesClient: GMSPlacesClient!
     //Location manager for detecting user's location
     var locationManager: CLLocationManager? = nil
+    //Activity monitor and view background
+    var activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView()
+    var loadingView: UIView = UIView()
     
     //Hack to reiterate through check in process after we notify the user they checked in without autocomplete
     var customCheckIn = false
@@ -328,6 +331,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             let dictArrLength = dictArr.count
             if(!restNameText.isEmpty && restNameText != "Enter Name...")
             {
+                //Start activity monitor since check process now has to make async request
+                displayActivityMonitor()
                 //Firebase Keys must be non-empty and cannot contain '.' '#' '$' '[' or ']'
                 if let index = restNameText.characters.index(of: ".") {
                     restNameText.remove(at: index)
@@ -369,7 +374,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                                 refChecked.updateChildValues([restNameText:true])
                                 refChecked.child(restNameText).updateChildValues(["placeId":self.checkObj.placeId!])
                             }else if(self.customCheckIn == false){  //Have the user confirm that they want to check in without using auto complete
-                                let alert = UIAlertController(title: "Is this a custom Check In?", message: "You didn't use auto complete for this check in. Are you sure this place exists and that you want to check it in under this name?.", preferredStyle: .alert)
+                                let alert = UIAlertController(title: "Is this a custom Check In?", message: "You didn't use Google's auto complete for this check in. Are you sure this place exists and that you want to check it in under this name?.", preferredStyle: .alert)
                                 //Exit function if user clicks now and allow them to reconfigure the check in
                                 let CancelAction = UIAlertAction(title: "No", style: .cancel, handler: nil)
                                 //Async call to create button would complete function, so I return after presenting, and if the user wishes I will reiterate through the function
@@ -381,19 +386,29 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                                 })
                                 alert.addAction(ConfirmAction)
                                 alert.addAction(CancelAction)
-                                self.present(alert, animated: true, completion: nil)
+                                //Remove activity monitor so alertview can be presented
+                                self.present(alert, animated: true, completion: {
+                                    self.clearActivityMonitor()
+                                })
                                 return
                             }
                             
                         }else{  //Notify the user and skip the process if they have previously checked in here
                             let alert = UIAlertController(title: "Reapeated Check In Out", message: "You must really like this place, you've already added \(restNameText) to your List. Please add a new place to Check In Out!", preferredStyle: .alert)
                             //Exit function if user clicks now and allow them to reconfigure the check in
-                            let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+                            let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: {
+                                UIAlertAction in
+                                self.cleanScreen()
+                            })
                             alert.addAction(CancelAction)
-                            self.present(alert, animated: true, completion: nil)
-                            //Before returning I don't want the user to retain the current place ID and then change the name to something not matching this place ID so I will clear it
+                            //Remove activity monitor so alertview can be presented
+                            self.clearActivityMonitor()
+                            self.present(alert, animated: true, completion:{
+                                //Before returning I don't want the user to retain the current place ID and then change the name to something not matching this place ID so I will clear it
                                 self.checkObj.placeId = nil
-                            return
+                                self.clearActivityMonitor()
+                            })
+                          return
                         }
                         
                         if(!placeExistsMaster){
@@ -423,49 +438,61 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                         //Save to NSUser defaults
         //                restNameHistory += [restNameText]
                         
-                        self.dictArr.removeAll()     //Remove elements so the following check in doesn't overwrite the previous
-                        self.checkObj = placeNode()  //reinitalize place node for next check in
-                    
-                        //Restore check in screen to defaults
-                        self.CheckInRestField.text = nil
-                        for view in self.catScrollContainerView.subviews as [UIView] {
-                            if let btn = view as? UIButton {
-                                btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
-                                btn.isSelected = false
-                                if(btn.backgroundColor != UIColor.clear){
-                                    btn.backgroundColor = UIColor.clear
-                                }
-                            }
-                        }
-                        for view in self.cityScrollContainerView.subviews as [UIView] {
-                            if let btn = view as? UIButton {
-                                btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
-                                btn.isSelected = false
-                                if(btn.backgroundColor != UIColor.clear){
-                                    btn.backgroundColor = UIColor.clear
-                                }
-                            }
-                        }
-                        
+                       //Return check in screen to defaults and clear objects created for the previous check in
+                        self.cleanScreen()
+                        //Turn off activity monitor
+                        self.clearActivityMonitor()
                         //perform check animation signaling check in complete
                         self.animateCheckComplete()
                         
-                        self.CheckInRestField.placeholder = "Enter Name..."
+                       
                     }//Finish closure after checking whether the place had already been added to the back end
                 }else{//End of if checking for a city and a catagory being selected
                     let alert = UIAlertController(title: "Give me some details here!", message: "Please make sure you selected a city and category button so I know where \(restNameText) belongs in your list :)", preferredStyle: .alert)
                     //Exit function if user clicks now and allow them to reconfigure the check in
                     let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
                     alert.addAction(CancelAction)
-                    self.present(alert, animated: true, completion: nil)
+                    self.present(alert, animated: true, completion: {
+                        self.clearActivityMonitor()
+                    })
                 }
             }else{//If user hits submit with empty check in display alert
                 let alert = UIAlertController(title: "Empty Check In", message: "You attempted to add a Check In but did not provide a name.", preferredStyle: .alert)
                 let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
                 alert.addAction(CancelAction)
-                self.present(alert, animated: true, completion: nil)
+                self.present(alert, animated: true, completion: {
+                    self.clearActivityMonitor()
+                })
             }
         }
+    }
+    
+    //Remove button check marks and clear any arrays/objects referencing the previous check in
+    func cleanScreen() {
+        self.dictArr.removeAll()     //Remove elements so the following check in doesn't overwrite the previous
+        self.checkObj = placeNode()  //reinitalize place node for next check in
+        
+        //Restore check in screen to defaults
+        self.CheckInRestField.text = nil
+        for view in self.catScrollContainerView.subviews as [UIView] {
+            if let btn = view as? UIButton {
+                btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
+                btn.isSelected = false
+                if(btn.backgroundColor != UIColor.clear){
+                    btn.backgroundColor = UIColor.clear
+                }
+            }
+        }
+        for view in self.cityScrollContainerView.subviews as [UIView] {
+            if let btn = view as? UIButton {
+                btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
+                btn.isSelected = false
+                if(btn.backgroundColor != UIColor.clear){
+                    btn.backgroundColor = UIColor.clear
+                }
+            }
+        }
+        self.CheckInRestField.placeholder = "Enter Name..."
     }
     
 //    Select attributes for check in
@@ -626,6 +653,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
     func googleAutoComplete(_ textField: UITextField) {
         if let checkInString = CheckInRestField.text{
+            //Anytime the user changes the text field make sure they aren't changing a previously selected establishment, so clear the place id
+            checkObj.placeId = nil
             //Start querying google database with at minimum 3 chars
             if(checkInString.characters.count >= 3 && (checkInString.characters.count % 2 != 0)){
                 placeAutocomplete(queryText: checkInString)
@@ -699,7 +728,44 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         return coordBounds!
     }
     
+    //Display an activity monitor while the user waits for the check in process
+    func displayActivityMonitor(){
+        //Create container view then loading for activity indicator to prevent background from overshadowing white color
+        let frameWidth: CGFloat = 170.0, frameHeight: CGFloat = 30.0
+        //center x, and place under text field for y
+        let frameX = (view.frame.size.width - frameWidth) / 2
+        let frameY = self.CheckInRestField.frame.maxY + 7.5
+        self.loadingView.frame = CGRect(x: frameX ,y: frameY,width: frameWidth,height: frameHeight)
+//        self.loadingView.center = view.center
+        //Different shaded color than back ground
+        self.loadingView.backgroundColor = UIColor(red: 0x74/255, green: 0x74/255, blue: 0x74/255, alpha: 0.7)
+        self.loadingView.clipsToBounds = true
+        self.loadingView.layer.cornerRadius = 10
+        
+        //Create label to add to view
+        let loadingLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 140, height: 30))
+        loadingLabel.text = "Check me out!"
+        loadingLabel.font = UIFont(name: "Avenir-Heavy", size: 18)
+        loadingLabel.textColor = .white
+        loadingLabel.textAlignment = .center
+        loadingView.addSubview(loadingLabel)
+        
+        //Create Activity indicator
+        self.activityIndicator = UIActivityIndicatorView(frame:   CGRect(x: 0, y: 0, width: 20, height: 20)) as UIActivityIndicatorView
+        self.activityIndicator.center = CGPoint(x: loadingView.frame.size.width - 20,y: loadingView.frame.size.height / 2);
+        //        activityIndicator.backgroundColor = UIColor(red: 0x60/255, green: 0x60/255, blue: 0x60/255, alpha: 0.3)
+        self.activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.white
+        self.activityIndicator.hidesWhenStopped = true
+        
+        self.loadingView.addSubview(activityIndicator)
+        view.addSubview(loadingView)
+        self.activityIndicator.startAnimating()
+    }
     
+    func clearActivityMonitor(){
+        self.activityIndicator.stopAnimating()
+        self.loadingView.removeFromSuperview()
+    }
 
 //    Manage and create new buttons
     
@@ -798,6 +864,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             let cityButtonEntity =
                 try managedContext.fetch(fetchRequest)
             cityButtonCoreData = cityButtonEntity as! [NSManagedObject]
+            var adjustedCount = 0
+            var homeCityFound = false
             //iterate over all attributes in City button entity
             for i in 0 ..< cityButtonCoreData.count{
                 let cityButtonAttr = cityButtonCoreData[i]
@@ -811,6 +879,13 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                         self.cityButtonList.insert(cityNameStr, at: cityCount)
                     }
                     cityCount += 1
+                }else if let cityHome = cityButtonAttr.value(forKey: "homeCity") as? String {
+                    //Insert home city at beginning of list if it doesn't already reside there:
+                    if(!cityButtonList.contains(where: {element in return (element == cityHome)})){
+                        self.cityButtonList.insert(cityHome, at: 0)
+                    }
+                    cityCount += 1
+                    print("Found home : \(cityHome)")
                 }
             }
         

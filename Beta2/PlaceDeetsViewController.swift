@@ -113,9 +113,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                 self.tableView.reloadData()
             }
             
-        }else{
-            print("No place Id found")
-        }
+        }//printing message to the user that no place id exists was added to view did appear
         
         //Remove empty lines from table view bottom by adding empty footer
         self.tableView.tableFooterView = UIView()
@@ -146,6 +144,16 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
         //Label is centered but I only want text to grow to the point of reaching the left back button, which is 72px from the left edge of screen
         let maxWidth = screenWidth - (72 * 2)
         self.titleLabel.preferredMaxLayoutWidth = maxWidth
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if (self.placeId == nil){
+            let alert = UIAlertController(title: "Custom Check In", message: "This was a custom check in. Google wasn't able to read the users mind to get any more info than what was provided", preferredStyle: .alert)
+            let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+            alert.addAction(CancelAction)
+            self.present(alert, animated: true, completion: nil)
+        }
     }
     
     func gatherFriendList(_ completionClosure: @escaping ( _ myFriends: [String]) -> Void){
@@ -405,10 +413,13 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
 //            addressCell.topLabel.text = streetAddress
 //            addressCell.bottomLabel.text = cityState
             addressCell.topLabel.text = self.placeAddress
-            addressCell.topLabel.lineBreakMode = .byWordWrapping
-            addressCell.topLabel.numberOfLines = 2
+//            addressCell.topLabel.lineBreakMode = .byWordWrapping
+            
             addressCell.topLabel.font = UIFont(name: "Avenir-Light", size: 16)
-            addressCell.bottomLabel.font = UIFont(name: "Avenir-Light", size: 16)
+//            addressCell.bottomLabel.font = UIFont(name: "Avenir-Light", size: 16)
+            addressCell.topLabel.adjustsFontSizeToFitWidth = true
+            self.titleLabel.lineBreakMode = .byTruncatingTail
+            addressCell.topLabel.numberOfLines = 2
             return addressCell
         case 1:
             let deetsCell: PlaceDeetsTableViewCell = tableView.dequeueReusableCell(withIdentifier: deetsCellIdentifier, for: indexPath) as! PlaceDeetsTableViewCell
@@ -519,9 +530,13 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                 guard let urlWrapper = mapsUrl else {break}
                 //Open google maps and query the name of the place at the coordinates provided from the places api
                 if (UIApplication.shared.canOpenURL(URL(string:"comgooglemaps://")!)) {
-                    UIApplication.shared.open   (urlWrapper)
-                } else {
-                    print("Can't use comgooglemaps://");
+                    UIApplication.shared.open(urlWrapper)
+                } else {    //If they don't have google maps app this will alert the user
+                    let alert = UIAlertController(title: "You don't use Google maps!?", message: "It looks like you don't have google maps installed on your phone! Feel free to copy this address and paste into the navigation app of your choice", preferredStyle: .alert)
+                    //Exit function if user clicks now and allow them to reconfigure the check in
+                    let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+                    alert.addAction(CancelAction)
+                    self.present(alert, animated: true, completion: nil)
                 }
                 break
             
@@ -580,7 +595,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
     func tableView(_ tableView: UITableView, shouldShowMenuForRowAt indexPath: IndexPath) -> Bool {
         if(indexPath.row == self.addressCell){
             let cell = tableView.cellForRow(at: indexPath) as! AddressTableViewCell
-            return (cell.detailTextLabel?.text != nil)
+            return (cell.topLabel?.text != nil)
         }else{
             let cell = tableView.cellForRow(at: indexPath) as! PlaceDeetsTableViewCell
             return (cell.deetsLabel?.text != nil)

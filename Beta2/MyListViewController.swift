@@ -104,7 +104,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
         loadingView.frame = CGRect(x: 0,y: 0,width: 80,height: 80)
         loadingView.center = view.center
-        loadingView.backgroundColor = UIColor(red: 0x44/255, green: 0x44/255, blue: 0x44/255, alpha: 0.7)
+        loadingView.backgroundColor = UIColor(red: 0x74/255, green: 0x74/255, blue: 0x74/255, alpha: 0.7)
         loadingView.clipsToBounds = true
         loadingView.layer.cornerRadius = 10
         
@@ -689,6 +689,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         //        let controller = MyListViewController(nibName: "MyListViewController", bundle: nil) as MyListViewController
         //        controller.requestedUser = selectedUserId as NSString
         // Perform seque to my List VC
+
         self.performSegue(withIdentifier: "placeDeetsSegue", sender: self)
     }
     
@@ -947,7 +948,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             }
         }
         
-//        self.tableView.deselectRow(at: self.tableView.indexPathForSelectedRow!, animated: true)
+        self.tableView.deselectRow(at: self.tableView.indexPathForSelectedRow!, animated: true)
         
     }
     
