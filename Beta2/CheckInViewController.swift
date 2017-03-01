@@ -46,8 +46,24 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     //Hack to reiterate through check in process after we notify the user they checked in without autocomplete
     var customCheckIn = false
     
+    fileprivate let sharedUserHome = UserDefaults.standard
+    let sharedHomeDefaultKey = "ProfileStepsVC.homeAdded"
+    
+    //Return optional whether the user has added a home, will be nil if they've always skipped the onboarding
+    var homeAdded: NSNumber? {
+        get
+        {
+            return sharedUserHome.object(forKey: sharedHomeDefaultKey) as? NSNumber
+        }
+        set
+        {
+            sharedUserHome.set(newValue, forKey: sharedHomeDefaultKey)
+        }
+    }
+    
     fileprivate let sharedRestName = UserDefaults.standard
     
+    //Unused nsUserDefaults for storing restaurancts
     var restNameHistory: [String] {
         get
         {
@@ -100,7 +116,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     //Since the bounds of the view controller's view is not ready in viewDidLoad, anything that will be calculated based off the view's bounds directly or indirectly must not be put in viewDidLoad (so we put it in did layout subviews
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        self.CheckInRestField.delegate = self
         //Auto Capitalize words in text box field
         self.CheckInRestField.autocapitalizationType = .words
         //Add target to check in rest field that detects when a change occurs
@@ -273,6 +289,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
     // Unwind seque from my myListVC
     @IBAction func unwindFromMyList(_ sender: UIStoryboardSegue) {
+        print("Unwind list")
         // empty
     }
     
@@ -374,7 +391,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                                 refChecked.updateChildValues([restNameText:true])
                                 refChecked.child(restNameText).updateChildValues(["placeId":self.checkObj.placeId!])
                             }else if(self.customCheckIn == false){  //Have the user confirm that they want to check in without using auto complete
-                                let alert = UIAlertController(title: "Is this a custom Check In?", message: "You didn't use Google's auto complete for this check in. Are you sure this place exists and that you want to check it in under this name?.", preferredStyle: .alert)
+                                let alert = UIAlertController(title: "Is this a custom Check In?", message: "You didn't use Google's auto complete for this check in. Are you sure this place exists and that you want to check it in under this name?", preferredStyle: .alert)
                                 //Exit function if user clicks now and allow them to reconfigure the check in
                                 let CancelAction = UIAlertAction(title: "No", style: .cancel, handler: nil)
                                 //Async call to create button would complete function, so I return after presenting, and if the user wishes I will reiterate through the function
@@ -476,7 +493,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         self.CheckInRestField.text = nil
         for view in self.catScrollContainerView.subviews as [UIView] {
             if let btn = view as? UIButton {
-                btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
+                btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 5, 0, 5) //prevent text from shift when removing check image
                 btn.isSelected = false
                 if(btn.backgroundColor != UIColor.clear){
                     btn.backgroundColor = UIColor.clear
@@ -485,7 +502,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         }
         for view in self.cityScrollContainerView.subviews as [UIView] {
             if let btn = view as? UIButton {
-                btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 0, 0, 0) //prevent text from shift when removing check image
+                btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 5, 0, 5) //prevent text from shift when removing check image
                 btn.isSelected = false
                 if(btn.backgroundColor != UIColor.clear){
                     btn.backgroundColor = UIColor.clear
@@ -493,6 +510,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             }
         }
         self.CheckInRestField.placeholder = "Enter Name..."
+        //Clear any delete icons the user may have left on the screen by calling the same function that would be called if they tapped outside the buttons
+        clearCityDeleteButton(UITapGestureRecognizer())
     }
     
 //    Select attributes for check in
@@ -857,15 +876,17 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         do {
             var cityCount = 0   //Keep track of the city button indices
             //Sort fetch requests ascending
-            let sortDescriptor = NSSortDescriptor(key: "city", ascending: true)
-            let sortDescriptors = [sortDescriptor]
+//            let sortCityDescriptor = NSSortDescriptor(key: "city", ascending: true)
+            //Sort by home city first since it is listed as the second sort descriptor
+                //Sorting descending actually pulls the home city first, then alphabetizes the other cities
+            let sortHomeDescriptor = NSSortDescriptor(key: "homeCity", ascending: false)
+            let sortDescriptors = [sortHomeDescriptor]
             fetchRequest.sortDescriptors = sortDescriptors
             //fetchRequests asks for city button entity, try catch syntax used to handle errors
             let cityButtonEntity =
                 try managedContext.fetch(fetchRequest)
             cityButtonCoreData = cityButtonEntity as! [NSManagedObject]
-            var adjustedCount = 0
-            var homeCityFound = false
+            
             //iterate over all attributes in City button entity
             for i in 0 ..< cityButtonCoreData.count{
                 let cityButtonAttr = cityButtonCoreData[i]
@@ -882,10 +903,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 }else if let cityHome = cityButtonAttr.value(forKey: "homeCity") as? String {
                     //Insert home city at beginning of list if it doesn't already reside there:
                     if(!cityButtonList.contains(where: {element in return (element == cityHome)})){
-                        self.cityButtonList.insert(cityHome, at: 0)
+                        self.cityButtonList.insert(cityHome, at: cityCount)
                     }
                     cityCount += 1
-                    print("Found home : \(cityHome)")
                 }
             }
         
@@ -944,7 +964,14 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             button.addTarget(self, action: #selector(CheckInViewController.citySelect(_:)), for: .touchUpInside)
             //Functions to highlight and unhighlight when touches begin
             button.addTarget(self, action: #selector(CheckInViewController.cityCatButtBeginTouch(_:)), for: .touchDown)
+            //outside notices as soon as the finger leaves the button, exiting is anywhere outside
             button.addTarget(self, action: #selector(CheckInViewController.cityCatButtTouchCancel(_:)), for: .touchDragExit)
+            button.addTarget(self, action: #selector(CheckInViewController.cityCatButtTouchCancel(_:)), for: .touchDragOutside)
+            //Trying to capture all events that could be caused by the scroll view
+            button.addTarget(self, action: #selector(CheckInViewController.cityCatButtTouchCancel(_:)), for: .touchUpOutside)
+            //Touch cancel is caused by an event triggered by the system, this clears the button color when delete buttons are created
+            button.addTarget(self, action: #selector(CheckInViewController.cityCatButtTouchCancel(_:)), for: .touchCancel)
+            
             //add target actions for long press on button, but don't add to "+" button
             if(index != (cityButtonList.count - 1)){
                 let longGesture = UILongPressGestureRecognizer(target: self, action: #selector(CheckInViewController.displayCityDeleteButton(_:)))
@@ -985,6 +1012,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             //Functions to highlight and unhighlight when touches begin
             button.addTarget(self, action: #selector(CheckInViewController.cityCatButtBeginTouch(_:)), for: .touchDown)
             button.addTarget(self, action: #selector(CheckInViewController.cityCatButtTouchCancel(_:)), for: .touchDragExit)
+            button.addTarget(self, action: #selector(CheckInViewController.cityCatButtTouchCancel(_:)), for: .touchDragOutside)
+            button.addTarget(self, action: #selector(CheckInViewController.cityCatButtTouchCancel(_:)), for: .touchUpOutside)
+            button.addTarget(self, action: #selector(CheckInViewController.cityCatButtTouchCancel(_:)), for: .touchCancel)
             catScrollContainerView.addSubview(button)
             //button.setNeedsLayout()
         }
@@ -1007,8 +1037,11 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 button.buttonEnum = i
                 button.layer.cornerRadius = 0.5 * button.bounds.size.width
                 button.backgroundColor = UIColor(white: 0.75, alpha: 0.9)
-                button.setTitle("X", for: UIControlState())
-                button.titleLabel?.font = UIFont.systemFont(ofSize: CGFloat(buttonRad / 4), weight: UIFontWeightBold)
+                //Chalkboard font has rounded edges that I'm looking for but shifts the title label downwards so I use insets to shift it back upwards
+                button.setTitle("x", for: UIControlState())
+                button.titleLabel?.font = UIFont(name: "ChalkboardSE-Bold", size: CGFloat(buttonRad / 3))
+                button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 11, right: 0)
+//                button.titleLabel?.font = UIFont.systemFont(ofSize: CGFloat(buttonRad / 4), weight: UIFontWeightBold)
                 button.setTitleColor(UIColor.black, for: UIControlState())
                 button.addTarget(self, action: #selector(CheckInViewController.deleteCity(_:)), for: .touchUpInside)
                 cityScrollContainerView.addSubview(button)
@@ -1031,22 +1064,58 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     }
     
     func deleteCity(_ sender: DeleteCityUIButton){
-        let buttonEnum = sender.buttonEnum
-        sender.removeFromSuperview()
+        
         let coreData = retrieveCityButtons()  //store list of city attributes from cityButton entity
-//        Remove City from Core Data
+        //        Remove City from Core Data
         //The managed object context lives as a property of the application delegate
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         //use the object context to set up a new managed object to be "commited" to CoreData
         let managedContext = appDelegate.managedObjectContext
         //sorted city attributes can be selected by the button Enum
-        managedContext.delete(coreData[buttonEnum] as NSManagedObject)
-        do {
-            try managedContext.save()   //Updated core data with the deleted attribute
-        }catch _ {
+        let buttonEnum = sender.buttonEnum
+
+        
+        //Check if I will have to handle a user attempting to the delete the home city
+        //If home city has been added then the user is attempting to delete their home city when buttonEnum is 0
+        //If homeAdded is not nil and true then prompt the user that they will delete their home city with this action
+        if (buttonEnum == 0 && ((homeAdded as Bool?) ?? false)){
+            let alert = UIAlertController(title: "Tired of this town?", message: "Are you sure you want to delete your home city?", preferredStyle: .alert)
+            //Exit function if user clicks now and allow them to reconfigure the check in
+            let CancelAction = UIAlertAction(title: "No", style: .cancel, handler: {UIAlertAction in
+                //Remove any delete city buttons to clean the screen by calling the same function that touches to the scroll view use to clear icons
+                self.clearCityDeleteButton(UITapGestureRecognizer())
+            })
+            //Perform the delete operation in the closure called by the confirm action
+            let ConfirmAction = UIAlertAction(title: "Yes", style: .default, handler: { UIAlertAction in
+                sender.removeFromSuperview()
+                
+                managedContext.delete(coreData[buttonEnum] as NSManagedObject)
+                do {
+                    try managedContext.save()   //Updated core data with the deleted attribute
+                    self.cityButtonList.remove(at: buttonEnum)
+                    self.createCityButtons() //redraw Buttons
+                    //Modify user default to indicate the user no longer has a home city
+                    self.homeAdded = false
+                }catch _ {
+                }
+
+            })
+            alert.addAction(ConfirmAction)
+            alert.addAction(CancelAction)
+            //Remove activity monitor so alertview can be presented
+            self.present(alert, animated: true, completion:nil )
+        }else{
+            sender.removeFromSuperview()
+            
+            managedContext.delete(coreData[buttonEnum] as NSManagedObject)
+            do {
+                try managedContext.save()   //Updated core data with the deleted attribute
+            }catch _ {
+            }
+            cityButtonList.remove(at: buttonEnum)
+            createCityButtons() //redraw Buttons
         }
-        cityButtonList.remove(at: buttonEnum)
-        createCityButtons() //redraw Buttons
+        
     }
 
 
@@ -1149,15 +1218,16 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
 //        
 //        self.presentViewController(alertController, animated: true, completion: nil)
     }
-    /*
+    //
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
+        print(segue.destination)
     }
-    */
+    //
     
     
     

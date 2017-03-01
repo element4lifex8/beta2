@@ -36,14 +36,8 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
     var friendsRef: FIRDatabaseReference!
     
     let currUserDefaultKey = "FBloginVC.currUser"
-    fileprivate let sharedFbUser = UserDefaults.standard
-    
-    var currUser: NSString {
-        get
-        {
-            return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
-        }
-    }
+   
+    var currUser = Helpers().currUser
 
 
 //    @IBAction func skipProfileSetup(_ sender: UIButton)

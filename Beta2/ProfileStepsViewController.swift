@@ -9,14 +9,31 @@
 import UIKit
 import CoreData
 
-class ProfileStepsViewController: UIViewController {
+class ProfileStepsViewController: UIViewController, UITextFieldDelegate {
 
+    //Set up NSUserDefaults to save boolean noting that home city exists
+    fileprivate let sharedUserHome = UserDefaults.standard
+    let sharedHomeDefaultKey = "ProfileStepsVC.homeAdded"
+    var homeAdded: NSNumber {
+        get
+        {
+            return (sharedUserHome.object(forKey: sharedHomeDefaultKey) as? NSNumber)!
+        }
+        set
+        {
+            sharedUserHome.set(newValue, forKey: sharedHomeDefaultKey)
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         addTextBoxBorder()
     }
     override func viewDidLoad() {
         super.viewDidLoad()
+        //Set text field delegates so they can dismiss the keyboard
+        self.homeCityTextBox.delegate = self
+        self.addCityTextBox.delegate = self
         //Create Proper look for add city button
         self.addCityButton.layer.cornerRadius = 0.5 * self.addCityButton.bounds.size.width
         self.addCityButton.backgroundColor = UIColor.clear
@@ -49,11 +66,15 @@ class ProfileStepsViewController: UIViewController {
     }
     
     @IBAction func proceedButtonPressed(_ sender: UIButton) {
-        if let cityText = homeCityTextBox.text{
+        if var cityText = homeCityTextBox.text{
             if(cityText != ""){
-                saveHomeCity(cityText)
-                print("Home city: \(homeCityTextBox.text)")
-                performSegue(withIdentifier: "segueToAddFriends", sender: nil)
+                //Remove any trailing spaces from restNameText
+                cityText = cityText.trimmingCharacters(in: .whitespaces)
+                //Function only returns true when user trys to overwrite currently saved home city, so I wont transition here and let alert controller closure handle segue, or wait until submit is hit again
+                let displayAlert = saveHomeCity(cityText)
+                if(!displayAlert){
+                    performSegue(withIdentifier: "segueToAddFriends", sender: nil)
+                }
             }else{
                 missingHomeAlert()
             }
@@ -69,7 +90,86 @@ class ProfileStepsViewController: UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
-    func saveHomeCity(_ homeCity: String){
+    func saveHomeCity(_ homeCity: String) -> Bool{
+        var addNewHome = true
+        var displayAlert = false
+        //Get Reference to NSManagedObjectContext
+        //The managed object context lives as a property of the application delegate
+        let appDelegate =
+            UIApplication.shared.delegate as! AppDelegate
+        //use the object context to set up a new managed object to be "commited" to CoreData
+        let managedContext = appDelegate.managedObjectContext
+        
+        //Retrieve from CityButton entity only the homeCity attribute
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "CityButton")
+        
+        do {
+            let cityButtonEntity =
+                try managedContext.fetch(fetchRequest)
+            let homeCityCoreData = cityButtonEntity as! [NSManagedObject]
+            //Check if the user is changing their home city
+            for i in 0 ..< homeCityCoreData.count{
+                if let cityNameStr = homeCityCoreData[i].value(forKey: "homeCity") as? String{
+                    //mark that home city was previously set
+                    addNewHome = false
+                    if (cityNameStr != homeCity){
+                        displayAlert = true
+                        let alert = UIAlertController(title: "Have you Moved?", message: "Are you sure you want to change your home city from \(cityNameStr) to \(homeCity)?", preferredStyle: .alert)
+                        //Async call for uialertview will have already left this function, no handling needed
+                        let CancelAction = UIAlertAction(title: "No", style: .cancel, handler: nil)
+                        
+                        let ConfirmAction = UIAlertAction(title: "Yes", style: .default, handler: { UIAlertAction in
+                            //Save the new value in core data
+                            
+                            homeCityCoreData[i].setValue(homeCity, forKey: "homeCity")
+                            
+                            do {
+                                try homeCityCoreData[i].managedObjectContext?.save()
+                                self.homeAdded = true
+                            } catch {
+                                let saveError = error as NSError
+                                print(saveError)
+                            }
+                            self.performSegue(withIdentifier: "segueToAddFriends", sender: nil)
+                        })
+                        alert.addAction(CancelAction)
+                        alert.addAction(ConfirmAction)
+                        self.modalPresentationStyle = .overCurrentContext
+                        self.present(alert, animated: true, completion: nil)
+//
+                    }
+                }
+            }
+            if (addNewHome){//save to coredata since no previous entry existed
+//                 self.writeToCoreData(homeCity: homeCity)
+                //Get my CoreData Entity and attach it to a managed context object
+                let entity =  NSEntityDescription.entity(forEntityName: "CityButton",
+                                                         in:managedContext)
+                //create a new managed object and insert it into the managed object context
+                let cityButtonMgObj = NSManagedObject(entity: entity!,
+                                                      insertInto: managedContext)
+                
+                //Using the managed object context set the "name" attribute to the parameter passed to this func
+                cityButtonMgObj.setValue(homeCity, forKey: "homeCity")
+                
+                //save to CoreData, inside do block in case error is thrown
+                do {
+                    try managedContext.save()
+                    //Save to NSUSerDefaults that the user now has a home city saved
+                    homeAdded = true
+                } catch let error as NSError  {
+                    print("Could not save \(error), \(error.userInfo)")
+                }
+
+            }
+        }catch let error as NSError {
+            print("Could not fetch \(error), \(error.userInfo)")
+        }
+        //Notify the submit button to not transition until alert controller is handled
+        return displayAlert
+   }
+    
+    func writeToCoreData(homeCity: String){
         //Get Reference to NSManagedObjectContext
         //The managed object context lives as a property of the application delegate
         let appDelegate =
@@ -95,7 +195,9 @@ class ProfileStepsViewController: UIViewController {
         } catch let error as NSError  {
             print("Could not save \(error), \(error.userInfo)")
         }
+        
 
+        
     }
     func addTextBoxBorder(){
         //Create underline bar for home city and additional city text boxes
@@ -167,8 +269,6 @@ class ProfileStepsViewController: UIViewController {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         view.endEditing(true)
-        addCityTextBox.resignFirstResponder()
-        homeCityTextBox.resignFirstResponder()
         return true
     }
     

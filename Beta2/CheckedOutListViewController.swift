@@ -30,16 +30,7 @@ class CheckedOutListViewController: UITableViewController {
     var placesRef: FIRDatabaseReference!
     var headerCount = 0
     
-    let currUserDefaultKey = "FBloginVC.currUser"
-    fileprivate let sharedFbUser = UserDefaults.standard
-
-
-    var currUser: NSString {
-        get
-        {
-            return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
-        }
-    }
+    var currUser = Helpers().currUser
 
     let restNameDefaultKey = "CheckInView.restName"
     fileprivate let sharedRestName = UserDefaults.standard

@@ -25,14 +25,8 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
 //    let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/")
     let refChecked = FIRDatabase.database().reference().child("checked")
     let currUserDefaultKey = "FBloginVC.currUser"
-    fileprivate let sharedFbUser = UserDefaults.standard
-    
-    var currUser: NSString {
-        get
-        {
-            return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
-        }
-    }
+    //Retrieve curr user from User Defaults
+    var currUser = Helpers().currUser
 
     
 

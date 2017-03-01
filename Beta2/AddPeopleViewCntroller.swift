@@ -24,15 +24,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     var selectedIds: [String] = []     //List of users id's who are selected to add as friends
     var friendsRef: FIRDatabaseReference!
     
-    let currUserDefaultKey = "FBloginVC.currUser"
-    fileprivate let sharedFbUser = UserDefaults.standard
-    
-    var currUser: NSString {
-        get
-        {
-            return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
-        }
-    }
+    var currUser = Helpers().currUser
     
     
     //Must add submit button in viewDidAppear so that it is added over top of the tablewview (bringSubview to front in viewDidLoad would not put the view on top of the tableview

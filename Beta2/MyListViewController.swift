@@ -49,11 +49,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var currUser: String = ""
     
     //retrieve the current app user from NSUserDefaults
-    var defaultUser: NSString {
-        get{
-            return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
-        }
-    }
+    var defaultUser = Helpers().currUser
     
 //    Variables set by another view controller
     //Store the user ID whose list is requested by the CheckoutPeopleVc
@@ -779,11 +775,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         print("deleted")
         tableView.endUpdates()
     }
-    
-    func cancelDeleteTableItem(_ alertAction: UIAlertAction!) {
-        print("cancelled")
-        
-    }
+
     
     
 //    Collection view functions
@@ -934,6 +926,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     //Pass the placeId of the placeDeets view
     override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
+        print("my list segue")
         //Don't perform prepare for segue when unwinding from list
         if(segue.identifier == "placeDeetsSegue"){
             let destinationVC = segue.destination as! PlaceDeetsViewController
@@ -945,10 +938,9 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     destinationVC.placeId = selectedNode.nodePlaceId
                     destinationVC.categories = selectedNode.categories
                 }
+                self.tableView.deselectRow(at: itemPath, animated: true)
             }
         }
-        
-        self.tableView.deselectRow(at: self.tableView.indexPathForSelectedRow!, animated: true)
         
     }
     

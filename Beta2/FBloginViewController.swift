@@ -235,6 +235,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                     }
                     else
                     {
+                        //save user's id to NSUser defaults
                         self.currUser = user!.uid as NSString
                         print("Logged in  \(self.currUser)")
                         //Check to see if user is new and has not been added to the user's list in Firebase

@@ -2218,7 +2218,7 @@
         <image name="pagenation num3" width="40" height="10"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="pC0-bG-BYT"/>
         <segue reference="VL1-aN-paN"/>
+        <segue reference="pC0-bG-BYT"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -5,6 +5,6 @@
         <attribute name="homeCity" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="CityButton" positionX="-63" positionY="-18" width="128" height="30"/>
+        <element name="CityButton" positionX="-63" positionY="-18" width="128" height="75"/>
     </elements>
 </model>
