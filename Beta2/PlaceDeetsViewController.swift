@@ -196,7 +196,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                 }
             }
             
-            self.friendString = "\(numFriends) friends with this Check In Out"
+            self.friendString = "\(numFriends) Other People Checked In Here"
             self.myGroup.leave()
         })
     }

@@ -78,6 +78,10 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
                 loadingView.removeFromSuperview()
             }
         }
+        //For the time being the add city button is disabled (re-enabled in the tab bar select function)
+        addButton.isEnabled = false
+        addButton.isHidden = true
+        
 //        var buttonWatch:Bool = showPeopleView{
 //            didSet{
 //               self.tableView.reloadData() 
@@ -109,10 +113,15 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
             addButton.titleEdgeInsets.top = 8.0
             addButton.titleEdgeInsets.right = 7.0
             addButton.setImage(addPeopleImage, for: UIControlState())
+            addButton.isEnabled = true
+            addButton.isHidden = false
         }else{
             showPeopleView = false
-            addButton.setImage(nil, for: UIControlState())
-            addButton.setBackgroundImage(addCityImage, for: UIControlState())
+//            For now the add city button is disabled
+//            addButton.setImage(nil, for: UIControlState())
+//            addButton.setBackgroundImage(addCityImage, for: UIControlState())
+            addButton.isHidden = true
+            addButton.isEnabled = false
         }
         self.tableView.reloadData()
     }

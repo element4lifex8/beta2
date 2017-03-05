@@ -57,7 +57,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     //Header text indicates is this my List, or pass in the header label from another user's list or their city
     var headerText: String?   //Also store user's first name for header label
     var myFriendIds:[NSString]?
-    var showAllCities: Bool?
+    var showAllCities: Bool?    //When true show all user's check in for a city
     
     override func viewDidLoad() {
         var currRef: FIRDatabaseReference!
@@ -553,7 +553,12 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     //Display the entire alphabet in section index titles
     func sectionIndexTitles(for tableView: UITableView) -> [String]? {
-        return sectionIndexes
+        //Don't print section indexs when showing all checkins for a single city
+        if !(self.showAllCities ?? false){
+            return sectionIndexes
+        }else{
+            return nil
+        }
     }
     //    //Create index for tableview
     //    func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
@@ -926,7 +931,6 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     //Pass the placeId of the placeDeets view
     override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
-        print("my list segue")
         //Don't perform prepare for segue when unwinding from list
         if(segue.identifier == "placeDeetsSegue"){
             let destinationVC = segue.destination as! PlaceDeetsViewController

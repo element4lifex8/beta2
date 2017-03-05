@@ -21,7 +21,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var dictArr = [[String:String]]()
     var placesDict = [String : String]()
     var cityButtonList: [String] = ["+"]
-    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shops", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Site Seeing", "Winery"]
+    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Site Seeing", "Winery"]
     var placesArr = [String]()
     var arrSize = Int()
     var checkObj = placeNode()  //Appears that this model is filled out, but its actually the dict array contents that are written to the backen
@@ -97,7 +97,15 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         autoCompleteTableView?.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         autoCompleteTableView?.layer.cornerRadius = 15
         view.addSubview(autoCompleteTableView!)
+        //remove left padding from tableview seperators
+//        autoCompleteTableView?.layoutMargins = UIEdgeInsets.zero
+//        autoCompleteTableView?.separatorInset = UIEdgeInsets.zero
         
+        //add top separator line to footer
+//        let px = 1 / UIScreen.main.scale
+//        let frame = CGRect(x: view.frame.width/2, y: view.frame.height/2, width: (self.autoCompleteTableView?.frame.size.width)!, height: px)
+//        let line: UIView = UIView(frame: frame)
+//        line.backgroundColor = self.autoCompleteTableView?.separatorColor
         //create image view for the center of the footer view
         let googleFrame = CGRect(x: (autoCompleteFrame.width - googleImageView.frame.width) / 2, y: 0, width: googleImageView.frame.width, height: googleImageView.frame.height)
         let googs = UIImageView(frame: googleFrame)
@@ -111,6 +119,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         //Set autocomplete footer view with google attribution this way so that footer doesn't float
         autoCompleteTableView?.tableFooterView = tableFooterView
     }
+    
 //  Layout views in view controller
     
     //Since the bounds of the view controller's view is not ready in viewDidLoad, anything that will be calculated based off the view's bounds directly or indirectly must not be put in viewDidLoad (so we put it in did layout subviews
@@ -156,6 +165,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         locationManager?.delegate = self
         startUpdatingLocation()
 
+        autoCompleteTableView?.layoutMargins = UIEdgeInsets.zero
+        autoCompleteTableView?.separatorInset = UIEdgeInsets.zero
      }
     
     //Since the bounds of the view controller's view is not ready in viewDidLoad, I like to do frame setting in viewDidLayoutSubviews
@@ -266,12 +277,13 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-//        if(!isEnteringCity){
-            cell.textLabel?.text = googlePrediction[indexPath.row].attributedFullText.string
-            cell.textLabel?.adjustsFontSizeToFitWidth = true
-            cell.textLabel?.minimumScaleFactor = 0.6
-            cell.textLabel?.lineBreakMode = .byTruncatingTail
-//        }
+        cell.textLabel?.text = googlePrediction[indexPath.row].attributedFullText.string
+        cell.textLabel?.adjustsFontSizeToFitWidth = true
+        cell.textLabel?.minimumScaleFactor = 0.6
+        cell.textLabel?.lineBreakMode = .byTruncatingTail
+        //Remove seperator insets
+        cell.layoutMargins = UIEdgeInsets.zero
+
         return cell
     }
     
@@ -875,12 +887,11 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         
         do {
             var cityCount = 0   //Keep track of the city button indices
-            //Sort fetch requests ascending
-//            let sortCityDescriptor = NSSortDescriptor(key: "city", ascending: true)
-            //Sort by home city first since it is listed as the second sort descriptor
-                //Sorting descending actually pulls the home city first, then alphabetizes the other cities
+           
+            /*Typically this seems to put the home city first and alpabet sort the remaining cities afterward. Lower case cities always come after an uppercase cities though*/
             let sortHomeDescriptor = NSSortDescriptor(key: "homeCity", ascending: false)
-            let sortDescriptors = [sortHomeDescriptor]
+            let sortCityDescriptor = NSSortDescriptor(key: "city", ascending: true)
+            let sortDescriptors = [sortHomeDescriptor, sortCityDescriptor]
             fetchRequest.sortDescriptors = sortDescriptors
             //fetchRequests asks for city button entity, try catch syntax used to handle errors
             let cityButtonEntity =
@@ -894,14 +905,18 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 if let cityNameStr = cityButtonAttr.value(forKey: "city") as? String
                 {
                     //add city name to cityButtonlist if the city doesn't already exists
+                    //this is how the array will be traversed to add a new city that was added by checking each city and incrementing even if a new city wasn't inserted into the array
+                    //This will fail if the same city exists multiple times in User defaults because the search will allocate two entried in the array for it but only 1 will be filled
+                        //If only 1 city is duplicated you will all cities following this city appear after the plus sign since the index will be incremented 1 ahead of where it should be
                     if(!cityButtonList.contains(where: {element in return (element == cityNameStr)}))
                     {
                         //Insert new element before the final plus sign in the list
                         self.cityButtonList.insert(cityNameStr, at: cityCount)
                     }
                     cityCount += 1
+                    
                 }else if let cityHome = cityButtonAttr.value(forKey: "homeCity") as? String {
-                    //Insert home city at beginning of list if it doesn't already reside there:
+                    //Insert home city at beginning of list if it doesn't already reside there
                     if(!cityButtonList.contains(where: {element in return (element == cityHome)})){
                         self.cityButtonList.insert(cityHome, at: cityCount)
                     }

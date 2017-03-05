@@ -8,9 +8,31 @@
 
 import UIKit
 import CoreData
+import GooglePlaces
 
-class ProfileStepsViewController: UIViewController, UITextFieldDelegate {
-
+class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource {
+    //Scroll view used to slide text box above keyboard
+    @IBOutlet var scrollView: UIScrollView!
+    
+    @IBOutlet var addCityLabel: UILabel!
+    
+    var unwindPerformed = false
+    //Calculate the size of the text box and label I want to move above the keyboard
+    var boxAndLabelSize: CGFloat = 0
+    //Calculate the offset between the bottom of the scroll view and superview to account for scrolling the text box to be visible above the keyboard
+    var bottomScrollOffset: CGFloat = 0
+    
+    var autoCompleteArray = [GMSAutocompletePrediction]()  //Table data containing string from google prediction array
+    
+    var autoCompleteTableView: UITableView?
+    let autoCompleteFrameMaxHeight = 87
+    let autoCompleteCellHeight = 33
+    let googleImageView = UIImageView(image: UIImage(named: "googleNonWhite")) //Google attribution image view
+    var tableContainerView: UIView?     //Container view for autocomplete table so border and rounded edges can be achieved
+    //Google places client
+    var placesClient: GMSPlacesClient!
+    var activeTextField: UITextField? = nil
+    
     //Set up NSUserDefaults to save boolean noting that home city exists
     fileprivate let sharedUserHome = UserDefaults.standard
     let sharedHomeDefaultKey = "ProfileStepsVC.homeAdded"
@@ -29,29 +51,80 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate {
         super.viewWillAppear(animated)
         addTextBoxBorder()
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.boxAndLabelSize = addCityTextBox.frame.height + addCityLabel.frame.height
+        self.bottomScrollOffset = self.view.frame.maxY - self.scrollView.frame.maxY
+        //gooogle Places setup
+        placesClient = GMSPlacesClient.shared()
+        
+        //Create autocomplete table view in View did appear because constraints to resize text box had not yet been added during viewDidLoad
+        let autoCompleteFrame = CGRect(x: addCityTextBox.frame.minX, y: addCityTextBox.frame.maxY, width: addCityTextBox.frame.size.width, height: CGFloat(self.autoCompleteFrameMaxHeight))
+        autoCompleteTableView = UITableView(frame: autoCompleteFrame, style: UITableViewStyle.plain)
+        autoCompleteTableView?.delegate = self;
+        autoCompleteTableView?.dataSource = self;
+        autoCompleteTableView?.isHidden = true;
+        autoCompleteTableView?.isScrollEnabled = true;
+        autoCompleteTableView?.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        autoCompleteTableView?.layer.cornerRadius = 15
+        autoCompleteTableView?.backgroundColor = UIColor(red: 0x44/0x255, green: 0x44/0x255, blue: 0x44/0x255, alpha: 1.0)
+        autoCompleteTableView?.separatorColor = .white
+        scrollView.addSubview(autoCompleteTableView!)
+        //remove left padding from tableview seperators
+        autoCompleteTableView?.layoutMargins = UIEdgeInsets.zero
+        autoCompleteTableView?.separatorInset = UIEdgeInsets.zero
+        
+        //add top separator line to footer
+        //        let px = 1 / UIScreen.main.scale
+        //        let frame = CGRect(x: view.frame.width/2, y: view.frame.height/2, width: (self.autoCompleteTableView?.frame.size.width)!, height: px)
+        //        let line: UIView = UIView(frame: frame)
+        //        line.backgroundColor = self.autoCompleteTableView?.separatorColor
+        //create image view for the center of the footer view
+        let googleFrame = CGRect(x: (autoCompleteFrame.width - googleImageView.frame.width) / 2, y: 0, width: googleImageView.frame.width, height: googleImageView.frame.height)
+        let googs = UIImageView(frame: googleFrame)
+        googs.addSubview(googleImageView)
+        
+        //create google attribution for bottom of table
+        let tableFooterFrame = CGRect(x: 0, y: 0, width: autoCompleteFrame.width, height: googleImageView.frame.height)
+        let tableFooterView = UIView(frame: tableFooterFrame)
+        tableFooterView.addSubview(googs)
+        
+        //Set autocomplete footer view with google attribution this way so that footer doesn't float
+        autoCompleteTableView?.tableFooterView = tableFooterView
+
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         //Set text field delegates so they can dismiss the keyboard
         self.homeCityTextBox.delegate = self
         self.addCityTextBox.delegate = self
+        //register so that I receive notifications from the keyboard
+        registerForKeyboardNotifications()
         //Create Proper look for add city button
         self.addCityButton.layer.cornerRadius = 0.5 * self.addCityButton.bounds.size.width
         self.addCityButton.backgroundColor = UIColor.clear
         self.addCityButton.layer.borderWidth = 1.0
         self.addCityButton.layer.borderColor = UIColor.black.cgColor
         
-        
-//        addLabelBorders()
-        // Do any additional setup after loading the view.
+        //Add target to check in rest field that detects when a change occurs
+        self.homeCityTextBox.addTarget(self, action: #selector(ProfileStepsViewController.googleAutoComplete(_:)),
+                                        for: UIControlEvents.editingChanged)
+        self.addCityTextBox.addTarget(self, action: #selector(ProfileStepsViewController.googleAutoComplete(_:)),
+                                       for: UIControlEvents.editingChanged)
+        self.addCityTextBox.autocapitalizationType = .words
+        self.homeCityTextBox.autocapitalizationType = .words
     }
     
 
     @IBOutlet weak var homeCityTextBox: UITextField!
     @IBOutlet weak var addCityTextBox: UITextField!
+    
   
      @IBOutlet weak var addCityButton: UIButton!
     @IBAction func addCityPressed(_ sender: UIButton) {
-        if let cityText = addCityTextBox.text{
+        if let cityText = addCityTextBox?.text{
             if(cityText != ""){
                 //Add city to core data
                 saveCityButton(cityText)
@@ -66,20 +139,31 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func proceedButtonPressed(_ sender: UIButton) {
-        if var cityText = homeCityTextBox.text{
+        //Check if any text is left on add city line, and if the city was saved to user defaults or if it was rejected
+        var didSave = true
+        if let cityText = addCityTextBox?.text{
             if(cityText != ""){
-                //Remove any trailing spaces from restNameText
-                cityText = cityText.trimmingCharacters(in: .whitespaces)
-                //Function only returns true when user trys to overwrite currently saved home city, so I wont transition here and let alert controller closure handle segue, or wait until submit is hit again
-                let displayAlert = saveHomeCity(cityText)
-                if(!displayAlert){
-                    performSegue(withIdentifier: "segueToAddFriends", sender: nil)
+                //Add city to core data
+                didSave = saveCityButton(cityText)
+            }
+        }
+        if (didSave){
+            //Save home city
+            if var cityText = homeCityTextBox?.text{
+                if(cityText != ""){
+                    //Remove any trailing spaces from restNameText
+                    cityText = cityText.trimmingCharacters(in: .whitespaces)
+                    //Function only returns true when user trys to overwrite currently saved home city, so I wont transition here and let alert controller closure handle segue, or wait until submit is hit again
+                    let displayAlert = saveHomeCity(cityText)
+                    if(!displayAlert){
+                        performSegue(withIdentifier: "segueToAddFriends", sender: nil)
+                    }
+                }else{
+                    missingHomeAlert()
                 }
             }else{
                 missingHomeAlert()
             }
-        }else{
-            missingHomeAlert()
         }
     }
     
@@ -136,12 +220,25 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate {
                         alert.addAction(ConfirmAction)
                         self.modalPresentationStyle = .overCurrentContext
                         self.present(alert, animated: true, completion: nil)
-//
+                    }
+                }else if let cityNameStr = homeCityCoreData[i].value(forKey: "city") as? String{
+                    //Check all other cities to make sure their home city doesn't exist there
+                    if( cityNameStr == homeCity){
+                        addNewHome = false
+                        displayAlert = true
+                        let alert = UIAlertController(title: "Home City Exists", message: "You have already added \(cityNameStr) to your city list. Please delete \(cityNameStr) from your city list before adding as your home city.", preferredStyle: .alert)
+                        //Async call for uialertview will have already left this function, no handling needed
+                        let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+                    
+                        alert.addAction(CancelAction)
+                        self.modalPresentationStyle = .overCurrentContext
+                        self.present(alert, animated: true, completion: nil)
                     }
                 }
+
             }
             if (addNewHome){//save to coredata since no previous entry existed
-//                 self.writeToCoreData(homeCity: homeCity)
+
                 //Get my CoreData Entity and attach it to a managed context object
                 let entity =  NSEntityDescription.entity(forEntityName: "CityButton",
                                                          in:managedContext)
@@ -169,36 +266,63 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate {
         return displayAlert
    }
     
-    func writeToCoreData(homeCity: String){
-        //Get Reference to NSManagedObjectContext
-        //The managed object context lives as a property of the application delegate
-        let appDelegate =
-            UIApplication.shared.delegate as! AppDelegate
-        //use the object context to set up a new managed object to be "commited" to CoreData
-        let managedContext = appDelegate.managedObjectContext
-        
-        //Get my CoreData Entity and attach it to a managed context object
-        let entity =  NSEntityDescription.entity(forEntityName: "CityButton",
-                                                 in:managedContext)
-        //create a new managed object and insert it into the managed object context
-        let cityButtonMgObj = NSManagedObject(entity: entity!,
-                                              insertInto: managedContext)
-        
-        //Using the managed object context set the "name" attribute to the parameter passed to this func
-        cityButtonMgObj.setValue(homeCity, forKey: "homeCity")
-        
-        //save to CoreData, inside do block in case error is thrown
-        do {
-            try managedContext.save()
-            //Insert the managed object that was saved to disk into the array used to populate the table
-            //cityButtonCoreData.append(cityButtonMgObj)
-        } catch let error as NSError  {
-            print("Could not save \(error), \(error.userInfo)")
-        }
-        
+    func googleAutoComplete(_ textField: UITextField) {
 
-        
+        if let cityString = self.activeTextField?.text{
+            //Start querying google database with at minimum 3 chars
+            if(cityString.characters.count >= 3 && (cityString.characters.count % 2 != 0)){
+                placeAutocomplete(queryText: cityString)
+            }else if (cityString.characters.count < 3){
+                autoCompleteTableView?.isHidden = true
+            }
+        }
     }
+    
+    func placeAutocomplete(queryText: String) {
+        let filter = GMSAutocompleteFilter()
+            filter.type = .city
+        //create global search by using coord bounds of 0,0
+        let coordNone = CLLocationCoordinate2D(latitude: CLLocationDegrees(0), longitude: CLLocationDegrees(0))
+        let coordBounds = GMSCoordinateBounds(coordinate: coordNone , coordinate: coordNone)
+        placesClient.autocompleteQuery(queryText, bounds: coordBounds, filter: filter, callback: {(results, error) -> Void in
+            if let error = error {
+                print("Autocomplete error \(error)")
+                return
+            }
+            //Remove previous entries in autocomplete arrays
+            //AUtoCompleteArray is table data, and maps 1 to 1 to the complete data set contained in googlePrediction array
+            self.autoCompleteArray.removeAll()
+            if let results = results {
+                for result in results {
+                    
+                    self.autoCompleteArray.append(result)
+                }
+            }
+            //Determine if the number of entries in the array of table data will exceed the default table frame size of 120pt (~3 tables entries). Shrink table if less than 3 table entries expected
+            let newTableSize = (self.autoCompleteArray.count * self.autoCompleteCellHeight) + Int(self.googleImageView.frame.height)
+            var tableFrame = self.autoCompleteTableView?.frame;
+            
+            if(newTableSize < self.autoCompleteFrameMaxHeight){
+                tableFrame?.size.height = CGFloat(newTableSize);
+                self.autoCompleteTableView?.frame = tableFrame!;
+                self.autoCompleteTableView?.setNeedsDisplay()
+            }else if(Int((tableFrame?.height)!) < self.autoCompleteFrameMaxHeight){  //If table was previously shrunk then resize to max table size
+                tableFrame?.size.height = CGFloat(self.autoCompleteFrameMaxHeight);
+                self.autoCompleteTableView?.frame = tableFrame!
+                self.autoCompleteTableView?.setNeedsDisplay()
+            }
+            
+            //Hide auto complete table view if no autocomplete entries exist
+            if(self.autoCompleteArray.count == 0){
+                self.autoCompleteTableView?.isHidden = true
+            }else{
+                self.autoCompleteTableView?.isHidden = false
+                self.scrollView.bringSubview(toFront: self.autoCompleteTableView!)
+            }
+            self.autoCompleteTableView?.reloadData()
+        })
+    }
+    
     func addTextBoxBorder(){
         //Create underline bar for home city and additional city text boxes
         let px = 1 / UIScreen.main.scale    //determinte 1 pixel size instead of using 1 point
@@ -209,20 +333,26 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate {
         let addCityLine: UIView = UIView(frame: addCityFrame)
         addCityLine.backgroundColor = UIColor.black
         //Add underline to view
-        view.addSubview(homeCityLine)
-        view.addSubview(addCityLine) 
+        scrollView.addSubview(homeCityLine)
+        scrollView.addSubview(addCityLine)
     }
 
     
     //save City button to CoreData for persistance
-    func saveCityButton(_ city: String)
+    func saveCityButton(_ city: String) -> Bool
     {
+        var isHomeCity = false //Make sure user isn't trying to add a city that is their home city
+        var shouldSave = true   //Asume we will save the user's city unless we find their user defaults already has that city
+        var cityButtonCoreData = [NSManagedObject]()
         //Get Reference to NSManagedObjectContext
         //The managed object context lives as a property of the application delegate
         let appDelegate =
             UIApplication.shared.delegate as! AppDelegate
         //use the object context to set up a new managed object to be "commited" to CoreData
         let managedContext = appDelegate.managedObjectContext
+        
+        //Create fetch request to retieve data before saving new city
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "CityButton")
         
         //Get my CoreData Entity and attach it to a managed context object
         let entity =  NSEntityDescription.entity(forEntityName: "CityButton",
@@ -231,29 +361,169 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate {
         let cityButtonMgObj = NSManagedObject(entity: entity!,
                                               insertInto: managedContext)
         
-        //Using the managed object context set the "name" attribute to the parameter passed to this func
-        cityButtonMgObj.setValue(city, forKey: "city")
         
-        //save to CoreData, inside do block in case error is thrown
+        //Check if the city previously existed then save to CoreData, inside do block in case error is thrown
         do {
-            try managedContext.save()
-            //Insert the managed object that was saved to disk into the array used to populate the table
-            //cityButtonCoreData.append(cityButtonMgObj)
+            //Fetch existing cities and compare to the city being added
+            //fetchRequests asks for city button entity, try catch syntax used to handle errors
+            let cityButtonEntity =
+                try managedContext.fetch(fetchRequest)
+            cityButtonCoreData = cityButtonEntity as! [NSManagedObject]
+            
+            //iterate over all attributes in City button entity
+            cityLoop: for i in 0 ..< cityButtonCoreData.count{
+                let cityButtonAttr = cityButtonCoreData[i]
+                //optional chain anyObject to string and store in cityButtonArray
+                if let cityNameStr = cityButtonAttr.value(forKey: "city") as? String
+                {
+                    //Compare each city to the city the user is attempting to save
+                    if(cityNameStr == city){
+                        shouldSave = false
+                        break cityLoop  //Done checking against user defaults because we found the city
+                    }
+                }else if let cityNameStr = cityButtonAttr.value(forKey: "homeCity") as? String
+                {
+                    //Compare each city to the city the user is attempting to save
+                    if(cityNameStr == city){
+                        shouldSave = false
+                        isHomeCity = true
+                        break cityLoop  //Done checking against user defaults because we found the city
+                    }
+                }
+            }
+
+            if(shouldSave){
+                //Using the managed object context set the "name" attribute to the parameter passed to this func
+                cityButtonMgObj.setValue(city, forKey: "city")
+                try managedContext.save()
+            }else{  //Create notification that this city already exists
+                
+                let alert = UIAlertController(title: "Duplicate City", message: isHomeCity ? "You have already made \(city) your home city!" : "You have already added \(city), go ahead and add a Check In here!", preferredStyle: .alert)
+                let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: { UIAlertAction in
+                    self.activeTextField?.text = nil
+                    
+                })
+                alert.addAction(CancelAction)
+                self.present(alert, animated: true, completion: nil)
+            }
         } catch let error as NSError  {
             print("Could not save \(error), \(error.userInfo)")
         }
+        return shouldSave
+    }
+    
+    func returnActiveField() -> UITextField?{
+        //Determine the active field
+        
+        if let activeField = self.addCityTextBox{
+            return activeField
+        }else if let activeField = self.homeCityTextBox{
+            return activeField
+        }else{//No active field
+            return nil
+        }
+
+    }
+    
+    
+    //TableView delegate functions
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return autoCompleteArray.count
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return CGFloat(autoCompleteCellHeight)
+    }
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        cell.textLabel?.text = autoCompleteArray[indexPath.row].attributedFullText.string
+        cell.textLabel?.textColor = .white
+        cell.textLabel?.adjustsFontSizeToFitWidth = true
+        cell.textLabel?.minimumScaleFactor = 0.6
+        cell.textLabel?.lineBreakMode = .byTruncatingTail
+        //Remove seperator insets
+        cell.layoutMargins = UIEdgeInsets.zero
+        cell.backgroundColor = .clear
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        self.activeTextField?.text = autoCompleteArray[indexPath.row].attributedPrimaryText.string
+        
+        autoCompleteTableView?.isHidden = true
+        //dismiss keyboard if present
+        self.activeTextField?.resignFirstResponder()
+    }
+
+    
+    //register to receive keyboard notifications
+    func registerForKeyboardNotifications(){
+        //Adding notifies on keyboard appearing
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWasShown(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
+    
+    func deregisterFromKeyboardNotifications(){
+        //Removing notifies on keyboard appearing
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
+    
+    //*method gets the keyboard size from the info dictionary of the notification and adjusts the bottom content inset of the scroll view by the height of the keyboard. It also sets the scrollIndicatorInsets property of the scroll view to the same value so that the scrolling indicator won’t be hidden by the keyboard. */
+    func keyboardWasShown(notification: NSNotification){
+        //Need to calculate keyboard exact size due to Apple suggestions
+        self.scrollView.isScrollEnabled = true
+        var info = notification.userInfo!
+        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        //Height of content inserts considers the height of the keyboard from the bottom of the screen, but the scroll view doesn't extend to the bottom of the screen, so subract the bottom Scroll offset
+        //move the text box high enough so that the text box and auto complete frame can be shown without contacting the keyboard
+        let insetHeight = (keyboardSize!.height - self.bottomScrollOffset) + (self.boxAndLabelSize + CGFloat(self.autoCompleteFrameMaxHeight) )
+        let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, insetHeight, 0.0)
+        
+        self.scrollView.contentInset = contentInsets
+        self.scrollView.scrollIndicatorInsets = contentInsets
+        
+        var aRect : CGRect = self.view.frame
+        aRect.size.height -= keyboardSize!.height
+        if let activeField = self.activeTextField {
+            //check-me: Only checking if keyboard reaches text box, should I be calculating a CGPoint that is high enough for the max table frame too be included in this contains parameter?
+            if (!aRect.contains(activeField.frame.origin)){
+                self.scrollView.scrollRectToVisible(activeField.frame, animated: true)
+            }
+        }
         
     }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    //Sets insets to 0, the defaults
+    func keyboardWillBeHidden(notification: NSNotification){
+        //Once keyboard disappears, restore original positions
+        
+        var info = notification.userInfo!
+        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        //check-me: Should I be subtracting the max table frame height here too?
+        let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, -(keyboardSize!.height - self.bottomScrollOffset + self.boxAndLabelSize), 0.0)
+        self.scrollView.contentInset = contentInsets
+        self.scrollView.scrollIndicatorInsets = contentInsets
+        self.view.endEditing(true)
+        self.scrollView.isScrollEnabled = false
     }
-    */
+    
+    //2 funcs below are used to set and clear activeFields var
+    func textFieldDidBeginEditing(_ textField: UITextField){
+        self.activeTextField = textField
+        let autoCompleteFrame = CGRect(x: textField.frame.minX, y: textField.frame.maxY, width: textField.frame.size.width, height: CGFloat(self.autoCompleteFrameMaxHeight))
+        autoCompleteTableView?.frame = autoCompleteFrame
+        
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField){
+        self.activeTextField = nil
+    }
+    
     
     //Dismiss keyboard if clicking away from text box
     //Detect when user taps outside of scroll views and remove any delete city buttons if they are present
@@ -267,14 +537,34 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    //Actions to take when user dismisses keyboard: hide keyboard & autocomplete table, add first row text to text box
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         view.endEditing(true)
+        self.autoCompleteTableView?.isHidden = true
         return true
     }
     
     // Unwind seque always bypassed and up the chain past the login VC to CIO home view
     @IBAction func unwindToProfileSteps(_ sender: UIStoryboardSegue) {
         // empty
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        //When transitioning to next screen in profile steps deregister keyboard notifications
+        //Don't perform when unwinding
+        if (!self.unwindPerformed){
+            print("deregister")
+            deregisterFromKeyboardNotifications()
+        }else{
+            print("skip deregister")
+        }
+    }
+    
+    
+    override func canPerformUnwindSegueAction(_ action: Selector, from fromViewController: UIViewController, withSender sender: Any) -> Bool {
+        //Check if unwind segue was performed so that prepare for seguing will not deregister keyboard notifications an unwind
+        self.unwindPerformed = true
+        return false
     }
 
 }
