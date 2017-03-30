@@ -41,7 +41,7 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         self.tableView.backgroundColor=UIColor.clear
         //Create top cell separator for 1st cell
         let px = 1 / UIScreen.main.scale
-        let frame = CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height: px)
+        let frame = CGRect(x: 0, y: 0, width: self.tableView.frame.size.width, height:  px)
         let line: UIView = UIView(frame: frame)
         self.tableView.tableHeaderView = line
         line.backgroundColor = self.tableView.separatorColor
@@ -202,7 +202,6 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         }
     }
 
-    
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         cell.backgroundColor = .clear
     }

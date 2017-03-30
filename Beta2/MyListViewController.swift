@@ -92,6 +92,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         tableView.sectionIndexBackgroundColor = UIColor(red: 0x40/255, green: 0x40/255, blue: 0x40/255, alpha: 1)
         tableView.sectionIndexTrackingBackgroundColor = UIColor(red: 0x60/255, green: 0x60/255, blue: 0x60/255, alpha: 1)
         collectionView?.allowsMultipleSelection = true
+        collectionView.showsHorizontalScrollIndicator = false
 //        placesRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
         placesRef = FIRDatabase.database().reference().child("checked/places")
         
@@ -495,7 +496,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             textLabel.font = UIFont(name: "Avenir-HeavyOblique", size: 24)
             textLabel.textColor = UIColor.white
         }else{
-            print("label not ready")
+            print("Label not ready")
         }
     }
     

@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleDevelopmentRegion</key>
+    <key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
@@ -40,7 +40,7 @@
 		<string>fbauth2</string>
 		<string>fbshareextension</string>
 		<string>fbauth</string>
-        <string>comgooglemaps</string>
+		<string>comgooglemaps</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
@@ -92,7 +92,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>Check In Out will only use your location to aid your ability to find nearby establishments</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Check In Out will only use your location to aid your ability to find nearby establishments</string>
 </dict>
 </plist>

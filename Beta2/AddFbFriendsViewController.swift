@@ -328,7 +328,7 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
                 print("send email of Facebook Message to invite \(friend.displayName) to CIO")
             }
         }
-        performSegue(withIdentifier: "segueToHome", sender: self)
+        performSegue(withIdentifier: "unwindFromFbLoginIdentifier", sender: self)
     }
     
     

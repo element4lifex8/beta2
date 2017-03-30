@@ -33,6 +33,10 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
     var placesClient: GMSPlacesClient!
     var activeTextField: UITextField? = nil
     
+    //Use place ID as distinguishing factor that an autocomplete entry was used
+    var addCityPlaceId: String?
+    var homeCityPlaceId: String?
+    
     //Set up NSUserDefaults to save boolean noting that home city exists
     fileprivate let sharedUserHome = UserDefaults.standard
     let sharedHomeDefaultKey = "ProfileStepsVC.homeAdded"
@@ -68,7 +72,7 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         autoCompleteTableView?.isScrollEnabled = true;
         autoCompleteTableView?.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         autoCompleteTableView?.layer.cornerRadius = 15
-        autoCompleteTableView?.backgroundColor = UIColor(red: 0x44/0x255, green: 0x44/0x255, blue: 0x44/0x255, alpha: 1.0)
+        autoCompleteTableView?.backgroundColor = UIColor(red: 0x40/0x255, green: 0x40/0x255, blue: 0x40/0x255, alpha: 1.0)
         autoCompleteTableView?.separatorColor = .white
         scrollView.addSubview(autoCompleteTableView!)
         //remove left padding from tableview seperators
@@ -76,20 +80,23 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         autoCompleteTableView?.separatorInset = UIEdgeInsets.zero
         
         //add top separator line to footer
-        //        let px = 1 / UIScreen.main.scale
-        //        let frame = CGRect(x: view.frame.width/2, y: view.frame.height/2, width: (self.autoCompleteTableView?.frame.size.width)!, height: px)
-        //        let line: UIView = UIView(frame: frame)
-        //        line.backgroundColor = self.autoCompleteTableView?.separatorColor
+        let px = 1 / UIScreen.main.scale
         //create image view for the center of the footer view
-        let googleFrame = CGRect(x: (autoCompleteFrame.width - googleImageView.frame.width) / 2, y: 0, width: googleImageView.frame.width, height: googleImageView.frame.height)
+        let googleFrame = CGRect(x: (autoCompleteFrame.width - googleImageView.frame.width) / 2, y: 5, width: googleImageView.frame.width, height: googleImageView.frame.height + px + 5)
         let googs = UIImageView(frame: googleFrame)
         googs.addSubview(googleImageView)
         
         //create google attribution for bottom of table
-        let tableFooterFrame = CGRect(x: 0, y: 0, width: autoCompleteFrame.width, height: googleImageView.frame.height)
+        let tableFooterFrame = CGRect(x: 0, y: 0, width: autoCompleteFrame.width, height: googleImageView.frame.height + px + 10)
         let tableFooterView = UIView(frame: tableFooterFrame)
         tableFooterView.addSubview(googs)
         
+        //Create cell seperator at top of table footer
+        let frame = CGRect(x: 0, y: 0, width: (self.autoCompleteTableView?.frame.size.width)!, height: px)
+        let line: UIView = UIView(frame: frame)
+        tableFooterView.addSubview(line)
+        line.backgroundColor = .white
+
         //Set autocomplete footer view with google attribution this way so that footer doesn't float
         autoCompleteTableView?.tableFooterView = tableFooterView
 
@@ -125,17 +132,42 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
      @IBOutlet weak var addCityButton: UIButton!
     @IBAction func addCityPressed(_ sender: UIButton) {
         if let cityText = addCityTextBox?.text{
-            if(cityText != ""){
+            if(cityText != "" && (addCityPlaceId != nil)){
                 //Add city to core data
                 saveCityButton(cityText)
                 addCityTextBox.placeholder = "Add more cities..."
                 addCityTextBox.text = ""
+                //Clear place id so the user can't enter an incorrect city on any additional entries
+                self.addCityPlaceId = nil
             }else{
-                print("name of city invalid")
+                if(cityText == ""){
+                    displayAddCityMissing()
+                }else if(addCityPlaceId == nil){
+                    let alert = UIAlertController(title: "Google is your friend", message: "You entered \(cityText) manually, instead please use our reccomended cities from the list. Try editing your current city until you find a viable match from the list", preferredStyle: .alert)
+                    let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+                    alert.addAction(CancelAction)
+                    self.present(alert, animated: true, completion: nil)
+                }else{ //should never be reached
+                    defaultCitySaveError()
+                }
             }
         }else{
-            print("No city added to text box")
+            displayAddCityMissing()
         }
+    }
+    
+    func displayAddCityMissing(){
+        let alert = UIAlertController(title: "Please pick a city", message: "It doesn't look like you entered a city to add...", preferredStyle: .alert)
+        let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alert.addAction(CancelAction)
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    func defaultCitySaveError(){
+        let alert = UIAlertController(title: "City Save Error", message: "We're sorry, there was an error saving your city. You can add new cities from the Check In Screen once you get there.", preferredStyle: .alert)
+        let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alert.addAction(CancelAction)
+        self.present(alert, animated: true, completion: nil)
     }
     
     @IBAction func proceedButtonPressed(_ sender: UIButton) {
@@ -143,23 +175,43 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         var didSave = true
         if let cityText = addCityTextBox?.text{
             if(cityText != ""){
-                //Add city to core data
-                didSave = saveCityButton(cityText)
+                if(addCityPlaceId != nil){
+                    //Add city to core data
+                    didSave = saveCityButton(cityText)
+                }else if(addCityPlaceId == nil){
+                    //Don't continue because the add city entry wasn't able to be saved
+                    didSave = false
+                    let alert = UIAlertController(title: "Google is your friend", message: "You entered your additional city \(cityText) manually, instead please use our reccomended cities from the list. Try editing \(cityText) until you find a viable match from the list", preferredStyle: .alert)
+                    let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+                    alert.addAction(CancelAction)
+                    self.present(alert, animated: true, completion: nil)
+                }
             }
         }
+        
         if (didSave){
             //Save home city
             if var cityText = homeCityTextBox?.text{
-                if(cityText != ""){
+                if(cityText != "" && (homeCityPlaceId != nil)){
                     //Remove any trailing spaces from restNameText
-                    cityText = cityText.trimmingCharacters(in: .whitespaces)
+//                    cityText = cityText.trimmingCharacters(in: .whitespaces)
                     //Function only returns true when user trys to overwrite currently saved home city, so I wont transition here and let alert controller closure handle segue, or wait until submit is hit again
                     let displayAlert = saveHomeCity(cityText)
                     if(!displayAlert){
                         performSegue(withIdentifier: "segueToAddFriends", sender: nil)
                     }
                 }else{
-                    missingHomeAlert()
+                    //Notify User why home city can't be saved(either empty or didn't use autocomplete
+                    if(cityText == ""){
+                        missingHomeAlert()
+                    }else if(homeCityPlaceId == nil){
+                        let alert = UIAlertController(title: "Google is your friend", message: "You entered your home city \(cityText) manually, instead please use our reccomended cities from the list. Try editing your current home city until you find a viable match from the list", preferredStyle: .alert)
+                        let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+                        alert.addAction(CancelAction)
+                        self.present(alert, animated: true, completion: nil)
+                    }else{  //Should never be reached
+                        defaultCitySaveError()
+                    }
                 }
             }else{
                 missingHomeAlert()
@@ -294,12 +346,11 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
             self.autoCompleteArray.removeAll()
             if let results = results {
                 for result in results {
-                    
                     self.autoCompleteArray.append(result)
                 }
             }
             //Determine if the number of entries in the array of table data will exceed the default table frame size of 120pt (~3 tables entries). Shrink table if less than 3 table entries expected
-            let newTableSize = (self.autoCompleteArray.count * self.autoCompleteCellHeight) + Int(self.googleImageView.frame.height)
+            let newTableSize = (self.autoCompleteArray.count * self.autoCompleteCellHeight) + Int(self.googleImageView.frame.height + 10)
             var tableFrame = self.autoCompleteTableView?.frame;
             
             if(newTableSize < self.autoCompleteFrameMaxHeight){
@@ -412,6 +463,7 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         return shouldSave
     }
     
+    //Unused function, instead using global var activeTextField
     func returnActiveField() -> UITextField?{
         //Determine the active field
         
@@ -454,7 +506,13 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.activeTextField?.text = autoCompleteArray[indexPath.row].attributedPrimaryText.string
-        
+        //Use placeholder text to determine which text box is being edited
+        if(self.activeTextField?.placeholder == "Pick More Cities..."){
+            //Store place Id essentially as a flag that autocomplete was used
+            self.addCityPlaceId = autoCompleteArray[indexPath.row].placeID
+        }else{
+            self.homeCityPlaceId = autoCompleteArray[indexPath.row].placeID
+        }
         autoCompleteTableView?.isHidden = true
         //dismiss keyboard if present
         self.activeTextField?.resignFirstResponder()
@@ -517,7 +575,9 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         self.activeTextField = textField
         let autoCompleteFrame = CGRect(x: textField.frame.minX, y: textField.frame.maxY, width: textField.frame.size.width, height: CGFloat(self.autoCompleteFrameMaxHeight))
         autoCompleteTableView?.frame = autoCompleteFrame
-        
+        //Clear any previous entries that may exist in the autocomplete array and hide the table so that an erroneous autocomplete table doesn't pop up
+        self.autoCompleteArray.removeAll()
+        self.autoCompleteTableView?.isHidden = true
     }
     
     func textFieldDidEndEditing(_ textField: UITextField){
@@ -526,7 +586,7 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
     
     
     //Dismiss keyboard if clicking away from text box
-    //Detect when user taps outside of scroll views and remove any delete city buttons if they are present
+    //Detect when user taps outside of scroll vie
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         super.touchesBegan(touches, with: event)
@@ -544,10 +604,6 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         return true
     }
     
-    // Unwind seque always bypassed and up the chain past the login VC to CIO home view
-    @IBAction func unwindToProfileSteps(_ sender: UIStoryboardSegue) {
-        // empty
-    }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         //When transitioning to next screen in profile steps deregister keyboard notifications

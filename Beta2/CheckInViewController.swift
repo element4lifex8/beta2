@@ -102,22 +102,30 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
 //        autoCompleteTableView?.separatorInset = UIEdgeInsets.zero
         
         //add top separator line to footer
-//        let px = 1 / UIScreen.main.scale
-//        let frame = CGRect(x: view.frame.width/2, y: view.frame.height/2, width: (self.autoCompleteTableView?.frame.size.width)!, height: px)
-//        let line: UIView = UIView(frame: frame)
-//        line.backgroundColor = self.autoCompleteTableView?.separatorColor
-        //create image view for the center of the footer view
-        let googleFrame = CGRect(x: (autoCompleteFrame.width - googleImageView.frame.width) / 2, y: 0, width: googleImageView.frame.width, height: googleImageView.frame.height)
+        let px = 1 / UIScreen.main.scale
+
+        //create image view for google attribute in the center of the footer view
+        let googleFrame = CGRect(x: (autoCompleteFrame.width - googleImageView.frame.width) / 2, y: 5, width: googleImageView.frame.width, height: googleImageView.frame.height + px + 5)
         let googs = UIImageView(frame: googleFrame)
         googs.addSubview(googleImageView)
-        
-        //create google attribution for bottom of table
-        let tableFooterFrame = CGRect(x: 0, y: 0, width: autoCompleteFrame.width, height: googleImageView.frame.height)
+        //create footer view and add image view with 10 pt above and below
+        let tableFooterFrame = CGRect(x: 0, y: 0, width: autoCompleteFrame.width, height: googleImageView.frame.height + px + 10)
         let tableFooterView = UIView(frame: tableFooterFrame)
         tableFooterView.addSubview(googs)
         
+        //Create cell separator at bottom of last cell, above google attribution in footer
+        let frame = CGRect(x: 0, y: 0, width: (self.autoCompleteTableView?.frame.size.width)!, height:  px)
+        let line: UIView = UIView(frame: frame)
+        tableFooterView.addSubview(line)
+        line.backgroundColor = self.autoCompleteTableView?.separatorColor
+        
         //Set autocomplete footer view with google attribution this way so that footer doesn't float
         autoCompleteTableView?.tableFooterView = tableFooterView
+        
+        //remove left padding from tableview seperators
+        autoCompleteTableView?.layoutMargins = UIEdgeInsets.zero
+        autoCompleteTableView?.separatorInset = UIEdgeInsets.zero
+    
     }
     
 //  Layout views in view controller
@@ -131,12 +139,16 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         //Add target to check in rest field that detects when a change occurs
         self.CheckInRestField.addTarget(self, action: #selector(CheckInViewController.googleAutoComplete(_:)),
                   for: UIControlEvents.editingChanged)
+        //If a user leaves the text box but then returns I want the text to remain
+        self.CheckInRestField.clearsOnBeginEditing = false
         //setup City scroll view
         cityScrollView = UIScrollView()
         cityScrollView.delegate = self
+        cityScrollView.showsHorizontalScrollIndicator = false
         //setup Category scroll view
         catScrollView = UIScrollView()
         catScrollView.delegate = self
+        catScrollView.showsHorizontalScrollIndicator = false
         //setup container view
         cityScrollContainerView = UIView()
         //add a tap action to the scroll view that will remove any present delete city buttons
@@ -157,16 +169,17 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         self.locationManager = CLLocationManager()
         
         if CLLocationManager.authorizationStatus() == .notDetermined{
-            locationManager?.requestAlwaysAuthorization()
+            self.locationManager?.requestWhenInUseAuthorization()
         }
         
         locationManager?.desiredAccuracy = kCLLocationAccuracyBest
         locationManager?.distanceFilter = 200
         locationManager?.delegate = self
-        startUpdatingLocation()
-
-        autoCompleteTableView?.layoutMargins = UIEdgeInsets.zero
-        autoCompleteTableView?.separatorInset = UIEdgeInsets.zero
+        //Don't start updating if user hasn't granted permission so they are not prompted
+        if (CLLocationManager.locationServicesEnabled()){
+            startUpdatingLocation()
+        }
+        
      }
     
     //Since the bounds of the view controller's view is not ready in viewDidLoad, I like to do frame setting in viewDidLayoutSubviews
@@ -332,13 +345,21 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             }
             else
             {
-                saveCityButton(addButtonText)
-                CheckInRestField.text = ""
-                CheckInRestField.placeholder = "Enter Name..."
-                isEnteringCity = false
-                //Remove clear button after city is checked in
-                CheckInRestField.clearButtonMode = .never
-                createCityButtons()
+                if(self.checkObj.placeId != nil)
+                {
+                    saveCityButton(addButtonText)
+                    CheckInRestField.text = ""
+                    CheckInRestField.placeholder = "Enter Name..."
+                    isEnteringCity = false
+                    //Remove clear button after city is checked in
+                    CheckInRestField.clearButtonMode = .never
+                    createCityButtons()
+                }else{
+                    let alert = UIAlertController(title: "Google is your friend", message: "You entered \(addButtonText) manually, instead please use our reccomended cities from the list. Try editing your current city until you find a viable match from the list", preferredStyle: .alert)
+                    let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+                    alert.addAction(CancelAction)
+                    self.present(alert, animated: true, completion: nil)
+                }
             }
             //No Longer supporting user supported categories
 //            else if(isEnteringCategory)
@@ -351,7 +372,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
 //                createCategoryButtons()
 //            }
         }
-            //Save a city Check in entry
+        //Save an establishment Check in entry
         else
         {
             var restNameText = CheckInRestField.text!
@@ -477,7 +498,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                        
                     }//Finish closure after checking whether the place had already been added to the back end
                 }else{//End of if checking for a city and a catagory being selected
-                    let alert = UIAlertController(title: "Give me some details here!", message: "Please make sure you selected a city and category button so I know where \(restNameText) belongs in your list :)", preferredStyle: .alert)
+                    let alert = UIAlertController(title: "Give us more details!", message: "Make sure to select a city and category for \(restNameText)", preferredStyle: .alert)
                     //Exit function if user clicks now and allow them to reconfigure the check in
                     let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
                     alert.addAction(CancelAction)
@@ -720,7 +741,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 }
             }
             //Determine if the number of entries in the array of table data will exceed the default table frame size of 120pt (~3 tables entries). Shrink table if less than 3 table entries expected
-            let newTableSize = (self.autoCompleteArray.count * self.autoCompleteCellHeight) + Int(self.googleImageView.frame.height)
+            let newTableSize = (self.autoCompleteArray.count * self.autoCompleteCellHeight) + Int(self.googleImageView.frame.height + 10)
             var tableFrame = self.autoCompleteTableView?.frame;
             
             if(newTableSize < self.autoCompleteFrameMaxHeight){
@@ -746,13 +767,18 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
     func coordinateBounds() -> GMSCoordinateBounds{
         var coordBounds: GMSCoordinateBounds?
-        let coordinates = locationManager?.location?.coordinate//CLLocationCoordinate2D(latitude: 37.788204, longitude: -122.411937)
+        var coordinates: CLLocationCoordinate2D?
+        //Only grab the user coordinates if their location services are enabled so we don't prompt them every time to enable them 
+        if(CLLocationManager.locationServicesEnabled()){
+            coordinates = locationManager?.location?.coordinate//CLLocationCoordinate2D(latitude: 37.788204, longitude: -122.411937)
+        }else{
+            coordinates = nil
+        }
         if let center = coordinates{
             let northEast = CLLocationCoordinate2D(latitude: center.latitude + 0.001, longitude: center.longitude + 0.001)
             let southWest = CLLocationCoordinate2D(latitude: center.latitude - 0.001, longitude: center.longitude - 0.001)
             coordBounds = GMSCoordinateBounds(coordinate: northEast, coordinate: southWest)
         }else{  //If user has location services turned off then return coordinates of 0,0 to do a default search
-            print("User's location services are likely off")
             let coordNone = CLLocationCoordinate2D(latitude: CLLocationDegrees(0), longitude: CLLocationDegrees(0))
             coordBounds = GMSCoordinateBounds(coordinate: coordNone , coordinate: coordNone)
         }

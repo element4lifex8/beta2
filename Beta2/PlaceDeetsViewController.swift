@@ -125,15 +125,6 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
     override func viewWillAppear(_ animated: Bool) {
         let screenWidth = view.bounds.width
         
-        let googleImageView = UIImageView(image: UIImage(named: "poweredByGoogle")) //Google attribution image view
-        
-        //Add google attribution to footer view
-        //create image view for the center of the footer view
-        let googleFrame = CGRect(x: ((self.tableView.tableFooterView?.frame.width)! - googleImageView.frame.width) / 2, y: 10, width: googleImageView.frame.width, height: googleImageView.frame.height)
-        let googs = UIImageView(frame: googleFrame)
-        googs.addSubview(googleImageView)
-        self.tableView.tableFooterView?.addSubview(googs)
-        
         self.titleLabel.text = (titleText ?? "Place Not Found")
         self.titleLabel.font = UIFont(name: "Avenir-Light", size: 26)
         self.titleLabel.textAlignment = .center
@@ -144,16 +135,27 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
         //Label is centered but I only want text to grow to the point of reaching the left back button, which is 72px from the left edge of screen
         let maxWidth = screenWidth - (72 * 2)
         self.titleLabel.preferredMaxLayoutWidth = maxWidth
+        
+        
+        //Add google attribution to footer view
+        let googleImageView = UIImageView(image: UIImage(named: "poweredByGoogle")) //Google attribution image view
+        self.tableView.tableFooterView?.addSubview(googleImageView)
+        //Auto layout center google attribution in footer view, 8 pt down from top of footer
+        googleImageView.translatesAutoresizingMaskIntoConstraints = false    //First turn off auto created constraints when calling addSubView
+        NSLayoutConstraint(item: googleImageView, attribute: .centerX, relatedBy: .equal, toItem: self.tableView.tableFooterView, attribute: .centerX, multiplier: 1, constant: 0).isActive = true
+        NSLayoutConstraint(item: googleImageView, attribute: .top, relatedBy: .equal, toItem: self.tableView.tableFooterView, attribute: .top, multiplier: 1, constant: 8).isActive = true
+//        googleImageView.centerXAnchor.constraint(equalTo: self.tableView.centerXAnchor).isActive = true
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if (self.placeId == nil){
-            let alert = UIAlertController(title: "Custom Check In", message: "This was a custom check in. Google wasn't able to read the users mind to get any more info than what was provided", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Custom Check In", message: "Sometimes the user knows something the internet doesn't. Ask them directly", preferredStyle: .alert)
             let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
             alert.addAction(CancelAction)
             self.present(alert, animated: true, completion: nil)
         }
+    
     }
     
     func gatherFriendList(_ completionClosure: @escaping ( _ myFriends: [String]) -> Void){
