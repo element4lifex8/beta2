@@ -507,7 +507,8 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.activeTextField?.text = autoCompleteArray[indexPath.row].attributedPrimaryText.string
         //Use placeholder text to determine which text box is being edited
-        if(self.activeTextField?.placeholder == "Pick More Cities..."){
+        //The place holder text changes after the first city is added to "add more cities"
+        if((self.activeTextField?.placeholder == "Pick more cities...") || (self.activeTextField?.placeholder == "Add more cities...")){
             //Store place Id essentially as a flag that autocomplete was used
             self.addCityPlaceId = autoCompleteArray[indexPath.row].placeID
         }else{

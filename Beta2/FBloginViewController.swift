@@ -341,7 +341,6 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
     // Unwind seque always bypassed and return to CIO Home
     @IBAction func unwindToStartFbLogin(_ sender: UIStoryboardSegue) {
         // empty
-        print("Start FB Login Segue")
     }
     
     
