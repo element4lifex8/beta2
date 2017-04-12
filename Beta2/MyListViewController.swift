@@ -208,17 +208,24 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
 //Tree generation functions
     func generateTree(_ nodeArr: [placeNode]){
-        var siblings:[String]? = nil
         //Loop through all place nodes, and iterate over array of categories and cities
         for placeNode in nodeArr{
+            var siblings:[String]? = nil    //Memory is cheap, just redefine the var for each iteration
             //I can have multiple cities for a single placeNode, or city can be nil
             if let cities = placeNode.city{
                 for city in cities{
-                   //Don't add city to tree if only displaying a certain city
+                   //Don't add city to tree if only displaying a certain city (showAllCities only true when showing all user's checkins for a single city)
                     //First case: if showing only certain city then the city must match the header label, if show all cities is nil then just falisfy this side of the expression to remove it from being considered
                     //Second case: show all cities is nil, then evaluate to true and print all cities
                     //Second case: show all cities is true, then evaluate to false to put the burden on the left expression
-                    if( ((showAllCities ?? false) && (headerText! == city)) || !(showAllCities ?? false) ){
+                    
+                    //Tediously unwrap headerText so I don't have to guard or if let
+                    var headerUnwrapped = ""
+                    if(self.headerText != nil){
+                        headerUnwrapped = headerText!
+                    }
+                    print(headerUnwrapped)
+                    if( ((showAllCities ?? false) && (headerUnwrapped == city)) || !(showAllCities ?? false) ){
                         if (cities.count > 1){  //If multiple cities exist keep a reference to all cities
                             if let currCityIndex = cities.index(of: city){
                                 var mySiblings = cities
@@ -725,7 +732,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
     }
     
-    //Don't allow categories to be deleted with swipe
+    //Don't allow categories to be deleted with swipe on other user's pages
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         //The header text is nil unless using the check out screen, if which case you can't delete a user's checkin
         if let _ = headerText{
@@ -744,6 +751,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
     }
     
+    //No longer confirming, clicking the delete button will delete the check in
     func confirmDelete(_ checkInItem: PlaceNodeTree, index: IndexPath) {
         let alert = UIAlertController(title: "Delete Check In", message: "Are you sure you want to permanently delete \(checkInItem)?", preferredStyle: .actionSheet)
         

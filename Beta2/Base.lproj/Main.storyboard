@@ -748,7 +748,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="249" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JSP-Eh-pq0">
-                                <rect key="frame" x="116.5" y="442" width="88" height="46"/>
+                                <rect key="frame" x="116" y="442" width="88" height="46"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="66" id="hVo-iR-eKj"/>
                                     <constraint firstAttribute="width" constant="200" id="wmy-Na-r3A"/>
@@ -975,7 +975,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="81"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YZr-L7-MwX">
-                                        <rect key="frame" x="12" y="18.5" width="60" height="60"/>
+                                        <rect key="frame" x="12" y="19" width="60" height="60"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="60" id="Bh9-AS-3Mf"/>
                                             <constraint firstAttribute="height" constant="60" id="QGn-2N-YMs"/>
@@ -1408,11 +1408,12 @@
                                 <exclude reference="1sL-jx-ivI"/>
                             </mask>
                             <mask key="constraints">
+                                <exclude reference="OZd-sO-14f"/>
+                                <exclude reference="VVB-bZ-Are"/>
+                                <exclude reference="cac-pW-pWU"/>
                                 <exclude reference="CXX-r7-iJz"/>
                                 <exclude reference="OFw-zx-5GC"/>
                                 <exclude reference="u4w-Xv-4pb"/>
-                                <exclude reference="PaI-sA-sZX"/>
-                                <exclude reference="oAq-rP-MQg"/>
                                 <exclude reference="Etq-IC-LJ9"/>
                                 <exclude reference="Qmb-ZC-Aj8"/>
                                 <exclude reference="piJ-DS-vYZ"/>
@@ -1423,9 +1424,8 @@
                                 <exclude reference="ZuP-E4-ew1"/>
                                 <exclude reference="rub-aP-FgS"/>
                                 <exclude reference="xl1-fc-BFI"/>
-                                <exclude reference="OZd-sO-14f"/>
-                                <exclude reference="VVB-bZ-Are"/>
-                                <exclude reference="cac-pW-pWU"/>
+                                <exclude reference="PaI-sA-sZX"/>
+                                <exclude reference="oAq-rP-MQg"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=regular-widthClass=compact">
@@ -1436,11 +1436,12 @@
                                 <include reference="1sL-jx-ivI"/>
                             </mask>
                             <mask key="constraints">
+                                <include reference="OZd-sO-14f"/>
+                                <include reference="VVB-bZ-Are"/>
+                                <exclude reference="cac-pW-pWU"/>
                                 <include reference="CXX-r7-iJz"/>
                                 <include reference="OFw-zx-5GC"/>
                                 <include reference="u4w-Xv-4pb"/>
-                                <include reference="PaI-sA-sZX"/>
-                                <include reference="oAq-rP-MQg"/>
                                 <include reference="Etq-IC-LJ9"/>
                                 <include reference="Qmb-ZC-Aj8"/>
                                 <include reference="piJ-DS-vYZ"/>
@@ -1451,9 +1452,8 @@
                                 <include reference="ZuP-E4-ew1"/>
                                 <exclude reference="rub-aP-FgS"/>
                                 <include reference="xl1-fc-BFI"/>
-                                <include reference="OZd-sO-14f"/>
-                                <include reference="VVB-bZ-Are"/>
-                                <exclude reference="cac-pW-pWU"/>
+                                <include reference="PaI-sA-sZX"/>
+                                <include reference="oAq-rP-MQg"/>
                             </mask>
                         </variation>
                     </view>
@@ -1760,7 +1760,7 @@
                                 </variation>
                             </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="NPv-hk-mtB">
-                                <rect key="frame" x="0.0" y="100" width="320" height="468"/>
+                                <rect key="frame" x="0.0" y="150" width="320" height="418"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="friendCell" id="jvc-FY-kaZ" customClass="FriendTableViewCell" customModule="Beta2" customModuleProvider="target">
@@ -1865,16 +1865,39 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5pw-Nk-ea8">
+                                <rect key="frame" x="0.0" y="100" width="320" height="50"/>
+                                <subviews>
+                                    <tabBar opaque="NO" contentMode="scaleToFill" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NOy-Cl-4JB">
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="50"/>
+                                        <items>
+                                            <tabBarItem title="" id="gsb-JN-n7E"/>
+                                            <tabBarItem title="" id="mS9-uy-44S"/>
+                                            <tabBarItem title="" id="ibx-cq-DF3"/>
+                                        </items>
+                                        <color key="barTintColor" red="0.22350353002548218" green="0.2235475480556488" blue="0.22349771857261658" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    </tabBar>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="NOy-Cl-4JB" secondAttribute="bottom" id="3d9-yb-qhQ"/>
+                                    <constraint firstItem="NOy-Cl-4JB" firstAttribute="leading" secondItem="5pw-Nk-ea8" secondAttribute="leading" id="9li-bx-edj"/>
+                                    <constraint firstAttribute="trailing" secondItem="NOy-Cl-4JB" secondAttribute="trailing" id="kQ7-ZO-fIK"/>
+                                    <constraint firstItem="NOy-Cl-4JB" firstAttribute="top" secondItem="5pw-Nk-ea8" secondAttribute="top" id="lbL-cF-BIf"/>
+                                    <constraint firstAttribute="height" constant="50" id="r0P-xJ-aH6"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="NPv-hk-mtB" secondAttribute="trailing" id="2Vv-UI-zyD"/>
+                            <constraint firstItem="5pw-Nk-ea8" firstAttribute="leading" secondItem="YDU-FK-zNN" secondAttribute="leading" id="4Mo-a1-m1f"/>
                             <constraint firstItem="FoK-xb-Kqs" firstAttribute="top" secondItem="YDU-FK-zNN" secondAttribute="top" id="Cza-7a-LVI"/>
                             <constraint firstItem="vR9-I7-Pzz" firstAttribute="top" secondItem="NPv-hk-mtB" secondAttribute="bottom" id="DfL-nE-Yaa"/>
-                            <constraint firstItem="NPv-hk-mtB" firstAttribute="top" secondItem="FoK-xb-Kqs" secondAttribute="bottom" constant="-2" id="J0o-qv-VZK">
-                                <variation key="heightClass=regular-widthClass=compact" constant="0.0"/>
-                            </constraint>
+                            <constraint firstItem="5pw-Nk-ea8" firstAttribute="top" secondItem="FoK-xb-Kqs" secondAttribute="bottom" id="K3f-xp-kCs"/>
                             <constraint firstItem="NPv-hk-mtB" firstAttribute="top" secondItem="QXl-we-Vxt" secondAttribute="bottom" constant="78" id="Pw3-Ka-lt6"/>
+                            <constraint firstItem="NPv-hk-mtB" firstAttribute="top" secondItem="5pw-Nk-ea8" secondAttribute="bottom" id="R48-Ay-CTN"/>
+                            <constraint firstAttribute="trailing" secondItem="5pw-Nk-ea8" secondAttribute="trailing" id="eXc-su-BBX"/>
                             <constraint firstItem="NPv-hk-mtB" firstAttribute="leading" secondItem="YDU-FK-zNN" secondAttribute="leading" id="kcD-WA-r3F"/>
                             <constraint firstItem="FoK-xb-Kqs" firstAttribute="leading" secondItem="YDU-FK-zNN" secondAttribute="leading" id="qNv-Rz-Fjf"/>
                             <constraint firstAttribute="trailing" secondItem="FoK-xb-Kqs" secondAttribute="trailing" id="xo1-ef-nOn"/>
@@ -1885,12 +1908,11 @@
                                 <exclude reference="NPv-hk-mtB"/>
                             </mask>
                             <mask key="constraints">
-                                <exclude reference="DfL-nE-Yaa"/>
                                 <exclude reference="Cza-7a-LVI"/>
                                 <exclude reference="qNv-Rz-Fjf"/>
                                 <exclude reference="xo1-ef-nOn"/>
+                                <exclude reference="DfL-nE-Yaa"/>
                                 <exclude reference="2Vv-UI-zyD"/>
-                                <exclude reference="J0o-qv-VZK"/>
                                 <exclude reference="Pw3-Ka-lt6"/>
                                 <exclude reference="kcD-WA-r3F"/>
                             </mask>
@@ -1901,12 +1923,11 @@
                                 <include reference="NPv-hk-mtB"/>
                             </mask>
                             <mask key="constraints">
-                                <include reference="DfL-nE-Yaa"/>
                                 <include reference="Cza-7a-LVI"/>
                                 <include reference="qNv-Rz-Fjf"/>
                                 <include reference="xo1-ef-nOn"/>
+                                <include reference="DfL-nE-Yaa"/>
                                 <include reference="2Vv-UI-zyD"/>
-                                <include reference="J0o-qv-VZK"/>
                                 <exclude reference="Pw3-Ka-lt6"/>
                                 <include reference="kcD-WA-r3F"/>
                             </mask>
@@ -1914,6 +1935,8 @@
                     </view>
                     <navigationItem key="navigationItem" id="vYp-Ee-QqF"/>
                     <connections>
+                        <outlet property="tabBar" destination="NOy-Cl-4JB" id="r3A-MZ-eGi"/>
+                        <outlet property="tabBarContainerView" destination="5pw-Nk-ea8" id="NTw-xr-QJE"/>
                         <outlet property="tableView" destination="NPv-hk-mtB" id="p8e-gD-CI6"/>
                         <segue destination="F5Z-PP-fCT" kind="custom" identifier="returnToCheckOut" customClass="SegueFromLeft" customModule="Beta2" customModuleProvider="target" id="9c7-Ct-W18"/>
                     </connections>
@@ -2238,6 +2261,6 @@
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="Hvx-hp-kNF"/>
-        <segue reference="pC0-bG-BYT"/>
+        <segue reference="113-ep-pX0"/>
     </inferredMetricsTieBreakers>
 </document>

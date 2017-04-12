@@ -609,10 +609,7 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         //When transitioning to next screen in profile steps deregister keyboard notifications
         //Don't perform when unwinding
         if (!self.unwindPerformed){
-            print("deregister")
             deregisterFromKeyboardNotifications()
-        }else{
-            print("skip deregister")
         }
     }
     

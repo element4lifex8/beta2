@@ -18,6 +18,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
 //    Class properties and instances
     
     @IBOutlet var checkInView: CheckInView!
+    
     var dictArr = [[String:String]]()
     var placesDict = [String : String]()
     var cityButtonList: [String] = ["+"]
@@ -45,6 +46,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
     //Hack to reiterate through check in process after we notify the user they checked in without autocomplete
     var customCheckIn = false
+
     
     fileprivate let sharedUserHome = UserDefaults.standard
     let sharedHomeDefaultKey = "ProfileStepsVC.homeAdded"
@@ -403,6 +405,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 //Make sure user has added one city and one category, or prompt the user and have them try again
                 if(dictArr.contains(where: {($0.keys).contains("city")}) && dictArr.contains(where: {($0.keys).contains("category")})){      
                 
+                    //Ignore submit button whenever in the processes of checking in (due to the delay caused by the async call to the back in when checking in
+                    sender.isEnabled = false    //Only disabling the submit button once we know we will be accessubg the back end
                     self.checkObj.place = restNameText
                     // Create a reference to a Firebase location
     //                let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
@@ -440,6 +444,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                                 self.present(alert, animated: true, completion: {
                                     self.clearActivityMonitor()
                                 })
+                                
+                                //Re-enable the submit button for the next use
+                                sender.isEnabled = true
+                                
                                 return
                             }
                             
@@ -458,6 +466,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                                 self.checkObj.placeId = nil
                                 self.clearActivityMonitor()
                             })
+                            
+                            //Re-enable the submit button for the next use
+                            sender.isEnabled = true
+                            
                           return
                         }
                         
@@ -495,6 +507,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                         //perform check animation signaling check in complete
                         self.animateCheckComplete()
                         
+                        //Re-enable the submit button for the next use
+                        sender.isEnabled = true
                        
                     }//Finish closure after checking whether the place had already been added to the back end
                 }else{//End of if checking for a city and a catagory being selected
