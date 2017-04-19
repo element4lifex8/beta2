@@ -303,7 +303,24 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        CheckInRestField.text = googlePrediction[indexPath.row].attributedPrimaryText.string
+        //If entering the city, add the state to the text box too
+        if(self.isEnteringCity){
+            var cityState = googlePrediction[indexPath.row].attributedPrimaryText.string
+
+            //unwrap secondary text of quit while we're ahead
+            guard let secondaryText = googlePrediction[indexPath.row].attributedSecondaryText?.string else {self.CheckInRestField.text = cityState
+                return
+            }
+            //Find the first comma in the secondary text, which should fall after the state
+            if let rangeOfSpace = secondaryText.range(of: ",") {
+                //Convert the range returned by the comma to an index and return the string from the space to end of dispay name
+                let stateName = secondaryText.substring(to: rangeOfSpace.lowerBound)
+                cityState = cityState + ", " + stateName
+            }
+            self.CheckInRestField.text = cityState
+        }else{
+            self.CheckInRestField.text = googlePrediction[indexPath.row].attributedPrimaryText.string
+        }
         //Store placeId object to be stored in firebase with the check in
         checkObj.placeId = googlePrediction[indexPath.row].placeID
         autoCompleteTableView?.isHidden = true
@@ -316,7 +333,6 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
     // Unwind seque from my myListVC
     @IBAction func unwindFromMyList(_ sender: UIStoryboardSegue) {
-        print("Unwind list")
         // empty
     }
     

@@ -59,13 +59,13 @@
 		EBA4D0FF1C6423E800BB459F /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C71C62C57E001E0F62 /* CFNetwork.framework */; };
 		EBA4D1001C6423F100BB459F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C91C62C585001E0F62 /* Security.framework */; };
 		EBA4D1011C6423FC00BB459F /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */; };
-		EBAC6D2E1CD02D430060BC73 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EBAC6D2C1CD02D430060BC73 /* Main.storyboard */; };
 		EBBA52E01CF65B6A0047E22A /* HeaderTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBBA52DF1CF65B6A0047E22A /* HeaderTableViewCell.swift */; };
 		EBBA52E21CFE62730047E22A /* SubheaderTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBBA52E11CFE62730047E22A /* SubheaderTableViewCell.swift */; };
 		EBBA52E51D0F831B0047E22A /* CheckInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB63152B1BF961D7009683FE /* CheckInViewController.swift */; };
 		EBBAB1A61DFB6E7100048916 /* FbookUserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBBAB1A51DFB6E7100048916 /* FbookUserInfo.swift */; };
 		EBE70DF01CC58EBA00F6DCE3 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE70DEE1CC58EBA00F6DCE3 /* FBSDKCoreKit.framework */; };
 		EBE70DF11CC58EBA00F6DCE3 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE70DEF1CC58EBA00F6DCE3 /* FBSDKLoginKit.framework */; };
+		EBF790121EA6DEDB005F0B6F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EBF790101EA6DEDB005F0B6F /* Main.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -155,13 +155,13 @@
 		EBA4D0FB1C6423DB00BB459F /* libc++.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.1.dylib"; path = "../../../../../usr/lib/libc++.1.dylib"; sourceTree = "<group>"; };
 		EBA4D0FC1C6423DB00BB459F /* libicucore.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.A.dylib; path = ../../../../../usr/lib/libicucore.A.dylib; sourceTree = "<group>"; };
 		EBAC6D051CC855C20060BC73 /* OutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutViewController.swift; sourceTree = "<group>"; };
-		EBAC6D2D1CD02D430060BC73 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		EBBA52DF1CF65B6A0047E22A /* HeaderTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HeaderTableViewCell.swift; sourceTree = "<group>"; };
 		EBBA52E11CFE62730047E22A /* SubheaderTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubheaderTableViewCell.swift; sourceTree = "<group>"; };
 		EBBA52E31D0DBA3E0047E22A /* CheckedOutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckedOutViewController.swift; sourceTree = "<group>"; };
 		EBBAB1A51DFB6E7100048916 /* FbookUserInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FbookUserInfo.swift; sourceTree = "<group>"; };
 		EBE70DEE1CC58EBA00F6DCE3 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKCoreKit.framework; path = ../../FacebookSDK/FBSDKCoreKit.framework; sourceTree = "<group>"; };
 		EBE70DEF1CC58EBA00F6DCE3 /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKLoginKit.framework; path = ../../FacebookSDK/FBSDKLoginKit.framework; sourceTree = "<group>"; };
+		EBF790111EA6DEDB005F0B6F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		FBACC3D0973074852A3E2B26 /* Pods_Beta2UITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Beta2UITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -296,9 +296,9 @@
 				EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */,
 				EB06561B1BEE37F300CF8376 /* AppDelegate.swift */,
 				EB1405C51D3007B1001D3924 /* CheckedCoreData.xcdatamodeld */,
+				EBF790101EA6DEDB005F0B6F /* Main.storyboard */,
 				EB03E5C31C3864FF009A55F1 /* Bridging-Header.h */,
 				EBAC6D051CC855C20060BC73 /* OutViewController.swift */,
-				EBAC6D2C1CD02D430060BC73 /* Main.storyboard */,
 				EB61CD631DC4F0A800297225 /* AddPeopleViewCntroller.swift */,
 				EB47DCE41DA1BFCD00C9EC18 /* ListHeaderView.swift */,
 				EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */,
@@ -475,7 +475,7 @@
 				EB9EE2CB1DD2A88900AC1FF0 /* Launch Screen.storyboard in Resources */,
 				EB03B8351DFF08780002098C /* GoogleService-Info.plist in Resources */,
 				EB0656231BEE37F300CF8376 /* Assets.xcassets in Resources */,
-				EBAC6D2E1CD02D430060BC73 /* Main.storyboard in Resources */,
+				EBF790121EA6DEDB005F0B6F /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -702,10 +702,10 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		EBAC6D2C1CD02D430060BC73 /* Main.storyboard */ = {
+		EBF790101EA6DEDB005F0B6F /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				EBAC6D2D1CD02D430060BC73 /* Base */,
+				EBF790111EA6DEDB005F0B6F /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";

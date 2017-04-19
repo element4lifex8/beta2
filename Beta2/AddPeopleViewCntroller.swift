@@ -14,7 +14,10 @@ import FBSDKLoginKit
 extension UIImage {
     
     class func imageWithColor(color: UIColor, size: CGSize) -> UIImage {
-        let rect: CGRect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+        //Since we added a 2pt top and bottom divider line, subtract 1pt from each size of highlighted image so they don't overlap as much
+        let rect: CGRect = CGRect(x: 0, y: 1, width: size.width, height: size.height - 1)
+        //Creates a bitmap-based graphics context
+        //Parameters size, opaque, and scale
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
         color.setFill()
         UIRectFill(rect)
@@ -97,7 +100,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         //        Tab bar configuration
         //Create top and bottom border of tab bar
 //        let px = 1 / UIScreen.main.scale    //determinte 1 pixel size instead of using 1 point
-        let barLine = 2.5
+        let barLine = 2.0
         let frame = CGRect(x: 0, y: 0, width: Double(self.tabBar.frame.size.width), height: barLine)
         let topLine: UIView = UIView(frame: frame)
         let bottomframe = CGRect(x: 0, y: Double(self.tabBar.frame.size.height) - barLine, width: Double(tableView.frame.size.width), height: barLine)
@@ -111,8 +114,8 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         //Apple has a 2px border between the left and right sides of the tab bar and the tab bar items.
         
         //make the tab bar 4px wider, and then offset it so the border on the left falls just outside of the view, thus the border on the right will also fall outside of the view.
-        self.tabBar.frame.size.width = self.view.frame.width + 4
-        self.tabBar.frame.origin.x = -2
+//        self.tabBar.frame.size.width = self.view.frame.width + 4
+//        self.tabBar.frame.origin.x = -2
         
         let numberOfItems = CGFloat((self.tabBar.items!.count))
         //Subtract the over hang that removes the default borders
@@ -121,12 +124,26 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                                     height: (self.tabBar.frame.height))
 
         // this is the separator width.  0.5px matches the line at the top of the tab bar
-        let separatorWidth: CGFloat = 2.5
+        let separatorWidth: CGFloat = 2
         //Add seperator bars between each tab
         // iterate through the items in the Tab Bar, except the last one
-        for i in 0 ..< Int(numberOfItems) {
+        for i in 0 ... Int(numberOfItems) {
             // make a new separator at the end of each tab bar item
-            let separator = UIView(frame: CGRect(x: itemWidth * CGFloat(i + 1) - CGFloat(separatorWidth / 2), y: 0, width: CGFloat(separatorWidth), height: self.tabBar.frame.size.height))
+            //Conditional assignment so first shows up full size instead of shifting 1pt left off the screen, the last shifts left by 2 to display entirely on screen, and the rest center between each item
+            var xVal: CGFloat
+            switch(i){
+            case(0):
+                xVal = itemWidth * CGFloat(i)
+                break
+            case (Int(numberOfItems)):
+                xVal = itemWidth * CGFloat(i) - CGFloat(separatorWidth)
+                break
+            default:
+                xVal = itemWidth * CGFloat(i) - CGFloat(separatorWidth / 2)
+                break
+            }
+            
+            let separator = UIView(frame: CGRect(x: xVal, y: 0, width: CGFloat(separatorWidth), height: self.tabBar.frame.size.height))
             
             // set the color to light gray (default line color for tab bar)
             separator.backgroundColor = UIColor.black
@@ -134,6 +151,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             self.tabBar.addSubview(separator)
         }
         
+        //When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps.
         tabBar.selectionIndicatorImage
             = UIImage.imageWithColor(color: .white,
                                      size: tabBarItemSize).resizableImage(withCapInsets: .zero)
@@ -354,7 +372,6 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     }
     
      @IBAction func submitSelected(_ sender: UIButton) {
-        print("people selected")
 //         let userChecked = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
         let userChecked = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
         for friend in selectedFBfriends{
@@ -362,7 +379,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
            let friendInfo = ["displayName1" : friend.displayName!]
         userChecked.child(byAppendingPath: friend.id!).setValue(friendInfo)
         }
-        performSegue(withIdentifier: "returnToCheckOut", sender: self)
+        performSegue(withIdentifier: "unwindFromAddFriends", sender: self)
     }
     
     
