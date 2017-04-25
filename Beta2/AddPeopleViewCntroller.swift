@@ -119,7 +119,9 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         
         let numberOfItems = CGFloat((self.tabBar.items!.count))
         //Subtract the over hang that removes the default borders
-        let itemWidth = floor((self.tabBar.frame.size.width) / numberOfItems)
+        let itemWidth = /*floor*/((self.tabBar.frame.size.width) / numberOfItems)
+        print(itemWidth)
+        print(self.tabBar.frame.size.width)
         let tabBarItemSize = CGSize(width: itemWidth,
                                     height: (self.tabBar.frame.height))
 
@@ -134,7 +136,6 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             switch(i){
             case(0):
                 xVal = itemWidth * CGFloat(i)
-                break
             case (Int(numberOfItems)):
                 xVal = itemWidth * CGFloat(i) - CGFloat(separatorWidth)
                 break
@@ -150,7 +151,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             
             self.tabBar.addSubview(separator)
         }
-        
+        //To Do : iphone 5 and 6E has 1pt gap between each of the middle seperators when the middle tab item is selected since the screen is not seperable by 3 (120pt)  
         //When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps.
         tabBar.selectionIndicatorImage
             = UIImage.imageWithColor(color: .white,
@@ -227,7 +228,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                self.tabBar.items?[i].titlePositionAdjustment = UIOffsetMake(0, -6)
                 let myItem = self.tabBar.items?[i]
                 self.tabBar.selectedItem = myItem
-                self.availableTabSelected = false   //Show all friends, not just availble Auth Friends
+                self.availableTabSelected = true   //Show just availble Auth Friends
                 self.lastTabSelected = myItem   //Keep track so it can be reselected after the user selects the share button
                 self.availableTabSelected = true
                 break;
@@ -524,11 +525,9 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             //Reselect the previous tab when the last tab is selected
             
             break
-        default:    //3rd item is just the picture and no title
+        default:    //No other tabs should exist
             break;
         }
-        
-        
 
     }
 

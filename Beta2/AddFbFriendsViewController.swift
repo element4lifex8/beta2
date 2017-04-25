@@ -9,7 +9,10 @@
 import UIKit
 import FBSDKCoreKit
 import FBSDKLoginKit
+import FBSDKShareKit
 import FirebaseDatabase
+
+
 
 extension String{
     func lastName() -> String{
@@ -23,8 +26,18 @@ extension String{
     }
 }
 
-class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITabBarDelegate {
+    
     @IBOutlet weak var tableView: UITableView!
+    
+    //Tab bar container view used to add top/bottom seperator
+    @IBOutlet var tabBarContainerView: UIView!
+    @IBOutlet var tabBar: UITabBar!
+    
+    //Keep track of the last tab selected so it can be relected after the share icon is selected
+    var lastTabSelected: UITabBarItem?
+      var availableTabSelected = false //Keep track of the tab bar thats selected to determine what to display in tableView
+    
     var selectedFBfriends = [FbookUserInfo]()
     var facebookAuthFriends = [String](), facebookAuthIds = [String]()
     var facebookTaggableFriends = [String](), facebooktaggableIds = [String]()
@@ -90,14 +103,82 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
         let pinLeft = NSLayoutConstraint(item: buttonView, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1.0, constant: (view.bounds.width/2) - (buttViewWidth/2))
         view.addConstraint(pinBottom)
         view.addConstraint(pinLeft)
+     
+        //        Tab bar configuration
+        //Create top and bottom border of tab bar
+        //        let px = 1 / UIScreen.main.scale    //determinte 1 pixel size instead of using 1 point
+        let barLine = 2.0
+        let frame = CGRect(x: 0, y: 0, width: Double(self.tabBar.frame.size.width), height: barLine)
+        let topLine: UIView = UIView(frame: frame)
+        let bottomframe = CGRect(x: 0, y: Double(self.tabBar.frame.size.height) - barLine, width: Double(tableView.frame.size.width), height: barLine)
+        let bottomLine: UIView = UIView(frame: bottomframe)
+        topLine.backgroundColor = UIColor.black
+        bottomLine.backgroundColor = UIColor.black
+        self.tabBarContainerView.addSubview(topLine)
+        self.tabBarContainerView.addSubview(bottomLine)
         
+        // remove default border at left and right edges of screen
+        //Apple has a 2px border between the left and right sides of the tab bar and the tab bar items.
+        
+        //make the tab bar 4px wider, and then offset it so the border on the left falls just outside of the view, thus the border on the right will also fall outside of the view.
+        //        self.tabBar.frame.size.width = self.view.frame.width + 4
+        //        self.tabBar.frame.origin.x = -2
+        
+        let numberOfItems = CGFloat((self.tabBar.items!.count))
+        //Subtract the over hang that removes the default borders
+        let itemWidth = /*floor*/((self.tabBar.frame.size.width) / numberOfItems)
+        let tabBarItemSize = CGSize(width: itemWidth,
+                                    height: (self.tabBar.frame.height))
+        
+        // this is the separator width.  0.5px matches the line at the top of the tab bar
+        let separatorWidth: CGFloat = 2
+        //Add seperator bars between each tab
+        // iterate through the items in the Tab Bar, except the last one
+        for i in 0 ... Int(numberOfItems) {
+            // make a new separator at the end of each tab bar item
+            //Conditional assignment so first shows up full size instead of shifting 1pt left off the screen, the last shifts left by 2 to display entirely on screen, and the rest center between each item
+            var xVal: CGFloat
+            switch(i){
+            case(0):
+                xVal = itemWidth * CGFloat(i)
+            case (Int(numberOfItems)):
+                xVal = itemWidth * CGFloat(i) - CGFloat(separatorWidth)
+                break
+            default:
+                xVal = itemWidth * CGFloat(i) - CGFloat(separatorWidth / 2)
+                break
+            }
+            
+            let separator = UIView(frame: CGRect(x: xVal, y: 0, width: CGFloat(separatorWidth), height: self.tabBar.frame.size.height))
+            
+            // set the color to light gray (default line color for tab bar)
+            separator.backgroundColor = UIColor.black
+            
+            self.tabBar.addSubview(separator)
+        }
+        //To Do : iphone 5 and 6E has 1pt gap between each of the middle seperators when the middle tab item is selected since the screen is not seperable by 3 (120pt)
+        //When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps.
+        tabBar.selectionIndicatorImage
+            = UIImage.imageWithColor(color: .white,
+                                     size: tabBarItemSize).resizableImage(withCapInsets: .zero)
     }
+    
+    //Set tab bar text settings in awakeFromNib otherwise they won't change the font size
+    //apperance() is global so this will change every instance of UIBarItem
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        //
+        UITabBarItem.appearance().setTitleTextAttributes([NSFontAttributeName: UIFont(name: "Avenir-Light", size: 24)!, NSForegroundColorAttributeName : UIColor.white], for: .normal)
+        UITabBarItem.appearance().setTitleTextAttributes([NSFontAttributeName: UIFont(name: "Avenir-Light", size: 24)!, NSForegroundColorAttributeName : UIColor(red: 64/255, green: 64/255, blue: 64/255, alpha: 1)], for: .selected)
+    }
+
 
     override func viewDidLoad()
     {
         super.viewDidLoad()
         self.tableView.dataSource=self
         self.tableView.delegate=self
+        self.tabBar.delegate = self
         //remove left padding from tableview seperators
         tableView.layoutMargins = UIEdgeInsets.zero
         tableView.separatorInset = UIEdgeInsets.zero
@@ -110,6 +191,61 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
         self.tableView.tableHeaderView = line
         line.backgroundColor = self.tableView.separatorColor
         
+        //Tab bar customization
+        
+        //        (AddPeopleViewCntroller as! UIViewController).extendedLayoutIncludesOpaqueBars = true;
+        
+        //Hide seperator bar between top and bottom views
+        //        self.tabBar.setValue(true, forKey: "_hidesShadow")
+        //        self.tabBar.shadowImage = UIImage()
+        
+        
+        //        self.tabBar.barTintColor = UIColor(red: 0x40, green: 0x40 /*(64/255)*/, blue: 0x40 	, alpha: 1)
+        //        self.tabBar.isTranslucent = false
+        //Change selected tint color of tab bar image item image when they are selected (text selection font settings configured in awakeFromNib)
+        self.tabBar.tintColor = UIColor(red: (64/255), green: (64/255), blue: (64/255), alpha: 1)
+        //Set background image
+        //        self.tabBar.backgroundImage = UIImage()
+        for i in  0 ..< Int(self.tabBar.items!.count){
+            switch(i){
+            case 0:
+                //Set the title
+                self.tabBar.items?[i].title = "All"
+                //Default this first item to be selected
+                let myItem = self.tabBar.items?[i]
+                //Select the first item by default
+                //                self.tabBar.selectedItem = myItem
+                //                self.availableTabSelected = false   //Show all friends, not just availble Auth Friends
+                //                self.lastTabSelected = myItem   //Keep track so it can be reselected after the user selects the share button
+                //Center the text by shifting up by 6 pt
+                self.tabBar.items?[i].titlePositionAdjustment = UIOffsetMake(0, -6)
+                break;
+            case 1:
+                self.tabBar.items?[i].title = "Available"
+                self.tabBar.items?[i].titlePositionAdjustment = UIOffsetMake(0, -6)
+                let myItem = self.tabBar.items?[i]
+                self.tabBar.selectedItem = myItem
+                self.availableTabSelected = true   //Show just availble Auth Friends
+                self.lastTabSelected = myItem   //Keep track so it can be reselected after the user selects the share button
+                self.availableTabSelected = true
+                break;
+            case 2:
+                //3rd tab item has white default and grey selected image added from storyboard
+                //Center Image on 3rd tab bar item, Subtract Insets from bottom as well to preserve image size
+                self.tabBar.items?[i].image = UIImage(named: "whiteShareIcon")
+                self.tabBar.items?[i].selectedImage = UIImage(named: "shareIcon")
+                self.tabBar.items?[i].imageInsets = UIEdgeInsets(top: 6, left: 0, bottom: -6, right: 0)
+            default:    //3rd item is just the picture and no title
+                break;
+            }
+            
+        }
+        //Set share image for last tab bar item
+        //        self.shareTabItem.image = UIImage(named: "shareIcon")?.withRenderingMode(.alwaysOriginal)
+        //Try to center the share icon
+        //Center Image on 3rd tab bar item, Subtract Insets from bottom as well to preserve image size
+        //        self.shareTabItem.imageInsets = UIEdgeInsets(top: 6, left: 0, bottom: -6, right: 0)
+
         
         //        friendsRef = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
         friendsRef = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
@@ -248,15 +384,23 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
         let unAuthrequest = FBSDKGraphRequest(graphPath:"/me/taggable_friends?limit=5000", parameters: ["fields" : "name"]);
         var unAuthFriends = [String]()
         var unAuthId = [String]()
+        var friendFailed = false
         unAuthrequest?.start(completionHandler: { (connection, result, error) -> Void in
             if error == nil{
+
                 let resultdict = result as! NSDictionary
                 let data : NSArray = resultdict.object(forKey: "data") as! NSArray
-                //                print("unauth data \(data)")
                 for i in 0..<data.count{
                     let valueDict : NSDictionary = data[i] as! NSDictionary
-                    let fbFriendName = valueDict.object(forKey: "name") as! String
-                    unAuthFriends.append(fbFriendName)
+                    if let fbFriendName = valueDict.object(forKey: "name") as? String{
+                        unAuthFriends.append(fbFriendName)
+                    }
+                    else{
+                        friendFailed = true
+                    }
+                }
+                if(friendFailed){
+                    print("Error unwrapping at least of the user's FB friends")
                 }
             }
             else{
@@ -318,6 +462,7 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
     
     @IBAction func submitSelected(_ sender: UIButton) {
         //         let userChecked = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
+        var invite = false
         let userChecked = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
         for friend in selectedFBfriends{
             if(friend.auth)!{
@@ -326,14 +471,38 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
                 userChecked.child(byAppendingPath: friend.id!).setValue(friendInfo)
             }else{
                 print("send email of Facebook Message to invite \(friend.displayName) to CIO")
+//                invite = true
             }
+        }
+        
+    //Triggering default FB sharing screen is failing unwrapping nil for some reason
+        if(invite){
+            let inviteDialog:FBSDKAppInviteDialog = FBSDKAppInviteDialog()
+            if(inviteDialog.canShow()){
+                let appLinkUrl:NSURL = NSURL(string: "https://fb.me/1420072051347427")!
+                let previewImageUrl:NSURL = NSURL(string: "http://yourwebpage.com/preview-image.png")!
+                
+                let inviteContent:FBSDKAppInviteContent = FBSDKAppInviteContent()
+                inviteContent.appLinkURL = appLinkUrl as URL!
+                inviteContent.appInvitePreviewImageURL = previewImageUrl as URL!
+                
+                inviteDialog.content = inviteContent
+                inviteDialog.delegate = self
+                inviteDialog.show()
+            }
+            
         }
         performSegue(withIdentifier: "unwindFromFbLoginIdentifier", sender: self)
     }
     
     
     @IBAction func accessoryButtonTapped(_ sender: UIButton) {
-        let friendName = facebookTaggableFriends[sender.tag]
+        var friendName: String = ""
+        if(self.availableTabSelected){
+            friendName = facebookAuthFriends[sender.tag]
+        }else{
+            friendName = facebookTaggableFriends[sender.tag]
+        }
         var FBfriend: FbookUserInfo
         //check or uncheck selected friends
         sender.isSelected = sender.state == .highlighted ? true : false
@@ -376,27 +545,42 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return facebookTaggableFriends.count
+        if(self.availableTabSelected)
+        {
+            return self.facebookAuthFriends.count
+        }else{
+            return facebookTaggableFriends.count
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
+        var isAuth = true  //Track if the user can be added and create accessory button if so
         let checkImage = UIImage(named: "tableAccessoryCheck")
         let cellIdentifier = "friendCell"
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! FriendTableViewCell   //downcast to my cell class type
         //display table data from taggable friends which includes auth and unauth friends
-        cell.nameLabel.text = "\(facebookTaggableFriends[indexPath.row])"
+        if(self.availableTabSelected){
+            cell.nameLabel.text = "\(facebookAuthFriends[indexPath.row])"
+        }else{
+            cell.nameLabel.text = "\(facebookTaggableFriends[indexPath.row])"
+        }
+        
+
         cell.nameLabel.textColor = UIColor.black
         cell.nameLabel.font = UIFont(name: "Avenir-Light", size: 18)
         //Set available tag
-        if(facebookAuthFriends.contains(facebookTaggableFriends[indexPath.row]))
+        //If displaying all friends need to check the facebookTaggable friends, otherwise we can index directly into facebookAutFriends
+        if(self.availableTabSelected || facebookAuthFriends.contains(facebookTaggableFriends[indexPath.row]))
         {
             cell.isAvailableLabel.text = "Available"
         }else{
             cell.isAvailableLabel.text = "Invite to Check-In-Out"
+            isAuth = false
         }
         cell.isAvailableLabel.textColor = UIColor.black
         cell.isAvailableLabel.font = UIFont(name: "Avenir-Light", size: 12)
+        
         
         //Add custom accessory view for check button
         let accessoryButton = UIButton(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
@@ -415,20 +599,66 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
         if(selectedAccessButt.contains(indexPath.item)){
             accessoryButton.isSelected = true
         }
+        if(!isAuth){  //Don't add accessory button from unAuth friends
+            cell.accessoryView?.isHidden = true
+        }
         //Remove seperator insets
         cell.layoutMargins = UIEdgeInsets.zero
         return cell
     }
     
-
-//    var authList = Array<String>()
-//    var unAuthList = Array<String>()
-//    @IBOutlet weak var friendsText: UITextView!
-//    
-//    @IBOutlet weak var unAuthFriends: UITextView!
-//
-//    @IBOutlet weak var friendImage: UIImageView!
+    //Tab bar delegate for selecting buttons
+    func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
+        
+        switch(item){
+        case (self.tabBar.items?[0])!:
+            self.lastTabSelected = self.tabBar.items?[0]
+            self.availableTabSelected = false
+            self.tableView.reloadData()
+            break;
+        case (self.tabBar.items?[1])!:
+            self.lastTabSelected = self.tabBar.items?[1]
+            self.availableTabSelected = true
+            self.tableView.reloadData()
+            break;
+        case (self.tabBar.items?[2])!:
+            //Notify the user that sharing is not yet available in beta
+            let alert = UIAlertController(title: "We're glad you want to Share!", message: "Sharing the Check In Out app is not supported for testing, but once the app is in the app store we'd love for you to share it!", preferredStyle: .alert)
+            //Exit function if user clicks now and allow them to reconfigure the check in
+            let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: { UIAlertAction in
+                if let lastTab = self.lastTabSelected {
+                    self.tabBar.selectedItem = lastTab
+                }
+            })
+            alert.addAction(CancelAction)
+            self.present(alert, animated: true, completion: nil)
+            //Reselect the previous tab when the last tab is selected
+            
+            break
+        default:    //3rd item is just the picture and no title
+            break;
+        }
+        
+    }
 
     
 
+}
+
+//Make your View Controller implement the Facebook App Invite Dialog delegate and add in delegate methods to receive completion handlers:
+extension AddFbFriendsViewController: FBSDKAppInviteDialogDelegate{
+    
+    func appInviteDialog (_ appInviteDialog: FBSDKAppInviteDialog!, didCompleteWithResults results: [AnyHashable : Any]!) {
+        let resultObject = NSDictionary(dictionary: results)
+        
+        if let didCancel = resultObject.value(forKey: "completionGesture")
+        {
+            if (didCancel as AnyObject).caseInsensitiveCompare("Cancel") == ComparisonResult.orderedSame
+            {
+                print("User Canceled invitation dialog")
+            } } }
+    func appInviteDialog(_ appInviteDialog: FBSDKAppInviteDialog!, didFailWithError error: Error!) {
+        print("Error tool place in appInviteDialog \(error)")
+    }
+    
 }

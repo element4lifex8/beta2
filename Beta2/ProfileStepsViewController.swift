@@ -505,7 +505,21 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.activeTextField?.text = autoCompleteArray[indexPath.row].attributedPrimaryText.string
+        //Grab the city name from primary text and get the state name from secondaryText
+        var cityState = autoCompleteArray[indexPath.row].attributedPrimaryText.string
+        
+        //unwrap secondary text or quit while we're ahead
+        guard let secondaryText = autoCompleteArray[indexPath.row].attributedSecondaryText?.string else {self.activeTextField?.text
+            return
+        }
+        //Find the first comma in the secondary text, which should fall after the state
+        if let rangeOfSpace = secondaryText.range(of: ",") {
+            //Convert the range returned by the comma to an index and return the string from the space to end of dispay name
+            let stateName = secondaryText.substring(to: rangeOfSpace.lowerBound)
+            cityState = cityState + ", " + stateName
+        }
+
+        self.activeTextField?.text = cityState
         //Use placeholder text to determine which text box is being edited
         //The place holder text changes after the first city is added to "add more cities"
         if((self.activeTextField?.placeholder == "Pick more cities...") || (self.activeTextField?.placeholder == "Add more cities...")){

@@ -28,7 +28,50 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     //Retrieve curr user from User Defaults
     var currUser = Helpers().currUser
 
-    
+//    override func viewDidAppear(_ animated: Bool) {
+//        super.viewDidAppear(animated)
+//        
+//        //Create container view then loading for activity indicator to prevent background from overshadowing white color
+//        let loadingView: UIView = UIView()
+//        
+//        loadingView.frame = CGRect(x: 0,y: 0,width: 80,height: 80)
+//        loadingView.center = view.center
+//        loadingView.backgroundColor = UIColor(red: 0x44/255, green: 0x44/255, blue: 0x44/255, alpha: 0.7)
+//        loadingView.clipsToBounds = true
+//        loadingView.layer.cornerRadius = 10
+//        
+//        //Start activity indicator while making Firebase request
+//        let activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView(frame:   CGRect(x: 0, y: 0, width: 50, height: 50)) as UIActivityIndicatorView
+//        activityIndicator.center = CGPoint(x: loadingView.frame.size.width / 2,y: loadingView.frame.size.height / 2);
+//        //        activityIndicator.backgroundColor = UIColor(red: 0x60/255, green: 0x60/255, blue: 0x60/255, alpha: 0.3)
+//        activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.whiteLarge
+//        activityIndicator.hidesWhenStopped = true
+//        
+//        
+//        //Don't request data again if I already have data in my arrays
+//        //Also we won't show the activity monitor unless we are sending request
+//        if((self.myFriends.count == 0) && (self.friendCities.count == 0)){
+//            //Show activity monitor
+//            loadingView.addSubview(activityIndicator)
+//            view.addSubview(loadingView)
+//            activityIndicator.startAnimating()
+//            friendsRef = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
+//            cityRef = FIRDatabase.database().reference().child("checked")
+//            retrieveFromFirebase{(finished:Bool)
+//                in
+//                if(finished){
+//                    self.tableView.reloadData()
+//                    activityIndicator.stopAnimating()
+//                    loadingView.removeFromSuperview()
+//                }
+//            }
+//        }
+//        //For the time being the add city button is disabled when showing cities since we don't have an add city button(re-enabled in the tab bar select function)
+//        if(!showPeopleView){
+//            addButton.isEnabled = false
+//            addButton.isHidden = true
+//        }
+//    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -82,11 +125,11 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         addButton.isEnabled = false
         addButton.isHidden = true
         
-//        var buttonWatch:Bool = showPeopleView{
-//            didSet{
-//               self.tableView.reloadData() 
-//            }
-//        }
+        var buttonWatch:Bool = showPeopleView{
+            didSet{
+               self.tableView.reloadData() 
+            }
+        }
         
     }
     
@@ -288,6 +331,12 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     @IBAction func unwindFromMyList(_ sender: UIStoryboardSegue) {
         // empty
     }
+    
+    // Unwind seque from my myListVC
+    @IBAction func unwindFromAddFriends(_ sender: UIStoryboardSegue) {
+        // empty
+    }
+    
     
     /*override func segueForUnwindingToViewController(toViewController: UIViewController, fromViewController: UIViewController, identifier: String?) -> UIStoryboardSegue? {
         let segueLeft:SegueFromLeft = SegueFromLeft(identifier: identifier, source: fromViewController, destination: toViewController)

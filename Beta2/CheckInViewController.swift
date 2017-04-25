@@ -22,7 +22,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var dictArr = [[String:String]]()
     var placesDict = [String : String]()
     var cityButtonList: [String] = ["+"]
-    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Site Seeing", "Winery"]
+    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Sight Seeing", "Winery"]
     var placesArr = [String]()
     var arrSize = Int()
     var checkObj = placeNode()  //Appears that this model is filled out, but its actually the dict array contents that are written to the backen
@@ -268,7 +268,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                     btn.removeFromSuperview()
                 }
                 //Remove any background from the city button that was added by the touchdown event
-                for case let btn as UIButton in cityScrollContainerView.subviews{
+                for case let btn as CityStateUIButton in cityScrollContainerView.subviews{
                     if(!btn.isSelected){
                         btn.backgroundColor = UIColor.clear
                     }
@@ -307,7 +307,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         if(self.isEnteringCity){
             var cityState = googlePrediction[indexPath.row].attributedPrimaryText.string
 
-            //unwrap secondary text of quit while we're ahead
+            //unwrap secondary text or quit while we're ahead
             guard let secondaryText = googlePrediction[indexPath.row].attributedSecondaryText?.string else {self.CheckInRestField.text = cityState
                 return
             }
@@ -318,7 +318,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 cityState = cityState + ", " + stateName
             }
             self.CheckInRestField.text = cityState
-        }else{
+        }else{  //Not entering city, just select establishment name
             self.CheckInRestField.text = googlePrediction[indexPath.row].attributedPrimaryText.string
         }
         //Store placeId object to be stored in firebase with the check in
@@ -564,7 +564,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             }
         }
         for view in self.cityScrollContainerView.subviews as [UIView] {
-            if let btn = view as? UIButton {
+            if let btn = view as? CityStateUIButton {
                 btn.titleEdgeInsets = UIEdgeInsetsMake(0.0, 5, 0, 5) //prevent text from shift when removing check image
                 btn.isSelected = false
                 if(btn.backgroundColor != UIColor.clear){
@@ -606,7 +606,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     }
     
     
-    @IBAction func citySelect(_ sender: UIButton) {
+    @IBAction func citySelect(_ sender: CityStateUIButton) {
         
         if(sender.currentTitle! == "+")
         {
@@ -639,7 +639,15 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         }
         else
         {
-            let cityDict = ["city" : sender.currentTitle!]   //var cityDict = ["city" : "true"]
+            var cityFullText = ""
+            //CityState buttons (sender) have city label, but the city and state name saved in a button attribute
+            if let cityState = sender.cityState {
+                cityFullText = cityState
+            }else{
+                cityFullText = sender.currentTitle!
+            }
+            
+            let cityDict = ["city" : cityFullText]   //var cityDict = ["city" : "true"]
             if(makeButtonSelected(sender))
             {
                 checkObj.addCity(sender.currentTitle!)
@@ -1008,7 +1016,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             }
         })*/
         //remove all previously existing buttons from view to re-draw alternate loop to cat buttons
-        for case let btn as UIButton in cityScrollContainerView.subviews{
+        for case let btn as CityStateUIButton in cityScrollContainerView.subviews{
                 btn.removeFromSuperview()
         }
         cityScrollView.contentSize = CGSize(width: CGFloat((cityButtonList.count * buttonRad) + ((cityButtonList.count  + 1) * buttonSpacing)), height: 120) //Length of scroll view is the number of 100px buttons plus the number of 25px spacing plus an extra space for the final button, 120 high
@@ -1021,7 +1029,18 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         
         //Add button to scroll view's container view
         for (index,cityText) in cityButtonList.enumerated(){
-            let button = UIButton(frame: CGRect(x: (index * buttonRad) + ((index+1)*buttonSpacing), y: 10, width: buttonRad, height: buttonRad))   // X, Y, width, height
+            //Extract city name only and save the city & state name in the CityStateUiButton attribute
+            //Strip state from from cityState so button only lists city Name
+            var cityOnly = ""
+            //Find the first comma in the secondary text, which should fall after the state
+            if let rangeOfSpace = cityText.range(of: ",") {
+                //Convert the range returned by the comma to an index and return the string from the space to end of dispay name
+                cityOnly = cityText.substring(to: rangeOfSpace.lowerBound)
+            }else{//If no state/secondary locality is listed (because no ",State Name" was found
+                cityOnly = cityText
+            }
+            
+            let button = CityStateUIButton(frame: CGRect(x: (index * buttonRad) + ((index+1)*buttonSpacing), y: 10, width: buttonRad, height: buttonRad))   // X, Y, width, height
             button.layer.cornerRadius = 0.5 * button.bounds.size.width
             button.backgroundColor = UIColor.clear
             button.layer.borderWidth = 2.0
@@ -1030,7 +1049,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             button.titleLabel!.adjustsFontSizeToFitWidth = true
             button.titleLabel!.minimumScaleFactor = 0.6
             button.titleLabel!.lineBreakMode = .byTruncatingTail
-            button.setTitle(cityText, for: UIControlState())
+            button.setTitle(cityOnly, for: UIControlState())
+            //Save the full city & state name in the buttons attribute
+            button.cityState = cityText
             //add target actions for button tap
             button.addTarget(self, action: #selector(CheckInViewController.citySelect(_:)), for: .touchUpInside)
             //Functions to highlight and unhighlight when touches begin
@@ -1115,7 +1136,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
 //                button.titleLabel?.font = UIFont.systemFont(ofSize: CGFloat(buttonRad / 4), weight: UIFontWeightBold)
                 button.setTitleColor(UIColor.black, for: UIControlState())
                 button.addTarget(self, action: #selector(CheckInViewController.deleteCity(_:)), for: .touchUpInside)
+                
                 cityScrollContainerView.addSubview(button)
+                //bring subview to front
+//                cityScrollContainerView.bringSubview(toFront: button)
             }
         }
     }
@@ -1127,7 +1151,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             btn.removeFromSuperview()
         }
         //For the actual city buttons remove any background color they received from the touch down event
-        for case let btn as UIButton in cityScrollContainerView.subviews{
+        for case let btn as CityStateUIButton in cityScrollContainerView.subviews{
             if(!btn.isSelected){
                 btn.backgroundColor = UIColor.clear
             }
@@ -1159,7 +1183,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             //Perform the delete operation in the closure called by the confirm action
             let ConfirmAction = UIAlertAction(title: "Yes", style: .default, handler: { UIAlertAction in
                 sender.removeFromSuperview()
-                
+                //Remove any delete city buttons to clean the screen by calling the same function that touches to the scroll view use to clear icons
+                self.clearCityDeleteButton(UITapGestureRecognizer())
                 managedContext.delete(coreData[buttonEnum] as NSManagedObject)
                 do {
                     try managedContext.save()   //Updated core data with the deleted attribute
@@ -1177,7 +1202,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             self.present(alert, animated: true, completion:nil )
         }else{
             sender.removeFromSuperview()
-            
+            //Remove any delete city buttons to clean the screen by calling the same function that touches to the scroll view use to clear icons
+            self.clearCityDeleteButton(UITapGestureRecognizer())	
             managedContext.delete(coreData[buttonEnum] as NSManagedObject)
             do {
                 try managedContext.save()   //Updated core data with the deleted attribute

@@ -66,6 +66,7 @@
 		EBE70DF01CC58EBA00F6DCE3 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE70DEE1CC58EBA00F6DCE3 /* FBSDKCoreKit.framework */; };
 		EBE70DF11CC58EBA00F6DCE3 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE70DEF1CC58EBA00F6DCE3 /* FBSDKLoginKit.framework */; };
 		EBF790121EA6DEDB005F0B6F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EBF790101EA6DEDB005F0B6F /* Main.storyboard */; };
+		EBF790161EA82CE2005F0B6F /* CityStateUIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBF790151EA82CE2005F0B6F /* CityStateUIButton.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -162,6 +163,7 @@
 		EBE70DEE1CC58EBA00F6DCE3 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKCoreKit.framework; path = ../../FacebookSDK/FBSDKCoreKit.framework; sourceTree = "<group>"; };
 		EBE70DEF1CC58EBA00F6DCE3 /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKLoginKit.framework; path = ../../FacebookSDK/FBSDKLoginKit.framework; sourceTree = "<group>"; };
 		EBF790111EA6DEDB005F0B6F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		EBF790151EA82CE2005F0B6F /* CityStateUIButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CityStateUIButton.swift; sourceTree = "<group>"; };
 		FBACC3D0973074852A3E2B26 /* Pods_Beta2UITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Beta2UITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -293,7 +295,6 @@
 				EB63152B1BF961D7009683FE /* CheckInViewController.swift */,
 				EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */,
 				EB97CF611D73902900A3DBA1 /* ScrollViewAnchor.swift */,
-				EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */,
 				EB06561B1BEE37F300CF8376 /* AppDelegate.swift */,
 				EB1405C51D3007B1001D3924 /* CheckedCoreData.xcdatamodeld */,
 				EBF790101EA6DEDB005F0B6F /* Main.storyboard */,
@@ -334,6 +335,8 @@
 		EB3A98211D9813D400C16E89 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */,
+				EBF790151EA82CE2005F0B6F /* CityStateUIButton.swift */,
 				EB5A49B41D61005F00B9AB17 /* PlaceNodeTree.swift */,
 				EBBAB1A51DFB6E7100048916 /* FbookUserInfo.swift */,
 				EB55D6261CEBD180004D81D0 /* placeNode.swift */,
@@ -644,6 +647,7 @@
 				EB3A982B1D99D0AF00C16E89 /* CheckOutPeopleViewController.swift in Sources */,
 				EBBAB1A61DFB6E7100048916 /* FbookUserInfo.swift in Sources */,
 				EB003CB31E4368A1004E7451 /* PlaceDeetsTableViewCell.swift in Sources */,
+				EBF790161EA82CE2005F0B6F /* CityStateUIButton.swift in Sources */,
 				EB06561C1BEE37F300CF8376 /* AppDelegate.swift in Sources */,
 				EB85D5551C51B5B200F2E29F /* ProfileStepsViewController.swift in Sources */,
 				EB4C38471D453C8F00D11721 /* DeleteCityUIButton.swift in Sources */,

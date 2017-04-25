@@ -146,7 +146,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
         //check for an existing token at load.
         if (FBSDKAccessToken.current() == nil)
         {
-            print("Not logged in..")
+//            print("Not logged in..")
             //Add facebook login button to center of view
 //            let loginView : FBSDKLoginButton = FBSDKLoginButton()
 //            self.view.addSubview(loginView)
