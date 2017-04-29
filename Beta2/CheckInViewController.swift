@@ -428,7 +428,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     //                let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
                     let refChecked = FIRDatabase.database().reference().child("checked/\(self.currUser)")
     //                let refCheckedPlaces = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
-                    let refCheckedPlaces = FIRDatabase.database().reference().child("checked/places")
+                    let refCheckedPlaces = FIRDatabase.database().reference().child("places")
                     // Write establishment name to user's collection
 
                     //Don't create new Place in the refCheckedPlaces ref ("Places" category) if another user has already created this place

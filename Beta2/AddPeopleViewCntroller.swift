@@ -380,7 +380,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
            let friendInfo = ["displayName1" : friend.displayName!]
         userChecked.child(byAppendingPath: friend.id!).setValue(friendInfo)
         }
-        performSegue(withIdentifier: "unwindFromAddFriends", sender: self)
+        performSegue(withIdentifier: "returnToCheckOut", sender: self)
     }
     
     

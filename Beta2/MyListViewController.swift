@@ -94,7 +94,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         collectionView?.allowsMultipleSelection = true
         collectionView.showsHorizontalScrollIndicator = false
 //        placesRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
-        placesRef = FIRDatabase.database().reference().child("checked/places")
+        placesRef = FIRDatabase.database().reference().child("places")
         
         //Create container view then loading for activity indicator to prevent background from overshadowing white color
         let loadingView: UIView = UIView()
@@ -224,7 +224,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     if(self.headerText != nil){
                         headerUnwrapped = headerText!
                     }
-                    print(headerUnwrapped)
+
                     if( ((showAllCities ?? false) && (headerUnwrapped == city)) || !(showAllCities ?? false) ){
                         if (cities.count > 1){  //If multiple cities exist keep a reference to all cities
                             if let currCityIndex = cities.index(of: city){
@@ -341,7 +341,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         var completedAttrArr = [String]()
         var cityArrLoc = [String]()
         var categoryArrLoc = [String]()
-//        print(place)
+
         currPlacesRef = myRef.child(byAppendingPath: place)
         currPlacesRef.observeSingleEvent(of: .value, with: { childSnapshot in
             if !(childSnapshot.value is NSNull)
@@ -534,7 +534,6 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             let closestIndex = sectionWithObjects.enumerated().min(by: {
                 //Find alphabetic placement of the search string
                 guard let searchIdx = alphabet.index(of: title.characters.first!) else {
-                    print("Bull")
                     return false}
                 //Get the first item of each comparison as a character
                 let char0 = ($0.1.characters.first)!
@@ -768,7 +767,6 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             }
             checkInItem.parent!.removeChild(checkInItem.nodeValue!)
             self.tableView.deleteRows(at: [index], with: .automatic)
-            print("deleted")
             //self.tableView.reloadData()
             self.tableView.endUpdates()
         })
@@ -786,7 +784,6 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         let refToDelete = FIRDatabase.database().reference().child("checked/\(self.currUser)/\("insert index Path item")")
         tableView.beginUpdates()
         
-        print("deleted")
         tableView.endUpdates()
     }
 

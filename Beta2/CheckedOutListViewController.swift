@@ -53,7 +53,7 @@ class CheckedOutListViewController: UITableViewController {
 //        userRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
         userRef = FIRDatabase.database().reference().child("checked/\(self.currUser)")
 //        placesRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
-        placesRef = FIRDatabase.database().reference().child("checked/places")
+        placesRef = FIRDatabase.database().reference().child("places")
         //Retrieve List of checked out places in curr user's list
         retrieveUserPlaces() {(completedArr:[String]) in
             self.placesArr = completedArr

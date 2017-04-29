@@ -178,7 +178,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
     func countNumFriends(friendList:[String]){
         var numFriends = 0
         //Reference to master list
-        let refCheckedPlaces = FIRDatabase.database().reference().child("checked/places")
+        let refCheckedPlaces = FIRDatabase.database().reference().child("places")
         guard let placeName = self.titleText else {return}
         let myRef = refCheckedPlaces.child(placeName).child("users")
         //Get a list of all of my current friends:
@@ -257,6 +257,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
         URLSession.shared.dataTask(with:url!, completionHandler: {(data, response, error) in
             guard let data = data, error == nil else {
                 self.openNow = "Hours Unknown"
+                self.myGroup.leave()    //Notify that we gave up on this async call and return
                 return
             }
             
@@ -267,6 +268,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                 let results = json?["result"] as? NSDictionary  //[[String: Any]] ?? []
                 //Collect the opening hours dictionary as a String:Any. Keys are exceptional_date: lists holidays, open_now: "boolean", weekday_text: weekday names and hours, periods: NSArray of key value pairs for the opening times
                 guard let weekdayText = (results?["opening_hours"] as? [String:Any])?["weekday_text"] as? [String] else{
+                    self.myGroup.leave()    //Open Hours weren't provide, notify async group that this call was aborted
                     print("Couldn't convert google web api data from JSON to parse open hours")
                     self.openNow = "Hours Unknown"
                     return
@@ -288,6 +290,8 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                 self.myGroup.leave()
             } catch let error as NSError {
                 print(error)
+                self.myGroup.leave()    //Failed to use google web api, notify async group that this call was aborted
+                print("Google web api call failed")
                 self.openNow = "Hours Unknown"
                 return
             }

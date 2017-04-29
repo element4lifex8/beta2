@@ -86,6 +86,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                         
                         //Provider data is an optional array, unwrap the optional then iterate over the 1 expected array entry to gather uid, displayName, and email parameters
                         if let providerData = user?.providerData {
+                            //The entry will contain the following items: providerID (facebook.com), userId($uid), displayName (from facebook), photoURL(also from FB), email
                             for entry in providerData{  //Expect only 1 entry
                                 self.currUser = entry.uid as NSString
                                 newUser = ["displayName1": (entry.displayName)!,
@@ -260,10 +261,10 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                         
                         // If you ask for multiple permissions at once, you
                         // should check if specific permissions missing
-                        if result.grantedPermissions.contains("email")
-                        {
-                            // Do work
-                        }
+//                        if result.grantedPermissions.contains("email")
+//                        {
+//                            // Do work
+//                        }
                         self.performSegue(withIdentifier: "profileSteps", sender: nil)
                     }
                 }
@@ -303,24 +304,31 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
     /* to do : just make a reference to the user's facebook id and try to get data from that ref in firebase, if it fails then isUser returns with a value of false*/
     func isCurrentUser(_ completionClosure: @escaping (_ isUser:  Bool) -> Void) {
 //        let ref = Firebase(url: "https://check-inout.firebaseio.com")
-        let ref = FIRDatabase.database().reference(withPath: "users")
+        //"as" without !? can only be used when the compiler knows the cast will always work, like from NSString to string
+        let userRef = FIRDatabase.database().reference(withPath: "users").child(self.currUser as String)
         var user = false
         
-        ref.observeSingleEvent(of: .value, with: { snapshot in
-//            for child in (snapshot.children) {
+        userRef.observeSingleEvent(of: .value, with: { snapshot in
+            
+            
+            //Previously I would loop over all users to compare if the curr user existed
+
             let rootNode = snapshot as FIRDataSnapshot
             //force downcast only works if root node has children, otherwise value will only be a string
-            //each entry in nodeDict now has a key of the check in's place name and a value of the city/category attributes
-            let nodeDict = rootNode.value as! NSDictionary
-            //Loop over each check in Place and parse its attributes
-            for (key, _ ) in nodeDict{
-            //Compare current logged in user to all users stored in the database (child.key is the user id #)
             
-                //?is childkey a string?
-                if(key as! NSString == self.currUser){
-                    user = true
-                }
-                
+            //If we have no children then its most certain that the current user doesn't exist
+            if let nodeDict = rootNode.value as? NSDictionary{
+                user = true
+                //No longer need to check for user's string in firebase, we can be certain that the user either doesn't exist or its current entry is malformed if the above downcast fails
+//                //Loop over each check in Place and parse its attributes
+//                for (key, _ ) in nodeDict{
+//                //Compare current logged in user to all users stored in the database (child.key is the user id #)
+//                
+//                    //?is childkey a string?
+//                    if(key as! NSString == self.currUser){
+//                        user = true
+//                    }
+//                }
             }
             completionClosure(user)
         })
