@@ -264,7 +264,8 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
                                 self.homeAdded = true
                             } catch {
                                 let saveError = error as NSError
-                                print(saveError)
+                                let errorString = String(describing: saveError)
+                                Helpers().myPrint(text: errorString)
                             }
                             self.performSegue(withIdentifier: "segueToAddFriends", sender: nil)
                         })
@@ -307,12 +308,12 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
                     //Save to NSUSerDefaults that the user now has a home city saved
                     homeAdded = true
                 } catch let error as NSError  {
-                    print("Could not save \(error), \(error.userInfo)")
+                    Helpers().myPrint(text: "Could not save \(error), \(error.userInfo)")
                 }
 
             }
         }catch let error as NSError {
-            print("Could not fetch \(error), \(error.userInfo)")
+            Helpers().myPrint(text: "Could not fetch \(error), \(error.userInfo)")
         }
         //Notify the submit button to not transition until alert controller is handled
         return displayAlert
@@ -338,7 +339,7 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         let coordBounds = GMSCoordinateBounds(coordinate: coordNone , coordinate: coordNone)
         placesClient.autocompleteQuery(queryText, bounds: coordBounds, filter: filter, callback: {(results, error) -> Void in
             if let error = error {
-                print("Autocomplete error \(error)")
+                Helpers().myPrint(text: "Autocomplete error \(error)")
                 return
             }
             //Remove previous entries in autocomplete arrays
@@ -458,7 +459,7 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
                 self.present(alert, animated: true, completion: nil)
             }
         } catch let error as NSError  {
-            print("Could not save \(error), \(error.userInfo)")
+            Helpers().myPrint(text: "Could not save \(error), \(error.userInfo)")
         }
         return shouldSave
     }

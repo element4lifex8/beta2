@@ -120,8 +120,6 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         let numberOfItems = CGFloat((self.tabBar.items!.count))
         //Subtract the over hang that removes the default borders
         let itemWidth = /*floor*/((self.tabBar.frame.size.width) / numberOfItems)
-        print(itemWidth)
-        print(self.tabBar.frame.size.width)
         let tabBarItemSize = CGSize(width: itemWidth,
                                     height: (self.tabBar.frame.height))
 
@@ -320,7 +318,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                 }
             }
             else{
-                print("Error Getting Friends \(error)");
+                Helpers().myPrint(text: "Error Getting Friends \(error)");
             }
           
             completionClosure(unAuthFriends, unAuthId)
@@ -380,7 +378,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
            let friendInfo = ["displayName1" : friend.displayName!]
         userChecked.child(byAppendingPath: friend.id!).setValue(friendInfo)
         }
-        performSegue(withIdentifier: "returnToCheckOut", sender: self)
+        performSegue(withIdentifier: "unwindFromAddFriends", sender: self)
     }
     
     

@@ -12,7 +12,7 @@ import FBSDKLoginKit
 import FirebaseDatabase
 import FirebaseAuth
 
-class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
+class FBloginViewController: UIViewController{
     var unwindPerformed = false
     let currUserDefaultKey = "FBloginVC.currUser"
     fileprivate let sharedFbUser = UserDefaults.standard
@@ -21,32 +21,39 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
     @IBAction func FacebookLoginButton(_ sender: UIButton) {
         let facebookLogin = FBSDKLoginManager()
         var existingUser = false
+        var loginFinished = false    //keep track of whether the user has previously logged in, will use this to determine if I can automatically segue to the next screen
         var newUser: [String : String] = ["displayName" : "", "email" : "", "friends" : "true"]
         
+        //Show activity monitor while waiting
+        let loadingView: UIView = UIView()
+        
+        loadingView.frame = CGRect(x: 0,y: 0,width: 80,height: 80)
+        loadingView.center = self.view.center
+        loadingView.backgroundColor = UIColor(red: 0x44/255, green: 0x44/255, blue: 0x44/255, alpha: 0.7)
+        loadingView.clipsToBounds = true
+        loadingView.layer.cornerRadius = 10
+        //Start activity indicator while making google request
+        let activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView(frame:   CGRect(x: 0, y: 0, width: 50,  height: 50)) as UIActivityIndicatorView
+        activityIndicator.center = CGPoint(x: loadingView.frame.size.width / 2,y: loadingView.frame.size.height / 2);
+        activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.whiteLarge
+        activityIndicator.hidesWhenStopped = true
+        
+        loadingView.addSubview(activityIndicator)
+        self.view.addSubview(loadingView)
+        activityIndicator.startAnimating()
+
         facebookLogin.logIn(withReadPermissions: ["public_profile", "email"], from: self, handler:{(facebookResult, facebookError) -> Void in
             if facebookError != nil {
-                print("Facebook login failed. Error \(facebookError)")
+                Helpers().myPrint(text: "Facebook login failed. Error \(facebookError)")
+                self.loginFailMsg(error: "fail")         //Notify user that login failed
+                activityIndicator.stopAnimating()
+                loadingView.removeFromSuperview()
             } else if (facebookResult?.isCancelled)! {
-                print("Facebook login was cancelled.")
+                Helpers().myPrint(text: "Facebook login was cancelled.")
+                self.loginFailMsg(error: "cancel")         //Notify user that login was canceled
+                activityIndicator.stopAnimating()
+                loadingView.removeFromSuperview()
             } else {
-                
-                //Show activity monitor while waiting
-                let loadingView: UIView = UIView()
-                
-                loadingView.frame = CGRect(x: 0,y: 0,width: 80,height: 80)
-                loadingView.center = self.view.center
-                loadingView.backgroundColor = UIColor(red: 0x44/255, green: 0x44/255, blue: 0x44/255, alpha: 0.7)
-                loadingView.clipsToBounds = true
-                loadingView.layer.cornerRadius = 10
-                //Start activity indicator while making google request
-                let activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView(frame:   CGRect(x: 0, y: 0, width: 50,  height: 50)) as UIActivityIndicatorView
-                activityIndicator.center = CGPoint(x: loadingView.frame.size.width / 2,y: loadingView.frame.size.height / 2);
-                activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.whiteLarge
-                activityIndicator.hidesWhenStopped = true
-                
-                loadingView.addSubview(activityIndicator)
-                self.view.addSubview(loadingView)
-                activityIndicator.startAnimating()
                 
                 let credential = FIRFacebookAuthProvider.credential(withAccessToken:  FBSDKAccessToken.current().tokenString)
                 
@@ -56,7 +63,10 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                 authRef!.signIn(with: credential) { (user, error) in
                     if error != nil
                     {
-                        print("Login failed \(error)")
+                        Helpers().myPrint(text: "Login failed \(error)")
+                        self.loginFailMsg(error: "auth")         //Notify user that login failed
+                        activityIndicator.stopAnimating()
+                        loadingView.removeFromSuperview()
                     }
                     else
                     {
@@ -105,14 +115,14 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                         
                         // If you ask for multiple permissions at once, you
                         // should check if specific permissions missing
-                        if (facebookResult?.grantedPermissions.contains("email"))!
-                        {
-                            // Do work
-                        }
-                        
+//                        if (facebookResult?.grantedPermissions.contains("email"))!
+//                        {
+//                            // Do work
+//                        }
                         activityIndicator.stopAnimating()
                         loadingView.removeFromSuperview()
-//                        self.performSegue(withIdentifier: "profileSteps", sender: nil)
+
+                        self.performSegue(withIdentifier: "profileSteps", sender: nil)
                     }
                 }
             }
@@ -136,9 +146,9 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
      override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         //Don't segue to profile steps if performing an unwind
-        if (FBSDKAccessToken.current() != nil && !unwindPerformed){
-           self.performSegue(withIdentifier: "profileSteps", sender: nil)
-        }
+//        if (FBSDKAccessToken.current() != nil && !unwindPerformed){
+//           self.performSegue(withIdentifier: "profileSteps", sender: nil)
+//        }
     }
     
     override func viewDidLoad()
@@ -147,7 +157,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
         //check for an existing token at load.
         if (FBSDKAccessToken.current() == nil)
         {
-//            print("Not logged in..")
+            Helpers().myPrint(text: "Not logged in..")
             //Add facebook login button to center of view
 //            let loginView : FBSDKLoginButton = FBSDKLoginButton()
 //            self.view.addSubview(loginView)
@@ -158,7 +168,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
         //If token exist, user had already logged in, seque to CIO Home
         else
         {
-            print("Token existed when it shouldn't have..")
+            Helpers().myPrint(text: "Token existed when it shouldn't have..")
             /*print( FBSDKAccessToken.currentAccessToken().tokenString!)
             let request = FBSDKGraphRequest(graphPath:"/me/friends", parameters: nil) //["fields" : "email" : "name"]);
         
@@ -167,7 +177,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                 (connection : FBSDKGraphRequestConnection!, result : AnyObject!, error : NSError!) -> Void in
                 if error == nil
                 {
-                    //print friend boken
+                    //print friend token
                     let resultdict = result as! NSDictionary
                     let data : NSArray = resultdict.objectForKey("data") as! NSArray
                     print("data \(data)")
@@ -194,8 +204,40 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
 
     }
     
+    //Present alert when facebook loging canceled/failed
+    func loginFailMsg(error: String) -> Void{
+        var msgTitle = ""
+        var msgBody = ""
+        
+        switch(error){
+        case "cancel":
+            msgTitle = "Facebook Login Canceled"
+            msgBody = "Whoops, you canceled the Facebook login before it was completed. Please try again."
+            break
+        case "fail":
+            msgTitle = "Facebook Login Failed"
+            msgBody = "We're sorry, it looks like your Facebook login failed. Please try again."
+            break
+        case "auth":
+            msgTitle = "Facebook account not recognized"
+            msgBody = "It appears that this Facebook account is not recognized by Check In Out. Please try again."
+            break
+        default:
+            msgTitle = "Facebook Login Problem"
+            msgBody = "Unfortunately your Facebook login wasn't successful. Please try again."
+            break
+        }
+        let alert = UIAlertController(title: msgTitle, message: msgBody, preferredStyle: .alert)
+        //Async call for uialertview will have already left this function, no handling needed
+        let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        
+        alert.addAction(CancelAction)
+        self.present(alert, animated: true, completion: nil)
+    }
     
-    //<<Unused function that would add the default facebook login icon>>
+  
+#if UNUSED_FUNCS
+    //<<Unused function that is a delegate of the default facebook login icon>>
     // Facebook Delegate Methods
     //func used to know if the user did login correctly and if they did you can grab their information.
     func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error!){
@@ -213,16 +255,13 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
 //        }
 //        else
 //        {
-            //Old Firebase code
-            //            let ref = Firebase(url: "https://check-inout.firebaseio.com")
-            //              let accessToken = FBSDKAccessToken.current().tokenString
-            //FIRAuth.auth()!.signIn(withOAuthProvider: "facebook", token: accessToken, withCompletionBlock: { error, authData in
+        
         facebookLogin.logIn(withReadPermissions: ["public_profile", "email"], from: self, handler:
         {(facebookResult, facebookError) -> Void in
             if facebookError != nil {
-                print("Facebook login failed. Error \(facebookError)")
+                Helpers().myPrint(text: "Facebook login failed. Error \(facebookError)")
             } else if (facebookResult?.isCancelled)! {
-                print("Facebook login was cancelled.")
+                Helpers().myPrint(text: "Facebook login was cancelled.")
             } else {
                 
                 let credential = FIRFacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
@@ -232,13 +271,13 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                 authRef!.signIn(with: credential) { (user, error) in
                     if error != nil
                     {
-                        print("Login failed \(error)")
+                        Helpers().myPrint(text: "Login failed \(error)")
                     }
                     else
                     {
                         //save user's id to NSUser defaults
                         self.currUser = user!.uid as NSString
-                        print("Logged in  \(self.currUser)")
+                        Helpers().myPrint(text: "Logged in  \(self.currUser)")
                         //Check to see if user is new and has not been added to the user's list in Firebase
                         
 
@@ -270,8 +309,8 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
                 }
             }
         })
-    
-        
+
+
         
         /*let request = FBSDKGraphRequest(graphPath:"/me/friends", parameters: nil) //["fields" : "email" : "name"]);
         
@@ -300,10 +339,9 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
         }*/
         
     }
-    
-    /* to do : just make a reference to the user's facebook id and try to get data from that ref in firebase, if it fails then isUser returns with a value of false*/
+#endif 
+
     func isCurrentUser(_ completionClosure: @escaping (_ isUser:  Bool) -> Void) {
-//        let ref = Firebase(url: "https://check-inout.firebaseio.com")
         //"as" without !? can only be used when the compiler knows the cast will always work, like from NSString to string
         let userRef = FIRDatabase.database().reference(withPath: "users").child(self.currUser as String)
         var user = false
@@ -337,7 +375,7 @@ class FBloginViewController: UIViewController, FBSDKLoginButtonDelegate {
     
     func loginButtonDidLogOut(_ loginButton: FBSDKLoginButton!)
     {
-        print("User Logged Out")
+        Helpers().myPrint(text: "User Logged Out")
     }
 
     override func didReceiveMemoryWarning()

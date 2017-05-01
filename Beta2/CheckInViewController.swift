@@ -689,7 +689,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     @IBAction func printLikelyLocation(_ sender: UIButton) {
         placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
             if let error = error {
-                print("Pick Place error: \(error.localizedDescription)")
+                Helpers().myPrint(text: "Pick Place error: \(error.localizedDescription)")
                 return
             }
 
@@ -701,8 +701,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             if let placeLikelihoodList = placeLikelihoodList {
                 let place = placeLikelihoodList.likelihoods.first?.place
                 if let place = place {
-                    print("name label: \(place.name)")
-                    print("address label: \(place.formattedAddress?.components(separatedBy: ", ").joined(separator: "\n"))")
+                    Helpers().myPrint(text: "name label: \(place.name)")
+                    Helpers().myPrint(text: "address label: \(place.formattedAddress?.components(separatedBy: ", ").joined(separator: "\n"))")
                 }
             }
         })
@@ -763,7 +763,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         }
         placesClient.autocompleteQuery(queryText, bounds: coordinateBounds(), filter: filter, callback: {(results, error) -> Void in
             if let error = error {
-                print("Autocomplete error \(error)")
+                Helpers().myPrint(text: "Autocomplete error \(error)")
                 return
             }
             //Remove previous entries in autocomplete arrays
@@ -930,7 +930,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 //Insert the managed object that was saved to disk into the array used to populate the table
                 //cityButtonCoreData.append(cityButtonMgObj)
             } catch let error as NSError  {
-                print("Could not save \(error), \(error.userInfo)")
+                Helpers().myPrint(text: "Could not save \(error), \(error.userInfo)")
             }
         }
     }
@@ -990,7 +990,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         
         }
         catch let error as NSError {
-            print("Could not fetch \(error), \(error.userInfo)")
+            Helpers().myPrint(text: "Could not fetch \(error), \(error.userInfo)")
         }
         
         return cityButtonCoreData
@@ -1315,16 +1315,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
 //        
 //        self.presentViewController(alertController, animated: true, completion: nil)
     }
-    //
-    // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-        print(segue.destination)
-    }
-    //
     
     
     

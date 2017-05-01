@@ -124,7 +124,7 @@ class PlaceNodeTree{
                 return true
             }
         }else{
-            print("child node not found for parent")
+            Helpers().myPrint(text: "child node not found for parent")
         }
         return false
     }
@@ -307,7 +307,7 @@ class PlaceNodeTree{
             if((currentNode?.children == nil) && (currentNode?.nodeValue == (stack.last)?.nodeValue)){
                 stack.removeLast()
             }else if(currentNode?.children == nil){
-                print("Unbalanced tree, current node is leaf \(currentNode?.nodeValue) but it is not on the Stack")
+                Helpers().myPrint(text: "Unbalanced tree, current node is leaf \(currentNode?.nodeValue) but it is not on the Stack")
             }
             //Determine how to iterate over the stack, only pop parent if no more children exist
             if(removeParent){ //Only remove the parent if all children have been iterated over, otherwise, the parent remains the current node and top of stack

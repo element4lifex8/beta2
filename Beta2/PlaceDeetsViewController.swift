@@ -35,7 +35,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
     //Google places client
     var placesClient: GMSPlacesClient!
     //Google places web api uses different api key than ios app
-    var googleAPIkey = "AIzaSyDF-YomjeVEY8AvjhY81M61j9LPDrez44c"
+    var googleAPIkey = "AIzaSyArbur7FDagKuU5jeWRjl7XtI_pOgzVnCs"
     //use dispatch groups to make async call using google places web api and google places ios api then fire async call to reload tableview
     var myGroup = DispatchGroup()
     
@@ -237,7 +237,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
             case 7:
                 return "Sat"
             default:
-                print("Error fetching days")
+                Helpers().myPrint(text: "Error fetching days")
                 return "Day"
             }
         } else {
@@ -251,6 +251,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
         //Hours must be retrieved using async web api
         //Generate url that includes place id and api key
         let urlString = "https://maps.googleapis.com/maps/api/place/details/json?placeid=" + placeId + "&key=" + googleAPIkey
+
         //Add the below async call to places web api to dispatch group
         myGroup.enter()
         let url = URL(string: urlString)
@@ -269,7 +270,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                 //Collect the opening hours dictionary as a String:Any. Keys are exceptional_date: lists holidays, open_now: "boolean", weekday_text: weekday names and hours, periods: NSArray of key value pairs for the opening times
                 guard let weekdayText = (results?["opening_hours"] as? [String:Any])?["weekday_text"] as? [String] else{
                     self.myGroup.leave()    //Open Hours weren't provide, notify async group that this call was aborted
-                    print("Couldn't convert google web api data from JSON to parse open hours")
+                    Helpers().myPrint(text: "Couldn't convert google web api data from JSON to parse open hours")
                     self.openNow = "Hours Unknown"
                     return
                 }
@@ -289,9 +290,10 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                 //Notify dispatch group that places web api async call is finished
                 self.myGroup.leave()
             } catch let error as NSError {
-                print(error)
+                let errorString = String(describing: error)
+                Helpers().myPrint(text: errorString)
                 self.myGroup.leave()    //Failed to use google web api, notify async group that this call was aborted
-                print("Google web api call failed")
+                Helpers().myPrint(text: "Google web api call failed")
                 self.openNow = "Hours Unknown"
                 return
             }
@@ -303,12 +305,12 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
     {
         placesClient.lookUpPlaceID(placeId, callback: { (place, error) -> Void in
             if let error = error {
-                print("lookup place id query error: \(error.localizedDescription)")
+                Helpers().myPrint(text: "lookup place id query error: \(error.localizedDescription)")
                 return
             }
             
             guard let place = place else {
-                print("No place details for \(placeId)")
+                Helpers().myPrint(text: "No place details for \(placeId)")
                 return
             }
             
@@ -467,7 +469,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
             deetsCell.selectionStyle = .none
             return deetsCell
         default:
-            print("Table entries exceed place details")
+            Helpers().myPrint(text: "Table entries exceed place details")
             //Default cell value to return
             let deetsCell: PlaceDeetsTableViewCell = tableView.dequeueReusableCell(withIdentifier: deetsCellIdentifier, for: indexPath) as! PlaceDeetsTableViewCell
             deetsCell.deetsLabel.text = "Gimme da Deets"
@@ -575,7 +577,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
             newNum = newNum.replacingOccurrences(of: " ", with: "-")
 
             guard let number = URL(string: "telprompt://" +  newNum) else {
-                print("Incorrectly constructed phone number")
+                Helpers().myPrint(text: "Incorrectly constructed phone number")
                 break
             }
 
@@ -585,7 +587,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
             //open websitre url
             case self.websiteCell:
                 guard let site = URL(string: self.placeWebsite) else {
-                    print("guard website failed")
+                    Helpers().myPrint(text: "guard website failed")
                     break
                 }
                 UIApplication.shared.open(site, options: [:], completionHandler: nil)

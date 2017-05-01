@@ -55,9 +55,5 @@ class CIOHomeViewController: UIViewController   {
     @IBAction func unwindFromCheckOut(_ sender: UIStoryboardSegue) {
         // empty
     }
-    
-//    override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
-//        print("segue to \(segue.identifier)")
-//    }
 
 }

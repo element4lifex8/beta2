@@ -1551,9 +1551,6 @@
                                                 <include reference="f8K-fx-gsQ"/>
                                             </mask>
                                         </variation>
-                                        <connections>
-                                            <segue destination="nAh-ah-3Oq" kind="unwind" customClass="SegueFromLeft" customModule="Beta2" customModuleProvider="target" unwindAction="unwindFromAddFriends:" id="WDr-bi-q3W"/>
-                                        </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Add People" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0RQ-Rh-9Mc">
                                         <rect key="frame" x="73" y="32" width="191" height="53"/>
@@ -1793,7 +1790,7 @@
                         <outlet property="tabBar" destination="NOy-Cl-4JB" id="r3A-MZ-eGi"/>
                         <outlet property="tabBarContainerView" destination="5pw-Nk-ea8" id="NTw-xr-QJE"/>
                         <outlet property="tableView" destination="NPv-hk-mtB" id="p8e-gD-CI6"/>
-                        <segue destination="F5Z-PP-fCT" kind="custom" identifier="returnToCheckOut" customClass="SegueFromLeft" customModule="Beta2" customModuleProvider="target" id="9c7-Ct-W18"/>
+                        <segue destination="nAh-ah-3Oq" kind="unwind" identifier="unwindFromAddFriends" customClass="SegueFromLeft" customModule="Beta2" customModuleProvider="target" unwindAction="unwindFromAddFriends:" id="Uw6-nC-MMC"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="bPR-gI-nfI" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -2118,6 +2115,5 @@
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="pC0-bG-BYT"/>
-        <segue reference="9c7-Ct-W18"/>
     </inferredMetricsTieBreakers>
 </document>

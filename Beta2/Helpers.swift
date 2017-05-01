@@ -19,7 +19,17 @@ class Helpers{
         }
     }
     
+    
     func returnCurrUser() -> NSString{
         return currUser
+    }
+    
+    //Function used to only print to console for debug builds which use the -D DEBUG flag:
+    //Set it in the "Swift Compiler - Custom Flags" section, "Other Swift Flags" line. You add the DEBUG symbol with the -D DEBUG entry.
+    //(Build Settings -> Swift Compiler - Custom Flags)
+    func myPrint(text :  String) -> Void{
+        #if DEBUG
+            print(text)
+        #endif
     }
 }

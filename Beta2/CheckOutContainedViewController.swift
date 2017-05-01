@@ -137,7 +137,7 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         if(showPeopleView){
             self.performSegue(withIdentifier: "addPeopleSegue", sender: self)
         }else{
-            print("add City seque not implementd")
+            Helpers().myPrint(text: "add City seque not implementd")
         }
     }
     

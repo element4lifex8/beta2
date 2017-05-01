@@ -400,11 +400,11 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
                     }
                 }
                 if(friendFailed){
-                    print("Error unwrapping at least of the user's FB friends")
+                    Helpers().myPrint(text: "Error unwrapping at least of the user's FB friends")
                 }
             }
             else{
-                print("Error Getting Friends \(error)");
+                Helpers().myPrint(text: "Error Getting Friends \(error)");
             }
             
             completionClosure(unAuthFriends, unAuthId)
@@ -424,7 +424,8 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
             {
                 //Result is cast to an NSDict consiting of [id: value, name: value] for auth friends
                 let resultdict = result as! NSDictionary
-//prints out auth friends                print("Friends \(resultdict)")
+                //prints out auth friends
+                //print("Friends \(resultdict)")
                 let data : NSArray = resultdict.object(forKey: "data") as! NSArray
                 //                print("data \(data)")
                 //extract dict entries id & name as string for each authorized friend
@@ -470,7 +471,7 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
                 let friendInfo = ["displayName1" : friend.displayName!]
                 userChecked.child(byAppendingPath: friend.id!).setValue(friendInfo)
             }else{
-                print("send email of Facebook Message to invite \(friend.displayName) to CIO")
+                Helpers().myPrint(text: "send email of Facebook Message to invite \(friend.displayName) to CIO")
 //                invite = true
             }
         }
@@ -655,10 +656,10 @@ extension AddFbFriendsViewController: FBSDKAppInviteDialogDelegate{
         {
             if (didCancel as AnyObject).caseInsensitiveCompare("Cancel") == ComparisonResult.orderedSame
             {
-                print("User Canceled invitation dialog")
+                Helpers().myPrint(text: "User Canceled invitation dialog")
             } } }
     func appInviteDialog(_ appInviteDialog: FBSDKAppInviteDialog!, didFailWithError error: Error!) {
-        print("Error tool place in appInviteDialog \(error)")
+        Helpers().myPrint(text: "Error tool place in appInviteDialog \(error)")
     }
     
 }

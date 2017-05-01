@@ -188,7 +188,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                             if let placeId = currNode.value as? String{
                                 locPlaceNodeObj.placeId = placeId
                             }else{
-                                print("Malformed firebase entry for \(locPlaceNodeObj.place)")
+                                Helpers().myPrint(text: "Malformed firebase entry for \(locPlaceNodeObj.place)")
                             }
                             
                         }
@@ -333,6 +333,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
     }
     
+#if UNUSED_FUNC
     //Unused firebase functions that retrieved all places from one user and looked them up in the master list
     //function receives the name of the place to look up its city and place attributes
     func retrievePlaceAttributes(_ myRef: FIRDatabaseReference, place: String, completionClosure: @escaping (_ categoryArr: [String], _ cityArr: [String]) -> Void)
@@ -381,13 +382,14 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             }
             else
             {
-                print("attribute \(childSnapshot.key) found but contained no children")
+                Helpers().myPrint(text: "attribute \(childSnapshot.key) found but contained no children")
             }
             print("calling retrieve attributes completion")
             completionClosure(categoryArrLoc, cityArrLoc)
         })
         
     }
+
 
     //Unused firebase functions that retrieved all places from one user and looked them up in the master list
     //Funtion is passed the list of checked in places and retrieves the city and category attributes for each place
@@ -473,7 +475,8 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             })
         }
     }
-        
+#endif
+    
 //  Table view methods
 
     //Setup section header attributes
@@ -503,7 +506,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             textLabel.font = UIFont(name: "Avenir-HeavyOblique", size: 24)
             textLabel.textColor = UIColor.white
         }else{
-            print("Label not ready")
+            Helpers().myPrint(text: "Label not ready")
         }
     }
     
@@ -653,7 +656,8 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 if let cellText = treeNode.nodeValue {
                     cell.tableCellValue.text="  \(cellText)"
                 }else{
-                    print("category treeNode was nil")
+                    cell.tableCellValue.text=""
+                    Helpers().myPrint(text: "category treeNode was nil")
                 }
                 cell.tableCellValue.font = UIFont(name: "Avenir-Heavy", size: 24)
                 cell.tableCellValue.textColor = UIColor.white
@@ -671,7 +675,8 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 if let cellText = treeNode.nodeValue {
                     cell.tableCellValue.text="    \(cellText)"
                 }else{
-                    print("data treeNode was nil")
+                    cell.tableCellValue.text=""
+                    Helpers().myPrint(text: "data treeNode was nil")
                 }
                 cell.tableCellValue.font = UIFont(name: "Avenir-Light", size: 24)
                 cell.tableCellValue.textColor = UIColor.white

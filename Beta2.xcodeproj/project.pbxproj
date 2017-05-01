@@ -34,9 +34,6 @@
 		EB1959CC1C62C58D001E0F62 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */; };
 		EB38B9A71E91810A004A08D8 /* FBSDKMessengerShareKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB38B9A61E91810A004A08D8 /* FBSDKMessengerShareKit.framework */; };
 		EB38B9A91E918381004A08D8 /* FBSDKShareKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB38B9A81E918381004A08D8 /* FBSDKShareKit.framework */; };
-		EB3A98251D98A6B700C16E89 /* CheckOutCityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3A98241D98A6B700C16E89 /* CheckOutCityViewController.swift */; };
-		EB3A982B1D99D0AF00C16E89 /* CheckOutPeopleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3A982A1D99D0AF00C16E89 /* CheckOutPeopleViewController.swift */; };
-		EB47DCE51DA1BFCE00C9EC18 /* ListHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB47DCE41DA1BFCD00C9EC18 /* ListHeaderView.swift */; };
 		EB4B128D1D57B9C500F8B62C /* MyListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */; };
 		EB4C38471D453C8F00D11721 /* DeleteCityUIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */; };
 		EB5161C71DAAA6B600321D98 /* CheckOutContainedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5161C61DAAA6B600321D98 /* CheckOutContainedViewController.swift */; };
@@ -46,12 +43,10 @@
 		EB61CD641DC4F0A800297225 /* AddPeopleViewCntroller.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB61CD631DC4F0A800297225 /* AddPeopleViewCntroller.swift */; };
 		EB61CD661DC4F50500297225 /* FriendTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB61CD651DC4F50500297225 /* FriendTableViewCell.swift */; };
 		EB61CD681DC5025400297225 /* SegueFromRight.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB61CD671DC5025400297225 /* SegueFromRight.swift */; };
-		EB63152E1BF96241009683FE /* CheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB63152D1BF96241009683FE /* CheckInView.swift */; };
-		EB6EDD991E32EED200FB09F9 /* RoundButtCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3A98221D9814BA00C16E89 /* RoundButtCollectionViewCell.swift */; };
+		EB649C641EB6B5B1002774DC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EB649C631EB6B5B1002774DC /* GoogleService-Info.plist */; };
 		EB85D5551C51B5B200F2E29F /* ProfileStepsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */; };
 		EB85D5571C540E6800F2E29F /* AddFbFriendsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */; };
 		EB85D5701C5982F000F2E29F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB85D5641C5982F000F2E29F /* CoreData.framework */; };
-		EB97CF621D73902900A3DBA1 /* ScrollViewAnchor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB97CF611D73902900A3DBA1 /* ScrollViewAnchor.swift */; };
 		EB9EE2CB1DD2A88900AC1FF0 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB9EE2CA1DD2A88900AC1FF0 /* Launch Screen.storyboard */; };
 		EBA11B771E5FBF6800114D56 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBA11B761E5FBF6800114D56 /* Helpers.swift */; };
 		EBA4D0FD1C6423DB00BB459F /* libc++.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EBA4D0FB1C6423DB00BB459F /* libc++.1.dylib */; };
@@ -63,6 +58,8 @@
 		EBBA52E21CFE62730047E22A /* SubheaderTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBBA52E11CFE62730047E22A /* SubheaderTableViewCell.swift */; };
 		EBBA52E51D0F831B0047E22A /* CheckInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB63152B1BF961D7009683FE /* CheckInViewController.swift */; };
 		EBBAB1A61DFB6E7100048916 /* FbookUserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBBAB1A51DFB6E7100048916 /* FbookUserInfo.swift */; };
+		EBC161461EB613EB0081F239 /* CheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC161451EB613EB0081F239 /* CheckInView.swift */; };
+		EBC161481EB614F00081F239 /* RoundButtCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC161471EB614F00081F239 /* RoundButtCollectionViewCell.swift */; };
 		EBE70DF01CC58EBA00F6DCE3 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE70DEE1CC58EBA00F6DCE3 /* FBSDKCoreKit.framework */; };
 		EBE70DF11CC58EBA00F6DCE3 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE70DEF1CC58EBA00F6DCE3 /* FBSDKLoginKit.framework */; };
 		EBF790121EA6DEDB005F0B6F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EBF790101EA6DEDB005F0B6F /* Main.storyboard */; };
@@ -107,7 +104,6 @@
 		EB03B8341DFF08780002098C /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		EB03B8361E06D06E0002098C /* Beta2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Beta2.entitlements; sourceTree = "<group>"; };
 		EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestTableViewCell.swift; sourceTree = "<group>"; };
-		EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckedOutListViewController.swift; sourceTree = "<group>"; };
 		EB03E5BF1C25A7F4009A55F1 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKCoreKit.framework; path = ../../FacebookSDK/FBSDKCoreKit.framework; sourceTree = "<group>"; };
 		EB03E5C11C25FE72009A55F1 /* FBloginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FBloginViewController.swift; sourceTree = "<group>"; };
 		EB03E5C31C3864FF009A55F1 /* Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
@@ -129,10 +125,6 @@
 		EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		EB38B9A61E91810A004A08D8 /* FBSDKMessengerShareKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKMessengerShareKit.framework; path = ../../FacebookSDK/FBSDKMessengerShareKit.framework; sourceTree = "<group>"; };
 		EB38B9A81E918381004A08D8 /* FBSDKShareKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKShareKit.framework; path = ../../FacebookSDK/FBSDKShareKit.framework; sourceTree = "<group>"; };
-		EB3A98221D9814BA00C16E89 /* RoundButtCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoundButtCollectionViewCell.swift; sourceTree = "<group>"; };
-		EB3A98241D98A6B700C16E89 /* CheckOutCityViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckOutCityViewController.swift; sourceTree = "<group>"; };
-		EB3A982A1D99D0AF00C16E89 /* CheckOutPeopleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckOutPeopleViewController.swift; sourceTree = "<group>"; };
-		EB47DCE41DA1BFCD00C9EC18 /* ListHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListHeaderView.swift; sourceTree = "<group>"; };
 		EB49A2E41C78ED45006F16AB /* checkList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = checkList.swift; sourceTree = "<group>"; };
 		EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyListViewController.swift; sourceTree = "<group>"; };
 		EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DeleteCityUIButton.swift; path = ../DeleteCityUIButton.swift; sourceTree = "<group>"; };
@@ -145,21 +137,19 @@
 		EB61CD651DC4F50500297225 /* FriendTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FriendTableViewCell.swift; sourceTree = "<group>"; };
 		EB61CD671DC5025400297225 /* SegueFromRight.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SegueFromRight.swift; sourceTree = "<group>"; };
 		EB63152B1BF961D7009683FE /* CheckInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CheckInViewController.swift; path = Beta2/CheckInViewController.swift; sourceTree = SOURCE_ROOT; };
-		EB63152D1BF96241009683FE /* CheckInView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckInView.swift; sourceTree = "<group>"; };
-		EB6B3FBC1C0E7BE200A6B469 /* CheckedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CheckedView.swift; path = ../CheckedView.swift; sourceTree = "<group>"; };
+		EB649C631EB6B5B1002774DC /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileStepsViewController.swift; sourceTree = "<group>"; };
 		EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFbFriendsViewController.swift; sourceTree = "<group>"; };
 		EB85D5641C5982F000F2E29F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
-		EB97CF611D73902900A3DBA1 /* ScrollViewAnchor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ScrollViewAnchor.swift; path = ../ScrollViewAnchor.swift; sourceTree = "<group>"; };
 		EB9EE2CA1DD2A88900AC1FF0 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		EBA11B761E5FBF6800114D56 /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		EBA4D0FB1C6423DB00BB459F /* libc++.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.1.dylib"; path = "../../../../../usr/lib/libc++.1.dylib"; sourceTree = "<group>"; };
 		EBA4D0FC1C6423DB00BB459F /* libicucore.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.A.dylib; path = ../../../../../usr/lib/libicucore.A.dylib; sourceTree = "<group>"; };
-		EBAC6D051CC855C20060BC73 /* OutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutViewController.swift; sourceTree = "<group>"; };
 		EBBA52DF1CF65B6A0047E22A /* HeaderTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HeaderTableViewCell.swift; sourceTree = "<group>"; };
 		EBBA52E11CFE62730047E22A /* SubheaderTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubheaderTableViewCell.swift; sourceTree = "<group>"; };
-		EBBA52E31D0DBA3E0047E22A /* CheckedOutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckedOutViewController.swift; sourceTree = "<group>"; };
 		EBBAB1A51DFB6E7100048916 /* FbookUserInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FbookUserInfo.swift; sourceTree = "<group>"; };
+		EBC161451EB613EB0081F239 /* CheckInView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckInView.swift; sourceTree = "<group>"; };
+		EBC161471EB614F00081F239 /* RoundButtCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoundButtCollectionViewCell.swift; sourceTree = "<group>"; };
 		EBE70DEE1CC58EBA00F6DCE3 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKCoreKit.framework; path = ../../FacebookSDK/FBSDKCoreKit.framework; sourceTree = "<group>"; };
 		EBE70DEF1CC58EBA00F6DCE3 /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKLoginKit.framework; path = ../../FacebookSDK/FBSDKLoginKit.framework; sourceTree = "<group>"; };
 		EBF790111EA6DEDB005F0B6F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -290,28 +280,20 @@
 				EB61CD671DC5025400297225 /* SegueFromRight.swift */,
 				EB3A98201D9813A500C16E89 /* Table Cells */,
 				EB49A2E61C7BE649006F16AB /* Facebook */,
-				EB6B3FBC1C0E7BE200A6B469 /* CheckedView.swift */,
 				EB003CAC1E436597004E7451 /* PlaceDeetsViewController.swift */,
 				EB63152B1BF961D7009683FE /* CheckInViewController.swift */,
 				EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */,
-				EB97CF611D73902900A3DBA1 /* ScrollViewAnchor.swift */,
 				EB06561B1BEE37F300CF8376 /* AppDelegate.swift */,
+				EB649C631EB6B5B1002774DC /* GoogleService-Info.plist */,
 				EB1405C51D3007B1001D3924 /* CheckedCoreData.xcdatamodeld */,
 				EBF790101EA6DEDB005F0B6F /* Main.storyboard */,
 				EB03E5C31C3864FF009A55F1 /* Bridging-Header.h */,
-				EBAC6D051CC855C20060BC73 /* OutViewController.swift */,
 				EB61CD631DC4F0A800297225 /* AddPeopleViewCntroller.swift */,
-				EB47DCE41DA1BFCD00C9EC18 /* ListHeaderView.swift */,
 				EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */,
-				EB3A98221D9814BA00C16E89 /* RoundButtCollectionViewCell.swift */,
 				EB5161C61DAAA6B600321D98 /* CheckOutContainedViewController.swift */,
-				EBBA52E31D0DBA3E0047E22A /* CheckedOutViewController.swift */,
-				EB3A98241D98A6B700C16E89 /* CheckOutCityViewController.swift */,
-				EB3A982A1D99D0AF00C16E89 /* CheckOutPeopleViewController.swift */,
-				EB03E57E1C15096C009A55F1 /* CheckedOutListViewController.swift */,
 				EB3A98211D9813D400C16E89 /* Model */,
-				EB63152D1BF96241009683FE /* CheckInView.swift */,
 				EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */,
+				EBC161451EB613EB0081F239 /* CheckInView.swift */,
 				EB0656221BEE37F300CF8376 /* Assets.xcassets */,
 				EB9EE2CA1DD2A88900AC1FF0 /* Launch Screen.storyboard */,
 				EB0656271BEE37F300CF8376 /* Info.plist */,
@@ -328,6 +310,7 @@
 				EB003CB21E4368A1004E7451 /* PlaceDeetsTableViewCell.swift */,
 				EBBA52DF1CF65B6A0047E22A /* HeaderTableViewCell.swift */,
 				EBBA52E11CFE62730047E22A /* SubheaderTableViewCell.swift */,
+				EBC161471EB614F00081F239 /* RoundButtCollectionViewCell.swift */,
 			);
 			name = "Table Cells";
 			sourceTree = "<group>";
@@ -477,6 +460,7 @@
 			files = (
 				EB9EE2CB1DD2A88900AC1FF0 /* Launch Screen.storyboard in Resources */,
 				EB03B8351DFF08780002098C /* GoogleService-Info.plist in Resources */,
+				EB649C641EB6B5B1002774DC /* GoogleService-Info.plist in Resources */,
 				EB0656231BEE37F300CF8376 /* Assets.xcassets in Resources */,
 				EBF790121EA6DEDB005F0B6F /* Main.storyboard in Resources */,
 			);
@@ -641,10 +625,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EB6EDD991E32EED200FB09F9 /* RoundButtCollectionViewCell.swift in Sources */,
 				EBBA52E01CF65B6A0047E22A /* HeaderTableViewCell.swift in Sources */,
 				EBBA52E51D0F831B0047E22A /* CheckInViewController.swift in Sources */,
-				EB3A982B1D99D0AF00C16E89 /* CheckOutPeopleViewController.swift in Sources */,
 				EBBAB1A61DFB6E7100048916 /* FbookUserInfo.swift in Sources */,
 				EB003CB31E4368A1004E7451 /* PlaceDeetsTableViewCell.swift in Sources */,
 				EBF790161EA82CE2005F0B6F /* CityStateUIButton.swift in Sources */,
@@ -652,20 +634,18 @@
 				EB85D5551C51B5B200F2E29F /* ProfileStepsViewController.swift in Sources */,
 				EB4C38471D453C8F00D11721 /* DeleteCityUIButton.swift in Sources */,
 				EB003CAF1E436783004E7451 /* AddressTableViewCell.swift in Sources */,
-				EB3A98251D98A6B700C16E89 /* CheckOutCityViewController.swift in Sources */,
 				EB61CD601DC41F4300297225 /* SegueFromLeft.swift in Sources */,
+				EBC161481EB614F00081F239 /* RoundButtCollectionViewCell.swift in Sources */,
 				EB003CAD1E436597004E7451 /* PlaceDeetsViewController.swift in Sources */,
 				EB61CD641DC4F0A800297225 /* AddPeopleViewCntroller.swift in Sources */,
-				EB97CF621D73902900A3DBA1 /* ScrollViewAnchor.swift in Sources */,
 				EB5A49B51D61005F00B9AB17 /* PlaceNodeTree.swift in Sources */,
 				EB61CD661DC4F50500297225 /* FriendTableViewCell.swift in Sources */,
-				EB63152E1BF96241009683FE /* CheckInView.swift in Sources */,
 				EB03E57D1C150669009A55F1 /* TestTableViewCell.swift in Sources */,
 				EB55D6271CEBD180004D81D0 /* placeNode.swift in Sources */,
 				EB85D5571C540E6800F2E29F /* AddFbFriendsViewController.swift in Sources */,
+				EBC161461EB613EB0081F239 /* CheckInView.swift in Sources */,
 				EB06564E1BEE3B4900CF8376 /* CIOHomeViewController.swift in Sources */,
 				EBBA52E21CFE62730047E22A /* SubheaderTableViewCell.swift in Sources */,
-				EB47DCE51DA1BFCE00C9EC18 /* ListHeaderView.swift in Sources */,
 				EB4B128D1D57B9C500F8B62C /* MyListViewController.swift in Sources */,
 				EB61CD681DC5025400297225 /* SegueFromRight.swift in Sources */,
 				EBA11B771E5FBF6800114D56 /* Helpers.swift in Sources */,
@@ -843,7 +823,8 @@
 				);
 				INFOPLIST_FILE = Beta2/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.anuJ.Beta2;
+				"OTHER_SWIFT_FLAGS[arch=*]" = "-DDEBUG";
+				PRODUCT_BUNDLE_IDENTIFIER = com.checkinoutlists.checkinout;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SWIFT_VERSION = 3.0;
@@ -878,7 +859,7 @@
 				);
 				INFOPLIST_FILE = Beta2/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.anuJ.Beta2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.checkinoutlists.checkinout;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SWIFT_VERSION = 3.0;
