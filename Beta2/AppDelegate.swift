@@ -20,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     //2 facebook delegate methods
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         //Enable google places api key
-        GMSPlacesClient.provideAPIKey("AIzaSyBZyxwDSNgGfbot4dWRjPZjCn1_t2WCVKQ")
+        GMSPlacesClient.provideAPIKey("AIzaSyCU4-pF3hiG3IlJozGEs1AfUxLGnAR6qbE")
         //Configure Firebase
         FIRApp.configure()
         //enable firebase to work offline - can cause a delay in items being synced to/from Firebase

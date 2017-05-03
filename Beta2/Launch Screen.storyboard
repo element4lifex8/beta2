@@ -22,10 +22,22 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Check In   Out" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GJd-Yh-RWb">
-                                <rect key="frame" x="166" y="198.5" width="122" height="151"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="cities" translatesAutoresizingMaskIntoConstraints="NO" id="4Nu-GN-z3o">
+                                <rect key="frame" x="2" y="0.0" width="100" height="568"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="122" id="Vvp-IP-aqo"/>
+                                    <constraint firstAttribute="width" constant="100" id="LWp-So-Xog"/>
+                                </constraints>
+                            </imageView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="categories" translatesAutoresizingMaskIntoConstraints="NO" id="f1b-S4-eUw">
+                                <rect key="frame" x="102" y="0.0" width="100" height="568"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="ege-Yx-MsM"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Check In   Out" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GJd-Yh-RWb">
+                                <rect key="frame" x="202" y="209" width="118" height="151"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="118" id="Vvp-IP-aqo"/>
                                     <constraint firstAttribute="height" constant="151" id="ZKV-1C-NTC"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" name="Avenir-Medium" family="Avenir" pointSize="36"/>
@@ -35,8 +47,18 @@
                         </subviews>
                         <color key="backgroundColor" red="0.25098039215686274" green="0.25098039215686274" blue="0.25098039215686274" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="GJd-Yh-RWb" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" constant="-10" id="NZB-RG-rGh"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="GJd-Yh-RWb" secondAttribute="trailing" constant="16" id="U9s-c7-cFC"/>
+                            <constraint firstItem="xb3-aO-Qok" firstAttribute="top" secondItem="f1b-S4-eUw" secondAttribute="bottom" id="DYU-dl-oT3"/>
+                            <constraint firstItem="4Nu-GN-z3o" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" priority="500" id="Dg0-dS-Xts"/>
+                            <constraint firstItem="GJd-Yh-RWb" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="f1b-S4-eUw" secondAttribute="trailing" id="KFt-U4-0sX"/>
+                            <constraint firstItem="GJd-Yh-RWb" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="NZB-RG-rGh"/>
+                            <constraint firstItem="f1b-S4-eUw" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="topMargin" id="RvB-CX-k5E"/>
+                            <constraint firstItem="f1b-S4-eUw" firstAttribute="leading" secondItem="4Nu-GN-z3o" secondAttribute="trailing" id="UhR-Yu-ahc"/>
+                            <constraint firstItem="xb3-aO-Qok" firstAttribute="top" secondItem="4Nu-GN-z3o" secondAttribute="bottom" id="c8u-H6-y9F"/>
+                            <constraint firstItem="4Nu-GN-z3o" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="cBh-0M-I0W"/>
+                            <constraint firstAttribute="trailing" secondItem="GJd-Yh-RWb" secondAttribute="trailing" priority="500" constant="16" id="fXh-tw-bcr"/>
+                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="GJd-Yh-RWb" secondAttribute="trailing" id="fzZ-Vw-ZRZ"/>
+                            <constraint firstItem="GJd-Yh-RWb" firstAttribute="leading" secondItem="f1b-S4-eUw" secondAttribute="trailing" priority="499" constant="16" id="ggP-RH-gB3"/>
+                            <constraint firstItem="4Nu-GN-z3o" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Ze5-6b-2t3" secondAttribute="leading" constant="2" id="hQG-3V-fcp"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -45,4 +67,8 @@
             <point key="canvasLocation" x="52.5" y="375"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="categories" width="102" height="667"/>
+        <image name="cities" width="102" height="628"/>
+    </resources>
 </document>

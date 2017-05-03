@@ -69,7 +69,9 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         if let userIds = myFriendIds{
             self.currUsers = userIds
             if let unwrapHeader = headerText{
-                myListHeaderLabel.text = unwrapHeader
+                self.myListHeaderLabel.text = unwrapHeader
+                myListHeaderLabel.adjustsFontSizeToFitWidth = true
+//                self.titleLabel.lineBreakMode = .byTruncatingTail
             }
         }else{  //If no alternate user's list was requested then display the app owner's list
             self.currUsers = [defaultUser]
