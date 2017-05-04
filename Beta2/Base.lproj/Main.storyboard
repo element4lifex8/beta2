@@ -1322,7 +1322,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="U8S-tt-PJO" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="X29-3O-otP" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="4012.5" y="219.75"/>
+            <point key="canvasLocation" x="4012.5" y="219.71830985915494"/>
         </scene>
         <!--Place Deets View Controller-->
         <scene sceneID="CUf-0z-bD0">
@@ -1551,6 +1551,9 @@
                                                 <include reference="f8K-fx-gsQ"/>
                                             </mask>
                                         </variation>
+                                        <connections>
+                                            <segue destination="nAh-ah-3Oq" kind="unwind" customClass="SegueFromLeft" customModule="Beta2" customModuleProvider="target" unwindAction="unwindFromAddFriends:" id="h7T-Eh-gXX"/>
+                                        </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Add People" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0RQ-Rh-9Mc">
                                         <rect key="frame" x="73" y="32" width="191" height="53"/>
