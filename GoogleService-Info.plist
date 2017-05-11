@@ -7,34 +7,34 @@
 	<key>AD_UNIT_ID_FOR_INTERSTITIAL_TEST</key>
 	<string>ca-app-pub-3940256099942544/4411468910</string>
 	<key>CLIENT_ID</key>
-	<string>997253797791-8bic2bof7b514quf3p6s5n80pmig2rp5.apps.googleusercontent.com</string>
+	<string>618727590088-jphi7vtlj56v9950kedh5so93617i6kn.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.997253797791-8bic2bof7b514quf3p6s5n80pmig2rp5</string>
+	<string>com.googleusercontent.apps.618727590088-jphi7vtlj56v9950kedh5so93617i6kn</string>
 	<key>API_KEY</key>
-	<string>AIzaSyBOf4HxWNQFH_CUFW8q-LcLYEGMEq16JvI</string>
+	<string>AIzaSyB3q-ufoRBaQCJrSkAXHzMVxr4kpFY0dsk</string>
 	<key>GCM_SENDER_ID</key>
-	<string>997253797791</string>
+	<string>618727590088</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.checkinoutlists.checkinout</string>
+	<string>com.checkinoutllc.checkinout</string>
 	<key>PROJECT_ID</key>
-	<string>check-in-out-1483378202065</string>
+	<string>check-in-out-lists</string>
 	<key>STORAGE_BUCKET</key>
-	<string>check-in-out-1483378202065.appspot.com</string>
+	<string>check-in-out-lists.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<true/>
 	<key>IS_ANALYTICS_ENABLED</key>
 	<false/>
 	<key>IS_APPINVITE_ENABLED</key>
-	<false/>
+	<true/>
 	<key>IS_GCM_ENABLED</key>
 	<true/>
 	<key>IS_SIGNIN_ENABLED</key>
 	<true/>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:997253797791:ios:f3ad914c79c97e7d</string>
+	<string>1:618727590088:ios:85aa698f539dbc2c</string>
 	<key>DATABASE_URL</key>
-	<string>https://check-in-out-1483378202065.firebaseio.com</string>
+	<string>https://check-in-out-lists.firebaseio.com</string>
 </dict>
 </plist>

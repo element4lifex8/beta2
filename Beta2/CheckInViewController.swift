@@ -468,7 +468,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                             }
                             
                         }else{  //Notify the user and skip the process if they have previously checked in here
-                            let alert = UIAlertController(title: "Reapeated Check In Out", message: "You must really like this place, you've already added \(restNameText) to your List. Please add a new place to Check In Out!", preferredStyle: .alert)
+                            let alert = UIAlertController(title: "Reapeated Check In", message: "\(restNameText) is already part of your List.", preferredStyle: .alert)
                             //Exit function if user clicks now and allow them to reconfigure the check in
                             let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: {
                                 UIAlertAction in
@@ -528,7 +528,11 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                        
                     }//Finish closure after checking whether the place had already been added to the back end
                 }else{//End of if checking for a city and a catagory being selected
-                    let alert = UIAlertController(title: "Give us more details!", message: "Make sure to select a city and category for \(restNameText)", preferredStyle: .alert)
+                    var msgAddition = ""
+                    if(cityButtonList.count == 1){      //Only the "+" button exists
+                        msgAddition = " Don't forget to add cities with the \"+\" button"
+                    }
+                    let alert = UIAlertController(title: "Give us more details!", message: "Make sure to select a city and category for \(restNameText).\(msgAddition)", preferredStyle: .alert)
                     //Exit function if user clicks now and allow them to reconfigure the check in
                     let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
                     alert.addAction(CancelAction)

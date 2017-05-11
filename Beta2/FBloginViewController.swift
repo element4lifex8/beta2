@@ -19,7 +19,8 @@ class FBloginViewController: UIViewController{
     
     
     @IBAction func FacebookLoginButton(_ sender: UIButton) {
-        let facebookLogin = FBSDKLoginManager()
+        //Moved instantiation to present activity monitor before calling facebook manager to check login capabilities
+//        let facebookLogin = FBSDKLoginManager()
         var existingUser = false
         var loginFinished = false    //keep track of whether the user has previously logged in, will use this to determine if I can automatically segue to the next screen
         var newUser: [String : String] = ["displayName" : "", "email" : "", "friends" : "true"]
@@ -41,7 +42,7 @@ class FBloginViewController: UIViewController{
         loadingView.addSubview(activityIndicator)
         self.view.addSubview(loadingView)
         activityIndicator.startAnimating()
-
+        let facebookLogin = FBSDKLoginManager()
         facebookLogin.logIn(withReadPermissions: ["public_profile", "email"], from: self, handler:{(facebookResult, facebookError) -> Void in
             if facebookError != nil {
                 Helpers().myPrint(text: "Facebook login failed. Error \(facebookError)")

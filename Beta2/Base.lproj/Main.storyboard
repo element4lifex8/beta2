@@ -1316,7 +1316,7 @@
                         <outlet property="collectionView" destination="1sL-jx-ivI" id="7US-2q-pe6"/>
                         <outlet property="myListHeaderLabel" destination="CcS-es-1JA" id="bGG-6l-VIy"/>
                         <outlet property="tableView" destination="FMJ-hE-ZRT" id="Srx-SE-44s"/>
-                        <segue destination="cle-el-spY" kind="show" identifier="placeDeetsSegue" id="rNx-2S-qze"/>
+                        <segue destination="cle-el-spY" kind="show" identifier="placeDeetsSegue" customClass="SegueFromRight" customModule="Beta2" customModuleProvider="target" id="rNx-2S-qze"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="U8S-tt-PJO" userLabel="First Responder" sceneMemberID="firstResponder"/>

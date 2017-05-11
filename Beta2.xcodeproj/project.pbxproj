@@ -22,7 +22,6 @@
 		EB03E5C51C387750009A55F1 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB03E5C41C387750009A55F1 /* FBSDKLoginKit.framework */; };
 		EB03E5C71C387758009A55F1 /* Bolts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB03E5C61C387758009A55F1 /* Bolts.framework */; };
 		EB06561C1BEE37F300CF8376 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06561B1BEE37F300CF8376 /* AppDelegate.swift */; };
-		EB0656231BEE37F300CF8376 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB0656221BEE37F300CF8376 /* Assets.xcassets */; };
 		EB06564E1BEE3B4900CF8376 /* CIOHomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */; };
 		EB0656501BEE3BF200CF8376 /* CIOHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */; };
 		EB1405C41D300526001D3924 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB85D5641C5982F000F2E29F /* CoreData.framework */; };
@@ -49,6 +48,7 @@
 		EB85D5701C5982F000F2E29F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB85D5641C5982F000F2E29F /* CoreData.framework */; };
 		EB9EE2CB1DD2A88900AC1FF0 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB9EE2CA1DD2A88900AC1FF0 /* Launch Screen.storyboard */; };
 		EBA11B771E5FBF6800114D56 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBA11B761E5FBF6800114D56 /* Helpers.swift */; };
+		EBA24A401EC26B3B00AB95FC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EBA24A3F1EC26B3B00AB95FC /* Assets.xcassets */; };
 		EBA4D0FD1C6423DB00BB459F /* libc++.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EBA4D0FB1C6423DB00BB459F /* libc++.1.dylib */; };
 		EBA4D0FE1C6423DB00BB459F /* libicucore.A.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EBA4D0FC1C6423DB00BB459F /* libicucore.A.dylib */; };
 		EBA4D0FF1C6423E800BB459F /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C71C62C57E001E0F62 /* CFNetwork.framework */; };
@@ -111,7 +111,6 @@
 		EB03E5C61C387758009A55F1 /* Bolts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Bolts.framework; path = ../../FacebookSDK/Bolts.framework; sourceTree = "<group>"; };
 		EB0656181BEE37F300CF8376 /* Beta2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Beta2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB06561B1BEE37F300CF8376 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		EB0656221BEE37F300CF8376 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EB0656271BEE37F300CF8376 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EB06562C1BEE37F300CF8376 /* Beta2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Beta2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB0656371BEE37F300CF8376 /* Beta2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Beta2UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -143,6 +142,7 @@
 		EB85D5641C5982F000F2E29F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		EB9EE2CA1DD2A88900AC1FF0 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		EBA11B761E5FBF6800114D56 /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		EBA24A3F1EC26B3B00AB95FC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EBA4D0FB1C6423DB00BB459F /* libc++.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.1.dylib"; path = "../../../../../usr/lib/libc++.1.dylib"; sourceTree = "<group>"; };
 		EBA4D0FC1C6423DB00BB459F /* libicucore.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.A.dylib; path = ../../../../../usr/lib/libicucore.A.dylib; sourceTree = "<group>"; };
 		EBBA52DF1CF65B6A0047E22A /* HeaderTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HeaderTableViewCell.swift; sourceTree = "<group>"; };
@@ -276,6 +276,7 @@
 			children = (
 				EBA11B761E5FBF6800114D56 /* Helpers.swift */,
 				EB03B8361E06D06E0002098C /* Beta2.entitlements */,
+				EBA24A3F1EC26B3B00AB95FC /* Assets.xcassets */,
 				EB61CD5F1DC41F4300297225 /* SegueFromLeft.swift */,
 				EB61CD671DC5025400297225 /* SegueFromRight.swift */,
 				EB3A98201D9813A500C16E89 /* Table Cells */,
@@ -294,7 +295,6 @@
 				EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */,
 				EBC161451EB613EB0081F239 /* CheckInView.swift */,
 				EB3C7E9F1EB93182004E417E /* GoogleService-Info.plist */,
-				EB0656221BEE37F300CF8376 /* Assets.xcassets */,
 				EB9EE2CA1DD2A88900AC1FF0 /* Launch Screen.storyboard */,
 				EB0656271BEE37F300CF8376 /* Info.plist */,
 			);
@@ -415,7 +415,7 @@
 				TargetAttributes = {
 					EB0656171BEE37F300CF8376 = {
 						CreatedOnToolsVersion = 7.0.1;
-						DevelopmentTeam = WFDEGZ6LV9;
+						DevelopmentTeam = KZFHW7YTLK;
 						LastSwiftMigration = 0810;
 						SystemCapabilities = {
 							com.apple.Keychain = {
@@ -461,8 +461,8 @@
 				EB9EE2CB1DD2A88900AC1FF0 /* Launch Screen.storyboard in Resources */,
 				EB03B8351DFF08780002098C /* GoogleService-Info.plist in Resources */,
 				EB3C7EA01EB93182004E417E /* GoogleService-Info.plist in Resources */,
-				EB0656231BEE37F300CF8376 /* Assets.xcassets in Resources */,
 				EBF790121EA6DEDB005F0B6F /* Main.storyboard in Resources */,
+				EBA24A401EC26B3B00AB95FC /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -800,6 +800,7 @@
 				CODE_SIGN_ENTITLEMENTS = Beta2/Beta2.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = KZFHW7YTLK;
 				FRAMEWORK_SEARCH_PATHS = (
 					/Users/jasonjohnston/Documents/FacebookSDK,
 					"$(inherited)",
@@ -824,7 +825,7 @@
 				INFOPLIST_FILE = Beta2/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-DDEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.checkinoutlists.checkinout;
+				PRODUCT_BUNDLE_IDENTIFIER = com.checkinoutllc.checkinout;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SWIFT_VERSION = 3.0;
@@ -840,6 +841,7 @@
 				CODE_SIGN_ENTITLEMENTS = Beta2/Beta2.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = KZFHW7YTLK;
 				FRAMEWORK_SEARCH_PATHS = (
 					/Users/jasonjohnston/Documents/FacebookSDK,
 					"$(inherited)",
@@ -859,7 +861,7 @@
 				);
 				INFOPLIST_FILE = Beta2/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.checkinoutlists.checkinout;
+				PRODUCT_BUNDLE_IDENTIFIER = com.checkinoutllc.checkinout;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SWIFT_VERSION = 3.0;

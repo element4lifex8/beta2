@@ -41,13 +41,16 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
     var selectedFBfriends = [FbookUserInfo]()
     var facebookAuthFriends = [String](), facebookAuthIds = [String]()
     var facebookTaggableFriends = [String](), facebooktaggableIds = [String]()
+    var numUnAddedFriends = 0   //number of friends who are displayed on the available tab so I can notify the user if none are available
+    var unAddedFriends = [String]()   //Compile a list of auth users that are not friends followed in the app
     var facebookFriendMaster = [String]()
     var myFriends:[String] = []
-    var myFriendIds: [NSString] = []    //list of Facebook Id's with matching index to myFriends array
+    var myFriendIds: [String] = []    //list of Facebook Id's with matching index to myFriends array
     var selectedAccessButt: [Int] = []     //List of users who are selected to add as friends
     var selectedIds: [String] = []     //List of users id's who are selected to add as friends
     var friendsRef: FIRDatabaseReference!
-    
+    //Dispatch group used to sync firebase and facebook api call
+    var myGroup = DispatchGroup()
     let currUserDefaultKey = "FBloginVC.currUser"
    
     var currUser = Helpers().currUser
@@ -179,6 +182,9 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
         self.tableView.dataSource=self
         self.tableView.delegate=self
         self.tabBar.delegate = self
+        //Async queue for synchronization
+        let queue = DispatchQueue(label: "com.checkinoutlists.checkinout", attributes: .concurrent, target: .main)
+        
         //remove left padding from tableview seperators
         tableView.layoutMargins = UIEdgeInsets.zero
         tableView.separatorInset = UIEdgeInsets.zero
@@ -270,13 +276,45 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
         view.addSubview(loadingView)
         activityIndicator.startAnimating()
         
-        sortFacebookFriends(){(finished: Bool) in
-            self.facebookTaggableFriends.sort(by: {$0.lastName() < $1.lastName()})
+        //Had to create the queue and add the async closure because I was getting EXC_BAD_INSTRUCTION when calling myGroup.leave otherwise
+        queue.async(group: myGroup) {
+            self.myGroup.enter()
+            self.sortFacebookFriends(){(finished: Bool) in
+                self.facebookTaggableFriends.sort(by: {$0.lastName() < $1.lastName()})
+                self.myGroup.leave()
+            }
+            
+            //Get list of the user's current friends so they can't add them again
+            self.myGroup.enter()
+            self.retrieveMyFriends() {(friendStr:[String], friendId:[String]) in
+                self.myGroup.leave()
+                self.myFriends = friendStr
+                self.myFriendIds = friendId
+                
+            }
+        }
+        
+        //Fire async call once facebook api, and firebase calls have finish
+        myGroup.notify(queue: DispatchQueue.main) {
+            //Count the number of auth friends that aren't friends of the current user
+            //map will check if each element in the facebookAuthFriends is contained in the myFriends array and only return 1 if the facebookAuthFriend is not already a friend
+            //reduce Initial value of 0 then add all non friends for a total count of what to display
+            self.numUnAddedFriends = self.facebookAuthFriends.map{return self.myFriends.contains($0) ? 0 : 1}.reduce(0, +)
+            //create sub array of auth users that I haven't started following in the app
+            //Remove from the sub array of unAddedFriends if the user is already in Firebase as my friend
+            self.unAddedFriends = self.facebookAuthFriends.filter({!self.myFriends.contains($0)})
             activityIndicator.stopAnimating()
             loadingView.removeFromSuperview()
+            //Check if no friends are going to appear in the Available screen and notify the user why that is
+            if(self.numUnAddedFriends == 0){
+                self.displayNoFriendsAlert()
+            }
             self.tableView.reloadData()
         }
 
+
+    }
+        //Previously part of viewDidLoad
 //        Sample add friends onboarding page to Retrieve auth friends
 //        let request = FBSDKGraphRequest(graphPath:"/me/friends", parameters: nil) //["fields" : "email" : "name"]);
 //        
@@ -352,8 +390,6 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
 //                }
 //        })
 
-
-    }
 
     func sortFacebookFriends(_ completionClosure: @escaping (_ finished: Bool) -> Void){
         var finishedAuth = false, finishedUnauth = false
@@ -451,16 +487,39 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
         var localFriendsArr = [String]()
         var localFriendsId = [String]()
         //Retrieve a list of the user's current check in list
-        friendsRef.queryOrdered(byChild: "displayName1").observe(.childAdded, with: { snapshot in
-            //If the city is a single dict pair this snap.value will return the city name
-            if let currFriend = snapshot.value as? NSDictionary{
-                localFriendsArr.append((currFriend["displayName1"] as? String ?? "Default Name")!)
-                localFriendsId.append((snapshot.key))
+        friendsRef.queryOrdered(byChild: "displayName1").observeSingleEvent(of: .value, with: { snapshot in
+            for child in (snapshot.children) {    //each child should be a root node named by the users friend ID
+                let rootNode = child as! FIRDataSnapshot
+                let nodeDict = rootNode.value as! NSDictionary
+                for ( _ , value ) in nodeDict{
+                    localFriendsArr.append((value as? String ?? "no user")!)
+//            if let currFriend = snapshot.value as? NSDictionary{
+//                localFriendsArr.append((currFriend["displayName1"] as? String ?? "Default Name")!)
+//                localFriendsId.append((snapshot.key))
+//            }
+                }
             }
             completionClosure(localFriendsArr, localFriendsId)
         })
     }
     
+    func displayNoFriendsAlert(){
+        //FOr this function to be called there are no friends in the availabe screen, that is because there are no auth users or there are no new user to follow
+        var msg = "", title = ""
+        if(self.facebookAuthFriends.count == 0){
+            title = "Invite Friends"
+            msg = "Invite some of your Facebook friends to use Check In Out so that they will appear here as \"Available\" and then you can find places to Check Out"
+        }else{  //The user has already added all available friends
+            title = "Invite More Friends"
+            msg = "You have already befriend all of your \"Available\" Facebook friends. Invite more friends to Check In Out and then they will appear here as \"Available\""
+        }
+        let alert = UIAlertController(title: title, message: msg, preferredStyle: .alert)
+        let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alert.addAction(CancelAction)
+        self.present(alert, animated: true, completion: nil)
+        
+    }
+
     @IBAction func submitSelected(_ sender: UIButton) {
         //         let userChecked = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
         var invite = false
@@ -548,7 +607,7 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if(self.availableTabSelected)
         {
-            return self.facebookAuthFriends.count
+            return self.unAddedFriends.count
         }else{
             return facebookTaggableFriends.count
         }
@@ -556,7 +615,7 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
-        var isAuth = true  //Track if the user can be added and create accessory button if so
+        var showAccessoryButt = true  //Track if the user can be added and create accessory button if so
         let checkImage = UIImage(named: "tableAccessoryCheck")
         let cellIdentifier = "friendCell"
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! FriendTableViewCell   //downcast to my cell class type
@@ -575,12 +634,26 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
         if(self.availableTabSelected || facebookAuthFriends.contains(facebookTaggableFriends[indexPath.row]))
         {
             cell.isAvailableLabel.text = "Available"
-        }else{
+            cell.isAvailableLabel.font = UIFont(name: "Avenir-Light", size: 12)
+        }
+            //If we're in the all tab and the user is an AuthFriend they could either be "trusted" or "Available"
+        else if(facebookAuthFriends.contains(facebookTaggableFriends[indexPath.row])){
+            if(self.myFriends.contains(facebookTaggableFriends[indexPath.row])){    //True is the firebase friends list matches the cell
+                cell.isAvailableLabel.text = "Trusted"
+                cell.isAvailableLabel.font = UIFont(name: "Avenir-LightOblique", size: 12)
+                showAccessoryButt = false   //Don't allow the user to try to re-add a friend
+            }else{
+                cell.isAvailableLabel.text = "Available"
+                cell.isAvailableLabel.font = UIFont(name: "Avenir-Light", size: 12)
+            }
+        }
+        else{
             cell.isAvailableLabel.text = "Invite to Check-In-Out"
-            isAuth = false
+            cell.isAvailableLabel.font = UIFont(name: "Avenir-Light", size: 12)
+            showAccessoryButt = false
         }
         cell.isAvailableLabel.textColor = UIColor.black
-        cell.isAvailableLabel.font = UIFont(name: "Avenir-Light", size: 12)
+        
         
         
         //Add custom accessory view for check button
@@ -600,7 +673,7 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
         if(selectedAccessButt.contains(indexPath.item)){
             accessoryButton.isSelected = true
         }
-        if(!isAuth){  //Don't add accessory button from unAuth friends
+        if(!showAccessoryButt){  //Don't add accessory button from unAuth friends
             cell.accessoryView?.isHidden = true
         }
         //Remove seperator insets

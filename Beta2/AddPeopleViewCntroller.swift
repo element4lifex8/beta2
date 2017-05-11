@@ -38,15 +38,18 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
   
     var availableTabSelected = false //Keep track of the tab bar thats selected to determine what to display in tableView
     var selectedFBfriends = [FbookUserInfo]()
-    var facebookAuthFriends = [String](), facebookAuthIds = [String]()
-    var facebookTaggableFriends = [String](), facebooktaggableIds = [String]()
+    var facebookAuthFriends = [String](), facebookAuthIds = [String]()  //Log of users who use the app and are friends with the user
+    var facebookTaggableFriends = [String](), facebooktaggableIds = [String]()  //List of all of the users FB friends
+    var numUnAddedFriends = 0   //number of friends who are displayed on the available tab so I can notify the user if none are available
+    var unAddedFriends = [String]()   //Compile a list of auth users that are not friends followed in the app
     var facebookFriendMaster = [String]()
     var myFriends:[String] = []
-    var myFriendIds: [NSString] = []    //list of Facebook Id's with matching index to myFriends array
+    var myFriendIds: [String] = []    //list of Facebook Id's with matching index to myFriends array
     var selectedAccessButt: [Int] = []     //List of users who are selected to add as friends
     var selectedIds: [String] = []     //List of users id's who are selected to add as friends
     var friendsRef: FIRDatabaseReference!
-    
+    //Dispatch group used to sync firebase and facebook api call
+    var myGroup = DispatchGroup()
     var currUser = Helpers().currUser
     
     
@@ -171,6 +174,9 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         self.tableView.dataSource=self
         self.tableView.delegate=self
         self.tabBar.delegate = self
+        //Async queue for synchronization
+        let queue = DispatchQueue(label: "com.checkinoutlists.checkinout", attributes: .concurrent, target: .main)
+        
         //remove left padding from tableview seperators
         tableView.layoutMargins = UIEdgeInsets.zero
         tableView.separatorInset = UIEdgeInsets.zero
@@ -261,19 +267,41 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
 //        friendsRef = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
         friendsRef = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
         
-        sortFacebookFriends(){(finished: Bool) in
-            self.facebookTaggableFriends.sort(by: {$0.lastName() < $1.lastName()})
+        //Had to create the queue and add the async closure because I was getting EXC_BAD_INSTRUCTION when calling myGroup.leave otherwise
+        queue.async(group: myGroup) {
+                self.myGroup.enter()
+            self.sortFacebookFriends(){(finished: Bool) in
+                self.facebookTaggableFriends.sort(by: {$0.lastName() < $1.lastName()})
+                self.myGroup.leave()
+            }
+           
+            //Get list of the user's current friends so they can't add them again
+            self.myGroup.enter()
+            self.retrieveMyFriends() {(friendStr:[String], friendId:[String]) in
+                self.myGroup.leave()
+                self.myFriends = friendStr
+                self.myFriendIds = friendId
+                
+            }
+        }
+        
+        //Fire async call once facebook api, and firebase calls have finish
+        myGroup.notify(queue: DispatchQueue.main) {
+            //Count the number of auth friends that aren't friends of the current user
+            //map will check if each element in the facebookAuthFriends is contained in the myFriends array and only return 1 if the facebookAuthFriend is not already a friend
+            //reduce Initial value of 0 then add all non friends for a total count of what to display
+            self.numUnAddedFriends = self.facebookAuthFriends.map{return self.myFriends.contains($0) ? 0 : 1}.reduce(0, +)
+            //create sub array of auth users that I haven't started following in the app
+            //Remove from the sub array of unAddedFriends if the user is already in Firebase as my friend
+            self.unAddedFriends = self.facebookAuthFriends.filter({!self.myFriends.contains($0)})
             activityIndicator.stopAnimating()
             loadingView.removeFromSuperview()
+            //Check if no friends are going to appear in the Available screen and notify the user why that is
+            if(self.numUnAddedFriends == 0){
+                self.displayNoFriendsAlert()
+            }
             self.tableView.reloadData()
         }
-       
-        
-//        retrieveMyFriends() {(friendStr:[String], friendId:[String]) in
-//            self.myFriends = friendStr
-//            self.myFriendIds = friendId
-//            
-//        }
         
     }
     
@@ -354,22 +382,48 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             completionClosure(authFriends, authId)
         })
     }
-        
+    
+
     //retrieve a list of all the user's friends
     func retrieveMyFriends(_ completionClosure: @escaping (_ friendStr: [String], _ friendId:[String]) -> Void) {
         var localFriendsArr = [String]()
         var localFriendsId = [String]()
         //Retrieve a list of the user's current check in list
-        friendsRef.queryOrdered(byChild: "displayName1").observe(.childAdded, with: { snapshot in
-            //If the city is a single dict pair this snap.value will return the city name
-            if let currFriend = snapshot.value as? NSDictionary{
-                localFriendsArr.append((currFriend["displayName1"] as? String ?? "Default Name")!)
-                localFriendsId.append((snapshot.key))
+        friendsRef.queryOrdered(byChild: "displayName1").observeSingleEvent(of: .value, with: { snapshot in
+                for child in (snapshot.children) {    //each child should be a root node named by the users friend ID
+                    let rootNode = child as! FIRDataSnapshot
+                    let nodeDict = rootNode.value as! NSDictionary
+                    //key = "displayName1", value = friend's name
+                    for ( _ , value ) in nodeDict{
+                        localFriendsArr.append((value as? String ?? "no user")!)
+//                        localFriendsId.append((key as? String ?? "999")!)
+//                if let currFriend = child.value as? NSDictionary{
+//                    localFriendsArr.append((currFriend["displayName1"] as? String ?? "Default Name")!)
+//                    localFriendsId.append((snapshot.key))
+                }
             }
             completionClosure(localFriendsArr, localFriendsId)
         })
     }
     
+    func displayNoFriendsAlert(){
+        //FOr this function to be called there are no friends in the availabe screen, that is because there are no auth users or there are no new user to follow
+        var msg = "", title = ""
+        if(self.facebookAuthFriends.count == 0){
+            title = "Invite Friends"
+            msg = "Invite some of your Facebook friends to use Check In Out so that they will appear here as \"Available\" and then you can find places to Check Out"
+        }else{  //The user has already added all available friends
+            title = "Invite More Friends"
+            msg = "You have already befriend all of your \"Available\" Facebook friends. Invite more friends to Check In Out and then they will appear here as \"Available\""
+        }
+        let alert = UIAlertController(title: title, message: msg, preferredStyle: .alert)
+        let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alert.addAction(CancelAction)
+        self.present(alert, animated: true, completion: nil)
+
+    }
+
+
      @IBAction func submitSelected(_ sender: UIButton) {
 //         let userChecked = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
         let userChecked = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
@@ -434,7 +488,10 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if(self.availableTabSelected)
         {
-            return self.facebookAuthFriends.count
+            //Previously I showed all auth users in the available screen, now I won't show those if they're already friends
+            //            return self.facebookAuthFriends.count
+            return self.unAddedFriends.count
+
         }else{
             return facebookTaggableFriends.count
         }
@@ -442,13 +499,13 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
-        var isAuth = true
+        var showAccessoryButt = true
         let checkImage = UIImage(named: "tableAccessoryCheck")
         let cellIdentifier = "friendCell"
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! FriendTableViewCell   //downcast to my cell class type
         //display table data from taggable friends which includes auth and unauth friends
         if(self.availableTabSelected){
-            cell.nameLabel.text = "\(facebookAuthFriends[indexPath.row])"
+            cell.nameLabel.text = "\(self.unAddedFriends[indexPath.row])"
         }else{
             cell.nameLabel.text = "\(facebookTaggableFriends[indexPath.row])"
         }
@@ -456,16 +513,31 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         cell.nameLabel.textColor = UIColor.black
         cell.nameLabel.font = UIFont(name: "Avenir-Light", size: 18)
         //Set available tag
-        //If displaying all friends need to check the facebookTaggable friends, otherwise we can index directly into facebookAutFriends
+        //If displaying all friends need to check the facebookTaggable friends, otherwise we can index directly into unAddedFriends since We don't display already added friends in available tab, only in the all tab
         if(self.availableTabSelected || facebookAuthFriends.contains(facebookTaggableFriends[indexPath.row]))
         {
             cell.isAvailableLabel.text = "Available"
-        }else{
+            cell.isAvailableLabel.font = UIFont(name: "Avenir-Light", size: 12)
+            
+        }
+        //If we're in the all tab and the user is an AuthFriend they could either be "trusted" or "Available"
+        else if(facebookAuthFriends.contains(facebookTaggableFriends[indexPath.row])){
+            if(self.myFriends.contains(facebookTaggableFriends[indexPath.row])){    //True is the firebase friends list matches the cell
+                cell.isAvailableLabel.text = "Trusted"
+                cell.isAvailableLabel.font = UIFont(name: "Avenir-LightOblique", size: 12)
+                showAccessoryButt = false   //Don't allow the user to try to re-add a friend
+            }else{
+                cell.isAvailableLabel.text = "Available"
+                cell.isAvailableLabel.font = UIFont(name: "Avenir-Light", size: 12)
+            }
+        }
+        else{
             cell.isAvailableLabel.text = "Invite to Check-In-Out"
-            isAuth = false
+            cell.isAvailableLabel.font = UIFont(name: "Avenir-Light", size: 12)
+            showAccessoryButt = false
         }
         cell.isAvailableLabel.textColor = UIColor.black
-        cell.isAvailableLabel.font = UIFont(name: "Avenir-Light", size: 12)
+        
         
        
         //Add custom accessory view for check button
@@ -481,7 +553,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
 
         cell.accessoryView = accessoryButton as UIView
         
-        if(!isAuth){    //Don't add accessory button if not a check in out user
+        if(!showAccessoryButt){    //Don't add accessory button if not a check in out user or if the user is already following them
             cell.accessoryView?.isHidden = true
         }
         

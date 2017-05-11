@@ -251,7 +251,6 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
         //Hours must be retrieved using async web api
         //Generate url that includes place id and api key
         let urlString = "https://maps.googleapis.com/maps/api/place/details/json?placeid=" + placeId + "&key=" + googleAPIkey
-        print(urlString)
         //Add the below async call to places web api to dispatch group
         myGroup.enter()
         let url = URL(string: urlString)

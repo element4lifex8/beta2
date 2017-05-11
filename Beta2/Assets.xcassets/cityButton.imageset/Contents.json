@@ -3,17 +3,17 @@
     {
       "idiom" : "universal",
       "scale" : "1x",
-      "filename" : "cityButton.png"
+      "filename" : "peopleButton.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "cityButton@2x.png"
+      "filename" : "peopleButton@2x.png"
     },
     {
       "idiom" : "universal",
       "scale" : "3x",
-      "filename" : "cityButton@3x.png"
+      "filename" : "peopleButton@3x.png"
     }
   ],
   "info" : {

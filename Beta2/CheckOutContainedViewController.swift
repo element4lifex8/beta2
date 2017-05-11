@@ -171,14 +171,23 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     
     //Function retrieves friends and cities and returns when both retrievals are finished
     func retrieveFromFirebase(_ completionClosure: @escaping (_ finished: Bool) -> Void) {
-        var finishedFriends = false, finishedCities = false        
+      
         retrieveMyFriends() {(friendStr:[String], friendId:[String]) in
-            self.myFriends = friendStr
-            self.myFriendIds = friendId as [NSString]
-            //Once I have a list of all friends, get all of their cities using their facebook id
-            self.retrieveFriendCity(friendsList: friendId) {(completedArr:[String]) in
-            self.friendCities = completedArr
-            self.friendCities.sort(by: <)
+            if(friendStr.count > 0){
+                self.myFriends = friendStr
+                self.myFriendIds = friendId as [NSString]
+                //Once I have a list of all friends, get all of their cities using their facebook id
+                self.retrieveFriendCity(friendsList: friendId) {(completedArr:[String]) in
+                    self.friendCities = completedArr
+                    if(self.friendCities.count > 0){
+                        self.friendCities.sort(by: <)
+                    }else{
+                        self.displayNoDataAlert(missingData: "city")
+                    }
+                    completionClosure(true)
+                }
+            }else{  //User has no friends
+                self.displayNoDataAlert(missingData: "friend")  //Display notification to the user that they have no friends
                 completionClosure(true)
             }
         }
@@ -189,16 +198,26 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         var localFriendsArr = [String]()
         var localFriendsId = [String]()
         //Retrieve a list of the user's current check in list
-        friendsRef.queryOrdered(byChild: "displayName1").observe(.childAdded, with: { snapshot in
-            //If the city is a single dict pair this snap.value will return the city name
-            if let currFriend = snapshot.value as? NSDictionary {
-                if let displayName = currFriend["displayName1"]{
-                    localFriendsArr.append(displayName as! String)
-                    localFriendsId.append((snapshot.key))
-                }
-//                localFriendsArr.append((currFriend["displayName1"] as? String ?? "Default Name")!)
-//                localFriendsId.append((snapshot?.key)!)
+        friendsRef.queryOrdered(byChild: "displayName1").observeSingleEvent(of: .value, with: { snapshot in
+            guard let nsSnapDict = snapshot.value as? NSDictionary else{
+                //If snapshot fails just call completion closure with empty arrays
+                completionClosure(localFriendsArr, localFriendsId)
+                return
             }
+//            each entry in nsSnapDict is a [friendID : ["display Name": name]] dict
+            //currID = friendsId displayName = [key = "displayName1", value = friend's name]
+            for ( currID , displayName ) in nsSnapDict{
+                //Cast displayName dict [key = "displayName1", value = friend's name] or quit before storing to name or Id array
+                guard let nameDict = displayName as? NSDictionary else{
+                    completionClosure(localFriendsArr, localFriendsId)
+                    return
+                }
+                if let fId = currID as? String, let name = nameDict["displayName1"] as? String{
+                    localFriendsId.append(fId)  //Append curr friend ID
+                    localFriendsArr.append(name)
+                }
+            }
+
             completionClosure(localFriendsArr, localFriendsId)
         })
     }
@@ -210,32 +229,27 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         //Loop over all the user's friends to get a list of their cities
         for friendId in friendsList{
             //Query ordered by child will loop each place in the cityRef
-            cityRef.child(friendId).queryOrdered(byChild: "city").observe(.childAdded, with: { snapshot in
-                //If the city is a single dict pair this snap.value will return the city name
-                let nsSnapDict = snapshot.value as? NSDictionary     //Swift 3 returns snapshot as Any? instead of ID
-                if let city = nsSnapDict?["city"] as? String {
-                    //Only append city if it doesn't already exist in the local city array
-                    if(!localCityArr.contains(city)){
-                        localCityArr.append(city)
-                    }
-                }else{  //The current city entry has a multi entry list
-                    for child in (snapshot.children) {    //each child is either city, cat or place ID
-                        let rootNode = child as! FIRDataSnapshot
-                        //force downcast only works if root node has children, otherwise value will only be a string
-                        //If nodeDict can't be unwrapped then the key value pair is the google place id
-                        if let nodeDict = rootNode.value as? NSDictionary{
-                            for (key, _ ) in nodeDict{
-                                 if((child as AnyObject).key == "city"){
-                                    if(!localCityArr.contains(key as! String)){
-                                        localCityArr.append(key as! String)
-                                    }
+            cityRef.child(friendId).queryOrdered(byChild: "city").observeSingleEvent(of: .value, with: { snapshot in
+             
+                for child in (snapshot.children) {    //each child is either city, cat or place ID
+                    let rootNode = child as! FIRDataSnapshot
+                    
+                    //force downcast only works if root node has children, otherwise value will only be a string
+                    //If nodeDict can't be unwrapped then the key value pair is the google place id
+                    if let nodeDict = rootNode.value as? NSDictionary{
+                        if let city = nodeDict["city"] as? NSDictionary {
+                            //value of city key is a dictionary of [ cityName : "true" ]
+                            for (key, _ ) in city{
+                                if(!localCityArr.contains(key as! String)){
+                                    localCityArr.append(key as! String)
                                 }
                             }
-                        }else{  //Enters this block when a place ID is found
-//                            print("got a place ID for \(rootNode.value)")
                         }
+                    }else{  //Enters this block when a place ID is found
+//                            print("got a place ID for \(rootNode.value)")
                     }
                 }
+
                 loopCount+=1
                 //Once all friends have been looped over, call completion closure
                 if(loopCount >= friendsList.count){
@@ -243,6 +257,23 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
                 }
             })
         }
+    }
+    
+    func displayNoDataAlert(missingData: String){
+        //FOr this function to be called there are no friends, or the friends have no check ins
+        var msg = "", title = ""
+        if(missingData == "friends"){
+            title = "Invite Friends"
+            msg = "Invite some of your Facebook friends to use Check In Out so you can find places to Check Out"
+        }else{  //The user's friends have no check ins
+            title = "Friends without benefits"
+            msg = "None of your friends have checked in anywhere. Encoruage them to Check In so that you can Check Out!"
+        }
+        let alert = UIAlertController(title: title, message: msg, preferredStyle: .alert)
+        let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alert.addAction(CancelAction)
+        self.present(alert, animated: true, completion: nil)
+        
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {

@@ -30,6 +30,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var selectedCollection = [Int]()
     var selectedFilters = [String]()
     var headerCount = 0
+    var maxHeaderLength: CGFloat = 0.0
     var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Site Seeing", "Winery"]
     //Create list of tableview indexes
     let sectionIndexes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
@@ -59,19 +60,40 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var myFriendIds:[NSString]?
     var showAllCities: Bool?    //When true show all user's check in for a city
     
+    //View will appear to get screen size for header label
+    override func viewWillAppear(_ animated: Bool) {
+        let screenWidth = view.bounds.width
+        let maxWidth = screenWidth - (72 * 2)
+        self.myListHeaderLabel.preferredMaxLayoutWidth = maxWidth
+        //If another user's list was requested then Label will be set, modify max width
+        if let _ = myFriendIds{
+            let screenWidth = view.bounds.width
+            //Label is centered but I only want text to grow to the point of reaching the left back button, which is 72px from the left edge of screen
+            let maxWidth = screenWidth - (72 * 2)
+            self.maxHeaderLength = maxWidth
+            self.myListHeaderLabel.preferredMaxLayoutWidth = maxWidth
+        }
+    }
+    
     override func viewDidLoad() {
         var currRef: FIRDatabaseReference!
         var userRetrievalCount:Int = 0     //Count the number of user's with their info pulled from the dataBase
         super.viewDidLoad()
-//        userRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(defaultUser)")
+
         userRef = FIRDatabase.database().reference().child("checked/\(defaultUser)")
-        //If another user's list was requested then requestedUser will be set
+//        //If another user's list was requested then requestedUser will be set
         if let userIds = myFriendIds{
             self.currUsers = userIds
-            if let unwrapHeader = headerText{
+            if let unwrapHeader = self.headerText{
                 self.myListHeaderLabel.text = unwrapHeader
-                myListHeaderLabel.adjustsFontSizeToFitWidth = true
-//                self.titleLabel.lineBreakMode = .byTruncatingTail
+                self.myListHeaderLabel.textAlignment = .center
+                self.myListHeaderLabel.adjustsFontSizeToFitWidth = true
+                self.myListHeaderLabel.lineBreakMode = .byWordWrapping
+                self.myListHeaderLabel.numberOfLines = 0
+                self.myListHeaderLabel.minimumScaleFactor = 0.4
+                //Label is centered but I only want text to grow to the point of reaching the left back button, which is 72px from the left edge of screen
+//                let maxWidth = screenWidth - (72 * 2)
+//                self.myListHeaderLabel.preferredMaxLayoutWidth = self.maxHeaderLength
             }
         }else{  //If no alternate user's list was requested then display the app owner's list
             self.currUsers = [defaultUser]
@@ -128,18 +150,25 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     self.myPlaceNodes.append(node)
                 }
                 if(userRetrievalCount == (self.currUsers?.count)! ){  //When data from all friendIds is gathered then generate tree
-                    self.generateTree(self.myPlaceNodes)
-                    self.placeNodeTreeRoot.sortChildNodes()
-                    self.tableView.reloadData()
-                    self.myPlaceNodes.removeAll()
+                    //Stop activity monitor now that asynch calls are finished
                     activityIndicator.stopAnimating()
                     loadingView.removeFromSuperview()
-                
-                    //Populate array of sections with objects so that index points to correct section
-                    for i in 0..<self.placeNodeTreeRoot.nodeCountAtDepth(1){
-                        let firstIdx = self.placeNodeTreeRoot.children![i].nodeValue!.startIndex
-                        if let firstChar = self.placeNodeTreeRoot.children![i].nodeValue?[firstIdx]{
-                            self.sectionWithObjects.append(String(describing:firstChar))
+                    //Check if user or his friends has no check ins
+                    if(self.myPlaceNodes.count == 1){   //The myPlaceNodes array is a property instantiated with 1 nil placeNode
+                        self.emptyListMsg()    //self.headerText tells me if this is for my list if its nil
+                    }else{
+                        self.generateTree(self.myPlaceNodes)
+                        self.placeNodeTreeRoot.sortChildNodes()
+                        self.tableView.reloadData()
+                        self.myPlaceNodes.removeAll()
+
+                    
+                        //Populate array of sections with objects so that index points to correct section for table view index
+                        for i in 0..<self.placeNodeTreeRoot.nodeCountAtDepth(1){
+                            let firstIdx = self.placeNodeTreeRoot.children![i].nodeValue!.startIndex
+                            if let firstChar = self.placeNodeTreeRoot.children![i].nodeValue?[firstIdx]{
+                                self.sectionWithObjects.append(String(describing:firstChar))
+                            }
                         }
                     }
 
@@ -161,9 +190,13 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             
             //rootNode now contains a list of all the places from the current user's Reference
             let rootNode = snapshot as FIRDataSnapshot
-            //force downcast only works if root node has children, otherwise value will only be a string
+            //force downcast only works if root node has children, otherwise user has no valid check in entries
             //each entry in nodeDict now has a key of the check in's place name and a value of the city/category attributes
-            let nodeDict = rootNode.value as! NSDictionary
+            guard let nodeDict = rootNode.value as? NSDictionary else{
+                //Call Completion cloures with empty node array
+                completionClosure(locPlaceNodeArr)
+                return
+            }
             //Loop over each check in Place and parse its attributes
             for (key, _ ) in nodeDict{
                 //Create new place node to store the current place's info
@@ -335,7 +368,29 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
     }
     
-#if UNUSED_FUNC
+    //Present alert when facebook loging canceled/failed
+    func emptyListMsg() -> Void{
+        var msgTitle = ""
+        var msgBody = ""
+        //I am checking out my friend's list if this is not nil
+        if let cityOrFriend = self.headerText{
+            msgTitle = "Empty Check Out List"
+            msgBody = "There are no Check Ins from \(cityOrFriend)"
+        }else{  //THis means my list is empty
+            msgTitle = "No Check Ins Found"
+            msgBody = "Start checking in at places to see them here in your list!"
+        }
+        
+        let alert = UIAlertController(title: msgTitle, message: msgBody, preferredStyle: .alert)
+        //Async call for uialertview will have already left this function, no handling needed
+        let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        
+        alert.addAction(CancelAction)
+        self.present(alert, animated: true, completion: nil)
+    }
+
+    
+#if UNUSED_FUNC     //#if 0's aren't allowed, i'll never define UNUSED_FUNC
     //Unused firebase functions that retrieved all places from one user and looked them up in the master list
     //function receives the name of the place to look up its city and place attributes
     func retrievePlaceAttributes(_ myRef: FIRDatabaseReference, place: String, completionClosure: @escaping (_ categoryArr: [String], _ cityArr: [String]) -> Void)
@@ -553,12 +608,15 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 return closestMatch
             }else{
                 //If closest match search fails then return the currently viewed section (will return user to top of current section
-                let indexPaths = tableView.indexPathsForVisibleRows
-                if let myIdx = indexPaths?[0].section{
+                if let indexPaths = tableView.indexPathsForVisibleRows{ 
+                    if (indexPaths.count == 0){
+                        return 0
+                    }
+                    let myIdx = indexPaths[0].section
                     return myIdx
-                }else{
-                    return 0
+                    
                 }
+                return 0    //definitely no rows exist here
             }
         }
     }
