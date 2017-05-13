@@ -22,6 +22,9 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     var friendCities:[String] = []
     var friendsRef: FIRDatabaseReference!
     var cityRef: FIRDatabaseReference!
+    //Handle to the reference observer that needs to be removed when popping the VC from the stack
+    var friendHandler, cityHandler: FIRDatabaseHandle!
+
 //    let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/")
     let refChecked = FIRDatabase.database().reference().child("checked")
     let currUserDefaultKey = "FBloginVC.currUser"
@@ -187,7 +190,7 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
                     completionClosure(true)
                 }
             }else{  //User has no friends
-                self.displayNoDataAlert(missingData: "friend")  //Display notification to the user that they have no friends
+                self.displayNoDataAlert(missingData: "friends")  //Display notification to the user that they have no friends
                 completionClosure(true)
             }
         }
@@ -195,10 +198,12 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     
     //retrieve a list of all the user's friends
     func retrieveMyFriends(_ completionClosure: @escaping (_ friendStr: [String], _ friendId:[String]) -> Void) {
-        var localFriendsArr = [String]()
-        var localFriendsId = [String]()
+
         //Retrieve a list of the user's current check in list
-        friendsRef.queryOrdered(byChild: "displayName1").observeSingleEvent(of: .value, with: { snapshot in
+        self.friendHandler = friendsRef.queryOrdered(byChild: "displayName1").observe(.value, with: { snapshot in
+            //Have to define var's here cause new firebase triggers will only trigger the closure and the previous contents of these variables would have been preserved
+            var localFriendsArr = [String]()
+            var localFriendsId = [String]()
             guard let nsSnapDict = snapshot.value as? NSDictionary else{
                 //If snapshot fails just call completion closure with empty arrays
                 completionClosure(localFriendsArr, localFriendsId)
@@ -229,8 +234,8 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         //Loop over all the user's friends to get a list of their cities
         for friendId in friendsList{
             //Query ordered by child will loop each place in the cityRef
-            cityRef.child(friendId).queryOrdered(byChild: "city").observeSingleEvent(of: .value, with: { snapshot in
-             
+              self.cityHandler = cityRef.child(friendId).queryOrdered(byChild: "city").observe( .value, with: { snapshot in
+                
                 for child in (snapshot.children) {    //each child is either city, cat or place ID
                     let rootNode = child as! FIRDataSnapshot
                     
@@ -355,7 +360,11 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
             
             //Deselect current row so when returning the last selected user is not still selected
             self.tableView.deselectRow(at: self.tableView.indexPathForSelectedRow!, animated: true)
+        }else if(segue.identifier == "unwindFromCheckOut"){   //Remove observers when popping VC
+            self.friendsRef.removeObserver(withHandle: self.friendHandler)
+            self.cityRef.removeObserver(withHandle: self.cityHandler)
         }
+        
     }
     
     // Unwind seque from my myListVC
@@ -373,7 +382,7 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         let segueLeft:SegueFromLeft = SegueFromLeft(identifier: identifier, source: fromViewController, destination: toViewController)
     
         return segueLeft
-//            SegueFromLeft(identifier: identifier, source: fromViewController, destination: toViewController)
+            SegueFromLeft(identifier: identifier, source: fromViewController, destination: toViewController)
     }*/
     
 }
