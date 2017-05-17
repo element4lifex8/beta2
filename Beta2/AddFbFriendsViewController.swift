@@ -43,6 +43,7 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
     var facebookTaggableFriends = [String](), facebooktaggableIds = [String]()
     var numUnAddedFriends = 0   //number of friends who are displayed on the available tab so I can notify the user if none are available
     var unAddedFriends = [String]()   //Compile a list of auth users that are not friends followed in the app
+    var unAddedFriendId = [String]()   //Match the friends that haven't yet been added to their Id
     var facebookFriendMaster = [String]()
     var myFriends:[String] = []
     var myFriendIds: [String] = []    //list of Facebook Id's with matching index to myFriends array
@@ -298,8 +299,14 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
         myGroup.notify(queue: DispatchQueue.main) {
             //Count the number of auth friends that aren't friends of the current user
             //map will check if each element in the facebookAuthFriends is contained in the myFriends array and only return 1 if the facebookAuthFriend is not already a friend
-            //reduce Initial value of 0 then add all non friends for a total count of what to display
-            self.numUnAddedFriends = self.facebookAuthFriends.map{return self.myFriends.contains($0) ? 0 : 1}.reduce(0, +)
+            var authFriendMap = self.facebookAuthFriends.map{return self.myFriends.contains($0) ? 0 : 1}
+            //SInce the facebookAuthIds maps directly to facebookAuthFriends, use the indices from the map array indicating the unAdded friends to create an unadded friend id array
+            //Useing the enumerated() I create a tuple array of index and friend id that are unAdded
+            var authIdEnumTup = self.facebookAuthIds.enumerated().filter({index, value in authFriendMap[index] == 1})
+            //Retrieve just the unadded friend ID's from the tuple above (index = $0, values = $1)
+            self.unAddedFriendId = authIdEnumTup.map({$1})
+            //reduce Initial value of 0 then add all unAdded friends for a total count of what to display
+            self.numUnAddedFriends = authFriendMap.reduce(0, +)
             //create sub array of auth users that I haven't started following in the app
             //Remove from the sub array of unAddedFriends if the user is already in Firebase as my friend
             self.unAddedFriends = self.facebookAuthFriends.filter({!self.myFriends.contains($0)})
@@ -559,7 +566,7 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
     @IBAction func accessoryButtonTapped(_ sender: UIButton) {
         var friendName: String = ""
         if(self.availableTabSelected){
-            friendName = facebookAuthFriends[sender.tag]
+            friendName = self.unAddedFriends[sender.tag]
         }else{
             friendName = facebookTaggableFriends[sender.tag]
         }
@@ -571,8 +578,8 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
             selectedAccessButt.append(sender.tag)
             //Add authorized friends to add to friends list, and create list of unauth friends to notify about the app.
             //friend index will only exist if friend is an auth user
-            if let friendIndex = facebookAuthFriends.index(of: friendName){
-                FBfriend = FbookUserInfo(name: friendName, id: facebookAuthIds[friendIndex])
+            if let friendIndex = unAddedFriends.index(of: friendName){
+                FBfriend = FbookUserInfo(name: friendName, id: self.unAddedFriendId[friendIndex])
             }else{
                 FBfriend = FbookUserInfo(name: friendName)
             }
@@ -631,7 +638,7 @@ class AddFbFriendsViewController: UIViewController, UITableViewDataSource, UITab
         cell.nameLabel.font = UIFont(name: "Avenir-Light", size: 18)
         //Set available tag
         //If displaying all friends need to check the facebookTaggable friends, otherwise we can index directly into facebookAutFriends
-        if(self.availableTabSelected || facebookAuthFriends.contains(facebookTaggableFriends[indexPath.row]))
+        if(self.availableTabSelected)
         {
             cell.isAvailableLabel.text = "Available"
             cell.isAvailableLabel.font = UIFont(name: "Avenir-Light", size: 12)

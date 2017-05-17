@@ -67,11 +67,14 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         self.myListHeaderLabel.preferredMaxLayoutWidth = maxWidth
         //If another user's list was requested then Label will be set, modify max width
         if let _ = myFriendIds{
+            self.myListHeaderLabel.text = (headerText ?? "User failed")
+
             let screenWidth = view.bounds.width
             //Label is centered but I only want text to grow to the point of reaching the left back button, which is 72px from the left edge of screen
-            let maxWidth = screenWidth - (72 * 2)
-            self.maxHeaderLength = maxWidth
-            self.myListHeaderLabel.preferredMaxLayoutWidth = maxWidth
+            let maxWidth: CGFloat = screenWidth - (72 * 2)
+            //In the storyboard I do "Baseline: Align Centers", truncate tail, and shrink scale factor to 0.5 which are enforced to the width constraint below
+            let widthConstraint = self.myListHeaderLabel.widthAnchor.constraint(equalToConstant: maxWidth)
+            NSLayoutConstraint.activate([widthConstraint])
         }
     }
     
@@ -84,17 +87,6 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
 //        //If another user's list was requested then requestedUser will be set
         if let userIds = myFriendIds{
             self.currUsers = userIds
-            if let unwrapHeader = self.headerText{
-                self.myListHeaderLabel.text = unwrapHeader
-                self.myListHeaderLabel.textAlignment = .center
-                self.myListHeaderLabel.adjustsFontSizeToFitWidth = true
-                self.myListHeaderLabel.lineBreakMode = .byWordWrapping
-                self.myListHeaderLabel.numberOfLines = 0
-                self.myListHeaderLabel.minimumScaleFactor = 0.4
-                //Label is centered but I only want text to grow to the point of reaching the left back button, which is 72px from the left edge of screen
-//                let maxWidth = screenWidth - (72 * 2)
-//                self.myListHeaderLabel.preferredMaxLayoutWidth = self.maxHeaderLength
-            }
         }else{  //If no alternate user's list was requested then display the app owner's list
             self.currUsers = [defaultUser]
         }

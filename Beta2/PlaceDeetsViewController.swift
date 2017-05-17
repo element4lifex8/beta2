@@ -35,7 +35,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
     //Google places client
     var placesClient: GMSPlacesClient!
     //Google places web api uses different api key than ios app
-    var googleAPIkey = "AIzaSyBkY-lMWqc9xWM7RD3dnUYWE0D-5LOvME8"
+    var googleAPIkey = "AIzaSyBkZgZI20bfFpBBC-t-AGKTpXRcQZPS9ck"
     //use dispatch groups to make async call using google places web api and google places ios api then fire async call to reload tableview
     var myGroup = DispatchGroup()
     
@@ -251,6 +251,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
         //Hours must be retrieved using async web api
         //Generate url that includes place id and api key
         let urlString = "https://maps.googleapis.com/maps/api/place/details/json?placeid=" + placeId + "&key=" + googleAPIkey
+        Helpers().myPrint(text: urlString)
         //Add the below async call to places web api to dispatch group
         myGroup.enter()
         let url = URL(string: urlString)
