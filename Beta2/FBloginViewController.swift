@@ -100,8 +100,13 @@ class FBloginViewController: UIViewController{
                             //The entry will contain the following items: providerID (facebook.com), userId($uid), displayName (from facebook), photoURL(also from FB), email
                             for entry in providerData{  //Expect only 1 entry
                                 self.currUser = entry.uid as NSString
+                                var email = ""
+                                //sometimes facebook doesn't provide an email
+                                if let emailWrap = entry.email {
+                                    email = emailWrap
+                                }
                                 newUser = ["displayName1": (entry.displayName)!,
-                                               "email": (entry.email)!, "friends" : "true"]
+                                               "email": email, "friends" : "true"]
                             }
                             
                         }
