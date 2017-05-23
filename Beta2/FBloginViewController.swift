@@ -43,7 +43,7 @@ class FBloginViewController: UIViewController{
         self.view.addSubview(loadingView)
         activityIndicator.startAnimating()
         let facebookLogin = FBSDKLoginManager()
-        facebookLogin.logIn(withReadPermissions: ["public_profile", "email"], from: self, handler:{(facebookResult, facebookError) -> Void in
+        facebookLogin.logIn(withReadPermissions: ["public_profile", "user_friends", "email"], from: self, handler:{(facebookResult, facebookError) -> Void in
             if facebookError != nil {
                 Helpers().myPrint(text: "Facebook login failed. Error \(facebookError)")
                 self.loginFailMsg(error: "fail")         //Notify user that login failed

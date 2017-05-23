@@ -23,7 +23,7 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     var friendsRef: FIRDatabaseReference!
     var cityRef: FIRDatabaseReference!
     //Handle to the reference observer that needs to be removed when popping the VC from the stack
-    var friendHandler, cityHandler: FIRDatabaseHandle!
+    var friendHandler, cityHandler: FIRDatabaseHandle?
 
 //    let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/")
     let refChecked = FIRDatabase.database().reference().child("checked")
@@ -361,8 +361,12 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
             //Deselect current row so when returning the last selected user is not still selected
             self.tableView.deselectRow(at: self.tableView.indexPathForSelectedRow!, animated: true)
         }else if(segue.identifier == "unwindFromCheckOut"){   //Remove observers when popping VC
-            self.friendsRef.removeObserver(withHandle: self.friendHandler)
-            self.cityRef.removeObserver(withHandle: self.cityHandler)
+            if let friendHandle = self.friendHandler {
+                self.friendsRef.removeObserver(withHandle: friendHandle)
+            }
+            if let cityHandle = self.cityHandler{
+                self.cityRef.removeObserver(withHandle: cityHandle)
+            }
         }
         
     }
