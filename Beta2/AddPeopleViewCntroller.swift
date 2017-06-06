@@ -272,17 +272,18 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         queue.async(group: myGroup) {
                 self.myGroup.enter()
             self.sortFacebookFriends(){(finished: Bool) in
-                self.facebookTaggableFriends.sort(by: {$0.lastName() < $1.lastName()})
+                if(finished){   //only "finished" if I was capable of retrieving friends
+                    self.facebookTaggableFriends.sort(by: {$0.lastName() < $1.lastName()})
+                }
                 self.myGroup.leave()
             }
            
             //Get list of the user's current friends so they can't add them again
             self.myGroup.enter()
             self.retrieveMyFriends() {(friendStr:[String], friendId:[String]) in
-                self.myGroup.leave()
                 self.myFriends = friendStr
                 self.myFriendIds = friendId
-                
+                self.myGroup.leave()
             }
         }
         
@@ -314,26 +315,116 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     
     func sortFacebookFriends(_ completionClosure: @escaping (_ finished: Bool) -> Void){
         var finishedAuth = false, finishedUnauth = false
-        retrieveAuthFacebookFriends() {(displayName: [String], taggableId: [String]) in
-            self.facebookAuthFriends = displayName
-            self.facebookAuthIds = taggableId
-            finishedAuth = true
-            //Call completion closure only when all friends have been retrieved
-            if(finishedAuth && finishedUnauth){
-                completionClosure(true)
-            }
-        }
         
-        retrieveUnauthFacebookFriends() {(displayName: [String], unAuthId: [String]) in
-            self.facebookTaggableFriends = displayName
-            self.facebooktaggableIds = unAuthId
-            finishedUnauth = true
-            //Call completion closure only when all friends have been retrieved
-            if(finishedAuth && finishedUnauth){
-                completionClosure(true)
+        checkFriendPermiss(){(permission: Bool?) in
+            if(permission ?? false){    //Only check backend and facebook for friends if permissions allow, otherwise to-do check for email only friends
+                self.retrieveAuthFacebookFriends() {(displayName: [String], taggableId: [String]) in
+                    self.facebookAuthFriends = displayName
+                    self.facebookAuthIds = taggableId
+                    finishedAuth = true
+                    //Call completion closure only when all friends have been retrieved
+                    if(finishedAuth && finishedUnauth){
+                        completionClosure(true)
+                    }
+                }
+                
+                self.retrieveUnauthFacebookFriends() {(displayName: [String], unAuthId: [String]) in
+                    self.facebookTaggableFriends = displayName
+                    self.facebooktaggableIds = unAuthId
+                    finishedUnauth = true
+                    //Call completion closure only when all friends have been retrieved
+                    if(finishedAuth && finishedUnauth){
+                        completionClosure(true)
+                    }
+                }
+            }else{  //friend permission revoked of completion closure returned nil because it failed to obtain friend permissions with FB graph API request
+                completionClosure(false)
             }
         }
     }
+    
+    //Check if facebook friend permission was added and request if it wasn't
+    //Returns nil if failed to retrieve friends permissions
+    func checkFriendPermiss(_ completionClosure: @escaping (_ frendsAllowed: Bool?) -> Void) {
+        //Check permissions to see if I can request friends
+        let request = FBSDKGraphRequest(graphPath:"/me/permissions", parameters: ["fields" : "permission, status"]);
+        let permissGroup = DispatchGroup()
+        var permission:Bool? = nil   //Find out if the user allowed friend permission
+        permissGroup.enter()
+        request?.start(completionHandler: { (connection, result, error) -> Void in
+            if(error != nil){
+                Helpers().myPrint(text: "error retrieving permissions")
+            }else{
+                //Casting to NSDictionary produces Key: data, value: [NSDictionary[permission: name, status: granted/declined]] (value is NSArray of NSDictionary)
+                if let resultdict = result as? NSDictionary{
+                    //create NSArray of NSDictionaries
+                    if let dataVal : NSArray = resultdict.object(forKey: "data") as? NSArray{
+                        //Search Facebook permission array for friend permission
+                        for i in 0..<dataVal.count{
+                            if let valueDict : NSDictionary = dataVal[i] as? NSDictionary{
+                                //Check if friend permission is granted or denied
+                                if (valueDict["permission"] as? String == Optional("user_friends")){
+                                    permission = (valueDict["status"] as? String == Optional("granted")) ? true : false
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            //Ensure completion closure is reached even if the async call or its subsequent casting has errors
+            //            print("Friends permission: \(permission)")
+            //            completionClosure(permission)
+            permissGroup.leave()
+        })
+        
+        //Once Dispatch group confirms async call is finished
+        permissGroup.notify(queue: .main){
+            //Look up friends if permission is availabe
+            if(permission ?? false){
+                completionClosure(permission)
+            }else{  //Notify user that friend persmission isn't available
+                let alert = UIAlertController(title: "Access to friends list.", message: "Would you like to allow Check In Out to access your Facebook friends so you can see their Check Ins?", preferredStyle: .alert)
+                //Exit function if user clicks no and no friends will be printed
+                let CancelAction = UIAlertAction(title: "No", style: .cancel, handler: { UIAlertAction in
+                    //                    completionClosure(false)
+                    self.performSegue(withIdentifier: "unwindFromAddFriends", sender: self)
+                })
+                //Async call to create button would complete function, so I return after presenting, and if the user wishes I will issue a facebook prompt
+                let ConfirmAction = UIAlertAction(title: "Yes", style: .default, handler: { UIAlertAction in
+                    //Request facebook authenication for friends list
+                    let facebookLogin = FBSDKLoginManager()
+                    facebookLogin.logIn(withReadPermissions: ["user_friends"], from: self, handler:{(facebookResult, facebookError) -> Void in
+                        if facebookError != nil {
+                            Helpers().myPrint(text: "Unable to access friends \(facebookError)")
+                            self.loginFailMsg(error: "fail")         //Notify user that login failed
+                            completionClosure(false)
+                        } else if (facebookResult?.isCancelled)! {
+                            Helpers().myPrint(text: "Facebook login was cancelled.")
+                            self.loginFailMsg(error: "cancel")         //Notify user that login was canceled
+                            completionClosure(false)
+                        } else {
+                            if !(facebookResult?.grantedPermissions.contains("user_friends") ?? false)
+                            {
+                                Helpers().myPrint(text: "Facebook friends access denied!")
+                                completionClosure(false)
+                            }else{
+                                Helpers().myPrint(text: "Facebook friends accessed!")
+                                completionClosure(true)
+                            }
+                        }
+                    })  //End FB login
+                    
+                })
+                alert.addAction(ConfirmAction)
+                alert.addAction(CancelAction)
+                //Remove activity monitor so alertview can be presented
+                self.present(alert, animated: true, completion: nil)
+                
+                
+            }
+        }
+    }
+
     
     //Retrieve friends who have not authorized CIO
     func retrieveUnauthFacebookFriends(_ completionClosure: @escaping (_ displayName: [String], _ taggableId: [String]) -> Void){
@@ -369,8 +460,9 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         var authId = [String]()
         
         request?.start(completionHandler: { (connection, result, error) -> Void in
-            if error == nil
-            {
+            if(error != nil){
+                Helpers().myPrint(text: "friends not auth")
+            }else{
                 //Result is cast to an NSDict consiting of [id: value, name: value] for auth friends
                 let resultdict = result as! NSDictionary
                 let data : NSArray = resultdict.object(forKey: "data") as! NSArray
@@ -391,7 +483,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     }
     
 
-    //retrieve a list of all the user's friends
+    //retrieve a list of all the user's friends currently stored in firebase
     func retrieveMyFriends(_ completionClosure: @escaping (_ friendStr: [String], _ friendId:[String]) -> Void) {
         var localFriendsArr = [String]()
         var localFriendsId = [String]()
@@ -402,7 +494,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                     let nodeDict = rootNode.value as! NSDictionary
                     //key = "displayName1", value = friend's name
                     for ( _ , value ) in nodeDict{
-                        localFriendsArr.append((value as? String ?? "no user")!)
+                        localFriendsArr.append((value as? String ?? "Friend Unavailable")!)
 //                        localFriendsId.append((key as? String ?? "999")!)
 //                if let currFriend = child.value as? NSDictionary{
 //                    localFriendsArr.append((currFriend["displayName1"] as? String ?? "Default Name")!)
@@ -413,6 +505,37 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         })
     }
     
+    //Failure to request friend permissions alert
+    //Present alert when facebook loging canceled/failed
+    func loginFailMsg(error: String) -> Void{
+        var msgTitle = ""
+        var msgBody = ""
+        
+        switch(error){
+        case "cancel":
+            msgTitle = "Facebook Friend Persmission"
+            msgBody = "It appears you did not allow Check In Out to access your Friend's list. Facebook friends will not be available until you provide permission."
+            break
+        case "fail":
+            msgTitle = "Facebook Login Failed"
+            msgBody = "We're sorry, it looks like access to your Facebook friends failed. Please contact tech support: jason@checkinoutlists.com"
+            break
+        default:
+            msgTitle = "Facebook Access Problem"
+            msgBody = "Unfortunately your Facebook request wasn't successful. Please conctact jason@checkinoutlists.com for support."
+            break
+        }
+        let alert = UIAlertController(title: msgTitle, message: msgBody, preferredStyle: .alert)
+        //Async call for uialertview will have already left this function, no handling needed
+        let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: { UIAlertAction in
+            self.performSegue(withIdentifier: "unwindFromAddFriends", sender: self)
+        })
+        
+        alert.addAction(CancelAction)
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    //When permissions are allowed but not facebook friends exist
     func displayNoFriendsAlert(){
         //FOr this function to be called there are no friends in the availabe screen, that is because there are no auth users or there are no new user to follow
         var msg = "", title = ""

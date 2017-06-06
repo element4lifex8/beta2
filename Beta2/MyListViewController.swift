@@ -139,7 +139,13 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             retrieveWithRef(currRef){ (placeNodeArr: [placeNode]) in
                 userRetrievalCount += 1     //finished retrieving current user's check in info
                 for node in placeNodeArr{
-                    self.myPlaceNodes.append(node)
+                    //Add place node to my model unless if already exists in my model
+                    //This would happen if viewing a checkout screen and multiple friends checked into the same place
+                    //Custom checkins are a special case where the nil placeID could match the nil entry that the myPlaceNodes array is initialized with, so I unwrap and if both entries are nil then one becomes false and one becomes true so they never match
+                    if(!self.myPlaceNodes.contains(where: {element in return ((element.placeId ?? "false") == (node.placeId ?? "true"))}))
+                    {
+                        self.myPlaceNodes.append(node)
+                    }
                 }
                 if(userRetrievalCount == (self.currUsers?.count)! ){  //When data from all friendIds is gathered then generate tree
                     //Stop activity monitor now that asynch calls are finished

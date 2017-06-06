@@ -24,6 +24,8 @@ class FBloginViewController: UIViewController{
         var existingUser = false
         var loginFinished = false    //keep track of whether the user has previously logged in, will use this to determine if I can automatically segue to the next screen
         var newUser: [String : String] = ["displayName" : "", "email" : "", "friends" : "true"]
+        //variables for saving FB info to firebase
+        var emailFB = "", nameFB = "", friendsFB = "true"
         
         //Show activity monitor while waiting
         let loadingView: UIView = UIView()
@@ -71,42 +73,35 @@ class FBloginViewController: UIViewController{
                     }
                     else
                     {
-                        //<<If not using provider data then "facebook" is appended prior to uid
-//                        if let userId = user?.uid{
-//                            //user credential now has the string "facebook:" inserted before the facebook id
-//                            guard let beginIdx = userId.characters.index(of: ":") else{
-//                                print("Malformed facebook user id string: \(userId)")
-//                                return
-//                            }
-//                          
-//                            self.currUser = userId.substring(from: userId.index(after: beginIdx)) as NSString
-//                            print("Logged in \(self.currUser)")
-//                        }else{
-//                            print("Facebook user id not provided, login unsuccessful")
-//                        }
+
+                        // Check if any of the permissions are missing and notify accordingly
+                        // Write revoked to firebase for later handling if grantedPermissions returns false or nil
+                        if !(facebookResult?.grantedPermissions.contains("email") ?? false)
+                        {
+                            emailFB = "revoked"
+                        }
+                        if !(facebookResult?.grantedPermissions.contains("user_friends") ?? false)
+                        {
+                            friendsFB = "revoked"
+                        }
                         //Check to see if user is new and has not been added to the user's list in Firebase
-                        
-                        
-                        /*TO update one field only:
-                         let emailPath = "\(self.currUser)/email"
-                         let email = (authData.providerData["email"] as? NSString)!
-                         usersRef.updateChildValues([emailPath:email])*/
-                        // Create a child path with a key set to the uid underneath the "users" node
-                        // This creates a URiL path like the following:
-                        //  - https://<YOUR-FIREBASE-APP>.firebaseio.com/users/<uid>
                         
                         //Provider data is an optional array, unwrap the optional then iterate over the 1 expected array entry to gather uid, displayName, and email parameters
                         if let providerData = user?.providerData {
                             //The entry will contain the following items: providerID (facebook.com), userId($uid), displayName (from facebook), photoURL(also from FB), email
                             for entry in providerData{  //Expect only 1 entry
                                 self.currUser = entry.uid as NSString
-                                var email = ""
+                                
                                 //sometimes facebook doesn't provide an email
                                 if let emailWrap = entry.email {
-                                    email = emailWrap
+                                    emailFB = emailWrap
                                 }
-                                newUser = ["displayName1": (entry.displayName)!,
-                                               "email": email, "friends" : "true"]
+                                //The display name is not provided if a user revoked public_profile permissions
+                                if let nameWrap = entry.displayName {
+                                    nameFB = nameWrap
+                                }
+                                newUser = ["displayName1": nameFB,
+                                               "email": emailFB, "friends" : friendsFB]
                             }
                             
                         }
@@ -119,12 +114,7 @@ class FBloginViewController: UIViewController{
                             }
                         }
                         
-                        // If you ask for multiple permissions at once, you
-                        // should check if specific permissions missing
-//                        if (facebookResult?.grantedPermissions.contains("email"))!
-//                        {
-//                            // Do work
-//                        }
+
                         activityIndicator.stopAnimating()
                         loadingView.removeFromSuperview()
 
@@ -210,7 +200,7 @@ class FBloginViewController: UIViewController{
 
     }
     
-    //Present alert when facebook loging canceled/failed
+    //Present alert when facebook login canceled/failed
     func loginFailMsg(error: String) -> Void{
         var msgTitle = ""
         var msgBody = ""
@@ -222,11 +212,11 @@ class FBloginViewController: UIViewController{
             break
         case "fail":
             msgTitle = "Facebook Login Failed"
-            msgBody = "We're sorry, it looks like your Facebook login failed. Please try again."
+            msgBody = "We're sorry, it looks like your Facebook login failed. Please try again or contact tech support: jason@checkinoutlists.com"
             break
         case "auth":
             msgTitle = "Facebook account not recognized"
-            msgBody = "It appears that this Facebook account is not recognized by Check In Out. Please try again."
+            msgBody = "It appears that this Facebook account is not recognized by Check In Out. Please contact tech support: jason@checkinoutlists.com"
             break
         default:
             msgTitle = "Facebook Login Problem"
@@ -284,6 +274,21 @@ class FBloginViewController: UIViewController{
                         //save user's id to NSUser defaults
                         self.currUser = user!.uid as NSString
                         Helpers().myPrint(text: "Logged in  \(self.currUser)")
+    
+//<<If not using provider data then "facebook" is appended prior to uid
+//                        if let userId = user?.uid{
+//                            //user credential now has the string "facebook:" inserted before the facebook id
+//                            guard let beginIdx = userId.characters.index(of: ":") else{
+//                                print("Malformed facebook user id string: \(userId)")
+//                                return
+//                            }
+//
+//                            self.currUser = userId.substring(from: userId.index(after: beginIdx)) as NSString
+//                            print("Logged in \(self.currUser)")
+//                        }else{
+//                            print("Facebook user id not provided, login unsuccessful")
+//                        }
+    
                         //Check to see if user is new and has not been added to the user's list in Firebase
                         
 

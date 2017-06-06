@@ -293,7 +293,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         cell.textLabel?.text = googlePrediction[indexPath.row].attributedFullText.string
-        cell.textLabel?.adjustsFontSizeToFitWidth = true
+//        cell.textLabel?.adjustsFontSizeToFitWidth = true
         cell.textLabel?.minimumScaleFactor = 0.6
         cell.textLabel?.lineBreakMode = .byTruncatingTail
         //Remove seperator insets
@@ -393,6 +393,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         //Save an establishment Check in entry
         else
         {
+            //Retrieve a snapshot of the city/category dict cause slow internet could allow ample time for the user to hit a bunch of buttons
+            let cityCatDict: [Dictionary] = self.dictArr    //[[String:String]]
             var restNameText = CheckInRestField.text!
             //Remove any trailing spaces from restNameText
             restNameText = restNameText.trimmingCharacters(in: .whitespaces)
@@ -402,21 +404,40 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 //Start activity monitor since check process now has to make async request
                 displayActivityMonitor()
                 //Firebase Keys must be non-empty and cannot contain '.' '#' '$' '[' or ']'
-                if let index = restNameText.characters.index(of: ".") {
-                    restNameText.remove(at: index)
+                //Loop over string in case in contains multiple bad chars
+//                while(restNameText.characters.contains(where: restNameText.contains(".
+//                    ")))*/{
+                
+//                restNameText.characters.forEach({
+//                    if ($0 == "."){
+//                        let index = restNameText.remove(at: $0.enum)
+//                        restNameText.remove(at: $0.)
+//                    })
+//                let me = restNameText.characters.contains(where: {$0 == "."})
+//                while restNameText.characters.contains("."){
+//                    if let index = restNameText.characters.index(of: ".") {
+//                        restNameText.remove(at: index)
+//                    }
+//                }
+                let badChars: [Character] = [".", "#", "$", "[", "]"]
+                while(restNameText.characters.contains(where: {badChars.contains($0)})){
+                    if let idx = restNameText.characters.index(where: {$0 == "."}){
+                        restNameText.remove(at: idx)
+                    }
+                    if let index = restNameText.characters.index(of: "#") {
+                        restNameText.remove(at: index)
+                    }
+                    if let index = restNameText.characters.index(of: "$") {
+                        restNameText.remove(at: index)
+                    }
+                    if let index = restNameText.characters.index(of: "[") {
+                        restNameText.remove(at: index)
+                    }
+                    if let index = restNameText.characters.index(of: "]") {
+                        restNameText.remove(at: index)
+                    }
                 }
-                if let index = restNameText.characters.index(of: "#") {
-                    restNameText.remove(at: index)
-                }
-                if let index = restNameText.characters.index(of: "$") {
-                    restNameText.remove(at: index)
-                }
-                if let index = restNameText.characters.index(of: "[") {
-                    restNameText.remove(at: index)
-                }
-                if let index = restNameText.characters.index(of: "]") {
-                    restNameText.remove(at: index)
-                }
+
                 
                 //Make sure user has added one city and one category, or prompt the user and have them try again
                 if(dictArr.contains(where: {($0.keys).contains("city")}) && dictArr.contains(where: {($0.keys).contains("category")})){      
@@ -503,16 +524,31 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                         
                         
                         //update user's and master list with the city & categories chosen by this user
-                        for i in 0 ..< self.dictArr.count    //array of [cat/city: catName/cityName]
+                        //Create city dict and category dict to allow for one write to firebase with both
+                        var cityFire = [String : String]()
+                        var catFire = [String : String]()
+                        for i in 0 ..< cityCatDict.count    //array of [cat/city: catName/cityName]
                         {
                             for (key,value) in self.dictArr[i]   //key: city or category
                             {
-                                //Store categories and cities in user list
-                                refChecked.child(restNameText).child(key).updateChildValues([value:"true"])
-                                //Store categories and city info in master list
-                                refCheckedPlaces.child( restNameText).child(byAppendingPath: key).updateChildValues([value:"true"])
+                                if(key == "city"){
+                                    cityFire[value] = "true"
+                                }else{
+                                    catFire[value] = "true"
+                                }
+                                //I used to repeately access firebase to Store categories and cities in user list
+//refChecked.child(restNameText).child(key).updateChildValues([value:"true"])
+//                                //Store categories and city info in master list
+//                                refCheckedPlaces.child( restNameText).child(byAppendingPath: key).updateChildValues([value:"true"])
                             }
                         }
+                        let fireUpdate = [ "city" : cityFire, "category" : catFire ]
+                        //Update the city and categories in FIrebase for the current place
+                        refChecked.child(restNameText).updateChildValues(fireUpdate)
+                        //Update the city then category nodes seperately in the places node since I couldn't figure out a way to update both without overwriting existing data
+                        refCheckedPlaces.child( restNameText).child(byAppendingPath: "city").updateChildValues(cityFire)
+                        refCheckedPlaces.child( restNameText).child(byAppendingPath: "category").updateChildValues(catFire)
+                        
                         //Save to NSUser defaults
         //                restNameHistory += [restNameText]
                         
@@ -722,7 +758,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         
         myGroup.enter()
         //Check if the user has checked this in before, if this closure is not entered then no entry was found
-        userRef.child( placeName).observeSingleEvent(of: .value, with: { snapshot in
+        userRef.child(placeName).observeSingleEvent(of: .value, with: { snapshot in
             //If the place exists I will be able to unwrap the snapshot of its contents as an NSDictionary
             if let placeFound = snapshot.value as? NSDictionary{
                 userHasChecked = true
@@ -760,10 +796,13 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
     func placeAutocomplete(queryText: String) {
         let filter = GMSAutocompleteFilter()
+        //I don't want to print places of these types:
+        let filterPlaces = ["route", "locality"]
+//        filter.type = .geocode & .establishment
         if(isEnteringCity){
             filter.type = .city
         }else{
-            filter.type = .establishment
+            filter.type = .noFilter
         }
         placesClient.autocompleteQuery(queryText, bounds: coordinateBounds(), filter: filter, callback: {(results, error) -> Void in
             if let error = error {
@@ -778,8 +817,15 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 for result in results {
 //                    result.attributedPrimaryText.string contains the name of the spot
 //                    result.attributedSecondaryText.string contains the address to the spot
-                    self.googlePrediction.append(result)
-                    self.autoCompleteArray.append(result.attributedFullText.string)
+                    //If the autocomplete is an address (route) then don't display it if not entering city
+                    //extract the NSArray of types (e.g. route, establishment, geocode, point_of_interst, premise (like the washington monument))
+                    let typeArray: [String] = result.types as [String]
+                    //Filter out all the types from my types filer array when searching for places and print the rest
+                    //If is entering city then show all
+                    if(self.isEnteringCity || !(typeArray.contains(where: {filterPlaces.contains($0)}))){
+                        self.googlePrediction.append(result)
+                        self.autoCompleteArray.append(result.attributedFullText.string)
+                    }
                 }
             }
             //Determine if the number of entries in the array of table data will exceed the default table frame size of 120pt (~3 tables entries). Shrink table if less than 3 table entries expected

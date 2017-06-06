@@ -801,7 +801,8 @@
 				CODE_SIGN_ENTITLEMENTS = Beta2/Beta2.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Check In Out, LLC (KZFHW7YTLK)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = KZFHW7YTLK;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					/Users/jasonjohnston/Documents/FacebookSDK,
 					"$(inherited)",
@@ -845,7 +846,8 @@
 				CODE_SIGN_ENTITLEMENTS = Beta2/Beta2.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Check In Out, LLC (KZFHW7YTLK)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = KZFHW7YTLK;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					/Users/jasonjohnston/Documents/FacebookSDK,
 					"$(inherited)",
