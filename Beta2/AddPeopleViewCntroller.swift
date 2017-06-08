@@ -642,6 +642,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         
         cell.nameLabel.textColor = UIColor.black
         cell.nameLabel.font = UIFont(name: "Avenir-Light", size: 18)
+        cell.nameLabel.lineBreakMode = .byTruncatingTail
         //Set available tag
         //If displaying all friends need to check the facebookTaggable friends, otherwise we can index directly into unAddedFriends since We don't display already added friends in available tab, only in the all tab
         if(self.availableTabSelected)
