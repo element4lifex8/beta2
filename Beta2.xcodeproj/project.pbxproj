@@ -60,6 +60,7 @@
 		EBBAB1A61DFB6E7100048916 /* FbookUserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBBAB1A51DFB6E7100048916 /* FbookUserInfo.swift */; };
 		EBC161461EB613EB0081F239 /* CheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC161451EB613EB0081F239 /* CheckInView.swift */; };
 		EBC161481EB614F00081F239 /* RoundButtCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC161471EB614F00081F239 /* RoundButtCollectionViewCell.swift */; };
+		EBDC215B1EEA0B11003A6347 /* AutoCompleteTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBDC215A1EEA0B11003A6347 /* AutoCompleteTableCell.swift */; };
 		EBE70DF01CC58EBA00F6DCE3 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE70DEE1CC58EBA00F6DCE3 /* FBSDKCoreKit.framework */; };
 		EBE70DF11CC58EBA00F6DCE3 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE70DEF1CC58EBA00F6DCE3 /* FBSDKLoginKit.framework */; };
 		EBF790121EA6DEDB005F0B6F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EBF790101EA6DEDB005F0B6F /* Main.storyboard */; };
@@ -150,6 +151,7 @@
 		EBBAB1A51DFB6E7100048916 /* FbookUserInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FbookUserInfo.swift; sourceTree = "<group>"; };
 		EBC161451EB613EB0081F239 /* CheckInView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckInView.swift; sourceTree = "<group>"; };
 		EBC161471EB614F00081F239 /* RoundButtCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoundButtCollectionViewCell.swift; sourceTree = "<group>"; };
+		EBDC215A1EEA0B11003A6347 /* AutoCompleteTableCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoCompleteTableCell.swift; sourceTree = "<group>"; };
 		EBE70DEE1CC58EBA00F6DCE3 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKCoreKit.framework; path = ../../FacebookSDK/FBSDKCoreKit.framework; sourceTree = "<group>"; };
 		EBE70DEF1CC58EBA00F6DCE3 /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKLoginKit.framework; path = ../../FacebookSDK/FBSDKLoginKit.framework; sourceTree = "<group>"; };
 		EBF790111EA6DEDB005F0B6F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -304,6 +306,7 @@
 		EB3A98201D9813A500C16E89 /* Table Cells */ = {
 			isa = PBXGroup;
 			children = (
+				EBDC215A1EEA0B11003A6347 /* AutoCompleteTableCell.swift */,
 				EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */,
 				EB61CD651DC4F50500297225 /* FriendTableViewCell.swift */,
 				EB003CAE1E436783004E7451 /* AddressTableViewCell.swift */,
@@ -651,6 +654,7 @@
 				EB61CD681DC5025400297225 /* SegueFromRight.swift in Sources */,
 				EBA11B771E5FBF6800114D56 /* Helpers.swift in Sources */,
 				EB03E5C21C25FE72009A55F1 /* FBloginViewController.swift in Sources */,
+				EBDC215B1EEA0B11003A6347 /* AutoCompleteTableCell.swift in Sources */,
 				EB1405C71D3007B1001D3924 /* CheckedCoreData.xcdatamodeld in Sources */,
 				EB5161C71DAAA6B600321D98 /* CheckOutContainedViewController.swift in Sources */,
 				EB0656501BEE3BF200CF8376 /* CIOHomeView.swift in Sources */,

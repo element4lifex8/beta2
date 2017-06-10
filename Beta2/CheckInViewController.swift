@@ -32,8 +32,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var autoCompleteArray = [String]()  //Table data containing string from google prediction array
     var googlePrediction = [GMSAutocompletePrediction]()    //Array containing all data returned for each google autocomplete entry
     var autoCompleteTableView: UITableView?
-    let autoCompleteFrameMaxHeight = 120
-    let autoCompleteCellHeight = 33
+    var autoCompleteFrameMaxHeight = 200    //Default to 200, but the distance to the keyboard will be calculated
+    let autoCompleteCellHeight = 40
     let googleImageView = UIImageView(image: UIImage(named: "poweredByGoogle")) //Google attribution image view
     var tableContainerView: UIView?     //Container view for autocomplete table so border and rounded edges can be achieved
     //Google places client
@@ -89,6 +89,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var currUser = Helpers().returnCurrUser()
     
     override func viewDidAppear(_ animated: Bool) {
+        
+        //register so that I receive notifications from the keyboard
+        registerForKeyboardNotifications()
+        
         //Create autocomplete table view in View did appear because constraints to resize text box had not yet been added during viewDidLoad
         let autoCompleteFrame = CGRect(x: CheckInRestField.frame.minX, y: CheckInRestField.frame.maxY, width: CheckInRestField.frame.size.width, height: CGFloat(self.autoCompleteFrameMaxHeight))
         autoCompleteTableView = UITableView(frame: autoCompleteFrame, style: UITableViewStyle.plain)
@@ -127,6 +131,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         //remove left padding from tableview seperators
         autoCompleteTableView?.layoutMargins = UIEdgeInsets.zero
         autoCompleteTableView?.separatorInset = UIEdgeInsets.zero
+        autoCompleteTableView?.register(AutoCompleteTableCell.self,forCellReuseIdentifier: "autoCompleteCell")
     
     }
     
@@ -231,7 +236,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     }
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
         //If user is entering a city then a clear button appears in the text field to cancel city input
-        if(isEnteringCity && !(textField.text?.isEmpty)!){  //Don't remove from city mode when clearing placeholder text
+        if(isEnteringCity && (!(textField.text?.isEmpty ?? true))){  //Don't remove from city mode when clearing placeholder text
             CheckInRestField.clearButtonMode = .never
             isEnteringCity = false
             textField.placeholder = "Enter Name..."
@@ -291,15 +296,29 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.textLabel?.text = googlePrediction[indexPath.row].attributedFullText.string
-//        cell.textLabel?.adjustsFontSizeToFitWidth = true
-        cell.textLabel?.minimumScaleFactor = 0.6
-        cell.textLabel?.lineBreakMode = .byTruncatingTail
-        //Remove seperator insets
-        cell.layoutMargins = UIEdgeInsets.zero
+        //Use the standard cell for adding city
+        if(self.isEnteringCity)
+        {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+            cell.textLabel?.text = googlePrediction[indexPath.row].attributedFullText.string
+    //        cell.textLabel?.adjustsFontSizeToFitWidth = true
+//            cell.textLabel?.minimumScaleFactor = 0.6
+            cell.textLabel?.lineBreakMode = .byTruncatingTail
+            //Remove seperator insets
+            cell.layoutMargins = UIEdgeInsets.zero
+            return cell
+        }else{  //Use two line cell for displaying places
+            //Friend cell has nameLabel and isAvailableLabel for two row entries
+            var cell = tableView.dequeueReusableCell(withIdentifier: "autoCompleteCell", for: indexPath) as! AutoCompleteTableCell
 
-        return cell
+            cell.primaryLabel.text = googlePrediction[indexPath.row].attributedPrimaryText.string
+            
+            cell.secondaryLabel.text = googlePrediction[indexPath.row].attributedSecondaryText?.string
+            
+            cell.layoutMargins = UIEdgeInsets.zero
+            return cell
+        }
+
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -661,9 +680,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 let templateImage =  clearButton.imageView?.image?.withRenderingMode(.alwaysTemplate)
                 // Set the template image copy as the button image
                 clearButton.setImage(templateImage, for: .normal)
-                // Finally, set the image color
+                // Finally, set the image tintcolor
                 clearButton.tintColor = .white
-
             }
 //            if let searchTextField = CheckInRestField.searchBar.valueForKey("_searchField") as? UITextField, let clearButton = searchTextField.valueForKey("_clearButton") as? UIButton {
 //                // Create a template copy of the original button image
@@ -797,7 +815,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     func placeAutocomplete(queryText: String) {
         let filter = GMSAutocompleteFilter()
         //I don't want to print places of these types:
-        let filterPlaces = ["route", "locality"]
+        let filterPlaces = ["route", "locality", "political"]
 //        filter.type = .geocode & .establishment
         if(isEnteringCity){
             filter.type = .city
@@ -1338,36 +1356,31 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         })
     }
 
-    func notifyUser()
-    {
-//        let alert = UIAlertController(title: "Checked In",
-//                                      message: "You added a new Check In",
-//                                      preferredStyle: .Alert)
-//        
-//        //Create action buttons for the alert
-//        let cancelAction = UIAlertAction(title: "OK",
-//                                         style: .Default) { (action: UIAlertAction) -> Void in
-//        }
-//        
-//        //Create a text field for the alert
-//        alert.addTextFieldWithConfigurationHandler {
-//            (textField: UITextField) -> Void in
-//        }
-//        //Add action buttons to the alert
-//        alert.addAction(cancelAction)
-//        
-//        presentViewController(alert,
-//                              animated: true,
-//                              completion: nil)
-//        let alertController = UIAlertController(title: "Check In Out", message:
-//            "Saved!", preferredStyle: UIAlertControllerStyle.Alert)
-//        alertController.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.Default,handler: nil))
-//        
-//        self.presentViewController(alertController, animated: true, completion: nil)
+    //register to receive keyboard notifications
+    func registerForKeyboardNotifications(){
+        //Adding notifies on keyboard appearing
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWasShown(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
     }
-
     
+    func deregisterFromKeyboardNotifications(){
+        //Removing notifies on keyboard appearing
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+    }
     
+    //*method gets the keyboard size from the info dictionary of the notification and calculates the distance between the text box and keyboard */
+    func keyboardWasShown(notification: NSNotification){
+        //Need to calculate keyboard exact size due to Apple suggestions
+        var info = notification.userInfo!
+        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        //Create a Y value of the top of the keyboard and subtract the difference between that and the bottom of the textBox (but leave 5 pt of space atop the keyboard)
+        self.autoCompleteFrameMaxHeight = Int((view.frame.maxY - keyboardSize!.height - 5) - CheckInRestField.frame.maxY)
+                
+    }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        //When transitioning to next screen deregister keyboard notifications
+        //Don't perform when unwinding
+        deregisterFromKeyboardNotifications()
+    }
 
 }
