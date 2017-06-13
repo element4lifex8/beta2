@@ -47,9 +47,9 @@ class AutoCompleteTableCell: UITableViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        let primarySize = CGRect(x: 10, y: 5, width: self.frame.width - 10, height: self.frame.height / 2.5)
+        let primarySize = CGRect(x: 10, y: 3, width: self.frame.width - 10, height: self.frame.height / 1.9)
         primaryLabel.frame = primarySize
-        let secondY = (self.frame.height / 2.5) + 5
+        let secondY = (self.frame.height / 1.9) + 3
         let secondarySize = CGRect(x: 10.0, y: secondY, width: self.frame.width - 10.0, height: self.frame.height / 2.9)
         secondaryLabel.frame = secondarySize
     }
