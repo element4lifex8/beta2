@@ -21,6 +21,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         //Enable google places api key
         GMSPlacesClient.provideAPIKey("AIzaSyB3q-ufoRBaQCJrSkAXHzMVxr4kpFY0dsk")
+        //change status bar background to solid color so that images can scroll behind it without affecting the status text
+        let statusBar: UIView = UIApplication.shared.value(forKey: "statusBar") as! UIView
+        if statusBar.responds(to:#selector(setter: UIView.backgroundColor)) {
+            statusBar.backgroundColor = UIColor.black
+        }
+        //Change status bar text  to light color
+        UIApplication.shared.statusBarStyle = .lightContent
+        
         //Configure Firebase
         FIRApp.configure()
         //enable firebase to work offline - can cause a delay in items being synced to/from Firebase
