@@ -14,9 +14,13 @@ import FirebaseAuth
 
 class FBloginViewController: UIViewController, UITextFieldDelegate{
     var unwindPerformed = false
-    let currUserDefaultKey = "FBloginVC.currUser"
-    fileprivate let sharedFbUser = UserDefaults.standard
+//    let currUserDefaultKey = "FBloginVC.currUser"
+//    fileprivate let sharedFbUser = UserDefaults.standard
     let authRef = FIRAuth.auth()
+
+    var userEmail: String?
+    var userPassword: String?
+    var userFullName: String?
     
     @IBOutlet var scrollView: UIScrollView!
     var activeTextField: UITextField? = nil
@@ -25,12 +29,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
     //Get reference to button for size
     @IBOutlet var loginButtOut: UIButton!
     
-    //User types enum
-    enum userType {
-        case email
-        case facebook
-        case new
-    }
+    var loginType: Helpers.userType?    //Keep track of what type of login the user has performed
     
     //Calculate the size of the text box I want to move above the keyboard
     var textBoxSize: CGFloat = 0
@@ -42,23 +41,24 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
     var passAndSubmitSize: CGFloat = 0
     
     
-    var currUser: NSString {
-        get
-        {
-            return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
-        }
-        set
-        {
-            sharedFbUser.set(newValue, forKey: currUserDefaultKey)
-        }
-    }
+//    var currUser: NSString {
+//        get
+//        {
+//            return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
+//        }
+//        set
+//        {
+//            sharedFbUser.set(newValue, forKey: currUserDefaultKey)
+//        }
+//    }
     
     @IBAction func FacebookLoginButton(_ sender: UIButton) {
         //Moved instantiation to present activity monitor before calling facebook manager to check login capabilities
 //        let facebookLogin = FBSDKLoginManager()
-        var existingUser = false
+
         var loginFinished = false    //keep track of whether the user has previously logged in, will use this to determine if I can automatically segue to the next screen
-        var newUser: [String : String] = ["displayName" : "", "email" : "", "friends" : "true"]
+        var existingUser = false    //Keep track of whether this is a new user so we know to get additional info
+        
         //variables for saving FB info to firebase
         var emailFB = "", nameFB = "", friendsFB = "true"
         
@@ -124,35 +124,39 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                         if let providerData = user?.providerData {
                             //The entry will contain the following items: providerID (facebook.com), userId($uid), displayName (from facebook), photoURL(also from FB), email
                             for entry in providerData{  //Expect only 1 entry
-                                self.currUser = entry.uid as NSString
-                                
+                                Helpers().currUser = entry.uid as NSString
+
                                 //sometimes facebook doesn't provide an email
                                 if let emailWrap = entry.email {
                                     emailFB = emailWrap
+                                    self.userEmail = emailWrap
                                 }
                                 //The display name is not provided if a user revoked public_profile permissions
                                 if let nameWrap = entry.displayName {
                                     nameFB = nameWrap
+                                    self.userFullName = nameWrap
                                 }
-                                newUser = ["displayName1": nameFB,
-                                               "email": emailFB, "friends" : friendsFB,  "type" : "facebook"]
                             }
                             
                         }
+                        
+                
+                        
                         self.isCurrentUser() {(isUser: Bool) in
                             existingUser = isUser
-                            if(!existingUser){
-                                let ref = FIRDatabase.database().reference(withPath:"users")
-                                //Append user id as root of node and newUser dict nested beneath
-                                ref.child(self.currUser as String).setValue(newUser)
+                      
+                            activityIndicator.stopAnimating()
+                            loadingView.removeFromSuperview()
+
+                            //Keep track of current logintype
+                            self.loginType = Helpers.userType.facebook
+                            //Transition to loginInfo screen for new user or skip to onboarding for existing user
+                            if(existingUser){
+                                self.performSegue(withIdentifier: "profileSteps", sender: nil)
+                            }else{
+                                self.performSegue(withIdentifier: "loginInfo", sender: nil)
                             }
                         }
-                        
-
-                        activityIndicator.stopAnimating()
-                        loadingView.removeFromSuperview()
-
-                        self.performSegue(withIdentifier: "profileSteps", sender: nil)
                     }
                 }
             }
@@ -166,32 +170,36 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         var errorName = "unknown"
         var errorDesc = ""
         //Show activity monitor while waiting
-        displayActMon(display: true, loadingView: &loadingView, activityIndicator: &activityIndicator)
+        Helpers().displayActMon(display: true, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
         
         //Disable the login button from being double pressed:
         loginButtOut.isEnabled = false
+        
+        //Hide keyboard
+        self.activeTextField?.resignFirstResponder()
+        
         //Unwrap text boxes
         guard let email = self.emailField.text, let password = self.passwordField.text else{
-            self.displayActMon(display: false, loadingView: &loadingView, activityIndicator: &activityIndicator)
+            Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
             loginFailMsg(error: "missing")
             return
         }
         
         //Empty email or password
         if(email.isEmpty || password.isEmpty){
-            self.displayActMon(display: false, loadingView: &loadingView, activityIndicator: &activityIndicator)
+            Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
             loginFailMsg(error: "missing")
             //Re-enable the login button so they can try again
             loginButtOut.isEnabled = true
         }else{
         
             //Check if user is new or needs to be created
-            emailCheck(email: email){(type: userType) in
+            Helpers().emailCheck(email: email){(type: Helpers.userType) in
                 switch(type){
                 case(.facebook):
                     //notify user to login with FB
                     self.loginFailMsg(error: "facebook")
-                    self.displayActMon(display: false, loadingView: &loadingView, activityIndicator: &activityIndicator)
+                    Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                     //Re-enable the login button so they can try again
                     self.loginButtOut.isEnabled = true
                     break
@@ -234,68 +242,42 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                                 errorDesc = "A General Error Occured with the email login"
                                 self.loginFailMsg(error: errorDesc)
                             }
-                            self.displayActMon(display: false, loadingView: &loadingView, activityIndicator: &activityIndicator)
+                            Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                             //Re-enable the login button so they can try again
                             self.loginButtOut.isEnabled = true
-                        }else{
-                            print(user?.uid)
-                            let me = user?.providerData
-                            self.displayActMon(display: false, loadingView: &loadingView, activityIndicator: &activityIndicator)
-                            //Re-enable the login button so they can try again
-                            self.loginButtOut.isEnabled = true
-                            //Succesfully finished this screen, now move on to onboarding
+                        }else{  //No error found, login existing user complete
+                            self.loginType = Helpers.userType.email
+                            Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
+                        
+                            //Succesfully finished this screen, existing user so skip loginInfo screen and go to onboarding
                             self.performSegue(withIdentifier: "profileSteps", sender: nil)
                         }
                     }
                     break
                 case(.new):
-                    self.authRef!.createUser(withEmail: email, password: password) { (user, error) in
-                        if(error != nil){
-                             if let errorNS = error as NSError?{ //Cast to NSError so I can retrieve components
-                                let errorDict = errorNS.userInfo as NSDictionary   //User info dictionary provided by firebase with additional error info
-                                if let errorStr = errorDict[FIRAuthErrorNameKey] as? String{
-                                //error object provided a specific error name
-                                    errorName = errorStr
-                                }
-                                print(errorName)
-                                switch(errorName){  //"#define for "error_name"
-                                case("ERROR_WEAK_PASSWORD"):
-                                    errorDesc = "weak_password"
-                                    break
-                                case("ERROR_EMAIL_ALREADY_IN_USE"):
-                                    errorDesc = "email_in_use"
-                                    break
-                                default:
-                                    break
-                                }
-                                self.loginFailMsg(error: errorDesc)
-                            }else{  //Casting to NS error failed
-                                errorDesc = "A General Error Occured with the email login"
-                                self.loginFailMsg(error: errorDesc)
-                            }
-                            self.displayActMon(display: false, loadingView: &loadingView, activityIndicator: &activityIndicator)
-                            //Re-enable the login button so they can try again
+                    //Now that we have an additional login details screen the new user sign with Firebase is moved to the onBoardDetailsViewController
+                    //Disable activity monitor
+                    Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
+                    
+                    //Quick and dirty check of email format
+                    //Match any char up to @, match at least 1 char before and after the "."
+                    if let _ = email.range(of: ".*@.+\\..+", options: .regularExpression) {
+                        //make sure password is at least 6 characters
+                        if(password.characters.count >= 6){
+                            self.userEmail = email
+                            self.userPassword = password
+                            //Keep track of login type:
+                            self.loginType = Helpers.userType.new
+                            //Succesfully finished this screen, now get user Info and username at loginInfo screen
+                            self.performSegue(withIdentifier: "loginInfo", sender: nil)
+                        }else{
+                            self.loginFailMsg(error: "weak_password")
                             self.loginButtOut.isEnabled = true
-                        }else{  //No Error, create user in database
-                            self.currUser = user?.uid as! NSString
-                            let newUser = ["displayName1": "Name",
-                                           "email": email, "friends" : "true", "type" : "email"]
-                            let ref = FIRDatabase.database().reference(withPath:"users")
-                            //Append user id as root of node and newUser dict nested beneath
-                            ref.child(self.currUser as String).setValue(newUser)
-                            
-                            self.displayActMon(display: false, loadingView: &loadingView, activityIndicator: &activityIndicator)
-                            //Succesfully finished this screen, now move on to onboarding
-                            self.performSegue(withIdentifier: "profileSteps", sender: nil)
                         }
+                    }else{
+                        self.loginFailMsg(error: "emailForm")
+                        self.loginButtOut.isEnabled = true
                     }
-                    break
-                default:
-                    //notify user to sign up
-                    self.displayActMon(display: false, loadingView: &loadingView, activityIndicator: &activityIndicator)
-                    self.loginFailMsg(error: "General Login Failure detected. User type undetermined.")
-                    //Re-enable the login button so they can try again
-                    self.loginButtOut.isEnabled = true
                     break
                 }   //end switch
                 
@@ -442,6 +424,11 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
             msgTitle = "Email linked to Facebook Account"
             msgBody = "This email is linked to a Facebook account, please log in using Facebook."
             break
+        //Occurs when the user is in the back end but they are not signed up under Firebase Auth
+        case "noUser":
+            msgTitle = "Unauthenicated Account "
+            msgBody = "Your Check In Out account info for this email is outdated. Please contact technical support at jason@checkinoutlists.com or create a new account with a different email address."
+            break
         case "email_in_use":
             msgTitle = "Email Address Taken"    //Happens with the backend doesn't have the user but the firebase auth already has them
             msgBody = "Your Check In Out account info for this email is outdated. Please contact technical support at jason@checkinoutlists.com or create a new account with a different email address."
@@ -463,34 +450,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         self.present(alert, animated: true, completion: nil)
     }
     
-    // function chooses to display or remove Activity monitor
-    //Use inout types to pass by reference from the caller
-    func displayActMon( display: Bool, loadingView: inout UIView, activityIndicator: inout UIActivityIndicatorView )
-    {
-        //Instantiate parameters and display act mon
-        if(display){
-            loadingView = UIView()
-            loadingView.frame = CGRect(x: 0,y: 0,width: 80,height: 80)
-            loadingView.center = self.view.center
-            loadingView.backgroundColor = UIColor(red: 0x44/255, green: 0x44/255, blue: 0x44/255, alpha: 0.7)
-            loadingView.clipsToBounds = true
-            loadingView.layer.cornerRadius = 10
-            //Start activity indicator while making google request
-            activityIndicator = UIActivityIndicatorView(frame:   CGRect(x: 0, y: 0, width: 50,  height: 50)) as UIActivityIndicatorView
-            activityIndicator.center = CGPoint(x: loadingView.frame.size.width / 2,y: loadingView.frame.size.height / 2);
-            activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.whiteLarge
-            activityIndicator.hidesWhenStopped = true
-            
-            loadingView.addSubview(activityIndicator)
-            self.view.addSubview(loadingView)
-            activityIndicator.startAnimating()
-        }else{
-            activityIndicator.stopAnimating()
-            loadingView.removeFromSuperview()
-        }
-
-    }
-  
+     
 #if UNUSED_FUNCS
     //<<Unused function that is a delegate of the default facebook login icon>>
     // Facebook Delegate Methods
@@ -531,8 +491,8 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                     else
                     {
                         //save user's id to NSUser defaults
-                        self.currUser = user!.uid as NSString
-                        Helpers().myPrint(text: "Logged in  \(self.currUser)")
+                        Helpers().currUser = user!.uid as NSString
+                        Helpers().myPrint(text: "Logged in  \(Helpers().currUser)")
     
 //<<If not using provider data then "facebook" is appended prior to uid
 //                        if let userId = user?.uid{
@@ -614,7 +574,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
     //Check if the current user is a facebook user
     func isCurrentUser(_ completionClosure: @escaping (_ isUser:  Bool) -> Void) {
         //"as" without !? can only be used when the compiler knows the cast will always work, like from NSString to string
-        let userRef = FIRDatabase.database().reference(withPath: "users").child(self.currUser as String)
+        let userRef = FIRDatabase.database().reference(withPath: "users").child(Helpers().currUser as String)
         var user = false
         
         userRef.observeSingleEvent(of: .value, with: { snapshot in
@@ -642,45 +602,6 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
             completionClosure(user)
         })
         
-    }
-    
-    //check if the current email exists in the system and if so what type of user are they
-    func emailCheck(email: String, _ completionClosure: @escaping (_ type:  userType) -> Void)
-    {
-        let userRef = FIRDatabase.database().reference().child("users")
-        var returnType : userType = userType.new
-
-        //Query for an email equal to the one that the user attempts a sign in with
-        userRef.queryOrdered(byChild: "email").queryEqual(toValue: email).observeSingleEvent(of: .value, with: { snapshot in
-//        userRef.observeSingleEvent(of: .value, with: {snapshot in
-        //snapshot is the user id of the matching user, email should be unique so only 1 entry should be returned but to only return the items beneath the user id I "loop" over the snapshots child, and if no children return default returnType of userType.new
-            for child in snapshot.children{
-                let rootNode = child as! FIRDataSnapshot
-                //If we have no children then its most certain that the current user doesn't exist
-                    //Node dict is the items beneath the user id
-                if let nodeDict = rootNode.value as? NSDictionary{
-                    //unwrap the login type if it exists
-                    if let type = nodeDict["type"] as? String{
-                        switch(type){
-                        case("email"):
-                            returnType = userType.email
-                            break
-                        case("facebook"):
-                            returnType = userType.facebook
-                            break
-                        default:
-                            returnType = userType.new
-                            break
-                        }
-                    }else{  //if entry doesn't include type then user should be recreated
-                        returnType = userType.new
-                    }
-                }else{  //If downcast fails then user doesn't exist
-                    returnType = userType.new
-                }
-            }
-            completionClosure(returnType)
-        })
     }
     
     func loginButtonDidLogOut(_ loginButton: FBSDKLoginButton!)
@@ -719,6 +640,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         
         var aRect : CGRect = self.view.frame
         aRect.size.height -= keyboardSize!.height
+        //If the frame above the keyboard doesn't contain the active text field origin then scroll it to visible
         if let activeField = self.activeTextField {
             if (!aRect.contains(activeField.frame.origin)){
                 self.scrollView.scrollRectToVisible(activeField.frame, animated: true)
@@ -771,6 +693,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         view.endEditing(true)
         return true
     }
+    
     override func didReceiveMemoryWarning()
     {
         super.didReceiveMemoryWarning()
@@ -789,4 +712,30 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         return false
     }
     
+    //Pass email and password to Login info screen if new login
+    override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
+        if(segue.identifier == "loginInfo"){  //only perform a new user needs to provide additional info
+            let destinationVC = segue.destination as! OnboardDetailsViewController
+            //If user type is nil then force .facebook enum which will use default case
+            switch (self.loginType ?? .facebook) {
+            //A new user signed up by email, send their info to the login details screen
+            case(.new):
+                destinationVC.parsedEmail = self.userEmail
+                destinationVC.parsedPassword = self.userPassword
+                destinationVC.parsedLoginType = self.loginType
+            //At this case we should have a new facebook user
+            case(.facebook):
+                destinationVC.parsedFullName = self.userFullName
+                destinationVC.parsedEmail = self.userEmail
+                destinationVC.parsedLoginType = self.loginType
+            default:
+                Helpers().myPrint(text: "ERROR: Login type not set or An existing user should not be entering login info screen")
+            }
+        }
+    }
+    
+    // Unwind seque from my Login Details screen
+    @IBAction func unwindFromLoginDeets(_ sender: UIStoryboardSegue) {
+        // empty
+    }
 }

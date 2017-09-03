@@ -9,14 +9,19 @@
 import UIKit
 import FBSDKCoreKit
 import FBSDKLoginKit
+import FirebaseAuth
 
 class CIOHomeViewController: UIViewController   {
 
+    
+    //Get firebase auth reference, nil if user signed in with FaceBook (Or no signed in at all)
+    let firAuth = FIRAuth.auth()
+    
     //Check if user has logged in and force login if not, modal segues must be performed in viewDidAppear
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if (FBSDKAccessToken.current() == nil)
+        if ((FBSDKAccessToken.current() == nil) && (self.firAuth?.currentUser?.uid == nil) )
         {
             self.performSegue(withIdentifier: "LoginScreen", sender: nil)
         }
@@ -31,8 +36,13 @@ class CIOHomeViewController: UIViewController   {
     
     @IBAction func LogoutButton(_ sender: UIButton) {
         //code to force logout
-        let loginManager = FBSDKLoginManager()
-        loginManager.logOut()
+        //If firebase auth currUser is nil then this is an email user
+        if(self.firAuth?.currentUser != nil){
+            try! self.firAuth!.signOut()
+        }else{
+            let loginManager = FBSDKLoginManager()
+            loginManager.logOut()
+        }
         performSegue(withIdentifier: "LoginScreen", sender: nil)
     }
  
@@ -41,7 +51,7 @@ class CIOHomeViewController: UIViewController   {
         // empty
     }
     
-    // Unwind seque from my myListVC
+    // Unwind seque from my Onboard process
     @IBAction func unwindFromFbLogin(_ sender: UIStoryboardSegue) {
         // empty
     }
