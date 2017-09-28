@@ -28,35 +28,71 @@ extension UIImage {
     
 }
 
-class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableViewDataSource, UITabBarDelegate {
+class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableViewDataSource, UITabBarDelegate, UITextFieldDelegate {
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet var tabBar: UITabBar!     //Tab bar used for sorting
     @IBOutlet var tabBarContainerView: UIView!
     //Keep track of the last tab selected so it can be relected after the share icon is selected
+    @IBOutlet var HeaderView: UIView!       //Get reference to header view so I can add gester recognizer to dismiss keyboard
     var lastTabSelected: UITabBarItem?
+    @IBOutlet var dummyTextBox: UITextField!    //Used only to become first responder and show keyboard
+    
+    //items created for accessory input view
+    var accCodeView = UIView()
+    var accTextField = UITextField()
   
     var availableTabSelected = false //Keep track of the tab bar thats selected to determine what to display in tableView
+    //Keep track of the currently active text field
+    var activeTextField: UITextField? = nil
+    //View to cover table when keyboard with accessory input view appears
+    var tableCover = UIView()
+    
     var selectedFBfriends = [FbookUserInfo]()
     var facebookAuthFriends = [String](), facebookAuthIds = [String]()  //Log of users who use the app and are friends with the user
     var facebookTaggableFriends = [String](), facebooktaggableIds = [String]()  //List of all of the users FB friends
     var numUnAddedFriends = 0   //number of friends who are displayed on the available tab so I can notify the user if none are available
     var unAddedFriends = [String]()   //Compile a list of auth users that are not friends followed in the app
     var unAddedFriendId = [String]()   //Match the friends that haven't yet been added to their Id
+    var foundUserId : String?    //keep record of an email user that was found so he can be distinguished in the list
     var facebookFriendMaster = [String]()
     var myFriends:[String] = []
     var myFriendIds: [String] = []    //list of Facebook Id's with matching index to myFriends array
     var selectedAccessButt: [Int] = []     //List of users who are selected to add as friends
     var selectedIds: [String] = []     //List of users id's who are selected to add as friends
     var friendsRef: FIRDatabaseReference!
+    var friendHandler: FIRDatabaseHandle?
     //Dispatch group used to sync firebase and facebook api call
     var myGroup = DispatchGroup()
     var currUser = Helpers().currUser
+    //Store the current user's login typea
+    //Instead of creating a pure enum i'll just get the NSInteger version so I don't have to unwrap it
+    //var loginType: Helpers.userType = Helpers.userType(rawValue: Helpers().loginType)!
+    var loginType = Helpers().loginType
+    
+    //Keyboard tracking hack, pass variable on whether I am dismissing keyboard for tab button press or other metthod
+    var changeTab = false
+    
     
     
     //Must add submit button in viewDidAppear so that it is added over top of the tablewview (bringSubview to front in viewDidLoad would not put the view on top of the tableview
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        
+        //register so that I receive notifications from the keyboard
+        registerForKeyboardNotifications()
+        
+        //Instatiate table cover that will cover the table when the keyboard appears
+        self.tableCover = UIView(frame: CGRect(origin: self.tableView.frame.origin, size: self.tableView.frame.size))
+        self.tableCover.backgroundColor = .white
+        self.tableCover.alpha = 0.75
+        //Setup Tap gesture so clicking outside of textbox dismisses keyboard
+        let tableGesture = UITapGestureRecognizer(target: self, action: #selector(AddPeopleViewCntroller.tapTableCover(_:)))
+        //Make sure gesture recognizer is added after the view frame has been created otherwise the event won't be triggered since it won't have a frame to receieve the touch
+        self.tableCover.addGestureRecognizer(tableGesture)
+//        self.tableCover.isHidden = true
+//        self.view.addSubview(tableCover)
+        
         //Add submit button view
         let shadowX: CGFloat = 2.0, shadowY:CGFloat = 1.0
         let buttViewHeight:CGFloat = 50, buttViewWidth:CGFloat = 150
@@ -167,6 +203,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         //
         UITabBarItem.appearance().setTitleTextAttributes([NSFontAttributeName: UIFont(name: "Avenir-Light", size: 24)!, NSForegroundColorAttributeName : UIColor.white], for: .normal)
         UITabBarItem.appearance().setTitleTextAttributes([NSFontAttributeName: UIFont(name: "Avenir-Light", size: 24)!, NSForegroundColorAttributeName : UIColor(red: 64/255, green: 64/255, blue: 64/255, alpha: 1)], for: .selected)
+        
     }
     
     
@@ -175,6 +212,63 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         self.tableView.dataSource=self
         self.tableView.delegate=self
         self.tabBar.delegate = self
+        //Dummy text box that becomes first responder when search item in tab bar selected
+        self.dummyTextBox.delegate = self
+        self.accTextField.delegate = self
+        
+        let accViewHeight = 150
+        let accTextHeight = 25
+        //Ignore auto layout contraints from storyboard for codeView
+        self.accCodeView.translatesAutoresizingMaskIntoConstraints = false
+        self.accCodeView = UIView(frame: CGRect(x: 0, y: 0, width: Int(self.view.frame.width), height: accViewHeight))
+        self.accCodeView.backgroundColor = .white
+        self.accCodeView.layer.borderWidth = 2
+        self.accCodeView.layer.borderColor = UIColor.black.cgColor
+        
+        //Create label and text field to appear in input accessory view
+        self.accTextField = UITextField(frame: CGRect(x: 0, y: (accViewHeight / 2) - (accTextHeight / 2) , width: Int(self.view.frame.width), height: accTextHeight))
+        self.accTextField.borderStyle = .none
+        self.accTextField.textAlignment = .center
+        self.accTextField.font = UIFont(name: "Avenir-Light", size: 18)
+        self.accTextField.returnKeyType = .search
+        //Don't capitalize the user's input of username's and emails
+        self.accTextField.autocapitalizationType = .none
+        self.accTextField.spellCheckingType = .no
+        //Disabling preditive text cause the keyboard to glitch on dismiss and show an overlapped predictive text view and the accessory input view would have to be reactivity and then re-dismissed to properly dismiss the keyboard
+//        self.accTextField.autocorrectionType = .no //Disable spell checking
+        self.accTextField.keyboardType = .emailAddress  //make it easier to search for email addresses by setting the email keyboard type
+        
+        //Fake out a delegate since its not getting called for the accessory text box on return button press, adding this target will trigger the event and for some reason will cause the dummyTextField editing did end to get called too which will dismiss the keyboard (cascadging events somehow)
+        self.accTextField.addTarget(self, action: #selector(AddPeopleViewCntroller.accessoryEditEnd(_:)), for: .editingDidEndOnExit )
+        //Add text box to accessory view
+        accCodeView.addSubview(self.accTextField)
+        //add to VC for delegate and hide
+//        self.view.addSubview(self.accTextField)
+//        self.accTextField.isHidden = true
+        let accLabel = UILabel(frame: CGRect(x: 0, y: 0, width: Int(self.view.frame.width - 30), height: accTextHeight))
+        accLabel.text = "Enter your friend's email/username:"
+        //Add labelto accessory view
+        accCodeView.addSubview(accLabel)
+        //Create auto layout constraints for labal
+        let topConstraint = NSLayoutConstraint(item: accLabel, attribute: .top, relatedBy: .equal, toItem: accCodeView, attribute: .top, multiplier: 1.0, constant: 31)
+        accCodeView.addConstraint(topConstraint)
+        
+        let centerConstraint = NSLayoutConstraint(item: accLabel, attribute: .centerX, relatedBy: .equal, toItem: accCodeView, attribute: .centerX, multiplier: 1.0, constant: 0)
+        accCodeView.addConstraint(centerConstraint)
+        
+        accLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        //Set input accessory view for keyboard that appears when dummyTextBox is active
+        self.dummyTextBox.inputAccessoryView = self.accCodeView
+        
+        //Manage keyboard notifications and dismissal with tap gesture
+        
+        //Setup Tap gesture so clicking outside of textbox dismisses keyboard
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(AddPeopleViewCntroller.tapDismiss(_:)))
+//        self.tableCover.isUserInteractionEnabled = 
+//        self.tableCover.addGestureRecognizer(tapGesture)
+        self.HeaderView.addGestureRecognizer(tapGesture)
+        
         //Async queue for synchronization
         let queue = DispatchQueue(label: "com.checkinoutlists.checkinout", attributes: .concurrent, target: .main)
         
@@ -223,7 +317,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                 let myItem = self.tabBar.items?[i]
                 //Select the first item by default
 //                self.tabBar.selectedItem = myItem
-//                self.availableTabSelected = false   //Show all friends, not just availble Auth Friends
+                self.availableTabSelected = false   //Show all friends, not just availble Auth Friends
 //                self.lastTabSelected = myItem   //Keep track so it can be reselected after the user selects the share button
                 //Center the text by shifting up by 6 pt
                 self.tabBar.items?[i].titlePositionAdjustment = UIOffsetMake(0, -6)
@@ -235,13 +329,13 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                 self.tabBar.selectedItem = myItem
                 self.availableTabSelected = true   //Show just availble Auth Friends
                 self.lastTabSelected = myItem   //Keep track so it can be reselected after the user selects the share button
-                self.availableTabSelected = true
+
                 break;
             case 2:
                 //3rd tab item has white default and grey selected image added from storyboard
                 //Center Image on 3rd tab bar item, Subtract Insets from bottom as well to preserve image size
-                self.tabBar.items?[i].image = UIImage(named: "whiteShareIcon")
-                self.tabBar.items?[i].selectedImage = UIImage(named: "shareIcon")
+                self.tabBar.items?[i].image = UIImage(named: "Search Icon Light")
+                self.tabBar.items?[i].selectedImage = UIImage(named: "Search Icon")
                 self.tabBar.items?[i].imageInsets = UIEdgeInsets(top: 6, left: 0, bottom: -6, right: 0)
             default:    //3rd item is just the picture and no title
                 break;
@@ -270,44 +364,60 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         
         //Had to create the queue and add the async closure because I was getting EXC_BAD_INSTRUCTION when calling myGroup.leave otherwise
         queue.async(group: myGroup) {
+            //Only gather and print facebook friends if the user is a facebook user
+            if(self.loginType == Helpers.userType.facebook.rawValue){
                 self.myGroup.enter()
-            self.sortFacebookFriends(){(finished: Bool) in
-                if(finished){   //only "finished" if I was capable of retrieving friends
-                    self.facebookTaggableFriends.sort(by: {$0.lastName() < $1.lastName()})
+                self.sortFacebookFriends(){(finished: Bool) in
+                    if(finished){   //only "finished" if I was capable of retrieving friends
+                        self.facebookTaggableFriends.sort(by: {$0.lastName() < $1.lastName()})
+                    }
+                    self.myGroup.leave()
                 }
-                self.myGroup.leave()
+            }else{  //Notify the user to search for friend
+                self.loginFailMsg(error: "search")
             }
            
             //Get list of the user's current friends so they can't add them again
             self.myGroup.enter()
-            self.retrieveMyFriends() {(friendStr:[String], friendId:[String]) in
+            self.friendHandler = Helpers().retrieveMyFriends(friendsRef: self.friendsRef) {(friendStr:[String], friendId:[String]) in
                 self.myFriends = friendStr
                 self.myFriendIds = friendId
+                //Sort the friends and their IDs by combining into tuple, sorting by the myFriends string array (the first item in each tuple) then seperate back out into two arrays (same thing is done for unAddedFriends in the closure below)
+                
                 self.myGroup.leave()
             }
         }
         
         //Fire async call once facebook api, and firebase calls have finish
         myGroup.notify(queue: DispatchQueue.main) {
-            //Count the number of auth friends that aren't friends of the current user
-            //map will check if each element in the facebookAuthFriends is contained in the myFriends array and only return 1 if the facebookAuthFriend is not already a friend
-            var authFriendMap = self.facebookAuthFriends.map{return self.myFriends.contains($0) ? 0 : 1}
-            //SInce the facebookAuthIds maps directly to facebookAuthFriends, use the indices from the map array indicating the unAdded friends to create an unadded friend id array
-            //Useing the enumerated() I create a tuple array of index and friend id that are unAdded
-            var authIdEnumTup = self.facebookAuthIds.enumerated().filter({index, value in authFriendMap[index] == 1})
-            //Retrieve just the unadded friend ID's from the tuple above (index = $0, values = $1)
-            self.unAddedFriendId = authIdEnumTup.map({$1})
-            //reduce Initial value of 0 then add all unAdded friends for a total count of what to display
-            self.numUnAddedFriends = authFriendMap.reduce(0, +)
-            //create sub array of auth users that I haven't started following in the app
-            //Remove from the sub array of unAddedFriends if the user is already in Firebase as my friend
-            self.unAddedFriends = self.facebookAuthFriends.filter({!self.myFriends.contains($0)})
+            //Only parse available friends if a facebook user
+            if(self.loginType == Helpers.userType.facebook.rawValue){
+                //Count the number of auth friends that aren't friends of the current user
+                //map will check if each element in the facebookAuthFriends is contained in the myFriends array and only return 1 if the facebookAuthFriend is not already a friend
+                var authFriendMap = self.facebookAuthFriends.map{return self.myFriends.contains($0) ? 0 : 1}
+                //SInce the facebookAuthIds maps directly to facebookAuthFriends, use the indices from the map array indicating the unAdded friends to create an unadded friend id array
+                //Using the enumerated() I create a tuple array of index and friend id that are unAdded
+                var authIdEnumTup = self.facebookAuthIds.enumerated().filter({index, value in authFriendMap[index] == 1})
+                //Retrieve just the unadded friend ID's from the tuple above (index = $0, values = $1)
+                self.unAddedFriendId = authIdEnumTup.map({$1})
+                //reduce Initial value of 0 then add all unAdded friends for a total count of what to display
+                self.numUnAddedFriends = authFriendMap.reduce(0, +)
+                //create sub array of auth users that I haven't started following in the app
+                //Remove from the sub array of unAddedFriends if the user is already in Firebase as my friend
+                self.unAddedFriends = self.facebookAuthFriends.filter({!self.myFriends.contains($0)})
+                //Check if no friends are going to appear in the Available screen and notify the user why that is
+                if(self.numUnAddedFriends == 0){
+                    self.displayNoFriendsAlert()
+                }
+                
+                //Combine the unaddedFriends name and Id arrays so they can be sorted and still match up
+                self.sortUnaddedFriends()
+            }
+            
+            //Stop display of activity monitor
             activityIndicator.stopAnimating()
             loadingView.removeFromSuperview()
-            //Check if no friends are going to appear in the Available screen and notify the user why that is
-            if(self.numUnAddedFriends == 0){
-                self.displayNoFriendsAlert()
-            }
+            
             self.tableView.reloadData()
         }
         
@@ -505,12 +615,76 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         })
     }
     
+    //check if the current username or email exists in the system and return true if it does
+    func findUser(input: String, _ completionClosure: @escaping (_ exists:  Bool) -> Void)
+    {
+        
+        let userRef = FIRDatabase.database().reference(withPath:"users")
+        var nameExists = false
+        var childString = ""    //either email or username child is searched
+        
+        //check if the input is formatted as an email address, otherwise search for user name
+        //Match any char up to @, match at least 1 char before and after the "."
+        if let _ = input.range(of: ".*@.+\\..+", options: .regularExpression) {
+            childString = "email"
+        }else{
+            childString = "username"
+        }
+        //Query for an username equal to the one that the user attempts to create
+        userRef.queryOrdered(byChild: childString).queryEqual(toValue: input).observeSingleEvent(of: .value, with: { snapshot in
+            //snapshot is the user id/email of the matching name, each user is unique so only 1 entry should be returned but to only return the items beneath the user id I "loop" over the snapshots child, and if no children return false (username is unique)
+            for child in snapshot.children{
+                let rootNode = child as! FIRDataSnapshot
+                //If we have no children then its most certain that the current username doesn't exist
+                //Node dict is the items beneath the user id
+                if let nodeDict = rootNode.value as? NSDictionary{
+                    //unwrap the username/email if it exists
+                    guard let foundName = nodeDict[childString] as? String else {
+                    //unwrap fails if user didn't have a username entry, but the query shouldn't have matched if it didn't have one, so...
+                        nameExists = false
+                        return
+                    }
+                    //Compare unwrapped item to the user's search input to double verify the query returned correctly
+                    if foundName == input{
+                        nameExists = true
+                        //Unwrap the name and id of the user to add to the tableview's source (unaddedFriends array) otherwise return user not found
+                        guard let displayName = nodeDict["displayName1"] as? String, let id = rootNode.key as? String else{
+                            nameExists = false
+                            return
+                        }
+                        //Verify the user hasn't already added or searched for this friend before adding to unAdded frineds ( also make sure the user doesn't try to add themself
+                        if(!self.myFriendIds.contains(id) && !self.unAddedFriendId.contains(id) && (id != self.currUser as String)){
+                            self.unAddedFriends.append(displayName)
+                            self.unAddedFriendId.append(id)
+                            //Sort the updated added friends arrays
+                            self.sortUnaddedFriends()
+                            self.foundUserId = id   //keep trackof the email user that was found so he can appear selected in the table by default
+                        }else{
+                            //Notify user they can't add this friend again, but still return true, only thing I will do is reload table
+                            self.loginFailMsg(error: "currFriend")
+                        }
+                       
+                    //if for some odd reason the query returned an item that didn't match then return false
+                    }else{
+                        nameExists = false
+                    }
+                        
+                }else{  //If downcast fails then username doesn't exist
+                    nameExists = false
+                }
+            }
+            completionClosure(nameExists)
+        })
+    }
+
+    
     //Failure to request friend permissions alert
     //Present alert when facebook loging canceled/failed
     func loginFailMsg(error: String) -> Void{
         var msgTitle = ""
         var msgBody = ""
-        
+        //Unwind for serious errors
+        var unwind = false
         switch(error){
         case "cancel":
             msgTitle = "Facebook Friend Persmission"
@@ -520,16 +694,36 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             msgTitle = "Facebook Login Failed"
             msgBody = "We're sorry, it looks like access to your Facebook friends failed. Please contact tech support: jason@checkinoutlists.com"
             break
+        //Technically not a login failure, but really none of these are, just prompt the user to search for friends since they are not a facebook user
+        case "search":
+            msgTitle = "Search for friends"
+            msgBody = "Use the magnifying glass to search for friends by email or username"
+            break
+        //Technically not a login failure, but notify user if they search from a non-existing user
+        case "nonexisting":
+            msgTitle = "User not found"
+            msgBody = "That Username or email address does not belong to an existing user."
+            break
+        //Technically not a login failure, but notify user they've already added this friend
+        case "currFriend":
+            msgTitle = "Existing Friend"
+            msgBody = "You've already added this user as your friend. Please add new friends."
+            break
         default:
             msgTitle = "Facebook Access Problem"
             msgBody = "Unfortunately your Facebook request wasn't successful. Please conctact jason@checkinoutlists.com for support."
             break
         }
         let alert = UIAlertController(title: msgTitle, message: msgBody, preferredStyle: .alert)
-        //Async call for uialertview will have already left this function, no handling needed
-        let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: { UIAlertAction in
-            self.performSegue(withIdentifier: "unwindFromAddFriends", sender: self)
-        })
+        var CancelAction: UIAlertAction
+        if(unwind == true){
+            //Async call for uialertview will have already left this function, no handling needed
+            CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: { UIAlertAction in
+                self.performSegue(withIdentifier: "unwindFromAddFriends", sender: self)
+            })
+        }else{
+            CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        }
         
         alert.addAction(CancelAction)
         self.present(alert, animated: true, completion: nil)
@@ -553,6 +747,17 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
 
     }
 
+    //combine the unadded friends names and Ids so they can be sorted together and then seperate back out
+    func sortUnaddedFriends(){
+        //Combine the unAddedFriends names and IDs into a tuple so I can sort by last name
+        // use zip to combine the two arrays and sort that based on the first
+        //$0.0 refers to the the first value of the first tuple, and $0.1 refers to the first value of the 2nd tupe, so each tuple is a [unAddedFriend Name, unAddedFriendID] so I'm looking at the first & second item for each iteration and only considering the unAddedFriend name for sorting
+        let combinedFriends = zip(self.unAddedFriends, self.unAddedFriendId).sorted {$0.0.lastName() < $1.0.lastName()}
+        //Then extract all of the 1st items in each tuple (unAddedFriends names)
+        self.unAddedFriends = combinedFriends.map{$0.0}
+        //Then extract all of the 2st items in each tuple (unAddedFriends ids)
+        self.unAddedFriendId = combinedFriends.map{$0.1}
+    }
 
      @IBAction func submitSelected(_ sender: UIButton) {
 //         let userChecked = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
@@ -572,30 +777,42 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         if(self.availableTabSelected){
             friendName = self.unAddedFriends[sender.tag]
         }else{
-              friendName = facebookTaggableFriends[sender.tag]
+            //In the all tab faceboookTaggable friends is the data source for facebook users
+            if(self.loginType == Helpers.userType.facebook.rawValue){
+                friendName = self.facebookTaggableFriends[sender.tag]
+            }else{ //myFriends is the data source for email users
+                friendName = self.myFriends[sender.tag]
+            }
         }
         var FBfriend: FbookUserInfo
-        //check or uncheck selected friends
+
+        //check or uncheck selected friends, when the user taps a button with a title, the button moves to the highlighted state
         sender.isSelected = sender.state == .highlighted ? true : false
+        //When sender is not enabled then I'm creating a button for the user that was returned from the search (and otherwise this function couldn't have been entered unless called directly
+        if(!sender.isEnabled){
+            sender.isSelected = true
+            sender.isEnabled = true
+        }
+        
         if(sender.isSelected){
             //Keep track of accessory buttons that are checked so they are reselected when scrolled back into view
             selectedAccessButt.append(sender.tag)
             //Add authorized friends to add to friends list, and create list of unauth friends to notify about the app. (Update 4/4/17 should only pass auth friends to this select func)
             //friend index will only exist if friend is an auth user
-            if let friendIndex = unAddedFriends.index(of: friendName){
+            if let friendIndex = self.unAddedFriends.index(of: friendName){
                 FBfriend = FbookUserInfo(name: friendName, id: self.unAddedFriendId[friendIndex])
             }else{
                 FBfriend = FbookUserInfo(name: friendName)
             }
-            selectedFBfriends.append(FBfriend)
+            self.selectedFBfriends.append(FBfriend)
         }else{
             //Keep track of accessory buttons that are checked
             if let index = selectedAccessButt.index(of: sender.tag){
                 selectedAccessButt.remove(at: index)
             }
             //wish I understood these closures, came from here: http://stackoverflow.com/questions/34081580/array-of-any-and-contains
-            if let fbIndex = selectedFBfriends.index(where: {$0.displayName == friendName} )    {
-                    selectedFBfriends.remove(at: fbIndex)
+            if let fbIndex = self.selectedFBfriends.index(where: {$0.displayName == friendName} )    {
+                    self.selectedFBfriends.remove(at: fbIndex)
             }
         }
     }
@@ -623,7 +840,12 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             return self.unAddedFriends.count
 
         }else{
-            return facebookTaggableFriends.count
+            //List all facebook friends in available tab if facebook user, otherwise list all friends I've added
+            if(self.loginType == Helpers.userType.facebook.rawValue){
+                return facebookTaggableFriends.count
+            }else{
+                return self.myFriends.count
+            }
         }
     }
     
@@ -633,12 +855,36 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         let checkImage = UIImage(named: "tableAccessoryCheck")
         let cellIdentifier = "friendCell"
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! FriendTableViewCell   //downcast to my cell class type
+        var existingFriend = false
+        var taggableFriendsItem = ""    //Hold a reference to the taggable friends item at the current index if we are a facebook user, otherwise hold empty string
         //display table data from taggable friends which includes auth and unauth friends
         if(self.availableTabSelected){
             cell.nameLabel.text = "\(self.unAddedFriends[indexPath.row])"
         }else{
-            cell.nameLabel.text = "\(facebookTaggableFriends[indexPath.row])"
+            //Data source for the "all" tab is either facebook friends or current friends
+            if(self.loginType == Helpers.userType.facebook.rawValue){
+                cell.nameLabel.text = "\(facebookTaggableFriends[indexPath.row])"
+            }else{
+                cell.nameLabel.text = "\(self.myFriends[indexPath.row])"
+            }
         }
+        
+        //Only initialize tagable friends item if using the facebook datasource, otherwise would be indexing into empty array
+        if(self.loginType == Helpers.userType.facebook.rawValue){
+            taggableFriendsItem = facebookTaggableFriends[indexPath.row]
+        }
+        //Check if its possible for the current user to be an existing friend so we can change their isAvailable label in the block below
+        //All friends are existing if one appears for email users
+       /* if(self.loginType == Helpers.userType.email.rawValue){
+            existingFriend = true
+        }else{
+            //If user is not an email user their All tab data source will be facebookTaggabel friends
+            if(facebookAuthFriends.contains(facebookTaggableFriends[indexPath.row])){
+                existingFriend = true
+            }
+        }*/
+        
+    
         
         cell.nameLabel.textColor = UIColor.black
         cell.nameLabel.font = UIFont(name: "Avenir-Light", size: 18)
@@ -652,8 +898,9 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             
         }
         //If we're in the all tab and the user is an AuthFriend they could either be "trusted" or "Available"
-        else if(facebookAuthFriends.contains(facebookTaggableFriends[indexPath.row])){
-            if(self.myFriends.contains(facebookTaggableFriends[indexPath.row])){    //True is the firebase friends list matches the cell
+            //If an email user than all friends in the "All tab" are "trusted"
+        else if(self.facebookAuthFriends.contains(taggableFriendsItem) || (self.loginType == Helpers.userType.email.rawValue)){
+            if(self.myFriends.contains(taggableFriendsItem) || self.loginType == Helpers.userType.email.rawValue){    //True if the firebase friends list matches the cell || user is an email type
                 cell.isAvailableLabel.text = "Trusted"
                 cell.isAvailableLabel.font = UIFont(name: "Avenir-LightOblique", size: 12)
                 showAccessoryButt = false   //Don't allow the user to try to re-add a friend
@@ -681,8 +928,17 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
 //        accessoryButton.contentMode = .ScaleAspectFill
         accessoryButton.tag = indexPath.row //store row index of selected button
         accessoryButton.addTarget(self, action: #selector(AddPeopleViewCntroller.accessoryButtonTapped(_:)), for: .touchUpInside)
-
+        
         cell.accessoryView = accessoryButton as UIView
+        
+        //Preselect any user that has appeared due to searching for friends if any unaddedFriends exists
+        if(self.unAddedFriends.indices.contains(indexPath.row)){    //First check if any unadded friends exist
+            if (self.unAddedFriendId[indexPath.row] == self.foundUserId){
+                //Disable button which will be the indicator to the accessoryButtonTapped function to leave highlighted
+                accessoryButton.isEnabled = false
+                self.accessoryButtonTapped(accessoryButton)
+            }
+        }
         
         if(!showAccessoryButt){    //Don't add accessory button if not a check in out user or if the user is already following them
             cell.accessoryView?.isHidden = true
@@ -703,33 +959,275 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         
         switch(item){
         case (self.tabBar.items?[0])!:
+            //If a tab is selected while the keyboard field is present
+            //keyboard dismissal will notify the keyboard observer to call the keyboardWillBeHidden func to restore the view
+            //Force all keyboards to resign
+            self.view.endEditing(true)
+            resignResponders()
+           /* if let activeField = self.activeTextField {
+                activeField.resignFirstResponder()
+//                restoreViewOnKeyboardDissmiss(changeTab: false)
+            }*/
            self.lastTabSelected = self.tabBar.items?[0]
            self.availableTabSelected = false
            self.tableView.reloadData()
             break;
         case (self.tabBar.items?[1])!:
+            //Force all keyboards to resign
+            self.view.endEditing(true)
+            resignResponders()
+         /*   if let activeField = self.activeTextField {
+                activeField.resignFirstResponder()
+//                restoreViewOnKeyboardDissmiss(changeTab: false)
+            }*/
             self.lastTabSelected = self.tabBar.items?[1]
             self.availableTabSelected = true
             self.tableView.reloadData()
             break;
         case (self.tabBar.items?[2])!:
-            //Notify the user that sharing is not yet available in beta
-            let alert = UIAlertController(title: "We're glad you want to Share!", message: "Sharing the Check In Out app is not supported for testing, but once the app is in the app store we'd love for you to share it!", preferredStyle: .alert)
-            //Exit function if user clicks now and allow them to reconfigure the check in
-            let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: { UIAlertAction in
-                if let lastTab = self.lastTabSelected {
-                    self.tabBar.selectedItem = lastTab
-                }
-            })
-            alert.addAction(CancelAction)
-            self.present(alert, animated: true, completion: nil)
-            //Reselect the previous tab when the last tab is selected
-            
+            //Activate dummy textfield to show keyboard that that has accessory input view attached
+            self.dummyTextBox.becomeFirstResponder()
+//            self.activeTextField = self.dummyTextBox
             break
         default:    //No other tabs should exist
             break;
         }
 
+    }
+    
+    //    Keyboard helper functions
+    //register to receive keyboard notifications
+    func registerForKeyboardNotifications(){
+        //Adding notifies on keyboard appearing
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWasShown(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
+    
+    func deregisterFromKeyboardNotifications(){
+        //Removing notifies on keyboard appearing
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
+    
+    //*method sets the active text box to the field in the accessory input view of the dummy text box which is the view attached to the keyboard */
+    func keyboardWasShown(notification: NSNotification){
+        //Need to calculate keyboard exact size due to Apple suggestions
+       
+        var info = notification.userInfo!
+        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        //Wait until keyboard was shown to activate accessory view as firstResponder so I don't attempt to show the keyboard twice
+        modifyViewOnKeyboard()
+        
+    }
+    
+    
+    //Sets insets to 0, the defaults
+    func keyboardWillBeHidden(notification: NSNotification){
+        //Once keyboard disappears, restore original positions
+        var info = notification.userInfo!
+        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        //Only trigger nullifying active text field and removing frosted view when keyboard is actually hidden 
+        restoreViewOnKeyboardDissmiss(changeTab: self.changeTab)
+    }
+    
+    /* Delegate is only tracking dummy text box
+    //Function used to designate active text field
+    func textFieldDidBeginEditing(_ textField: UITextField){
+        //Keep track of the currently selected text field
+//         self.activeTextField = textField
+    }
+
+    
+    //Did end editing gets called when I switch the active text field from the dummy text field to the input accessory view so I can't put any code here since it will be called before I even get to editing the input accessory view
+    func textFieldDidEndEditing(_ textField: UITextField){
+//        self.activeTextField = nil
+    }
+*/
+    /*Unused since input accessory view won't conform to keyboard delegate
+    //Actions to take when user dismisses keyboard: hide keyboard & autocomplete table, add first row text to text box
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        view.endEditing(true)
+//        self.activeTextField?.resignFirstResponder()
+        //keyboard dismissal will notify the keyboard observer to call the keyboardWillBeHidden func to restore the view
+        self.accTextField.resignFirstResponder()
+        //Deselect search bar tab and select last tab
+        if let lastTab = self.lastTabSelected {
+            self.tabBar.selectedItem = lastTab
+            //If last tab was "avilable" tab then update the availableTabSelected which controls which array to use for the datasource
+            self.availableTabSelected = lastTab == self.tabBar.items?[1] ? true : false
+        }
+        
+        return true
+    }*/
+
+    //Dismiss keyboard if clicking away from text box
+    //Detect when user taps on scroll view
+    func tapDismiss(_ sender: UITapGestureRecognizer)
+    {
+        //Before dissmissing keyboard tell the responder that I want to return to the previously selected tab
+        self.changeTab = true
+        //keyboard dismissal will notify the keyboard observer to call the keyboardWillBeHidden func to restore the view
+        //Force all keyboards to resign
+        self.view.endEditing(true)
+        resignResponders()
+//        self.activeTextField?.resignFirstResponder()
+        
+       /* if let activeField = self.activeTextField {
+            activeField.resignFirstResponder()
+        }*/
+//        restoreViewOnKeyboardDissmiss(changeTab: true)
+
+    }
+    
+    func tapTableCover(_ sender: UITapGestureRecognizer)
+    {
+        //Before dissmissing keyboard tell the responder that I want to return to the previously selected tab
+        self.changeTab = true
+        //keyboard dismissal will notify the keyboard observer to call the keyboardWillBeHidden func to restore the view
+//        self.accTextField.resignFirstResponder()
+        //Force all keyboards to resign
+        self.view.endEditing(true)
+        resignResponders()
+//        self.activeTextField?.resignFirstResponder()
+//        restoreViewOnKeyboardDissmiss(changeTab: true)
+    }
+    
+    //Only function that indicates that the search button was pressed to latch input accessory view input
+    func accessoryEditEnd(_ textField: UITextField)    {
+
+        //Before dissmissing keyboard tell the responder that I want to return to the previously selected tab
+        self.changeTab = true
+        
+        //keyboard dismissal will notify the keyboard observer to call the keyboardWillBeHidden func to restore the view
+//        self.accTextField.resignFirstResponder()
+        self.activeTextField?.resignFirstResponder()    //Since I just edited the input accessory textbox to add search string this is the only keyboard that needs to be dismissed
+        
+//        restoreViewOnKeyboardDissmiss(changeTab: true)
+       
+        //Do nothing if empty string was entered
+        guard let searchString = self.accTextField.text else{
+                return
+        }
+        if(searchString.isEmpty){
+            return
+        }
+        
+        //Clear text field now that I have unwrapped the data
+        self.accTextField.text = ""
+
+        //add activity indicator and search backend
+        let loadingView: UIView = UIView()
+        
+        loadingView.frame = CGRect(x: 0,y: 0,width: 80,height: 80)
+        loadingView.center = view.center
+        loadingView.backgroundColor = UIColor(red: 64/255, green: 64/255, blue: 64/255, alpha: 0.7)
+        loadingView.clipsToBounds = true
+        loadingView.layer.cornerRadius = 10
+        
+        //Start activity indicator while making Firebase request
+        let activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView(frame:   CGRect(x: 0, y: 0, width: 50,  height: 50)) as UIActivityIndicatorView
+        activityIndicator.center = CGPoint(x: loadingView.frame.size.width / 2,y: loadingView.frame.size.height / 2);
+        activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.whiteLarge
+        activityIndicator.hidesWhenStopped = true
+        
+        loadingView.addSubview(activityIndicator)
+        view.addSubview(loadingView)
+        activityIndicator.startAnimating()
+    
+    
+        //Lowercase the search string so searching is standard
+        findUser(input: searchString.lowercased()){(userExists: Bool) in
+            activityIndicator.stopAnimating()
+            loadingView.removeFromSuperview()
+            if(!userExists){
+                //Notify User that search input wasn't found
+                self.loginFailMsg(error: "nonexisting")
+            }else{ //If user does exist we just reload the tableview with the user we found
+                //make sure that we move to the available tab so the user can see the new user
+               /* if let lastTab = self.lastTabSelected {
+                    if(lastTab != self.tabBar.items?[1]){*/
+                self.tabBar.selectedItem = self.tabBar.items?[1]    //Select available tab
+                //Keep track of the available tab being selected
+                self.availableTabSelected = true
+                
+                self.tableView.reloadData()
+                
+            }
+        }
+        
+    }
+    
+    //Dismiss keyboards for both dummy and accessory text box to ensure keyboard is dismissed
+    func resignResponders(){
+        self.accTextField.resignFirstResponder()
+        self.dummyTextBox.resignFirstResponder()
+    }
+    
+    //Since delegate is not getting called, anything that ends the editing has to call this function
+    //Only restore the last tab if the keyboard was not dismissed by directly pressing the tab bar
+    func restoreViewOnKeyboardDissmiss(changeTab: Bool){
+        //Deselect search bar tab and select last tab if a new tab button was not pressed
+        if(changeTab){
+            if let lastTab = self.lastTabSelected {
+                self.tabBar.selectedItem = lastTab
+                //If last tab was "avilable" tab then update the availableTabSelected which controls which array to use for the datasource
+                self.availableTabSelected = lastTab == self.tabBar.items?[1] ? true : false
+            }
+            self.changeTab = false
+        }
+        
+        //Nullify any reference to an active text field
+        self.activeTextField = nil
+        
+        //Remove view covering tablview
+        self.tableCover.removeFromSuperview()
+        
+        //Restore tableview background color (Used before overlaying tableViewCover)
+//        self.tableView.backgroundColor = .clear
+//        self.tableView.alpha = 1
+//        self.tableCover.isHidden = true
+    }
+    
+    func modifyViewOnKeyboard(){
+        
+        //change active textbox to the one created in the accessory view here once keyboard already shown so I don't try to show the keyboard a second time
+        self.accTextField.becomeFirstResponder()
+        //Change the active text field when it becomes the first responder, calling resign first responder will only dismiss the keyboard if the accTextField is the active text field
+        self.activeTextField = self.accTextField
+        
+        //Dim the background of the tableview ((Used before overlaying tableViewCover))
+        //        self.tableView.backgroundColor = .black
+        //        self.tableView.alpha = 0.33
+        
+        //Add view over tableview so its not messed with
+        self.view.addSubview(self.tableCover)
+//        self.tableCover.isHidden = false
+
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        //Dismiss keyboard if unwinding
+        //keyboard dismissal will notify the keyboard observer to call the keyboardWillBeHidden func to restore the view
+//        self.accTextField.resignFirstResponder()
+        resignResponders()
+        /*if let activeField = self.activeTextField {
+            activeField.resignFirstResponder()
+        }*/
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        //Remove observers dismissing view
+        if let friendHandle = self.friendHandler {
+            self.friendsRef.removeObserver(withHandle: friendHandle)
+        }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        //Stop the keyboard actions from sending notifications
+        deregisterFromKeyboardNotifications()
     }
 
 }

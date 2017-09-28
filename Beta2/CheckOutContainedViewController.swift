@@ -179,6 +179,16 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
             if(friendStr.count > 0){
                 self.myFriends = friendStr
                 self.myFriendIds = friendId as [NSString]
+                //Combine the Friends names and IDs into a tuple so I can sort by last name
+                // use zip to combine the two arrays and sort that based on the first
+                //$0.0 refers to the the first value of the first tuple, and $0.1 refers to the first value of the 2nd tupe, so each tuple is a [Friend Name, FriendID] so I'm looking at the first & second item for each iteration and only considering the unAddedFriend name for sorting
+                let combinedFriends = zip(self.myFriends, self.myFriendIds).sorted {$0.0.lastName() < $1.0.lastName()}
+                //Then extract all of the 1st items in each tuple (Friends names)
+                self.myFriends = combinedFriends.map{$0.0}
+                //Then extract all of the 2st items in each tuple (unAddedFriends ids)
+                self.myFriendIds = combinedFriends.map{$0.1}
+
+                
                 //Once I have a list of all friends, get all of their cities using their facebook id
                 self.retrieveFriendCity(friendsList: friendId) {(completedArr:[String]) in
                     self.friendCities = completedArr

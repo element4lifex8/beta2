@@ -21,7 +21,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet var scrollView: UIScrollView!
     @IBOutlet var stackView: UIStackView!
     
-    let authRef = FIRAuth.auth()
+//    let authRef = FIRAuth.auth()
     //Create queue if async calls is used for missing email alert
     let myGroup = DispatchGroup()
     
@@ -44,6 +44,8 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
     var parsedEmail: String?
     var parsedPassword: String?
     var parsedLoginType: Helpers.userType?
+    
+    var parsedBetaUser: Bool?   //In the interim I will have beta users reach this screen even if they are current facebook users
     
     //Get a reference to the current frame of the text box in case I need to move it so it appears above the keyboard
     var firstNameFrame: CGRect = CGRect()
@@ -92,6 +94,9 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
         //register so that I receive notifications from the keyboard
         registerForKeyboardNotifications()
 
+        //Setup Tap gesture so clicking outside of textbox dismisses keyboard
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(FBloginViewController.tapDismiss(_:)))
+        scrollView.addGestureRecognizer(tapGesture)
     }
     
     @IBAction func signUpButtonPressed(_ sender: UIButton) {
@@ -106,6 +111,11 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
         
         //Disable button so its not pressed while thinking
         sender.isEnabled = false
+        
+        //Dismiss keyboard if present so that if returning with an error the entire screen will be shown, and not just half, covered by the keyboard
+        if let activeField = self.activeTextField{
+            activeField.resignFirstResponder()
+        }
         
         //Check for missing details depending on the login type
         switch(parsedLoginType ?? Helpers.userType.email){
@@ -133,21 +143,23 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                         Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                         //notify user to login with FB
                         self.loginFailMsg(error: "facebookExists")
+                        sender.isEnabled = true
                     case(.email):
                         Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                         //Current email is an existing user and needs to go back and log in
                         self.loginFailMsg(error: "emailExists")
+                        sender.isEnabled = true
                     case(.new):
                         //New user, continue on
-                  
+
                         //Check if the username previously exists or if the user can create it
-                        self.usernameExists(name: userName) {(exists: Bool) in
-                            //Username already taken by another user
-                            if(exists){
-                                self.loginFailMsg(error: "username")
-                            }else{
+                        self.usernameValid(name: userName) {(valid: Bool) in
+                            //Stop displaying activity indicator
+                            Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
+                            //Continue if Username unique, no special chars,  and > 3 chars long
+                            if(valid){
                                 //All fields look good, try to create new user
-                                self.authRef!.createUser(withEmail: email, password: password) { (user, error) in
+                                Helpers().firAuth?.createUser(withEmail: email, password: password) { (user, error) in
                                     if(error != nil){
                                         if let errorNS = error as NSError?{ //Cast to NSError so I can retrieve components
                                             let errorDict = errorNS.userInfo as NSDictionary   //User info dictionary provided by firebase with additional error info
@@ -174,28 +186,29 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                                             errorDesc = "A General Error Occured with the email login"
                                             self.loginFailMsg(error: errorDesc)
                                         }
-                                        Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
+
                                         //Re-enable the login button so they can try again
                                         sender.isEnabled = true
                                     }else{  //No Error, create user in database
                                         //Store user ID in NSUserDefaults
                                         Helpers().currUser = user?.uid as! NSString
                                         //Once login type is successful store the method used in NSUserDefaults
-                                        Helpers().loginType = self.parsedLoginType!
+                                        Helpers().loginType = self.parsedLoginType!.rawValue
+                                        //Lowercase the email address to make searching standard
                                         let newUser = ["displayName1": "\(firstName) \(lastName)",
-                                                       "email": email, "username": userName, "friends" : "true", "type" : "email"]
+                                                       "email": email.lowercased(), "username": userName, "friends" : "true", "type" : "email"]
                                         let ref = FIRDatabase.database().reference(withPath:"users")
                                         //Append user id as root of node and newUser dict nested beneath
                                         ref.child(Helpers().currUser as String).setValue(newUser)
-                                        //Stop displaying activity indicator
-                                        Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
+                                        
                                         //Succesfully finished this screen, now get user Info and username at loginInfo screen
                                         self.performSegue(withIdentifier: "startOnboarding", sender: nil)
                                     }
                                 }//End of if that checks bool returned by closure
-                            }   //End of else username doesn't exist closure
-                        }   //End username exists completion
-
+                            }else{  //If username not valid re-enable login button to retry
+                                sender.isEnabled = true
+                            }
+                        }//End username valid completion
                     }   //End switch
                 }   //End check email closure
             }   //End else of empty text fields
@@ -205,8 +218,6 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
         //New facebook login needs first, last name, email is optional, username
         case(Helpers.userType.facebook):
             
-            //Stop displaying activity monitor, no more async calls
-            Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
             //Re-enable login button in case login falls through
             sender.isEnabled = true
             
@@ -221,20 +232,38 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                 loginFailMsg(error: "missing")
             }else{
                 
-                let newUser = ["displayName1": "\(firstName) \(lastName)",
-                    "email": email , "username": userName, "friends" : "true", "type" : "facebook"]
-                
-                let ref = FIRDatabase.database().reference(withPath:"users")
-                //Append user id as root of node and newUser dict nested beneath
-                ref.child(Helpers().currUser as String).setValue(newUser)
+                //Check if the username previously exists or if the user can create it
+                self.usernameValid(name: userName) {(valid: Bool) in
+                    //Stop displaying activity monitor, no more async calls
+                    Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
+                    
+                    //Continue if Username is unique, lowercase email for standard searching
+                    if(valid){
+                        let newUser = ["displayName1": "\(firstName) \(lastName)",
+                            "email": email.lowercased() , "username": userName, "friends" : "true", "type" : "facebook"]
+                        //Beta users that are only updating information dont need the whole shebang
+                        let betaUser = [ "username": userName, "type" : "facebook"]
+                        
+                        let ref = FIRDatabase.database().reference(withPath:"users")
+                        //Append user id as root of node and newUser dict nested beneath
+                        //For beta testing if the user isn't new but needed to update the type and username fields in the back end I won't obliterate their current user
+                        if(!(self.parsedBetaUser ?? false)){
+                            ref.child(Helpers().currUser as String).setValue(newUser)
+                        }else{
+                            ref.child(Helpers().currUser as String).updateChildValues(betaUser)
+                        }
 
-                //Succesfully finished this screen, now get user Info and username at loginInfo screen
-                self.performSegue(withIdentifier: "startOnboarding", sender: nil)
-
+                        //Once login type is successful store the method used in NSUserDefaults as NSInt since I can't save custom data types (or even swift data types
+                        Helpers().loginType = self.parsedLoginType!.rawValue
+                        
+                        //Succesfully finished this screen, now get user Info and username at loginInfo screen
+                        self.performSegue(withIdentifier: "startOnboarding", sender: nil)
+                    }
+                }
             }
             
             break
-            //If an existing user of nil return to login screen
+        //If an existing user or nil return to login screen
         default:
             loginFailMsg(error: "An error occured, please try logging in again.")
             break
@@ -270,12 +299,24 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
             msgTitle = "Username Taken"    //Happens with the backend doesn't have the user but the firebase auth already has them
             msgBody = "The username you entered is already taken, please try another."
             break
+        case "username_length":
+            msgTitle = "Username Length Error"
+            msgBody = "Please create a username that is at least 3 characters."
+            break
+        case "invalid_chars":
+            msgTitle = "Invalid Username characters"
+            msgBody = "Sorry, but the following characters are not allowed in usernames: \n . # $ [ ]"
+            break
+        case "upper_chars":
+            msgTitle = "Invalid Username characters"
+            msgBody = "Sorry, but upper case letters are not allowed in usernames, please replace these with lower case characters"
+            break
         case "emailExists":
             msgTitle = "Existing User"    //Happens when the user changed the email on this screen to an active user's email
             msgBody = "The email address you have entered is for an existing user. Please log in with this email address."
                 unwind = true
             break
-        case "facebookUser":
+        case "facebookUser":  //Not current used
             msgTitle = "Existing"    //Happens with the backend doesn't have the user but the firebase auth already has them
             msgBody = "The email address you have entered is for an existing user. Please log in the the FaceBook associated with this email."
                 unwind = true
@@ -291,15 +332,13 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
         var CancelAction: UIAlertAction
         if(unwind == true){    //Use standard action button but unwind to login screen on button press
             CancelAction = UIAlertAction(title: "Ok", style: .cancel, handler: { UIAlertAction in
-                self.performSegue(withIdentifier: "unwindFromLoginDeets", sender: self)
+                self.performSegue(withIdentifier: "unwindToFBLoginId", sender: self)
             })
-//            alert.addAction(CancelAction)
         }
         else{//Add standard async action button
             //Async call for uialertview will have already left this function, no handling needed
             CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
             
-//            alert.addAction(CancelAction)
         }
         alert.addAction(CancelAction)
         self.present(alert, animated: true, completion: nil)
@@ -307,34 +346,48 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
     }
     
     //check if the current username exists in the system and return true if it does
-    func usernameExists(name: String, _ completionClosure: @escaping (_ exists:  Bool) -> Void)
+    func usernameValid(name: String, _ completionClosure: @escaping (_ valid:  Bool) -> Void)
     {
         let userRef = FIRDatabase.database().reference(withPath:"users")
-        var nameExists = false
+        //Keep track of whether the user exists but only return is the userName is valid (doesn't exists and proper format
+        var exists: Bool = false
+        var valid: Bool = true
+        
+        //Check if an upper case letter is present in the username string, not allowing this to make searching case insensitive (as in, always lowercase)
+       if let _ = name.range(of: "\\.*[A-Z]+\\.*", options: .regularExpression) {
+            loginFailMsg(error: "upper_chars")
+            valid = false
+            completionClosure(valid)
+        }
+        else if(name.characters.count < 3){    //Check that user name if of valid length
+            loginFailMsg(error: "username_length")
+            valid = false
+            completionClosure(valid)
+        }else{
         //Query for an username equal to the one that the user attempts to create
-        userRef.queryOrdered(byChild: "username").queryEqual(toValue: name).observeSingleEvent(of: .value, with: { snapshot in
-            //snapshot is the user id of the matching username, each username is unique so only 1 entry should be returned but to only return the items beneath the user id I "loop" over the snapshots child, and if no children return false (username is unique)
-            for child in snapshot.children{
-                let rootNode = child as! FIRDataSnapshot
-                //If we have no children then its most certain that the current username doesn't exist
-                //Node dict is the items beneath the user id
-                if let nodeDict = rootNode.value as? NSDictionary{
-                    //unwrap the username if it exists to double verify
-                    if let foundName = nodeDict["username"] as? String{
-                        if foundName == name{
-                            nameExists = true
-                        }else{
-                            nameExists = false
+            userRef.queryOrdered(byChild: "username").queryEqual(toValue: name).observeSingleEvent(of: .value, with: { snapshot in
+                //snapshot is the user id of the matching username, each username is unique so only 1 entry should be returned but to only return the items beneath the user id I "loop" over the snapshots child, and if no children return false (username is unique)
+                for child in snapshot.children{
+                    let rootNode = child as! FIRDataSnapshot
+                    //If we have no children then its most certain that the current username doesn't exist
+                    //Node dict is the items beneath the user id, If downcast fails then username doesn't exist
+                    if let nodeDict = rootNode.value as? NSDictionary{
+                        //unwrap the username if it exists to double verify
+                        if let foundName = nodeDict["username"] as? String{
+                            if foundName == name{
+                                exists = true
+                                valid = false
+                            }
                         }
-                    }else{  //unwrap fails if user didn't have a username entry, but the query shouldn't have matched if it didn't have one, so...
-                        nameExists = false
                     }
-                }else{  //If downcast fails then username doesn't exist
-                    nameExists = false
                 }
-            }
-            completionClosure(nameExists)
-        })
+                //Notify user of non unique username
+                if(exists){
+                    self.loginFailMsg(error: "username")
+                }
+                completionClosure(valid)
+            })
+        }
     }
 
     
@@ -368,8 +421,10 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
         if let activeField = self.activeTextField {
             //Now that the text boxes are in a stack view their frame will be relative to the position of that stack view
             let activeFrameBottom : CGPoint = CGPoint(x: self.stackView.frame.minX + activeField.frame.origin.x,y: self.stackView.frame.minY + activeField.frame.maxY + self.textBoxSpacing)
-            //I will add content insets if the selected textbox plus the spacing below it is not all visibile above the keyboard
-            if (!aRect.contains(activeFrameBottom)){
+            //I will add content insets if the selected textbox plus the spacing to the end of the stack view is not shown so the user can easily skip around
+            let stackBottom: CGPoint = CGPoint(x: self.stackView.frame.maxX, y: self.stackView.frame.maxY)
+            //--below it is not all visibile above the keyboard
+            if (!aRect.contains(stackBottom/*activeFrameBottom*/)){
                 //Determine the distance from the bottom of to the space below the active text box, then add the remainder of the height covered by the keyboard to the scroll view offset
                 let insetHeight = keyboardSize!.height + (keyboardSize!.height - (view.frame.maxY - (self.stackView.frame.minY + activeField.frame.maxY + self.textBoxSpacing)))
                 let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, insetHeight, 0.0)
@@ -404,17 +459,10 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
     
     
     //Dismiss keyboard if clicking away from text box
-    //Detect when user taps outside of scroll vie
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
-        super.touchesBegan(touches, with: event)
-        
-        if let touch: UITouch = touches.first{
-            //dismiss keyboard if present
-            self.activeTextField?.resignFirstResponder()
-            //            self.emailField.resignFirstResponder()
-            //            self.passwordField.resignFirstResponder()
-        }
+    //Detect when user taps on scroll view
+    func tapDismiss(_ sender: UITapGestureRecognizer)
+    {
+        self.activeTextField?.resignFirstResponder()
     }
     
     func textFieldDidEndEditing(_ textField: UITextField){
@@ -429,14 +477,13 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
 
     
 
-    /*
+
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+        print("Preparing")
     }
-    */
+ 
 
 }

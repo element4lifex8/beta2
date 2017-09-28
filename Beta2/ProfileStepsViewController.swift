@@ -54,10 +54,16 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         addTextBoxBorder()
+        
+        //Add Keyboard
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        
+        //register so that I receive notifications from the keyboard
+        registerForKeyboardNotifications()
+        
         self.boxAndLabelSize = addCityTextBox.frame.height + addCityLabel.frame.height
         self.bottomScrollOffset = self.view.frame.maxY - self.scrollView.frame.maxY
         //gooogle Places setup
@@ -107,8 +113,7 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         //Set text field delegates so they can dismiss the keyboard
         self.homeCityTextBox.delegate = self
         self.addCityTextBox.delegate = self
-        //register so that I receive notifications from the keyboard
-        registerForKeyboardNotifications()
+        
         //Create Proper look for add city button
         self.addCityButton.layer.cornerRadius = 0.5 * self.addCityButton.bounds.size.width
         self.addCityButton.backgroundColor = UIColor.clear
@@ -620,20 +625,27 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         return true
     }
     
-    
+   /* Moved to view did disappear
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         //When transitioning to next screen in profile steps deregister keyboard notifications
         //Don't perform when unwinding
         if (!self.unwindPerformed){
             deregisterFromKeyboardNotifications()
         }
-    }
+    }*/
+    
     
     
     override func canPerformUnwindSegueAction(_ action: Selector, from fromViewController: UIViewController, withSender sender: Any) -> Bool {
         //Check if unwind segue was performed so that prepare for seguing will not deregister keyboard notifications an unwind
         self.unwindPerformed = true
         return false
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        //Stop the keyboard actions from sending notifications
+        deregisterFromKeyboardNotifications()
     }
 
 }

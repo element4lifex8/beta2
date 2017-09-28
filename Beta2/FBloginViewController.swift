@@ -21,6 +21,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
     var userEmail: String?
     var userPassword: String?
     var userFullName: String?
+    var betaUser: Bool?     //Force facebook beta users to transition to login details for release 1.1.3
     
     @IBOutlet var scrollView: UIScrollView!
     var activeTextField: UITextField? = nil
@@ -97,7 +98,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                 
                 //use current access token from logged in user to pass to firebase's login auth func
               
-                self.authRef!.signIn(with: credential) { (user, error) in
+                Helpers().firAuth?.signIn(with: credential) { (user, error) in
                     if error != nil
                     {
                         Helpers().myPrint(text: "Login failed \(error)")
@@ -148,11 +149,14 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                             activityIndicator.stopAnimating()
                             loadingView.removeFromSuperview()
 
-                            //Keep track of current logintype
+                            //Keep track of current logintype, it is stored in user defaults for new users in the onboard info VC
                             self.loginType = Helpers.userType.facebook
                             //Transition to loginInfo screen for new user or skip to onboarding for existing user
-                            if(existingUser){
+                            //For beta I check if their back end details are current and if not I set betaUser = true and transition to onboard details
+                            if(existingUser  && !(self.betaUser ?? false)){
                                 self.performSegue(withIdentifier: "profileSteps", sender: nil)
+                                //If the user is not having to create a username make sure I save their login type to NS Defaults with this VC
+                                Helpers().loginType = self.loginType!.rawValue
                             }else{
                                 self.performSegue(withIdentifier: "loginInfo", sender: nil)
                             }
@@ -205,7 +209,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                     break
                 case(.email):
                     //Attempt Login with email
-                    self.authRef!.signIn(withEmail: email, password: password) { (user, error) in
+                    Helpers().firAuth!.signIn(withEmail: email, password: password) { (user, error) in
                         
                         if(error != nil){
                             if let errorNS = error as NSError?{ //Cast to NSError so I can retrieve components
@@ -247,6 +251,9 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                             self.loginButtOut.isEnabled = true
                         }else{  //No error found, login existing user complete
                             self.loginType = Helpers.userType.email
+                            //Update login type to user defaults since i'm logging in, new users update this item in NSDefaults in the Onboard details VC
+                            Helpers().loginType = self.loginType!.rawValue
+                            Helpers().currUser = user?.uid as! NSString
                             Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                         
                             //Succesfully finished this screen, existing user so skip loginInfo screen and go to onboarding
@@ -307,6 +314,10 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         //register so that I receive notifications from the keyboard
         registerForKeyboardNotifications()
         
+        //Setup Tap gesture so clicking outside of textbox dismisses keyboard
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(FBloginViewController.tapDismiss(_:)))
+        scrollView.addGestureRecognizer(tapGesture)
+        
         //check for an existing token at load.
         if (FBSDKAccessToken.current() == nil)
         {
@@ -364,7 +375,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
             loginFailMsg(error: "missing_email")
             return
         }
-        authRef!.sendPasswordReset(withEmail: email) { error in
+        Helpers().firAuth!.sendPasswordReset(withEmail: email) { error in
             if(error != nil){
                 if let errorNS = error as NSError?{ //Cast to NSError so I can retrieve components
                     let errorDict = errorNS.userInfo as NSDictionary   //User info dictionary provided by firebase with additional error info
@@ -480,10 +491,10 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
             } else {
                 
                 let credential = FIRFacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
-                let authRef = FIRAuth.auth()
+//                let authRef = FIRAuth.auth()
                 //use current access token from logged in user to pass to firebase's login auth func
 
-                authRef!.signIn(with: credential) { (user, error) in
+                Helpers().firAuth!.signIn(with: credential) { (user, error) in
                     if error != nil
                     {
                         Helpers().myPrint(text: "Login failed \(error)")
@@ -588,6 +599,11 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
             //If we have no children then its most certain that the current user doesn't exist
             if let nodeDict = rootNode.value as? NSDictionary{
                 user = true
+                
+                //Check for beta users without current username
+                self.checkForUsername(nodeDict: nodeDict)
+                
+                
                 //No longer need to check for user's string in firebase, we can be certain that the user either doesn't exist or its current entry is malformed if the above downcast fails
 //                //Loop over each check in Place and parse its attributes
 //                for (key, _ ) in nodeDict{
@@ -602,6 +618,18 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
             completionClosure(user)
         })
         
+    }
+    
+    //For beta testers that haven't created a user name I want them to transition to this screen
+    func checkForUsername(nodeDict: NSDictionary){
+        if let _ = nodeDict["username"] as? String{
+            //was able to unwrap username, betaUser is current
+            self.betaUser = false
+        }else{
+                //Beta user missing backend details
+                self.betaUser = true
+        }
+            
     }
     
     func loginButtonDidLogOut(_ loginButton: FBSDKLoginButton!)
@@ -671,17 +699,10 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
     
     
     //Dismiss keyboard if clicking away from text box
-    //Detect when user taps outside of scroll vie
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
-        super.touchesBegan(touches, with: event)
-        
-        if let touch: UITouch = touches.first{
-            //dismiss keyboard if present
-            self.activeTextField?.resignFirstResponder()
-//            self.emailField.resignFirstResponder()
-//            self.passwordField.resignFirstResponder()
-        }
+    //Detect when user taps on scroll view
+    func tapDismiss(_ sender: UITapGestureRecognizer)
+    {
+        self.activeTextField?.resignFirstResponder()
     }
 
     func textFieldDidEndEditing(_ textField: UITextField){
@@ -707,9 +728,13 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
     
     
     override func canPerformUnwindSegueAction(_ action: Selector, from fromViewController: UIViewController, withSender sender: Any) -> Bool {
-        //Check if unwind segue was performed so that viewDidLoad can guard against seguing to profile steps on an unwind
-        unwindPerformed = true
-        return false
+        //Check if unwind segue was performed so that viewDidLoad can guard against seguing to profile steps on an unwind unless I am unwinding from the Onboard details screen due to error
+        if(fromViewController.title == "Onboard info"){ //Name of View Controller scene is listed in the storyboard
+            return true
+        }else{
+            return false
+        }
+        self.unwindPerformed = true
     }
     
     //Pass email and password to Login info screen if new login
@@ -728,14 +753,11 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                 destinationVC.parsedFullName = self.userFullName
                 destinationVC.parsedEmail = self.userEmail
                 destinationVC.parsedLoginType = self.loginType
+                destinationVC.parsedBetaUser = self.betaUser    //Track whether this is an existing facebook beta users
             default:
                 Helpers().myPrint(text: "ERROR: Login type not set or An existing user should not be entering login info screen")
             }
         }
     }
     
-    // Unwind seque from my Login Details screen
-    @IBAction func unwindFromLoginDeets(_ sender: UIStoryboardSegue) {
-        // empty
-    }
 }

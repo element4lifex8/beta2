@@ -46,9 +46,9 @@
 		EB85D5551C51B5B200F2E29F /* ProfileStepsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */; };
 		EB85D5571C540E6800F2E29F /* AddFbFriendsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */; };
 		EB85D5701C5982F000F2E29F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB85D5641C5982F000F2E29F /* CoreData.framework */; };
+		EB86294B1F5CBF7C00AB72DA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB86294A1F5CBF7C00AB72DA /* Assets.xcassets */; };
 		EB9EE2CB1DD2A88900AC1FF0 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB9EE2CA1DD2A88900AC1FF0 /* Launch Screen.storyboard */; };
 		EBA11B771E5FBF6800114D56 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBA11B761E5FBF6800114D56 /* Helpers.swift */; };
-		EBA24A421EC696DE00AB95FC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EBA24A411EC696DE00AB95FC /* Assets.xcassets */; };
 		EBA4D0FD1C6423DB00BB459F /* libc++.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EBA4D0FB1C6423DB00BB459F /* libc++.1.dylib */; };
 		EBA4D0FE1C6423DB00BB459F /* libicucore.A.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EBA4D0FC1C6423DB00BB459F /* libicucore.A.dylib */; };
 		EBA4D0FF1C6423E800BB459F /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C71C62C57E001E0F62 /* CFNetwork.framework */; };
@@ -142,9 +142,9 @@
 		EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileStepsViewController.swift; sourceTree = "<group>"; };
 		EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFbFriendsViewController.swift; sourceTree = "<group>"; };
 		EB85D5641C5982F000F2E29F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		EB86294A1F5CBF7C00AB72DA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EB9EE2CA1DD2A88900AC1FF0 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		EBA11B761E5FBF6800114D56 /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
-		EBA24A411EC696DE00AB95FC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EBA4D0FB1C6423DB00BB459F /* libc++.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.1.dylib"; path = "../../../../../usr/lib/libc++.1.dylib"; sourceTree = "<group>"; };
 		EBA4D0FC1C6423DB00BB459F /* libicucore.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.A.dylib; path = ../../../../../usr/lib/libicucore.A.dylib; sourceTree = "<group>"; };
 		EBBA52DF1CF65B6A0047E22A /* HeaderTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HeaderTableViewCell.swift; sourceTree = "<group>"; };
@@ -278,8 +278,8 @@
 		EB06561A1BEE37F300CF8376 /* Beta2 */ = {
 			isa = PBXGroup;
 			children = (
+				EB86294A1F5CBF7C00AB72DA /* Assets.xcassets */,
 				EBA11B761E5FBF6800114D56 /* Helpers.swift */,
-				EBA24A411EC696DE00AB95FC /* Assets.xcassets */,
 				EB03B8361E06D06E0002098C /* Beta2.entitlements */,
 				EB61CD5F1DC41F4300297225 /* SegueFromLeft.swift */,
 				EB61CD671DC5025400297225 /* SegueFromRight.swift */,
@@ -290,9 +290,9 @@
 				EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */,
 				EB06561B1BEE37F300CF8376 /* AppDelegate.swift */,
 				EB1405C51D3007B1001D3924 /* CheckedCoreData.xcdatamodeld */,
+				EB61CD631DC4F0A800297225 /* AddPeopleViewCntroller.swift */,
 				EBF790101EA6DEDB005F0B6F /* Main.storyboard */,
 				EB03E5C31C3864FF009A55F1 /* Bridging-Header.h */,
-				EB61CD631DC4F0A800297225 /* AddPeopleViewCntroller.swift */,
 				EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */,
 				EB5161C61DAAA6B600321D98 /* CheckOutContainedViewController.swift */,
 				EB3A98211D9813D400C16E89 /* Model */,
@@ -423,7 +423,7 @@
 						CreatedOnToolsVersion = 7.0.1;
 						DevelopmentTeam = KZFHW7YTLK;
 						LastSwiftMigration = 0810;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.Keychain = {
 								enabled = 1;
@@ -469,7 +469,7 @@
 				EB03B8351DFF08780002098C /* GoogleService-Info.plist in Resources */,
 				EB3C7EA01EB93182004E417E /* GoogleService-Info.plist in Resources */,
 				EBF790121EA6DEDB005F0B6F /* Main.storyboard in Resources */,
-				EBA24A421EC696DE00AB95FC /* Assets.xcassets in Resources */,
+				EB86294B1F5CBF7C00AB72DA /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -808,8 +808,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Beta2/Beta2.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Check In Out, LLC (KZFHW7YTLK)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				DEVELOPMENT_TEAM = KZFHW7YTLK;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					/Users/jasonjohnston/Documents/FacebookSDK,
@@ -838,8 +838,8 @@
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-DDEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.checkinoutllc.checkinout;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE = "27e24e17-7c18-4b15-9a1a-ebeb55d43676";
+				PROVISIONING_PROFILE_SPECIFIER = "Check In Out App Store Distribution";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -853,8 +853,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Beta2/Beta2.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Check In Out, LLC (KZFHW7YTLK)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				DEVELOPMENT_TEAM = KZFHW7YTLK;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					/Users/jasonjohnston/Documents/FacebookSDK,
@@ -878,8 +878,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.checkinoutllc.checkinout;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE = "27e24e17-7c18-4b15-9a1a-ebeb55d43676";
+				PROVISIONING_PROFILE_SPECIFIER = "Check In Out App Store Distribution";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
