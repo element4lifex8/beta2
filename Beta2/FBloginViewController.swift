@@ -92,9 +92,8 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                 self.loginFailMsg(error: "cancel")         //Notify user that login was canceled
                 activityIndicator.stopAnimating()
                 loadingView.removeFromSuperview()
-            } else {
-                
-                let credential = FIRFacebookAuthProvider.credential(withAccessToken:  FBSDKAccessToken.current().tokenString)
+            } else {    
+                let credential = FIRFacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
                 
                 //use current access token from logged in user to pass to firebase's login auth func
               

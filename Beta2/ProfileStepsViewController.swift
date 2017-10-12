@@ -515,7 +515,7 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         var cityState = autoCompleteArray[indexPath.row].attributedPrimaryText.string
         
         //unwrap secondary text or quit while we're ahead
-        guard let secondaryText = autoCompleteArray[indexPath.row].attributedSecondaryText?.string else {self.activeTextField?.text
+        guard let secondaryText = autoCompleteArray[indexPath.row].attributedSecondaryText?.string else {
             return
         }
         //Find the first comma in the secondary text, which should fall after the state
@@ -646,6 +646,14 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         super.viewDidDisappear(animated)
         //Stop the keyboard actions from sending notifications
         deregisterFromKeyboardNotifications()
+    }
+    
+    //Pass email and password to Login info screen if new login
+    override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
+        //One way street, no need to check for where I'm segueing to since it will always be AddFbFriends VC
+        let destinationVC = segue.destination as! AddPeopleViewCntroller
+        //Notify the AddPeopleVC that it is being accessed during onboarding
+        destinationVC.isOnboarding = true
     }
 
 }

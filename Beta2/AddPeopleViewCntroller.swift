@@ -10,6 +10,7 @@ import UIKit
 import FirebaseDatabase
 import FBSDKCoreKit
 import FBSDKLoginKit
+import FBSDKShareKit
 
 extension UIImage {
     
@@ -28,6 +29,39 @@ extension UIImage {
     
 }
 
+extension String{
+    func lastName() -> String{
+        var lastName: String = ""
+        //Find from end of string the location of the space that prcedes the last name
+        if let rangeOfSpace = self.range(of: " ", options: .backwards) {
+            //Convert the range returned by the space to an index and return the string from the space to end of dispay name
+            lastName = self.substring(from: rangeOfSpace.upperBound)
+        }
+        return lastName
+    }
+}
+
+//Make your View Controller implement the Facebook App Invite Dialog delegate and add in delegate methods to receive completion handlers:
+extension AddPeopleViewCntroller: FBSDKAppInviteDialogDelegate{
+    
+    func appInviteDialog (_ appInviteDialog: FBSDKAppInviteDialog!, didCompleteWithResults results: [AnyHashable : Any]!) {
+        let resultObject = NSDictionary(dictionary: results)
+        
+        if let didCancel = resultObject.value(forKey: "completionGesture")
+        {
+            if (didCancel as AnyObject).caseInsensitiveCompare("Cancel") == ComparisonResult.orderedSame
+            {
+                Helpers().myPrint(text: "User Canceled invitation dialog")
+            }
+        }
+    }
+    func appInviteDialog(_ appInviteDialog: FBSDKAppInviteDialog!, didFailWithError error: Error!) {
+        Helpers().myPrint(text: "Error tool place in appInviteDialog \(error)")
+    }
+}
+
+
+
 class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableViewDataSource, UITabBarDelegate, UITextFieldDelegate {
     
     @IBOutlet weak var tableView: UITableView!
@@ -37,11 +71,17 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     @IBOutlet var HeaderView: UIView!       //Get reference to header view so I can add gester recognizer to dismiss keyboard
     var lastTabSelected: UITabBarItem?
     @IBOutlet var dummyTextBox: UITextField!    //Used only to become first responder and show keyboard
+    @IBOutlet var skipButon: UIButton!  //Skip button only appears when onbaording
+    @IBOutlet var pagenationImgView: UIImageView!  //Pagenation only appears when onboarding
+    @IBOutlet var headerImageView: UIImageView! //Imageview for header that holds image displayed for onboarding
+    @IBOutlet var backButton: UIButton!     //Button only appears when on addFriends VC and not during onboarding
     
     //items created for accessory input view
     var accCodeView = UIView()
     var accTextField = UITextField()
   
+    //Class member that can be set when transitioning to this VC during the onboarding process 
+    var isOnboarding: Bool = false
     var availableTabSelected = false //Keep track of the tab bar thats selected to determine what to display in tableView
     //Keep track of the currently active text field
     var activeTextField: UITextField? = nil
@@ -54,7 +94,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     var numUnAddedFriends = 0   //number of friends who are displayed on the available tab so I can notify the user if none are available
     var unAddedFriends = [String]()   //Compile a list of auth users that are not friends followed in the app
     var unAddedFriendId = [String]()   //Match the friends that haven't yet been added to their Id
-    var foundUserId : String?    //keep record of an email user that was found so he can be distinguished in the list
+    var foundUserId : [String] = [""]    //keep record of an email user that was found so he can be distinguished in the list
     var facebookFriendMaster = [String]()
     var myFriends:[String] = []
     var myFriendIds: [String] = []    //list of Facebook Id's with matching index to myFriends array
@@ -73,7 +113,23 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     //Keyboard tracking hack, pass variable on whether I am dismissing keyboard for tab button press or other metthod
     var changeTab = false
     
-    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        //Remove views and buttons that do not appear during onboarding
+        if(self.isOnboarding){
+            //Hide then remove back button
+            self.backButton.isHidden = true
+            self.backButton.removeFromSuperview()
+        }else{
+            //Hide first before removing so the user doesn't see them appear before they are remove
+            self.skipButon.isHidden = true
+            self.pagenationImgView.isHidden = true
+            self.headerImageView.isHidden = true
+            self.skipButon.removeFromSuperview()
+            self.pagenationImgView.removeFromSuperview()
+            self.headerImageView.removeFromSuperview()
+        }
+    }
     
     //Must add submit button in viewDidAppear so that it is added over top of the tablewview (bringSubview to front in viewDidLoad would not put the view on top of the tableview
     override func viewDidAppear(_ animated: Bool) {
@@ -114,7 +170,8 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         subButt.setTitle("Submit", for: UIControlState())
         subButt.titleLabel?.font = UIFont(name: "Avenir-Heavy", size: 36)
         subButt.setTitleColor(UIColor.black, for: UIControlState())
-        //add target actions for button tap
+        //add target actions for button tap and make sure it isuser selectable
+//        subButt.isUserInteractionEnabled = true
         subButt.addTarget(self, action: #selector(AddPeopleViewCntroller.submitSelected(_:)), for: .touchUpInside)
         //Add shadow to button
         subButt.layer.shadowOpacity = 0.7
@@ -128,7 +185,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         let widthConstraint = buttonView.widthAnchor.constraint(equalToConstant: buttViewWidth)
         let heightConstraint = buttonView.heightAnchor.constraint(equalToConstant: buttViewHeight)
         NSLayoutConstraint.activate([widthConstraint, heightConstraint])
-        
+
         //        Screen default to 400x800 so I can only pin to the left and top to create my constraints
         //From top measure to the bottom of the button and subtract 50 from bottom margin and 50 for button height
         let pinBottom = NSLayoutConstraint(item: buttonView, attribute: .top, relatedBy: .equal, toItem: view , attribute: .top, multiplier: 1.0, constant: view.bounds.height - 50 - buttViewHeight)
@@ -136,6 +193,25 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         let pinLeft = NSLayoutConstraint(item: buttonView, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1.0, constant: (view.bounds.width/2) - (buttViewWidth/2))
         view.addConstraint(pinBottom)
         view.addConstraint(pinLeft)
+        
+        //Modify auto layout constraints and image for header view during onboarding
+        if(self.isOnboarding){
+            HeaderView.translatesAutoresizingMaskIntoConstraints = false
+            let headerHeight = HeaderView.heightAnchor.constraint(equalToConstant: 170)    //Header height is 170 to match other onboarding heights
+            headerHeight.priority = 750
+            NSLayoutConstraint.activate([headerHeight])
+            
+            //Set min distance from bottom of headerView to bottom of screen >= 450 for smaller screens to shrink the header view if neccessary to allow for a large enough table to be displayed
+            let headerToBottom = NSLayoutConstraint(item: bottomLayoutGuide, attribute: .top, relatedBy: .greaterThanOrEqual, toItem: HeaderView, attribute: .bottom, multiplier: 1.0, constant: 450)
+            view.addConstraint(headerToBottom)
+            
+        }else{//set header view height to 100
+            HeaderView.translatesAutoresizingMaskIntoConstraints = false
+            let headerHeight = HeaderView.heightAnchor.constraint(equalToConstant: 100)    //Header height is 170 to match other onboarding heights
+            NSLayoutConstraint.activate([headerHeight])
+
+        }
+
         
         //        Tab bar configuration
         //Create top and bottom border of tab bar
@@ -235,7 +311,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         self.accTextField.autocapitalizationType = .none
         self.accTextField.spellCheckingType = .no
         //Disabling preditive text cause the keyboard to glitch on dismiss and show an overlapped predictive text view and the accessory input view would have to be reactivity and then re-dismissed to properly dismiss the keyboard
-//        self.accTextField.autocorrectionType = .no //Disable spell checking
+        self.accTextField.autocorrectionType = .no //Disable spell checking
         self.accTextField.keyboardType = .emailAddress  //make it easier to search for email addresses by setting the email keyboard type
         
         //Fake out a delegate since its not getting called for the accessory text box on return button press, adding this target will trigger the event and for some reason will cause the dummyTextField editing did end to get called too which will dismiss the keyboard (cascadging events somehow)
@@ -249,7 +325,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         accLabel.text = "Enter your friend's email/username:"
         //Add labelto accessory view
         accCodeView.addSubview(accLabel)
-        //Create auto layout constraints for labal
+        //Create auto layout constraints for label
         let topConstraint = NSLayoutConstraint(item: accLabel, attribute: .top, relatedBy: .equal, toItem: accCodeView, attribute: .top, multiplier: 1.0, constant: 31)
         accCodeView.addConstraint(topConstraint)
         
@@ -260,6 +336,8 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         
         //Set input accessory view for keyboard that appears when dummyTextBox is active
         self.dummyTextBox.inputAccessoryView = self.accCodeView
+        //hide Dummy text view so even though its constraints put it off the screen if somehow it appears in display-able area it will be behind everthing and hopefully hidden user can't accidently select it
+        self.tabBarContainerView.sendSubview(toBack: dummyTextBox)
         
         //Manage keyboard notifications and dismissal with tap gesture
         
@@ -312,7 +390,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             switch(i){
             case 0:
                 //Set the title
-                self.tabBar.items?[i].title = "All"
+                self.tabBar.items?[i].title = "Current"
                 //Default this first item to be selected
                 let myItem = self.tabBar.items?[i]
                 //Select the first item by default
@@ -383,7 +461,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                 self.myFriends = friendStr
                 self.myFriendIds = friendId
                 //Sort the friends and their IDs by combining into tuple, sorting by the myFriends string array (the first item in each tuple) then seperate back out into two arrays (same thing is done for unAddedFriends in the closure below)
-                
+                self.sortFriendArrays(nameArr: &self.myFriends, idArr: &self.myFriendIds)
                 self.myGroup.leave()
             }
         }
@@ -411,7 +489,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                 }
                 
                 //Combine the unaddedFriends name and Id arrays so they can be sorted and still match up
-                self.sortUnaddedFriends()
+                self.sortFriendArrays(nameArr: &self.unAddedFriends, idArr: &self.unAddedFriendId)
             }
             
             //Stop display of activity monitor
@@ -432,22 +510,19 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                     self.facebookAuthFriends = displayName
                     self.facebookAuthIds = taggableId
                     finishedAuth = true
-                    //Call completion closure only when all friends have been retrieved
-                    if(finishedAuth && finishedUnauth){
-                        completionClosure(true)
-                    }
+                    completionClosure(true)
                 }
-                
-                self.retrieveUnauthFacebookFriends() {(displayName: [String], unAuthId: [String]) in
-                    self.facebookTaggableFriends = displayName
-                    self.facebooktaggableIds = unAuthId
-                    finishedUnauth = true
-                    //Call completion closure only when all friends have been retrieved
-                    if(finishedAuth && finishedUnauth){
-                        completionClosure(true)
-                    }
-                }
-            }else{  //friend permission revoked of completion closure returned nil because it failed to obtain friend permissions with FB graph API request
+                //No longer retrieving taggable friends
+//                self.retrieveUnauthFacebookFriends() {(displayName: [String], unAuthId: [String]) in
+//                    self.facebookTaggableFriends = displayName
+//                    self.facebooktaggableIds = unAuthId
+//                    finishedUnauth = true
+//                    //Call completion closure only when all friends have been retrieved
+//                    if(finishedAuth && finishedUnauth){
+//                        completionClosure(true)
+//                    }
+//                }
+            }else{  //friend permission revoked or completion closure returned nil because it failed to obtain friend permissions with FB graph API request
                 completionClosure(false)
             }
         }
@@ -460,6 +535,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         let request = FBSDKGraphRequest(graphPath:"/me/permissions", parameters: ["fields" : "permission, status"]);
         let permissGroup = DispatchGroup()
         var permission:Bool? = nil   //Find out if the user allowed friend permission
+        
         permissGroup.enter()
         request?.start(completionHandler: { (connection, result, error) -> Void in
             if(error != nil){
@@ -489,16 +565,26 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         
         //Once Dispatch group confirms async call is finished
         permissGroup.notify(queue: .main){
+           //Create cancel action that will unwind to a screen depending on isOnboarding or not
+            var CancelAction: UIAlertAction
             //Look up friends if permission is availabe
             if(permission ?? false){
                 completionClosure(permission)
             }else{  //Notify user that friend persmission isn't available
                 let alert = UIAlertController(title: "Access to friends list.", message: "Would you like to allow Check In Out to access your Facebook friends so you can see their Check Ins?", preferredStyle: .alert)
                 //Exit function if user clicks no and no friends will be printed
-                let CancelAction = UIAlertAction(title: "No", style: .cancel, handler: { UIAlertAction in
-                    //                    completionClosure(false)
-                    self.performSegue(withIdentifier: "unwindFromAddFriends", sender: self)
-                })
+                //If in onboarding unwind to home screen
+                if(self.isOnboarding){
+                    CancelAction = UIAlertAction(title: "No", style: .cancel, handler: { UIAlertAction in
+                        //                    completionClosure(false)
+                        self.performSegue(withIdentifier: "unwindFromFbLoginIdentifier", sender: self)
+                    })
+                }else{  //otherwise unwind to check out screen
+                    CancelAction = UIAlertAction(title: "No", style: .cancel, handler: { UIAlertAction in
+                        //                    completionClosure(false)
+                        self.performSegue(withIdentifier: "unwindFromAddFriends", sender: self)
+                    })
+                }
                 //Async call to create button would complete function, so I return after presenting, and if the user wishes I will issue a facebook prompt
                 let ConfirmAction = UIAlertAction(title: "Yes", style: .default, handler: { UIAlertAction in
                     //Request facebook authenication for friends list
@@ -535,7 +621,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         }
     }
 
-    
+    //#Unused Func, facebook only allows taggable friends to be used to tag stories inside my app
     //Retrieve friends who have not authorized CIO
     func retrieveUnauthFacebookFriends(_ completionClosure: @escaping (_ displayName: [String], _ taggableId: [String]) -> Void){
         //Taggable friends just provides a reference list of friends that can be tagged or mentioned in stories published to Facebook
@@ -657,8 +743,8 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                             self.unAddedFriends.append(displayName)
                             self.unAddedFriendId.append(id)
                             //Sort the updated added friends arrays
-                            self.sortUnaddedFriends()
-                            self.foundUserId = id   //keep trackof the email user that was found so he can appear selected in the table by default
+                            self.sortFriendArrays(nameArr: &self.unAddedFriends, idArr: &self.unAddedFriendId)
+                            self.foundUserId.append(id)   //keep track of all email users that are found so they can appear selected in the table by default
                         }else{
                             //Notify user they can't add this friend again, but still return true, only thing I will do is reload table
                             self.loginFailMsg(error: "currFriend")
@@ -716,6 +802,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         }
         let alert = UIAlertController(title: msgTitle, message: msgBody, preferredStyle: .alert)
         var CancelAction: UIAlertAction
+        //Unused for unwinding
         if(unwind == true){
             //Async call for uialertview will have already left this function, no handling needed
             CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: { UIAlertAction in
@@ -747,42 +834,85 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
 
     }
 
-    //combine the unadded friends names and Ids so they can be sorted together and then seperate back out
-    func sortUnaddedFriends(){
-        //Combine the unAddedFriends names and IDs into a tuple so I can sort by last name
+    //combine the friends names and Ids so they can be sorted together and then seperate back out
+    //Use "inout" keyword to pass arrays to the function by reference 
+    func sortFriendArrays(nameArr: inout [String], idArr: inout [String]){
+        //Combine the Friends names and IDs into a tuple so I can sort by last name
         // use zip to combine the two arrays and sort that based on the first
         //$0.0 refers to the the first value of the first tuple, and $0.1 refers to the first value of the 2nd tupe, so each tuple is a [unAddedFriend Name, unAddedFriendID] so I'm looking at the first & second item for each iteration and only considering the unAddedFriend name for sorting
-        let combinedFriends = zip(self.unAddedFriends, self.unAddedFriendId).sorted {$0.0.lastName() < $1.0.lastName()}
+        let combinedFriends = zip(nameArr, idArr).sorted {$0.0.lastName() < $1.0.lastName()}
         //Then extract all of the 1st items in each tuple (unAddedFriends names)
-        self.unAddedFriends = combinedFriends.map{$0.0}
+        nameArr = combinedFriends.map{$0.0}
         //Then extract all of the 2st items in each tuple (unAddedFriends ids)
-        self.unAddedFriendId = combinedFriends.map{$0.1}
+        idArr = combinedFriends.map{$0.1}
+    }
+    
+    //When a user selects an accessory button (or we preselect for searched users then we store the current location of that user in the table data source to sync the selected accessory view
+    func syncAccessoryView(uncheck: Bool, idx: Int){
+        //Store the selected friend from the data source
+        let friendName = self.unAddedFriends[idx]
+        let friendID = self.unAddedFriendId[idx]
+        //actions to remove the friend from our tracking system when they are unselected
+        if(uncheck){
+            //Remove from arrays for indices, staged friends, and searched friends
+            if let index = self.selectedAccessButt.index(of: idx){
+                self.selectedAccessButt.remove(at: index)
+            }
+            //wish I understood these closures, came from here: http://stackoverflow.com/questions/34081580/array-of-any-and-contains
+            if let fbIndex = self.selectedFBfriends.index(where: {$0.id == friendID} )    {
+                    self.selectedFBfriends.remove(at: fbIndex)
+            }
+
+            //remove the found user so that he will no longer always be selected when the tableview is reloaded, but rather track with the check in the accessory view
+            if let idxMatch = self.foundUserId.index(of: friendID){
+                self.foundUserId.remove(at: idxMatch)
+            }
+   
+        }else{
+            //Keep track of accessory buttons that are checked so they are reselected when scrolled back into view
+            self.selectedAccessButt.append(idx)
+            //Add authorized friends to add to friends list, and create list of unauth friends to notify about the app.
+            let FBfriend = FbookUserInfo(name: friendName, id: friendID)
+            
+            //Don't add a name twice to the list of users to be added. This may occur when ensuring that a "searched for" friend is selected
+            if(!self.selectedFBfriends.contains(where: {$0.id == FBfriend.id})){
+                self.selectedFBfriends.append(FBfriend)
+            }
+        }
     }
 
      @IBAction func submitSelected(_ sender: UIButton) {
 //         let userChecked = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
         let userChecked = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
-        for friend in selectedFBfriends{
-            //Add id of curr friend with their display name stored underneath
-           let friendInfo = ["displayName1" : friend.displayName!]
-        userChecked.child(byAppendingPath: friend.id!).setValue(friendInfo)
+        for friend in self.selectedFBfriends{
+            if let name = friend.displayName, let id = friend.id{
+                //Add id of curr friend with their display name stored underneath
+                let friendInfo = ["displayName1" : name]
+                userChecked.child(byAppendingPath: id).setValue(friendInfo)
+            }else{
+                Helpers().myPrint(text: "No id was found for the following friend: \(friend.displayName ?? "friend name failed too")")
+            }
         }
-        performSegue(withIdentifier: "unwindFromAddFriends", sender: self)
+        //Transition to the home screen from onboarding
+        if(self.isOnboarding){
+            performSegue(withIdentifier: "unwindFromFbLoginIdentifier", sender: self)
+        }else{  //otherwise unwind to check out screen
+            performSegue(withIdentifier: "unwindFromAddFriends", sender: self)
+        }
+        
     }
     
     
     @IBAction func accessoryButtonTapped(_ sender: UIButton) {
         
-        var friendName: String = ""
+        var friendName: String = "", friendID = ""
         if(self.availableTabSelected){
             friendName = self.unAddedFriends[sender.tag]
+            friendID = self.unAddedFriendId[sender.tag]
         }else{
-            //In the all tab faceboookTaggable friends is the data source for facebook users
-            if(self.loginType == Helpers.userType.facebook.rawValue){
-                friendName = self.facebookTaggableFriends[sender.tag]
-            }else{ //myFriends is the data source for email users
-                friendName = self.myFriends[sender.tag]
-            }
+            //In the all tab myFriends is the data source
+            friendName = self.myFriends[sender.tag]
+            friendID = self.myFriendIds[sender.tag]
         }
         var FBfriend: FbookUserInfo
 
@@ -795,25 +925,33 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         }
         
         if(sender.isSelected){
-            //Keep track of accessory buttons that are checked so they are reselected when scrolled back into view
-            selectedAccessButt.append(sender.tag)
-            //Add authorized friends to add to friends list, and create list of unauth friends to notify about the app. (Update 4/4/17 should only pass auth friends to this select func)
-            //friend index will only exist if friend is an auth user
-            if let friendIndex = self.unAddedFriends.index(of: friendName){
-                FBfriend = FbookUserInfo(name: friendName, id: self.unAddedFriendId[friendIndex])
-            }else{
-                FBfriend = FbookUserInfo(name: friendName)
-            }
-            self.selectedFBfriends.append(FBfriend)
+            //Update Tracking arrays of selected accessory buttons 
+            syncAccessoryView(uncheck: false, idx: sender.tag)
+            
+//            //Keep track of accessory buttons that are checked so they are reselected when scrolled back into view
+//            self.selectedAccessButt.append(sender.tag)
+//            //Add authorized friends to add to friends list, and create list of unauth friends to notify about the app.
+//            FBfriend = FbookUserInfo(name: friendName, id: friendID)
+//            
+//            //Don't add a name twice to the list of users to be added. This may occur when ensuring that a "searched for" friend is selected
+//            if(!self.selectedFBfriends.contains(where: {$0.id == FBfriend.id})){
+//                self.selectedFBfriends.append(FBfriend)
+//            }
         }else{
-            //Keep track of accessory buttons that are checked
-            if let index = selectedAccessButt.index(of: sender.tag){
-                selectedAccessButt.remove(at: index)
-            }
-            //wish I understood these closures, came from here: http://stackoverflow.com/questions/34081580/array-of-any-and-contains
-            if let fbIndex = self.selectedFBfriends.index(where: {$0.displayName == friendName} )    {
-                    self.selectedFBfriends.remove(at: fbIndex)
-            }
+            //Keep track of accessory buttons that are unchecked
+            syncAccessoryView(uncheck: true, idx: sender.tag)
+//            if let index = self.selectedAccessButt.index(of: sender.tag){
+//                self.selectedAccessButt.remove(at: index)
+//            }
+//            //wish I understood these closures, came from here: http://stackoverflow.com/questions/34081580/array-of-any-and-contains
+//            if let fbIndex = self.selectedFBfriends.index(where: {$0.id == friendID} )    {
+//                    self.selectedFBfriends.remove(at: fbIndex)
+//            }
+//            
+//            //remove the found user so that he will no longer always be selected when the tableview is reloaded, but rather track with the check in the accessory view
+//            if let idxMatch = self.foundUserId.index(of: friendID){
+//                self.foundUserId.remove(at: idxMatch)
+//            }
         }
     }
     
@@ -840,12 +978,8 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             return self.unAddedFriends.count
 
         }else{
-            //List all facebook friends in available tab if facebook user, otherwise list all friends I've added
-            if(self.loginType == Helpers.userType.facebook.rawValue){
-                return facebookTaggableFriends.count
-            }else{
-                return self.myFriends.count
-            }
+            //List all friends I've added in "All Tab"
+            return self.myFriends.count
         }
     }
     
@@ -861,18 +995,14 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         if(self.availableTabSelected){
             cell.nameLabel.text = "\(self.unAddedFriends[indexPath.row])"
         }else{
-            //Data source for the "all" tab is either facebook friends or current friends
-            if(self.loginType == Helpers.userType.facebook.rawValue){
-                cell.nameLabel.text = "\(facebookTaggableFriends[indexPath.row])"
-            }else{
-                cell.nameLabel.text = "\(self.myFriends[indexPath.row])"
-            }
+            //Data source for the "all" tab is  current friends
+            cell.nameLabel.text = "\(self.myFriends[indexPath.row])"
         }
         
         //Only initialize tagable friends item if using the facebook datasource, otherwise would be indexing into empty array
-        if(self.loginType == Helpers.userType.facebook.rawValue){
-            taggableFriendsItem = facebookTaggableFriends[indexPath.row]
-        }
+//        if(self.loginType == Helpers.userType.facebook.rawValue){
+//            taggableFriendsItem = facebookTaggableFriends[indexPath.row]
+//        }
         //Check if its possible for the current user to be an existing friend so we can change their isAvailable label in the block below
         //All friends are existing if one appears for email users
        /* if(self.loginType == Helpers.userType.email.rawValue){
@@ -884,8 +1014,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             }
         }*/
         
-    
-        
+ 
         cell.nameLabel.textColor = UIColor.black
         cell.nameLabel.font = UIFont(name: "Avenir-Light", size: 18)
         cell.nameLabel.lineBreakMode = .byTruncatingTail
@@ -896,28 +1025,16 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             cell.isAvailableLabel.text = "Available"
             cell.isAvailableLabel.font = UIFont(name: "Avenir-Light", size: 12)
             
-        }
-        //If we're in the all tab and the user is an AuthFriend they could either be "trusted" or "Available"
+        }else{
+        //If we're in the all tab and the user is an AuthFriend they can only be "trusted"
             //If an email user than all friends in the "All tab" are "trusted"
-        else if(self.facebookAuthFriends.contains(taggableFriendsItem) || (self.loginType == Helpers.userType.email.rawValue)){
-            if(self.myFriends.contains(taggableFriendsItem) || self.loginType == Helpers.userType.email.rawValue){    //True if the firebase friends list matches the cell || user is an email type
-                cell.isAvailableLabel.text = "Trusted"
-                cell.isAvailableLabel.font = UIFont(name: "Avenir-LightOblique", size: 12)
-                showAccessoryButt = false   //Don't allow the user to try to re-add a friend
-            }else{
-                cell.isAvailableLabel.text = "Available"
-                cell.isAvailableLabel.font = UIFont(name: "Avenir-Light", size: 12)
-            }
+            cell.isAvailableLabel.text = "Trusted"
+            cell.isAvailableLabel.font = UIFont(name: "Avenir-LightOblique", size: 12)
+            showAccessoryButt = false   //Don't allow the user to try to re-add a friend
         }
-        else{
-            cell.isAvailableLabel.text = "Invite to Check-In-Out"
-            cell.isAvailableLabel.font = UIFont(name: "Avenir-Light", size: 12)
-            showAccessoryButt = false
-        }
+        
         cell.isAvailableLabel.textColor = UIColor.black
         
-        
-       
         //Add custom accessory view for check button
         let accessoryButton = UIButton(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
         accessoryButton.layer.cornerRadius = 0.5 * accessoryButton.bounds.size.width
@@ -931,12 +1048,14 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         
         cell.accessoryView = accessoryButton as UIView
         
-        //Preselect any user that has appeared due to searching for friends if any unaddedFriends exists
-        if(self.unAddedFriends.indices.contains(indexPath.row)){    //First check if any unadded friends exist
-            if (self.unAddedFriendId[indexPath.row] == self.foundUserId){
+        //Preselect any user that was selected before searching or has appeared due to searching for friends if any unaddedFriends exists
+        if(self.availableTabSelected && self.unAddedFriends.indices.contains(indexPath.row)){    //First check if any unadded friends exist
+            //Then check if I still have this user in my found user array or selected FB friends
+            if (self.foundUserId.contains(self.unAddedFriendId[indexPath.row]) || self.selectedFBfriends.contains(where: {$0.id == self.unAddedFriendId[indexPath.row]})){
                 //Disable button which will be the indicator to the accessoryButtonTapped function to leave highlighted
-                accessoryButton.isEnabled = false
-                self.accessoryButtonTapped(accessoryButton)
+//                accessoryButton.isEnabled = false
+//                self.accessoryButtonTapped(accessoryButton)
+                syncAccessoryView(uncheck: false, idx: indexPath.row)
             }
         }
         
@@ -945,7 +1064,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         }
         
         //Reselect accessory button when scrolled back into view
-        if(selectedAccessButt.contains(indexPath.item)){
+        if(self.availableTabSelected && self.selectedAccessButt.contains(indexPath.item)){
             accessoryButton.isSelected = true
         }
         
@@ -986,7 +1105,12 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             break;
         case (self.tabBar.items?[2])!:
             //Activate dummy textfield to show keyboard that that has accessory input view attached
-            self.dummyTextBox.becomeFirstResponder()
+            //If an active text field is already selected then don't make dummyTextBox first responder again 
+            if let activeText = self.activeTextField{   //if non-nil I already have an active text box
+                //Do nothing
+            }else{
+                self.dummyTextBox.becomeFirstResponder()
+            }
 //            self.activeTextField = self.dummyTextBox
             break
         default:    //No other tabs should exist
@@ -1149,7 +1273,10 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                 self.tabBar.selectedItem = self.tabBar.items?[1]    //Select available tab
                 //Keep track of the available tab being selected
                 self.availableTabSelected = true
-                
+                //When updating available tab with new users removed entries in the selected accessory views array since they may no longer correspond to the same index
+                self.selectedAccessButt.removeAll()
+                //Any non-searched for friends are removed since I remove the selected access button earlier
+//                self.selectedFBfriends.removeAll()
                 self.tableView.reloadData()
                 
             }

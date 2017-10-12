@@ -122,6 +122,7 @@ class Helpers{
                             break
                         }
                     }else{  //if entry doesn't include type then user should be recreated
+                        //This in coordination with checking for username forces Beta users to complete this onboard details screen
                         returnType = Helpers.userType.new
                     }
                 }else{  //If downcast fails then user doesn't exist

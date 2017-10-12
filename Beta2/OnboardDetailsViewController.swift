@@ -137,6 +137,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                 sender.isEnabled = true
             }else{
                 //Ensure the email has not been modified and be actually linked to an existing account
+                //Curently email check will return .new if the user is missing the "type" key in the back end (old beta user)
                 Helpers().emailCheck(email: email){(type: Helpers.userType) in
                     switch(type){
                     case(.facebook):
