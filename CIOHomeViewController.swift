@@ -21,11 +21,14 @@ class CIOHomeViewController: UIViewController   {
     
     var providerId: String?     //Extract the type of auth process that was used
     
+    
     //Check if user has logged in and force login if not, modal segues must be performed in viewDidAppear
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
        
-        var providerData = Helpers().firAuth?.currentUser?.providerData
+        //Check if the user needs to be logged up pending new update
+        let shouldLogout = Helpers().logoutDefault
+        let providerData = Helpers().firAuth?.currentUser?.providerData
         if let pData = providerData{
             //pData[0].uid will give me the facebook uid
             //user.providerID will return either "facebook.com" or "password"
@@ -39,9 +42,14 @@ class CIOHomeViewController: UIViewController   {
             //If user is not authenicated through either system then show login screen
             //I have to check that even if the currentUser is not nil I have to make sure that it was an email verified auth user. Only want this to be true if the user is not signed in through facebook and the user is not signed in through firebase (isEmailed verfified is false of nil)
         if ((FBSDKAccessToken.current() == nil) && (Helpers().firAuth?.currentUser == nil /*&& (self.providerId ?? "") == "password")*/))
-            {
-                self.performSegue(withIdentifier: "LoginScreen", sender: nil)
-            }
+        {
+            self.performSegue(withIdentifier: "LoginScreen", sender: nil)
+        }else if(shouldLogout == 1){//The NSUserDefault shouldLogut is also checked if the user needs to be forced to login again
+            //Update logout Default so the user no longer has to logout 
+            Helpers().logoutDefault = 0
+            LogoutButton(UIButton())
+        }
+        
         
     }
 
@@ -93,13 +101,18 @@ class CIOHomeViewController: UIViewController   {
         // empty
     }
     
-    // Unwind seque from my myListVC
+    // Unwind seque from my Check In VC
     @IBAction func unwindFromCheckIn(_ sender: UIStoryboardSegue) {
         // empty
     }
     
     // Unwind seque from my CheckOutVC
     @IBAction func unwindFromCheckOut(_ sender: UIStoryboardSegue) {
+        // empty
+    }
+    
+    // Unwind seque from my CheckOutVC
+    @IBAction func unwindFromProfile(_ sender: UIStoryboardSegue) {
         // empty
     }
 

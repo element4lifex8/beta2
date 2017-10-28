@@ -193,6 +193,8 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                                     }else{  //No Error, create user in database
                                         //Store user ID in NSUserDefaults
                                         Helpers().currUser = user?.uid as! NSString
+                                        //Store user's name in UserDefaults
+                                        Helpers().currUsername = "\(firstName) \(lastName)" as NSString
                                         //Once login type is successful store the method used in NSUserDefaults
                                         Helpers().loginType = self.parsedLoginType!.rawValue
                                         //Lowercase the email address to make searching standard
@@ -253,9 +255,14 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                         }else{
                             ref.child(Helpers().currUser as String).updateChildValues(betaUser)
                         }
+                        
 
                         //Once login type is successful store the method used in NSUserDefaults as NSInt since I can't save custom data types (or even swift data types
                         Helpers().loginType = self.parsedLoginType!.rawValue
+                        
+                        //Store uid and username to NS User defaults
+                        Helpers().currUsername = "\(firstName) \(lastName)" as NSString
+                        
                         
                         //Succesfully finished this screen, now get user Info and username at loginInfo screen
                         self.performSegue(withIdentifier: "startOnboarding", sender: nil)

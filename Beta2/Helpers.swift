@@ -12,31 +12,92 @@ import FirebaseDatabase
 import FirebaseAuth
 
 class Helpers{
-    //NSUserDefault keys refer to FB login controller where they originall presided
-    let currUserDefaultKey = "FBloginVC.currUser"
+    //Reference to User Defaults
     fileprivate let defaultsStandard = UserDefaults.standard
+    //NSUserDefault keys refer to FB login controller where they originally presided
+    static let currUserDefaultKey = "FBloginVC.currUser"
+    static let currUserNameKey = "FBloginVC.displayName"
+    static let loginTypeDefaultKey = "FBloginVC.loginType"
+    static let currAppVerKey = "CIOHomeVC.appVer"   //key for storing curr app version so I can force a log out when not up to date
+    static let logoutDefaultKey = "CIOHomeVC.logout"    //Key to check if a logout should be forced for a new version 
     
     //retrieve the current app user from NSUserDefaults
     var currUser: NSString {
         get{
-            return (defaultsStandard.object(forKey: currUserDefaultKey) as? NSString)!
+            if let userId = defaultsStandard.object(forKey: Helpers.currUserDefaultKey) as? NSString{
+                return userId
+            }else{
+                return "0"
+            }
         }
         set
         {
-            defaultsStandard.set(newValue, forKey: currUserDefaultKey)
+            defaultsStandard.set(newValue, forKey: Helpers.currUserDefaultKey)
+//            defaultsStandard.synchronize()      //Force user default to immediately update, supposedly slow and memory intensive
         }
     }
     
-    let loginTypeDefaultKey = "FBloginVC.loginType"
+    
+    //retrieve the current app user display name from NSUserDefaults
+    var currUsername: NSString {
+        get{
+            if let userName = defaultsStandard.object(forKey: Helpers.currUserNameKey) as? NSString{
+                return userName
+            }else{
+                return "User"
+            }
+        }
+        set
+        {
+            defaultsStandard.set(newValue, forKey: Helpers.currUserNameKey)
+//            defaultsStandard.synchronize()
+        }
+    }
+    
     
     //retrieve the current login type from NSUserDefaults as raw integer and when used I'll have to equate that with the rawValue of a userType variable
     var loginType: NSInteger {
         get{
-            return (defaultsStandard.object(forKey: loginTypeDefaultKey) as? NSInteger)!
+            if let loginType = defaultsStandard.object(forKey: Helpers.loginTypeDefaultKey) as? NSInteger{
+                return loginType
+            }else{  //By default return a new user if UserDeafaults fails to find a user type
+                return userType.new.rawValue
+            }
         }
         set
         {
-            defaultsStandard.set(newValue, forKey: loginTypeDefaultKey)
+            defaultsStandard.set(newValue, forKey: Helpers.loginTypeDefaultKey)
+//            defaultsStandard.synchronize()
+        }
+    }
+    
+    //Store the current app version and compare it to the current version in Info.plist
+    var appVer: NSString {
+        get{
+            if let ver = defaultsStandard.object(forKey: Helpers.currAppVerKey) as? NSString{
+                return ver
+            }else{
+                return "0.0"
+            }
+        }
+        set
+        {
+            defaultsStandard.set(newValue, forKey: Helpers.currAppVerKey)
+        }
+    }
+    
+    //Store and readback whether a logout should be forced on the user
+    var logoutDefault: NSNumber {
+        get{
+            if let shouldLogout = defaultsStandard.object(forKey: Helpers.logoutDefaultKey) as? NSNumber{
+                return shouldLogout
+            }else{  //By default I will logout the user if the key doesn't exist yet
+                return 1
+            }
+        }
+        set
+        {
+            defaultsStandard.set(newValue, forKey: Helpers.logoutDefaultKey)
         }
     }
     
@@ -48,6 +109,13 @@ class Helpers{
         case new
     }
     
+    
+//    func registerDefaults(){
+//            //Ensure NSUserDefault has a default value for each key the app is started
+//        defaultsStandard.register(defaults: [currUserDefaultKey: "0"])
+//        defaultsStandard.register(defaults: [currUserNameKey: "User"])
+//        defaultsStandard.register(defaults: [loginTypeDefaultKey: userType.new.rawValue])
+//    }
     
     func returnCurrUser() -> NSString{
         return currUser

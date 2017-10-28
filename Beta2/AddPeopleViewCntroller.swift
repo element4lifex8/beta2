@@ -310,9 +310,23 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         //Don't capitalize the user's input of username's and emails
         self.accTextField.autocapitalizationType = .none
         self.accTextField.spellCheckingType = .no
+
         //Disabling preditive text cause the keyboard to glitch on dismiss and show an overlapped predictive text view and the accessory input view would have to be reactivity and then re-dismissed to properly dismiss the keyboard
-        self.accTextField.autocorrectionType = .no //Disable spell checking
+        self.accTextField.autocorrectionType = .no //Disable predictive text
         self.accTextField.keyboardType = .emailAddress  //make it easier to search for email addresses by setting the email keyboard type
+
+        //Failed attempt to modify the predictive text bar. For iOS 11 this should modify the passord prediction bar
+//        self.accTextField.textContentType = UITextContentType("Name")
+//        self.dummyTextBox.textContentType = UITextContentType("")
+        //Hide predictive text which is only available starting with iOS 9.0
+
+        
+        //        self.accTextField.inputAssistantItem.leadingBarButtonGroups = []
+//        self.accTextField.inputAssistantItem.trailingBarButtonGroups = []
+//        print(self.accTextField.inputAssistantItem.accessibilityElementCount())
+//        item.leadingBarButtonGroups = [];
+//        item.trailingBarButtonGroups = [];
+
         
         //Fake out a delegate since its not getting called for the accessory text box on return button press, adding this target will trigger the event and for some reason will cause the dummyTextField editing did end to get called too which will dismiss the keyboard (cascadging events somehow)
         self.accTextField.addTarget(self, action: #selector(AddPeopleViewCntroller.accessoryEditEnd(_:)), for: .editingDidEndOnExit )
@@ -1109,7 +1123,10 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             if let activeText = self.activeTextField{   //if non-nil I already have an active text box
                 //Do nothing
             }else{
+                //I have to disable predictive text before becomming first responder, then later re-enable before dismissing to avoid glitch detailed in my Stack overflow question: https://stackoverflow.com/questions/46858834/ios-keyboard-predictive-text-glitch-when-dismissing
+                self.accTextField.autocorrectionType = .no //Disable predictive text
                 self.dummyTextBox.becomeFirstResponder()
+                self.activeTextField = self.dummyTextBox
             }
 //            self.activeTextField = self.dummyTextBox
             break
@@ -1224,14 +1241,16 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         
         //keyboard dismissal will notify the keyboard observer to call the keyboardWillBeHidden func to restore the view
 //        self.accTextField.resignFirstResponder()
-        self.activeTextField?.resignFirstResponder()    //Since I just edited the input accessory textbox to add search string this is the only keyboard that needs to be dismissed
+//        self.activeTextField?.resignFirstResponder()    //Since I just edited the input accessory textbox to add search string this is the only keyboard that needs to be dismissed
+        resignResponders()
         
-//        restoreViewOnKeyboardDissmiss(changeTab: true)
+        restoreViewOnKeyboardDissmiss(changeTab: true)
        
         //Do nothing if empty string was entered
         guard let searchString = self.accTextField.text else{
                 return
         }
+        
         if(searchString.isEmpty){
             return
         }
@@ -1286,8 +1305,18 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     
     //Dismiss keyboards for both dummy and accessory text box to ensure keyboard is dismissed
     func resignResponders(){
-        self.accTextField.resignFirstResponder()
-        self.dummyTextBox.resignFirstResponder()
+        //Only resign responders when an active responder exists since this will swap first responders and change accessory text box settings and then dismiss
+        if let activeField = self.activeTextField{
+            //Before I can dismiss keyboard I have to re-enable predictive text to avoid keyboard glitch
+            //To re-enable predictive text I have have to make another text field first responder
+            self.dummyTextBox.becomeFirstResponder()
+            self.accTextField.autocorrectionType = .yes
+            //Return the accessory text box to first responder so it can then be dissmissed
+            self.accTextField.becomeFirstResponder()
+            self.activeTextField = self.accTextField
+            self.accTextField.resignFirstResponder()
+            self.dummyTextBox.resignFirstResponder()
+        }
     }
     
     //Since delegate is not getting called, anything that ends the editing has to call this function

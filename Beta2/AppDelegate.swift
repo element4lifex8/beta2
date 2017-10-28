@@ -16,7 +16,8 @@ import GooglePlaces
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    var plistVersion: NSString = "0.0"
+    
     //2 facebook delegate methods
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         //Enable google places api key
@@ -29,10 +30,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //Change status bar text  to light color
         UIApplication.shared.statusBarStyle = .lightContent
         
+        //Ensure NSUserDefault has a default value for each key the app is started
+        let defaultsStandard = UserDefaults.standard
+//        defaultsStandard.register(defaults: [Helpers.currUserDefaultKey: "0"])
+//        defaultsStandard.register(defaults: [Helpers.currUserNameKey: "User"])
+//        defaultsStandard.register(defaults: [Helpers.loginTypeDefaultKey: Helpers.userType.new.rawValue])
+        //Store the current version of the app and see if its changed since the last version
+        //read version from Info.plist
+        if let unwrapVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") {
+            Helpers().myPrint(text: "Current ap version is : \(unwrapVersion)")
+            plistVersion = unwrapVersion as! NSString
+        }
+        //Compare to the version stored in user defaults
+        let appVer = Helpers().appVer
+        //create a default key for the logout option, default value is true when new version exists
+        //Registering the User default creates a new value and key regardless of what previously existed
+        if(plistVersion != appVer){
+            defaultsStandard.register(defaults: [Helpers.logoutDefaultKey: 1])
+            //If I have to logout then update my current version number
+            Helpers().appVer = plistVersion
+        }else{
+            defaultsStandard.register(defaults: [Helpers.logoutDefaultKey: 0])
+        }
+        
         //Configure Firebase
         FIRApp.configure()
         //enable firebase to work offline - can cause a delay in items being synced to/from Firebase
 //        FIRDatabase.database().persistenceEnabled = true
+        
+        
         // Override point for customization after application launch.
         return FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
         

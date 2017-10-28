@@ -125,7 +125,6 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                             //The entry will contain the following items: providerID (facebook.com), userId($uid), displayName (from facebook), photoURL(also from FB), email
                             for entry in providerData{  //Expect only 1 entry
                                 Helpers().currUser = entry.uid as NSString
-
                                 //sometimes facebook doesn't provide an email
                                 if let emailWrap = entry.email {
                                     emailFB = emailWrap
@@ -460,127 +459,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         self.present(alert, animated: true, completion: nil)
     }
     
-     
-#if UNUSED_FUNCS
-    //<<Unused function that is a delegate of the default facebook login icon>>
-    // Facebook Delegate Methods
-    //func used to know if the user did login correctly and if they did you can grab their information.
-    func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error!){
-        var existingUser = false
-        let ref = FIRDatabase.database().reference()
-        let facebookLogin = FBSDKLoginManager()
-        
-//        if ((error) != nil)
-//        {
-//            print("Error occured during FB login: \(error)")
-//        }
-//        else if result.isCancelled
-//        {
-//            print("User canceled login, this needs to be handled")
-//        }
-//        else
-//        {
-        
-        facebookLogin.logIn(withReadPermissions: ["public_profile", "email"], from: self, handler:
-        {(facebookResult, facebookError) -> Void in
-            if facebookError != nil {
-                Helpers().myPrint(text: "Facebook login failed. Error \(facebookError)")
-            } else if (facebookResult?.isCancelled)! {
-                Helpers().myPrint(text: "Facebook login was cancelled.")
-            } else {
-                
-                let credential = FIRFacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
-//                let authRef = FIRAuth.auth()
-                //use current access token from logged in user to pass to firebase's login auth func
-
-                Helpers().firAuth!.signIn(with: credential) { (user, error) in
-                    if error != nil
-                    {
-                        Helpers().myPrint(text: "Login failed \(error)")
-                    }
-                    else
-                    {
-                        //save user's id to NSUser defaults
-                        Helpers().currUser = user!.uid as NSString
-                        Helpers().myPrint(text: "Logged in  \(Helpers().currUser)")
     
-//<<If not using provider data then "facebook" is appended prior to uid
-//                        if let userId = user?.uid{
-//                            //user credential now has the string "facebook:" inserted before the facebook id
-//                            guard let beginIdx = userId.characters.index(of: ":") else{
-//                                print("Malformed facebook user id string: \(userId)")
-//                                return
-//                            }
-//
-//                            self.currUser = userId.substring(from: userId.index(after: beginIdx)) as NSString
-//                            print("Logged in \(self.currUser)")
-//                        }else{
-//                            print("Facebook user id not provided, login unsuccessful")
-//                        }
-    
-                        //Check to see if user is new and has not been added to the user's list in Firebase
-                        
-
-                         /*TO update one field only:
-                        let emailPath = "\(self.currUser)/email"
-                        let email = (authData.providerData["email"] as? NSString)!
-                        usersRef.updateChildValues([emailPath:email])*/
-                        // Create a child path with a key set to the uid underneath the "users" node
-                        // This creates a URiL path like the following:
-                        //  - https://<YOUR-FIREBASE-APP>.firebaseio.com/users/<uid>
-                            
-                        self.isCurrentUser() {(isUser: Bool) in
-                            existingUser = isUser
-                            if(!existingUser){
-                                let newUser = ["displayName1": (user?.displayName)!,
-                                               "email": (user?.email)!, "friends:" : "true"]
-                                ref.child(byAppendingPath: "users").child(byAppendingPath: self.currUser as String).setValue(newUser)
-                            }
-                        }
-                        
-                        // If you ask for multiple permissions at once, you
-                        // should check if specific permissions missing
-//                        if result.grantedPermissions.contains("email")
-//                        {
-//                            // Do work
-//                        }
-                        self.performSegue(withIdentifier: "profileSteps", sender: nil)
-                    }
-                }
-            }
-        })
-
-
-        
-        /*let request = FBSDKGraphRequest(graphPath:"/me/friends", parameters: nil) //["fields" : "email" : "name"]);
-        
-        request.startWithCompletionHandler
-            {
-                (connection : FBSDKGraphRequestConnection!, result : AnyObject!, error : NSError!) -> Void in
-                if error == nil
-                {
-                    //print friend boken
-                    let resultdict = result as! NSDictionary
-                    let data : NSArray = resultdict.objectForKey("data") as! NSArray
-                    print("data \(data)")
-                    for i in 0..<data.count
-                    {
-                        let valueDict : NSDictionary = data[i] as! NSDictionary
-                        let id = valueDict.objectForKey("id") as! String
-                        print("the id value is \(id)")
-                        let fbFriendName = valueDict.objectForKey("name") as! String
-                        print ("name \(fbFriendName)")
-                    }
-                }
-                else
-                {
-                    print("Error Getting Friends \(error)");
-                }
-        }*/
-        
-    }
-#endif 
-
     //Check if the current user is a facebook user
     func isCurrentUser(_ completionClosure: @escaping (_ isUser:  Bool) -> Void) {
         //"as" without !? can only be used when the compiler knows the cast will always work, like from NSString to string

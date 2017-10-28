@@ -34,6 +34,7 @@
 		EB38B9A71E91810A004A08D8 /* FBSDKMessengerShareKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB38B9A61E91810A004A08D8 /* FBSDKMessengerShareKit.framework */; };
 		EB38B9A91E918381004A08D8 /* FBSDKShareKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB38B9A81E918381004A08D8 /* FBSDKShareKit.framework */; };
 		EB3C7EA01EB93182004E417E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EB3C7E9F1EB93182004E417E /* GoogleService-Info.plist */; };
+		EB40AD321F9B8C3D000E58E2 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB40AD311F9B8C3D000E58E2 /* ProfileViewController.swift */; };
 		EB4B128D1D57B9C500F8B62C /* MyListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */; };
 		EB4C38471D453C8F00D11721 /* DeleteCityUIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */; };
 		EB5161C71DAAA6B600321D98 /* CheckOutContainedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5161C61DAAA6B600321D98 /* CheckOutContainedViewController.swift */; };
@@ -44,7 +45,6 @@
 		EB61CD661DC4F50500297225 /* FriendTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB61CD651DC4F50500297225 /* FriendTableViewCell.swift */; };
 		EB61CD681DC5025400297225 /* SegueFromRight.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB61CD671DC5025400297225 /* SegueFromRight.swift */; };
 		EB85D5551C51B5B200F2E29F /* ProfileStepsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */; };
-		EB85D5571C540E6800F2E29F /* AddFbFriendsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */; };
 		EB85D5701C5982F000F2E29F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB85D5641C5982F000F2E29F /* CoreData.framework */; };
 		EB86294B1F5CBF7C00AB72DA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB86294A1F5CBF7C00AB72DA /* Assets.xcassets */; };
 		EB9EE2CB1DD2A88900AC1FF0 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB9EE2CA1DD2A88900AC1FF0 /* Launch Screen.storyboard */; };
@@ -127,6 +127,7 @@
 		EB38B9A61E91810A004A08D8 /* FBSDKMessengerShareKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKMessengerShareKit.framework; path = ../../FacebookSDK/FBSDKMessengerShareKit.framework; sourceTree = "<group>"; };
 		EB38B9A81E918381004A08D8 /* FBSDKShareKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKShareKit.framework; path = ../../FacebookSDK/FBSDKShareKit.framework; sourceTree = "<group>"; };
 		EB3C7E9F1EB93182004E417E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
+		EB40AD311F9B8C3D000E58E2 /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		EB49A2E41C78ED45006F16AB /* checkList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = checkList.swift; sourceTree = "<group>"; };
 		EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyListViewController.swift; sourceTree = "<group>"; };
 		EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DeleteCityUIButton.swift; path = ../DeleteCityUIButton.swift; sourceTree = "<group>"; };
@@ -140,7 +141,6 @@
 		EB61CD671DC5025400297225 /* SegueFromRight.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SegueFromRight.swift; sourceTree = "<group>"; };
 		EB63152B1BF961D7009683FE /* CheckInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CheckInViewController.swift; path = Beta2/CheckInViewController.swift; sourceTree = SOURCE_ROOT; };
 		EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileStepsViewController.swift; sourceTree = "<group>"; };
-		EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFbFriendsViewController.swift; sourceTree = "<group>"; };
 		EB85D5641C5982F000F2E29F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		EB86294A1F5CBF7C00AB72DA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EB9EE2CA1DD2A88900AC1FF0 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
@@ -295,6 +295,7 @@
 				EB03E5C31C3864FF009A55F1 /* Bridging-Header.h */,
 				EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */,
 				EB5161C61DAAA6B600321D98 /* CheckOutContainedViewController.swift */,
+				EB40AD311F9B8C3D000E58E2 /* ProfileViewController.swift */,
 				EB3A98211D9813D400C16E89 /* Model */,
 				EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */,
 				EBC161451EB613EB0081F239 /* CheckInView.swift */,
@@ -337,7 +338,6 @@
 			isa = PBXGroup;
 			children = (
 				EB4C38481D48364E00D11721 /* TableHeaderUIView.swift */,
-				EB85D5561C540E6800F2E29F /* AddFbFriendsViewController.swift */,
 				EB03E5C11C25FE72009A55F1 /* FBloginViewController.swift */,
 				EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */,
 				EBEA7D871F3FBA7300A15461 /* OnboardDetailsViewController.swift */,
@@ -423,7 +423,7 @@
 						CreatedOnToolsVersion = 7.0.1;
 						DevelopmentTeam = KZFHW7YTLK;
 						LastSwiftMigration = 0810;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.Keychain = {
 								enabled = 1;
@@ -644,12 +644,12 @@
 				EB61CD601DC41F4300297225 /* SegueFromLeft.swift in Sources */,
 				EBC161481EB614F00081F239 /* RoundButtCollectionViewCell.swift in Sources */,
 				EB003CAD1E436597004E7451 /* PlaceDeetsViewController.swift in Sources */,
+				EB40AD321F9B8C3D000E58E2 /* ProfileViewController.swift in Sources */,
 				EB61CD641DC4F0A800297225 /* AddPeopleViewCntroller.swift in Sources */,
 				EB5A49B51D61005F00B9AB17 /* PlaceNodeTree.swift in Sources */,
 				EB61CD661DC4F50500297225 /* FriendTableViewCell.swift in Sources */,
 				EB03E57D1C150669009A55F1 /* TestTableViewCell.swift in Sources */,
 				EB55D6271CEBD180004D81D0 /* placeNode.swift in Sources */,
-				EB85D5571C540E6800F2E29F /* AddFbFriendsViewController.swift in Sources */,
 				EBC161461EB613EB0081F239 /* CheckInView.swift in Sources */,
 				EB06564E1BEE3B4900CF8376 /* CIOHomeViewController.swift in Sources */,
 				EBBA52E21CFE62730047E22A /* SubheaderTableViewCell.swift in Sources */,
@@ -808,8 +808,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Beta2/Beta2.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Check In Out, LLC (KZFHW7YTLK)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				DEVELOPMENT_TEAM = KZFHW7YTLK;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					/Users/jasonjohnston/Documents/FacebookSDK,
@@ -838,8 +838,8 @@
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-DDEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.checkinoutllc.checkinout;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "27e24e17-7c18-4b15-9a1a-ebeb55d43676";
-				PROVISIONING_PROFILE_SPECIFIER = "Check In Out App Store Distribution";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -853,8 +853,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Beta2/Beta2.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Check In Out, LLC (KZFHW7YTLK)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				DEVELOPMENT_TEAM = KZFHW7YTLK;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					/Users/jasonjohnston/Documents/FacebookSDK,
@@ -878,8 +878,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.checkinoutllc.checkinout;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "27e24e17-7c18-4b15-9a1a-ebeb55d43676";
-				PROVISIONING_PROFILE_SPECIFIER = "Check In Out App Store Distribution";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
