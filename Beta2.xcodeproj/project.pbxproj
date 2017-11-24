@@ -35,6 +35,8 @@
 		EB38B9A91E918381004A08D8 /* FBSDKShareKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB38B9A81E918381004A08D8 /* FBSDKShareKit.framework */; };
 		EB3C7EA01EB93182004E417E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EB3C7E9F1EB93182004E417E /* GoogleService-Info.plist */; };
 		EB40AD321F9B8C3D000E58E2 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB40AD311F9B8C3D000E58E2 /* ProfileViewController.swift */; };
+		EB489D251FB8E3AB00C0CB6C /* UpdateCatsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB489D241FB8E3AB00C0CB6C /* UpdateCatsViewController.swift */; };
+		EB489D271FB8EE7400C0CB6C /* CategoryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB489D261FB8EE7400C0CB6C /* CategoryTableViewCell.swift */; };
 		EB4B128D1D57B9C500F8B62C /* MyListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */; };
 		EB4C38471D453C8F00D11721 /* DeleteCityUIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */; };
 		EB5161C71DAAA6B600321D98 /* CheckOutContainedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5161C61DAAA6B600321D98 /* CheckOutContainedViewController.swift */; };
@@ -44,6 +46,7 @@
 		EB61CD641DC4F0A800297225 /* AddPeopleViewCntroller.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB61CD631DC4F0A800297225 /* AddPeopleViewCntroller.swift */; };
 		EB61CD661DC4F50500297225 /* FriendTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB61CD651DC4F50500297225 /* FriendTableViewCell.swift */; };
 		EB61CD681DC5025400297225 /* SegueFromRight.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB61CD671DC5025400297225 /* SegueFromRight.swift */; };
+		EB8184BC1FC1C00200F787E7 /* CommentsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB8184BB1FC1C00200F787E7 /* CommentsTableViewCell.swift */; };
 		EB85D5551C51B5B200F2E29F /* ProfileStepsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */; };
 		EB85D5701C5982F000F2E29F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB85D5641C5982F000F2E29F /* CoreData.framework */; };
 		EB86294B1F5CBF7C00AB72DA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB86294A1F5CBF7C00AB72DA /* Assets.xcassets */; };
@@ -128,6 +131,8 @@
 		EB38B9A81E918381004A08D8 /* FBSDKShareKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKShareKit.framework; path = ../../FacebookSDK/FBSDKShareKit.framework; sourceTree = "<group>"; };
 		EB3C7E9F1EB93182004E417E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		EB40AD311F9B8C3D000E58E2 /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		EB489D241FB8E3AB00C0CB6C /* UpdateCatsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UpdateCatsViewController.swift; sourceTree = "<group>"; };
+		EB489D261FB8EE7400C0CB6C /* CategoryTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CategoryTableViewCell.swift; sourceTree = "<group>"; };
 		EB49A2E41C78ED45006F16AB /* checkList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = checkList.swift; sourceTree = "<group>"; };
 		EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyListViewController.swift; sourceTree = "<group>"; };
 		EB4C38461D453C8F00D11721 /* DeleteCityUIButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DeleteCityUIButton.swift; path = ../DeleteCityUIButton.swift; sourceTree = "<group>"; };
@@ -140,6 +145,7 @@
 		EB61CD651DC4F50500297225 /* FriendTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FriendTableViewCell.swift; sourceTree = "<group>"; };
 		EB61CD671DC5025400297225 /* SegueFromRight.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SegueFromRight.swift; sourceTree = "<group>"; };
 		EB63152B1BF961D7009683FE /* CheckInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CheckInViewController.swift; path = Beta2/CheckInViewController.swift; sourceTree = SOURCE_ROOT; };
+		EB8184BB1FC1C00200F787E7 /* CommentsTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentsTableViewCell.swift; sourceTree = "<group>"; };
 		EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileStepsViewController.swift; sourceTree = "<group>"; };
 		EB85D5641C5982F000F2E29F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		EB86294A1F5CBF7C00AB72DA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -294,6 +300,7 @@
 				EBF790101EA6DEDB005F0B6F /* Main.storyboard */,
 				EB03E5C31C3864FF009A55F1 /* Bridging-Header.h */,
 				EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */,
+				EB489D241FB8E3AB00C0CB6C /* UpdateCatsViewController.swift */,
 				EB5161C61DAAA6B600321D98 /* CheckOutContainedViewController.swift */,
 				EB40AD311F9B8C3D000E58E2 /* ProfileViewController.swift */,
 				EB3A98211D9813D400C16E89 /* Model */,
@@ -309,6 +316,8 @@
 		EB3A98201D9813A500C16E89 /* Table Cells */ = {
 			isa = PBXGroup;
 			children = (
+				EB8184BB1FC1C00200F787E7 /* CommentsTableViewCell.swift */,
+				EB489D261FB8EE7400C0CB6C /* CategoryTableViewCell.swift */,
 				EBDC215A1EEA0B11003A6347 /* AutoCompleteTableCell.swift */,
 				EB03E57C1C150669009A55F1 /* TestTableViewCell.swift */,
 				EB61CD651DC4F50500297225 /* FriendTableViewCell.swift */,
@@ -642,10 +651,12 @@
 				EB4C38471D453C8F00D11721 /* DeleteCityUIButton.swift in Sources */,
 				EB003CAF1E436783004E7451 /* AddressTableViewCell.swift in Sources */,
 				EB61CD601DC41F4300297225 /* SegueFromLeft.swift in Sources */,
+				EB8184BC1FC1C00200F787E7 /* CommentsTableViewCell.swift in Sources */,
 				EBC161481EB614F00081F239 /* RoundButtCollectionViewCell.swift in Sources */,
 				EB003CAD1E436597004E7451 /* PlaceDeetsViewController.swift in Sources */,
 				EB40AD321F9B8C3D000E58E2 /* ProfileViewController.swift in Sources */,
 				EB61CD641DC4F0A800297225 /* AddPeopleViewCntroller.swift in Sources */,
+				EB489D251FB8E3AB00C0CB6C /* UpdateCatsViewController.swift in Sources */,
 				EB5A49B51D61005F00B9AB17 /* PlaceNodeTree.swift in Sources */,
 				EB61CD661DC4F50500297225 /* FriendTableViewCell.swift in Sources */,
 				EB03E57D1C150669009A55F1 /* TestTableViewCell.swift in Sources */,
@@ -654,6 +665,7 @@
 				EB06564E1BEE3B4900CF8376 /* CIOHomeViewController.swift in Sources */,
 				EBBA52E21CFE62730047E22A /* SubheaderTableViewCell.swift in Sources */,
 				EB4B128D1D57B9C500F8B62C /* MyListViewController.swift in Sources */,
+				EB489D271FB8EE7400C0CB6C /* CategoryTableViewCell.swift in Sources */,
 				EB61CD681DC5025400297225 /* SegueFromRight.swift in Sources */,
 				EBA11B771E5FBF6800114D56 /* Helpers.swift in Sources */,
 				EB03E5C21C25FE72009A55F1 /* FBloginViewController.swift in Sources */,

@@ -121,7 +121,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             self.backButton.isHidden = true
             self.backButton.removeFromSuperview()
         }else{
-            //Hide first before removing so the user doesn't see them appear before they are remove
+            //Hide first before removing so the user doesn't see them appear before they are removed
             self.skipButon.isHidden = true
             self.pagenationImgView.isHidden = true
             self.headerImageView.isHidden = true

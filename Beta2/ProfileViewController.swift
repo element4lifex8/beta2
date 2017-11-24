@@ -9,10 +9,14 @@
 import UIKit
 import CoreData
 import FirebaseDatabase
+import FBSDKLoginKit
 
-class ProfileViewController: UIViewController {
+class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
+    @IBOutlet var menuView: UIView!
+    
     @IBOutlet var userNameLabel: UILabel!
+    @IBOutlet var customUserNameLabel: UILabel!
     
     @IBOutlet var peopleButton: UIButton!
     @IBOutlet var homeCityButton: UIButton!
@@ -23,10 +27,14 @@ class ProfileViewController: UIViewController {
     var activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView()
     var loadingView: UIView = UIView()
     
+    var progMenuView: UIView = UIView()
+    let menuWidth: CGFloat = 187.0
+    //Table view holds items in list
+    var tableView: UITableView = UITableView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.userNameLabel.text = Helpers().currUsername as String
+        
 
     }
     
@@ -47,7 +55,6 @@ class ProfileViewController: UIViewController {
         
         //Until the buttons are used diable touch selection
         peopleButton.isUserInteractionEnabled = false
-        homeCityButton.isUserInteractionEnabled = false
         cityButton.isUserInteractionEnabled = false
         
         //Populate the text on the city, home city, and num friends icons
@@ -61,8 +68,11 @@ class ProfileViewController: UIViewController {
 //            self.cityButton.titleLabel?.text = cityCount
             self.cityButton.setTitle(cityCount, for: .normal)
         }
-        self.userNameLabel.text = Helpers().currUsername as String
-
+        //Set display name from User Defaults
+        self.userNameLabel.text = Helpers().currDisplayName as String
+        //Set user name from User defaults
+        self.customUserNameLabel.text = Helpers().currUserName as String
+        
         //Add shadow to button
         let shadowX: CGFloat = 5.0, shadowY:CGFloat = 5.0
         self.addFriendButton.layer.shadowOpacity = 0.5
@@ -103,12 +113,19 @@ class ProfileViewController: UIViewController {
             let _ = friendId.count
         }
         
+        createMenuView()
+        
+        //Connect tableview delegate
+        self.tableView.dataSource=self
+        self.tableView.delegate=self
+        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        
     }
     
     //Retrieve the number of cities and the name of the home cities in a dictionary
     func retrieveCoreCities() -> [String : String]{
         //Create default return missing home city and no regular cities
-        var returnCity = ["homeCity" : "No Home City", "city" : "0"]
+        var returnCity = ["homeCity" : "Pick One", "city" : "0"]
         var cityCount = 0
         
         var cityButtonCoreData = [NSManagedObject]()
@@ -197,6 +214,82 @@ class ProfileViewController: UIViewController {
         self.loadingView.removeFromSuperview()
     }
 
+    func createMenuView(){
+        //Label height is 60 and y offset is 20 to display below menu bar
+        let labelHeight: CGFloat = 60.0
+        let labelOffset: CGFloat = 20.0
+        let borderWidth: CGFloat = 2
+        self.progMenuView = UIView(frame: CGRect(x: self.view.frame.maxX, y: self.view.frame.minY, width: self.menuWidth, height: self.view.frame.height))
+        self.progMenuView.backgroundColor = .white
+        self.progMenuView.layer.borderWidth = borderWidth
+        self.progMenuView.layer.borderColor = UIColor.black.cgColor
+        
+        //Create settings label at top of menu but start beneath menu bar
+        let labelView = UIView(frame: CGRect(x: 0, y: labelOffset, width: self.progMenuView.frame.width, height: labelHeight))
+        labelView.layer.borderWidth = borderWidth
+        labelView.layer.borderColor = UIColor.black.cgColor
+//        let settingsLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.progMenuView.frame.width, height: labelHeight))
+        
+        let settingsLabel = UILabel()
+        settingsLabel.font = UIFont(name: "Avenir-Light", size: 24)
+        settingsLabel.text = "Settings"
+        settingsLabel.sizeToFit()
+        //labelview.center wasn't centering so manually created center point
+        let myPoint = CGPoint(x: labelView.frame.width / 2, y: labelView.frame.height / 2)
+        settingsLabel.center = myPoint
+        //Add view heirarchy
+        labelView.addSubview(settingsLabel)
+        self.progMenuView.addSubview(labelView)
+        
+        //Calculate Table view to sit beneath label and extend to bottom of screen
+        tableView = UITableView(frame: CGRect(x: 0, y: labelOffset + labelHeight + borderWidth, width: self.progMenuView.frame.width, height: self.progMenuView.frame.height - (labelHeight + borderWidth)))
+        //Remove seperator lines
+        self.tableView.separatorStyle = .none
+        //Stop table view from bouncing since cells will not fill the screen
+        self.tableView.alwaysBounceVertical = false
+        self.progMenuView.addSubview(tableView)
+//        tableView.reloadData()
+        
+    }
+    @IBAction func requestMenu(_ sender: UIButton) {
+        animateMenu(dismiss: false)
+
+    }
+    
+    func animateMenu(dismiss: Bool){
+        //When dismissing I increase X to push the view off the screen
+        let xOffset = dismiss ? self.progMenuView.frame.origin.x + self.menuWidth : self.progMenuView.frame.origin.x - self.menuWidth
+        //If displaying menu first add to super view
+        if(!dismiss){
+            self.view.addSubview(self.progMenuView)
+        }
+        
+        UIView.animate(withDuration: 0.3, delay: 0.0, options: UIViewAnimationOptions(), animations: {
+            self.progMenuView.frame.origin.x = xOffset
+        },completion: {finished in
+            //Remove from superview if dismissing
+            if(dismiss){
+                self.progMenuView.removeFromSuperview()
+            }
+        })
+
+    }
+
+    //Detect when user taps outside the menu view and dismiss the menu if it is present
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        super.touchesBegan(touches, with: event)
+        
+        if let touch: UITouch = touches.first{
+            if (touch.view == self.view){
+                //dismiss menu if present
+                if(self.view.bounds.contains(self.progMenuView.frame.origin)){
+                    animateMenu(dismiss: true)
+                }
+            }
+        }
+    }
+
     
     //Functions for highlighting add friend button
     //Change button background when touch down event occurs
@@ -212,11 +305,102 @@ class ProfileViewController: UIViewController {
         }
     }
     
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        //5 defined settings options
+        return 5
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
+    {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        switch(indexPath.row){
+        case 0 :
+            cell.textLabel?.text = "Share the app"
+        case 1 :
+            cell.textLabel?.text = "Frequent Questions"
+        case 2 :
+            cell.textLabel?.text = "Privacy Policy"
+        case 3 :
+            cell.textLabel?.text = "Terms of Use"
+        case 4 :
+            cell.textLabel?.text = "Logout"
+        default:
+            cell.textLabel?.text = "Settings stuff"
+            
+        }
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        //Deselect selected row after the selection is made
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        switch(indexPath.row){
+        //Implement sharing of the app
+        case 0 :
+            //dismiss the menu 
+            animateMenu(dismiss: true)
+            // text to share
+            let text = "Tired of endless reviews and recommendations online? \(Helpers().currDisplayName) would like to welcome you to Check In Out. Download the app using the following link"
+            let appStoreurl = URL(string: "https://itunes.apple.com/us/app/check-in-out-lists/id1234791039?ls=1&mt=8")
+            // set up activity view controller
+            let itemsToShare = [ text, appStoreurl] as [Any]
+            //UIActivityVC : you tell it what kind of data you want to share, and it figures out how best to share it
+            let activityViewController = UIActivityViewController(activityItems: itemsToShare, applicationActivities: nil)
+//            activityViewController.popoverPresentationController?.sourceView = self.view // so that iPads won't crash
+            
+            // exclude some activity types from the list (optional)
+            activityViewController.excludedActivityTypes = [ UIActivityType.airDrop]
+            
+            // present the view controller
+            self.present(activityViewController, animated: true, completion: nil)
+        case 1 :
+            performSegue(withIdentifier: "segueToFAQ", sender: self)
+        case 2 :
+            performSegue(withIdentifier: "segueToPrivacy", sender: self)
+        case 3 :
+            performSegue(withIdentifier: "segueToTC", sender: self)
+        //code to force logout
+        case 4 :
+            //If current user is an email user I need to log out of Firebase
+            if(Helpers().loginType == Helpers.userType.email.rawValue){
+                try! Helpers().firAuth!.signOut()
+            }else{
+                let loginManager = FBSDKLoginManager()
+                loginManager.logOut()
+            }
+            performSegue(withIdentifier: "LoginScreen", sender: nil)
+        default:
+            Helpers().myPrint(text: "Invalid cell in settings table")
+        }
+        
+    }
+
+    // Unwind seque from my ProdileStepsVC
+    @IBAction func unwindFromAddPlaces(_ sender: UIStoryboardSegue) {
+        // empty
+    }
+    
     // Unwind seque from my myListVC
     @IBAction func unwindFromAddFriends(_ sender: UIStoryboardSegue) {
         // empty
     }
+    
+    // Unwind seque from my FAQs
+    @IBAction func unwindFromFAQs(_ sender: UIStoryboardSegue) {
+        // empty
+    }
 
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        //Dismiss the settings view if it is present when leaving screen
+        if(self.view.bounds.contains(self.progMenuView.frame.origin)){
+            animateMenu(dismiss: true)
+        }
+    }
 
 
 }

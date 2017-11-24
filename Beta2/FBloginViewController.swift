@@ -149,10 +149,10 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
 
                             //Keep track of current logintype, it is stored in user defaults for new users in the onboard info VC
                             self.loginType = Helpers.userType.facebook
-                            //Transition to loginInfo screen for new user or skip to onboarding for existing user
+                            //Transition to loginInfo screen for new user or skip onboarding for existing user
                             //For beta I check if their back end details are current and if not I set betaUser = true and transition to onboard details
                             if(existingUser  && !(self.betaUser ?? false)){
-                                self.performSegue(withIdentifier: "profileSteps", sender: nil)
+                                self.performSegue(withIdentifier: "unwindLogin4CurrUser", sender: nil)
                                 //If the user is not having to create a username make sure I save their login type to NS Defaults with this VC
                                 Helpers().loginType = self.loginType!.rawValue
                             }else{
@@ -254,8 +254,8 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                             Helpers().currUser = user?.uid as! NSString
                             Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                         
-                            //Succesfully finished this screen, existing user so skip loginInfo screen and go to onboarding
-                            self.performSegue(withIdentifier: "profileSteps", sender: nil)
+                            //Succesfully finished this screen, existing user so skip onboarding
+                            self.performSegue(withIdentifier: "unwindLogin4CurrUser", sender: nil)
                         }
                     }
                     break

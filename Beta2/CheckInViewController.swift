@@ -29,6 +29,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     let restNameDefaultKey = "CheckInView.restName"
     var isEnteringCity = false
     var isEnteringCategory = false
+    let restNamePlaceHolder = "Enter Name..."
+    //Create attributed place holder for comment box which will later append a smaller substring to the end
+    var attrPlaceHolder = NSMutableAttributedString()
     var autoCompleteArray = [String]()  //Table data containing string from google prediction array
     var googlePrediction = [GMSAutocompletePrediction]()    //Array containing all data returned for each google autocomplete entry
     var autoCompleteTableView: UITableView?
@@ -40,6 +43,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var placesClient: GMSPlacesClient!
     //Location manager for detecting user's location
     var locationManager: CLLocationManager? = nil
+    //Keep track of which text field is active so I can scroll the comment field into view
+    var activeTextField: UITextField? = nil
     //Activity monitor and view background
     var activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView()
     var loadingView: UIView = UIView()
@@ -77,21 +82,27 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         }
     }
     
-    var cityScrollView : UIScrollView!
-    //container view goes inside the scroll view and holds the buttons
+//    var cityScrollView : UIScrollView!
+//    //container view goes inside the scroll view and holds the buttons
     var cityScrollContainerView : UIView!
-    
-    var catScrollView: UIScrollView!
+//
+//    var catScrollView : UIScrollView!
     var catScrollContainerView: UIView!
     
     
     //NSUser defaults stores user and a helper class is user to return this value
     var currUser = Helpers().returnCurrUser()
     
+    //Setup the google autocomplete tableview in viewDidAppear
     override func viewDidAppear(_ animated: Bool) {
+        
+        super.viewDidAppear(animated)
         
         //register so that I receive notifications from the keyboard
         registerForKeyboardNotifications()
+        
+        //Add bottom border to textbox
+        addTextBoxBorder()
         
         //Create autocomplete table view in View did appear because constraints to resize text box had not yet been added during viewDidLoad
         let autoCompleteFrame = CGRect(x: CheckInRestField.frame.minX, y: CheckInRestField.frame.maxY, width: CheckInRestField.frame.size.width, height: CGFloat(self.autoCompleteFrameMaxHeight))
@@ -135,11 +146,12 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
     }
     
-//  Layout views in view controller
     
-    //Since the bounds of the view controller's view is not ready in viewDidLoad, anything that will be calculated based off the view's bounds directly or indirectly must not be put in viewDidLoad (so we put it in did layout subviews
+    //Since the bounds of the view controller's view is not ready in viewDidLoad, anything that will be calculated based off the view's bounds directly or indirectly must not be put in viewDidLoad (so we put it in did layout subviews)
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //Setup check in text box delegate and options
         self.CheckInRestField.delegate = self
         //Auto Capitalize words in text box field
         self.CheckInRestField.autocapitalizationType = .words
@@ -148,24 +160,28 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                   for: UIControlEvents.editingChanged)
         //If a user leaves the text box but then returns I want the text to remain
         self.CheckInRestField.clearsOnBeginEditing = false
-        //setup City scroll view
-        cityScrollView = UIScrollView()
-        cityScrollView.delegate = self
-        cityScrollView.showsHorizontalScrollIndicator = false
-        //setup Category scroll view
-        catScrollView = UIScrollView()
-        catScrollView.delegate = self
-        catScrollView.showsHorizontalScrollIndicator = false
-        //setup container view
-        cityScrollContainerView = UIView()
-        //add a tap action to the scroll view that will remove any present delete city buttons
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(CheckInViewController.clearCityDeleteButton(_:)))
-        cityScrollView.addGestureRecognizer(tapGesture)
-        createCityButtons()
         
-        //setup category container view
-        catScrollContainerView = UIView()
-        createCategoryButtons()
+        self.commentTextField.delegate = self
+        self.commentTextField.clearsOnBeginEditing = false
+
+        //Create mutable string for text box placeholder
+        attrPlaceHolder = NSMutableAttributedString(string: "Add a comment... ",
+                                                   attributes: [ NSFontAttributeName: UIFont(name: "Avenir-Light", size: 20), NSForegroundColorAttributeName: UIColor.white])
+        attrPlaceHolder.append(NSMutableAttributedString(string: "(no pressure)",
+                                                    attributes: [NSFontAttributeName: UIFont(name: "Avenir-Light", size: 18), NSForegroundColorAttributeName: UIColor.white]))
+        
+        self.commentTextField.attributedPlaceholder = attrPlaceHolder
+        
+        //Setup Tap gesture so clicking outside of textbox dismisses keyboard
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(AddPeopleViewCntroller.tapDismiss(_:)))
+        //        self.tableCover.isUserInteractionEnabled =
+        //        self.tableCover.addGestureRecognizer(tapGesture)
+        self.scrollView.addGestureRecognizer(tapGesture)
+        
+        //Add buttons to scroll views and update autoLayout
+        //Also now lays out the comment text box
+        layoutScrollViews()
+        
         //Enable touch interaction with background view so that delete buttons can be cleared when user touces screen
         checkInView.isUserInteractionEnabled = true
        
@@ -189,67 +205,172 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         
      }
     
+
+    
     //Since the bounds of the view controller's view is not ready in viewDidLoad, I like to do frame setting in viewDidLayoutSubviews
+    //the frame and bounds for a view are not finalized until Auto Layout has done its job of laying out the main view and subviews, and this method is then called.
     override func viewDidLayoutSubviews() {
         //Locate origin of city scroll view at superview x origin - 3/4 of scroll view height
-        let scrollViewHeight:CGFloat = 120
-        let cityScrollViewY = (view.frame.size.height / 2) - (scrollViewHeight / 1.25)
-        let catScrollViewY = cityScrollViewY + scrollViewHeight
+//        let scrollViewHeight:CGFloat = 120
+//        let cityScrollViewY = (view.frame.size.height / 2) - (scrollViewHeight / 1.25)
+//        let catScrollViewY = cityScrollViewY + scrollViewHeight
         
+        //Call super after adding my constraints so they are considered
         super.viewDidLayoutSubviews()
+        
 
+        //Had to programatically create container views and assign frame size since I couldn't get autolayout to have a non-ambiguous scrollable content width
         //create frame on screen of scroll view that is 250px from top of screen and the width of the screen and a height of 120px
-        cityScrollView.frame = CGRect(x: 0, y: cityScrollViewY, width: view.frame.size.width, height: scrollViewHeight)
+//        cityScrollView.frame = CGRect(x: 0, y: 0, width: view.frame.size.width, height: scrollViewHeight)
         //we are basing the container view's frame on the scroll view's content size
         cityScrollContainerView.frame = CGRect(x: 0, y: 0, width: cityScrollView.contentSize.width, height: cityScrollView.contentSize.height)
-
-        
+       
         //setup category scroll frame
-        catScrollView.frame = CGRect(x: 0, y: catScrollViewY, width: view.frame.size.width, height: 120)
+//        catScrollView.frame = CGRect(x: 0, y: catScrollViewY, width: view.frame.size.width, height: 120)
         
         catScrollContainerView.frame = CGRect(x: 0, y: 0, width: catScrollView.contentSize.width, height: catScrollView.contentSize.height)
+        
+
+        
+    }
+    
+    func layoutScrollViews(){
+        
+        cityScrollContainerView = UIView()
+        //Add container view to scroll view
+        cityScrollView.addSubview(cityScrollContainerView)
+        //setup category container view
+        catScrollContainerView = UIView()
+        
+        //Add container view to scroll view
+        catScrollView.addSubview(catScrollContainerView)
+        
+        createCityButtons()
+        createCategoryButtons()
+//        //setup City scroll view
+//        cityScrollView = UIScrollView()
+//        cityScrollView.delegate = self
+        cityScrollView.showsHorizontalScrollIndicator = false
+//        //setup Category scroll view
+//        catScrollView = UIScrollView()
+//        catScrollView.delegate = self
+        catScrollView.showsHorizontalScrollIndicator = false
+//        //setup container view
+//        cityScrollContainerView = UIView()
+        
+        //Set background container view layout constraints in code since The storyboard constraints on contentView don’t apply as layout constraints to Content View, but rather The constraints don’t  but rather they define scrollView.contentSize
+//            contentView.translatesAutoresizingMaskIntoConstraints = false
+//            //pin top to parent view which is the scroll view
+//            let topToParent = NSLayoutConstraint(item: contentView, attribute: .top, relatedBy: .equal, toItem: self.view, attribute: .top, multiplier: 1.0, constant: 0)
+//            //Pin left of content view to screen edge
+//            let pinLeftToParent = NSLayoutConstraint(item: contentView, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1.0, constant: 0)
+//            let pinRightToParent = NSLayoutConstraint(item: contentView, attribute: .trailing, relatedBy: .equal, toItem: self.view, attribute: .trailing, multiplier: 1.0, constant: 0)
+//            let pinBottomToParent = NSLayoutConstraint(item: contentView, attribute: .bottom, relatedBy: .equal, toItem: self.view, attribute: .bottom, multiplier: 1.0, constant: 80)
+    //        pinBottomToComment.priority = 600
+    //        let pinBottomToCommentGE = NSLayoutConstraint(item: catScrollView, attribute: .bottom, relatedBy: .greaterThanOrEqual, toItem: commentTextField, attribute: .top, multiplier: 1.0, constant: 18)
+    
+//            view.addConstraint(topToParent)
+//            view.addConstraint(pinLeftToParent)
+//            view.addConstraint(pinRightToParent)
+//        view.addConstraint(pinBottomToParent)
+        
+//        
+//        //Add container view to scroll view
+//        cityScrollView.addSubview(cityScrollContainerView)
+//        //add horiz scroll view to vertical scrollview prior to setting auto layout
+//        self.scrollView.addSubview(cityScrollView)
+//        
+//        //add a tap action to the scroll view that will remove any present delete city buttons
+//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(CheckInViewController.clearCityDeleteButton(_:)))
+//        cityScrollView.addGestureRecognizer(tapGesture)
+//        
+//        //Generate the buttons and display them in the scroll view
+//        createCityButtons()
+//        
+//        //setup category container view
+//        catScrollContainerView = UIView()
+//        
+//        //Add container view to scroll view
+//        catScrollView.addSubview(catScrollContainerView)
+//        //add horiz scroll view to vertical scroll view view prior to setting auto layout
+//        self.scrollView.addSubview(catScrollView)
+//        
+//        createCategoryButtons()
+// 
+//        
+//        //Create autolayout for scroll views
+//        cityScrollView.translatesAutoresizingMaskIntoConstraints = false
+////        let topToBoxGE = NSLayoutConstraint(item: cityScrollView, attribute: .top, relatedBy: .greaterThanOrEqual, toItem: CheckInRestField, attribute: .bottom, multiplier: 1.0, constant: 20)
+////        let topToBoxAbs = NSLayoutConstraint(item: cityScrollView, attribute: .top, relatedBy: .equal, toItem: CheckInRestField, attribute: .bottom, multiplier: 1.0, constant: 65)
+////        topToBoxAbs.priority = 700
+//        
+//        let scrollViewHeight:CGFloat = 120
+//        //In an effort to mirror the Y position in the frame that used to be statically created (see below) I create an NSLayout constraint to match it
+//        //        let cityScrollViewY = (view.frame.size.height / 2) - (scrollViewHeight / 1.25)
+//         let cityScrollYConst = NSLayoutConstraint(item: cityScrollView, attribute: .top, relatedBy: .equal, toItem: view, attribute: .centerY, multiplier: 1.0, constant: -(scrollViewHeight / 1.25))
+////        cityScrollYConst.priority = 850
+//        //Pin left of container view to screen edge
+//        let pinLeft = NSLayoutConstraint(item: cityScrollView, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1.0, constant: 0)
+//        //Pin right of container view to screen edge
+//        let pinRight = NSLayoutConstraint(item: cityScrollView, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1.0, constant: 0)
+////        view.addConstraint(topToBoxGE)
+////        view.addConstraint(topToBoxAbs)
+//        view.addConstraint(cityScrollYConst)
+//        view.addConstraint(pinLeft)
+//        view.addConstraint(pinRight)
+//        
+//        let heightConstraint = cityScrollView.heightAnchor.constraint(equalToConstant: 120)
+//        NSLayoutConstraint.activate([heightConstraint])
+//        
+//        //Auto Layout for catScroll View
+//        //Now using auto layout since I needed to shift button scroll views to make room for comment text box
+//        catScrollView.translatesAutoresizingMaskIntoConstraints = false
+//        //pin top to cityScrollView since the scroll view heights are an extra 10 from the button edge
+//        let topToCity = NSLayoutConstraint(item: catScrollView, attribute: .top, relatedBy: .equal, toItem: cityScrollView, attribute: .bottom, multiplier: 1.0, constant: 0)
+//        //Pin left of container view to screen edge
+//        let pinLeftCat = NSLayoutConstraint(item: catScrollView, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1.0, constant: 0)
+//
+//        let pinRightCat = NSLayoutConstraint(item: catScrollView, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1.0, constant: 0)
+////        //specify distance to comment text box
+////        let pinBottomToComment = NSLayoutConstraint(item: catScrollView, attribute: .bottom, relatedBy: .equal, toItem: self.commentProgBox, attribute: .top, multiplier: 1.0, constant: 80)
+////        pinBottomToComment.priority = 600
+////        let pinBottomToCommentGE = NSLayoutConstraint(item: catScrollView, attribute: .bottom, relatedBy: .greaterThanOrEqual, toItem: commentTextField, attribute: .top, multiplier: 1.0, constant: 18)
+//
+//        view.addConstraint(topToCity)
+//        view.addConstraint(pinLeftCat)
+//        view.addConstraint(pinRightCat)
+////        view.addConstraint(pinBottomToComment)
+////        view.addConstraint(pinBottomToCommentGE)
+//        
+//        let catHeightConstraint = catScrollView.heightAnchor.constraint(equalToConstant: 120)
+//        NSLayoutConstraint.activate([catHeightConstraint])
+//        
+////        //Create auto layout for comment box
+//        let pinTopToCatScroll = NSLayoutConstraint(item: commentTextField, attribute: .top, relatedBy: .equal, toItem: catScrollView, attribute: .bottom, multiplier: 1.0, constant: 20)
+////        //Pin to screen edge + 37
+////        commentProgBox.translatesAutoresizingMaskIntoConstraints = false
+////        //pin text box beneath bottom scroll view
+////        let pinTopToCatScroll = NSLayoutConstraint(item: commentProgBox, attribute: .top, relatedBy: .greaterThanOrEqual, toItem: catScrollView, attribute: .bottom, multiplier: 1.0, constant: 20)
+////        let pinLeftComm = NSLayoutConstraint(item: commentProgBox, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1.0, constant: 37)
+////        let pinRightComm = NSLayoutConstraint(item: commentProgBox, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1.0, constant: -37)
+////        //specify distance to submit button
+////        let pinBottomToSubmit = NSLayoutConstraint(item: commentProgBox, attribute: .bottom, relatedBy: .equal, toItem: self.submitButton, attribute: .top, multiplier: 1.0, constant: 39)
+////        //        pinBottomToComment.priority = 600
+////        //        let pinBottomToCommentGE = NSLayoutConstraint(item: catScrollView, attribute: .bottom, relatedBy: .greaterThanOrEqual, toItem: commentTextField, attribute: .top, multiplier: 1.0, constant: 18)
+////        
+////        view.addConstraint(pinTopToCatScroll)
+////        view.addConstraint(pinLeftComm)
+////        view.addConstraint(pinRightComm)
+////        view.addConstraint(pinBottomToSubmit)
+////        //        view.addConstraint(pinBottomToCommentGE)
+////        
+////        let commHeightConstraint = commentProgBox.heightAnchor.constraint(equalToConstant: 27)
+////        NSLayoutConstraint.activate([commHeightConstraint])
+//
+
     }
    
-    /**
-     * Called when 'return' key pressed. return NO to ignore.
-     */
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        view.endEditing(true)
-        return true
-    }
-    
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        if (textField.placeholder != nil){  //If no user information is in the textBox then clear place holder
-            textField.placeholder = nil
-        }
-    }
-    
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        if(textField.text == ""){   //Restore placeholder text if no user input was received
-            if(isEnteringCity){
-                textField.placeholder = "Enter new city button name"
-            }else{
-                textField.placeholder = "Enter Name..."
-            }
-        }
-        autoCompleteTableView?.isHidden = true
-    }
-    func textFieldShouldClear(_ textField: UITextField) -> Bool {
-        //If user is entering a city then a clear button appears in the text field to cancel city input
-        if(isEnteringCity && (!(textField.text?.isEmpty ?? true))){  //Don't remove from city mode when clearing placeholder text
-            CheckInRestField.clearButtonMode = .never
-            isEnteringCity = false
-            textField.placeholder = "Enter Name..."
-            return true
-        }
-        
-        if(textField.text?.isEmpty ?? true){        //Only clear current textField if no user input previously received
-            return true
-        }
-        else{    //If text field is not empty then don't clear
-            return false
-        }
-    }
+
     
     //Confirm to CL location delegate
     func startUpdatingLocation() {
@@ -347,8 +468,15 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         CheckInRestField.resignFirstResponder()
     }
     
+    @IBOutlet var scrollView: UIScrollView!
+    @IBOutlet var contentView: UIView!
+    @IBOutlet var cityScrollView: UIScrollView!
+    @IBOutlet var catScrollView: UIScrollView!
 
     @IBOutlet weak var CheckInRestField: UITextField!
+    @IBOutlet var commentTextField: UITextField!
+    
+    @IBOutlet var submitButton: UIButton!
     
     // Unwind seque from my myListVC
     @IBAction func unwindFromMyList(_ sender: UIStoryboardSegue) {
@@ -363,6 +491,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
     //Action triggered when submit button is pressed
     @IBAction func SaveRestField(_ sender: UIButton) {
+        
+        //If the text box is still shown from adding a comment then remove
+        self.activeTextField?.resignFirstResponder()
+        
         //Create a new button
         if(isEnteringCity)
         {
@@ -375,7 +507,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
                 alert.addAction(CancelAction)
                 self.present(alert, animated: true, completion: nil)
-                CheckInRestField.placeholder = "Enter Name..."
+                CheckInRestField.placeholder = self.restNamePlaceHolder
                 CheckInRestField.text = ""
                 isEnteringCity = false
                 isEnteringCategory = false
@@ -386,7 +518,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 {
                     saveCityButton(addButtonText)
                     CheckInRestField.text = ""
-                    CheckInRestField.placeholder = "Enter Name..."
+                    CheckInRestField.placeholder = restNamePlaceHolder
                     isEnteringCity = false
                     //Remove clear button after city is checked in
                     CheckInRestField.clearButtonMode = .never
@@ -418,7 +550,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             //Remove any trailing spaces from restNameText
             restNameText = restNameText.trimmingCharacters(in: .whitespaces)
             let dictArrLength = dictArr.count
-            if(!restNameText.isEmpty && restNameText != "Enter Name...")
+            if(!restNameText.isEmpty && restNameText != restNamePlaceHolder)
             {
                 //Start activity monitor since check process now has to make async request
                 displayActivityMonitor()
@@ -567,6 +699,12 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                         //Update the city then category nodes seperately in the places node since I couldn't figure out a way to update both without overwriting existing data
                         refCheckedPlaces.child( restNameText).child(byAppendingPath: "city").updateChildValues(cityFire)
                         refCheckedPlaces.child( restNameText).child(byAppendingPath: "category").updateChildValues(catFire)
+                        //Check if a comment exists and unwrap and store in firebase
+                        if let comment = self.commentTextField.text{
+                            if(!comment.isEmpty){
+                                 refChecked.child(restNameText).updateChildValues(["comment": comment])
+                            }
+                        }
                         
                         //Save to NSUser defaults
         //                restNameHistory += [restNameText]
@@ -631,7 +769,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 }
             }
         }
-        self.CheckInRestField.placeholder = "Enter Name..."
+        self.CheckInRestField.placeholder = restNamePlaceHolder
+        self.commentTextField.attributedPlaceholder = attrPlaceHolder
+        self.commentTextField.text = nil
         //Clear any delete icons the user may have left on the screen by calling the same function that would be called if they tapped outside the buttons
         clearCityDeleteButton(UITapGestureRecognizer())
     }
@@ -907,7 +1047,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         
         //Create label to add to view
         let loadingLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 140, height: 30))
-        loadingLabel.text = "Check me out!"
+        loadingLabel.text = "Check Me Out"
         loadingLabel.font = UIFont(name: "Avenir-Heavy", size: 18)
         loadingLabel.textColor = .white
         loadingLabel.textAlignment = .center
@@ -1089,12 +1229,6 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         }
         cityScrollView.contentSize = CGSize(width: CGFloat((cityButtonList.count * buttonRad) + ((cityButtonList.count  + 1) * buttonSpacing)), height: 120) //Length of scroll view is the number of 100px buttons plus the number of 25px spacing plus an extra space for the final button, 120 high
         
-        //Add container view to scroll view
-        cityScrollView.addSubview(cityScrollContainerView)
-        
-        //add scroll view to super view
-        view.addSubview(cityScrollView)
-        
         //Add button to scroll view's container view
         for (index,cityText) in cityButtonList.enumerated(){
             //Extract city name only and save the city & state name in the CityStateUiButton attribute
@@ -1151,13 +1285,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             }
         }
         catScrollView.contentSize = CGSize(width: CGFloat((catButtonList.count * 100) + ((catButtonList.count  + 1) * buttonSpacing)), height: 120)
-        //Add container view to scroll view
-        catScrollView.addSubview(catScrollContainerView)
-        //add scroll view to super view
-        view.addSubview(catScrollView)
-        //view.setNeedsLayout()
-        //Add button to scroll view's container view
         
+        //view.setNeedsLayout()
+        
+        //Add button to scroll view's container view
         for (index,catText) in catButtonList.enumerated(){
             let button = UIButton(frame: CGRect(x: (index * 100) + ((index+1) * buttonSpacing), y: 10, width: 100, height: 100))   // X, Y, width, height
             button.layer.cornerRadius = 0.5 * button.bounds.size.width
@@ -1355,16 +1486,28 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
 
         })
     }
+    
+    func addTextBoxBorder(){
+        //Create underline bar for home city and additional city text boxes
+        let px = 1 / UIScreen.main.scale    //determinte 1 pixel size instead of using 1 point
+        let commentFrame = CGRect(x: commentTextField.frame.minX, y: commentTextField.frame.maxY, width: commentTextField.frame.size.width, height: px)
+        let commentLine: UIView = UIView(frame: commentFrame)
+        commentLine.backgroundColor = UIColor.white
+        
+        self.contentView.addSubview(commentLine)
+    }
 
     //register to receive keyboard notifications
     func registerForKeyboardNotifications(){
         //Adding notifies on keyboard appearing
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWasShown(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
     
     func deregisterFromKeyboardNotifications(){
         //Removing notifies on keyboard appearing
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
     
     //*method gets the keyboard size from the info dictionary of the notification and calculates the distance between the text box and keyboard */
@@ -1374,13 +1517,143 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
         //Create a Y value of the top of the keyboard and subtract the difference between that and the bottom of the textBox (but leave 5 pt of space atop the keyboard)
         self.autoCompleteFrameMaxHeight = Int((view.frame.maxY - keyboardSize!.height - 5) - CheckInRestField.frame.maxY)
-                
+        
+        //If I need to adjust the comment height above the keyboard
+        if(self.activeTextField == self.commentTextField){
+            self.scrollView.isScrollEnabled = true
+            //Height of content inserts considers the height of the keyboard from the bottom of the screen
+            //move the text box high enough so that the text box and auto complete frame can be shown without contacting the keyboard
+                //Caluclate the distance of the top of the comment view to the bottom of the screen
+            let insetHeight = keyboardSize!.height
+//            let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, insetHeight, 0.0)
+            self.scrollView.contentSize =  CGSize(width: self.view.frame.width, height: self.view.frame.size.height + insetHeight)
+            self.contentView.frame = CGRect(x: 0.0, y: 0.0, width: self.scrollView.contentSize.width, height: self.scrollView.contentSize.height)
+//            self.scrollView.contentInset = contentInsets
+//            self.scrollView.scrollIndicatorInsets = contentInsets
+            //Change scroll view content hieght to stop at the bottom of the frame and not display blank space for the content insets
+    //        self.scrollView.contentSize = CGSize(width: scrollView.frame.size.width, height: scrollView.frame.size.height - (self.textBoxSize + self.textBoxSpacing))
+            
+            var aRect : CGRect = self.view.frame
+            aRect.size.height -= keyboardSize!.height
+            //If the frame above the keyboard doesn't contain the active text field origin then scroll it to visible
+            if let activeField = self.activeTextField {
+                if (!aRect.contains(activeField.frame.origin)){
+                    self.scrollView.scrollRectToVisible(self.contentView.frame, animated: true)
+                }
+            }
+        }
+
+        
     }
+    
+
+    //Sets insets to 0, the defaults
+    func keyboardWillBeHidden(notification: NSNotification){
+        //Once keyboard disappears, restore original positions
+        var info = notification.userInfo!
+        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+//        let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, 0.0, 0.0)
+        self.scrollView.contentSize = CGSize(width: self.view.frame.width, height: self.view.frame.size.height)
+        self.contentView.frame = CGRect(x: 0.0, y: 0.0, width: self.scrollView.contentSize.width, height: self.scrollView.contentSize.height)
+//        self.scrollView.contentInset = contentInsets
+//        self.scrollView.scrollIndicatorInsets = contentInsets
+//        self.view.endEditing(true)
+        self.scrollView.isScrollEnabled = false
+    }
+    
+    //Text Field Delegates
+    
+    //Allow only 160 characters in comment field using swift 4 length
+    //Returns true when text field length <= 160
+    //Called by textBoxField Delegate
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        //Only care for text field length on comment field:
+        if(textField == self.commentTextField){
+            let maxLength = 160
+            //If I can't unwrap string then return that string can be updated
+            guard let currentString = textField.text else {
+                return true
+            }
+            let unwrapString = currentString as NSString
+            //Replace the current text box string with the string the user has attempted to update
+            let newString: NSString =
+                unwrapString.replacingCharacters(in: range, with: string) as NSString
+            //Return true when string to be updated in comment box is less than 160 chars
+            return newString.length <= maxLength
+        }else{
+            return true
+        }
+    }
+    
+    /**
+     * Called when 'return' key pressed. return NO to ignore.
+     */
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        view.endEditing(true)
+        return true
+    }
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        //Store the currently active text field so I can keep track
+        self.activeTextField = textField
+        if (textField.placeholder != nil){  //If no user information is in the textBox then clear place holder
+            textField.placeholder = nil
+        }
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        if(textField.text == ""){   //Restore placeholder text if no user input was received
+            if(self.activeTextField == self.CheckInRestField){
+                if(isEnteringCity){
+                    textField.placeholder = "Enter new city button name"
+                }else{
+                    textField.placeholder = restNamePlaceHolder
+                }
+            }else if(self.activeTextField == self.commentTextField){
+                self.commentTextField.attributedPlaceholder = attrPlaceHolder
+            }
+            self.activeTextField = nil
+        }
+        autoCompleteTableView?.isHidden = true
+    }
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        //If user is entering a city then a clear button appears in the text field to cancel city input
+        //Only applies to check in text field
+        if(self.activeTextField == self.CheckInRestField){
+            if(isEnteringCity && (!(textField.text?.isEmpty ?? true))){  //Don't remove from city mode when clearing placeholder text
+                CheckInRestField.clearButtonMode = .never
+                isEnteringCity = false
+                textField.placeholder = restNamePlaceHolder
+                return true
+            }
+        }
+        
+        if(textField.text?.isEmpty ?? true){        //Only clear current textField if no user input previously received
+            return true
+        }
+        else{    //If text field is not empty then don't clear
+            return false
+        }
+    }
+    
+    //Dismiss keyboard if clicking away from text box
+    //Detect when user taps on scroll view
+    func tapDismiss(_ sender: UITapGestureRecognizer)
+    {
+        self.activeTextField?.resignFirstResponder()
+    }
+    
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         //When transitioning to next screen deregister keyboard notifications
         //Don't perform when unwinding
         deregisterFromKeyboardNotifications()
+        //if keyboard is present dismiss before transition
+        if let activeField = self.activeTextField{
+            activeField.resignFirstResponder()
+        }
     }
+    
+    
 
 }

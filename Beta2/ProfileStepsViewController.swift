@@ -16,6 +16,12 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
     
     @IBOutlet var addCityLabel: UILabel!
     
+    //Items on the page that are remove depedning on whether we are onbooarding
+    @IBOutlet var backButton: UIButton!
+    @IBOutlet var skipButon: UIButton!
+    @IBOutlet var pagenationImage: UIImageView!
+    //Class member that can be set when transitioning to this VC during the onboarding process
+    var isOnboarding: Bool = false
     var unwindPerformed = false
     //Calculate the size of the text box and label I want to move above the keyboard
     var boxAndLabelSize: CGFloat = 0
@@ -55,7 +61,19 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         super.viewWillAppear(animated)
         addTextBoxBorder()
         
-        //Add Keyboard
+        //Remove views and buttons that do not appear during onboarding
+        if(self.isOnboarding){
+            //Hide then remove back button
+            self.backButton.isHidden = true
+            self.backButton.removeFromSuperview()
+        }else{
+            //Hide first before removing so the user doesn't see them appear before they are removed
+            self.skipButon.isHidden = true
+            self.pagenationImage.isHidden = true
+            self.skipButon.removeFromSuperview()
+            self.pagenationImage.removeFromSuperview()
+        }
+
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -203,7 +221,12 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
                     //Function only returns true when user trys to overwrite currently saved home city, so I wont transition here and let alert controller closure handle segue, or wait until submit is hit again
                     let displayAlert = saveHomeCity(cityText)
                     if(!displayAlert){
-                        performSegue(withIdentifier: "segueToAddFriends", sender: nil)
+                        //Choose segue destination whether you need to continue onboard or return to profile VC
+                        if(self.isOnboarding){
+                            performSegue(withIdentifier: "segueToAddFriends", sender: nil)
+                        }else{
+                            performSegue(withIdentifier: "unwindFromAddPlaces", sender: nil)
+                        }
                     }
                 }else{
                     //Notify User why home city can't be saved(either empty or didn't use autocomplete
@@ -272,7 +295,12 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
                                 let errorString = String(describing: saveError)
                                 Helpers().myPrint(text: errorString)
                             }
-                            self.performSegue(withIdentifier: "segueToAddFriends", sender: nil)
+                            //Choose segue destination whether you need to continue onboard or return to profile VC
+                            if(self.isOnboarding){
+                                self.performSegue(withIdentifier: "segueToAddFriends", sender: nil)
+                            }else{
+                                self.performSegue(withIdentifier: "unwindFromAddPlaces", sender: nil)
+                            }
                         })
                         alert.addAction(CancelAction)
                         alert.addAction(ConfirmAction)
@@ -650,10 +678,12 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
     
     //Pass email and password to Login info screen if new login
     override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
-        //One way street, no need to check for where I'm segueing to since it will always be AddFbFriends VC
-        let destinationVC = segue.destination as! AddPeopleViewCntroller
-        //Notify the AddPeopleVC that it is being accessed during onboarding
-        destinationVC.isOnboarding = true
+        //Only notify the destination VC that we're onboarding if the class member exists at the destination
+        if(segue.identifier == "segueToAddFriends"){
+            let destinationVC = segue.destination as! AddPeopleViewCntroller
+            //Notify the AddPeopleVC that it is being accessed during onboarding
+            destinationVC.isOnboarding = true
+        }
     }
 
 }

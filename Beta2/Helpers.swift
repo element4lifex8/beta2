@@ -16,7 +16,8 @@ class Helpers{
     fileprivate let defaultsStandard = UserDefaults.standard
     //NSUserDefault keys refer to FB login controller where they originally presided
     static let currUserDefaultKey = "FBloginVC.currUser"
-    static let currUserNameKey = "FBloginVC.displayName"
+    static let currDisplayNameKey = "FBloginVC.displayName"
+    static let userNameKey = "FBloginVC.userName"
     static let loginTypeDefaultKey = "FBloginVC.loginType"
     static let currAppVerKey = "CIOHomeVC.appVer"   //key for storing curr app version so I can force a log out when not up to date
     static let logoutDefaultKey = "CIOHomeVC.logout"    //Key to check if a logout should be forced for a new version 
@@ -39,9 +40,9 @@ class Helpers{
     
     
     //retrieve the current app user display name from NSUserDefaults
-    var currUsername: NSString {
+    var currDisplayName: NSString {
         get{
-            if let userName = defaultsStandard.object(forKey: Helpers.currUserNameKey) as? NSString{
+            if let userName = defaultsStandard.object(forKey: Helpers.currDisplayNameKey) as? NSString{
                 return userName
             }else{
                 return "User"
@@ -49,11 +50,26 @@ class Helpers{
         }
         set
         {
-            defaultsStandard.set(newValue, forKey: Helpers.currUserNameKey)
+            defaultsStandard.set(newValue, forKey: Helpers.currDisplayNameKey)
 //            defaultsStandard.synchronize()
         }
     }
     
+    //retrieve the current user's username from NSUserDefaults
+    var currUserName: NSString {
+        get{
+            if let userName = defaultsStandard.object(forKey: Helpers.userNameKey) as? NSString{
+                return userName
+            }else{
+                return "username"
+            }
+        }
+        set
+        {
+            defaultsStandard.set(newValue, forKey: Helpers.userNameKey)
+            //            defaultsStandard.synchronize()
+        }
+    }
     
     //retrieve the current login type from NSUserDefaults as raw integer and when used I'll have to equate that with the rawValue of a userType variable
     var loginType: NSInteger {

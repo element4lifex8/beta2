@@ -21,6 +21,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
     var placeId: String?
     var titleText: String?
     var categories: [String]?
+    var categoryUpdate: Bool?
     
     //Variables retrieved using google place ID
     var placeAddress: String = ""
@@ -32,6 +33,9 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
     var googleCityState = [String : String]()
     //retrieve number of friends with this check in from firebase
     var friendString: String = ""
+
+    var commentList = [String]()
+    var commentPtr = 0  //Keep track of which item in comment list to display
     //Google places client
     var placesClient: GMSPlacesClient!
     //Google places web api uses different api key than ios app
@@ -46,6 +50,9 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
     let addressCell = 0
     let phoneNumCell = 1
     let websiteCell = 2
+    let timesCell = 3
+    let categoryCell = 4
+    let commentCell = 6
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -89,12 +96,15 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
             }
             
             self.myGroup.enter()
-            //Retrieve an array of my friends facebook Id's and pass to a function that compares the check in's user list to my friend list
-            gatherFriendList(){(myFriends: [String]) in
+            //Retrieve an dict of my friends facebook [Id's: Name] and pass to a function that compares the check in's user list to my friend list
+            gatherFriendList(){(myFriends: [String: String]) in
                 
                 //Kick off asynch call to firebase to determine if other friends have also checked in at this place
-                self.countNumFriends(friendList: myFriends)
-                self.myGroup.leave()  //Leave group that was entered before gathering friend list, since the countNumFriends enters its own dispatch group
+                self.countNumFriends(friendList: myFriends){(friendMatch: [String : String]) in
+                    //If they have checked in at this place then I need to get comments they made about this place
+                    self.gatherFriendComments(friendList: friendMatch)
+                }
+                self.myGroup.leave()  //Leave group that was entered before gathering friend list, since the countNumFriends & gatherFriendComments enters its own dispatch group
             }
             
             //Kick off asynch call retrieve opening hours using places web api and add to dispatch group in function
@@ -120,6 +130,9 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
         //remove left padding from tableview seperators
         tableView.layoutMargins = UIEdgeInsets.zero
         tableView.separatorInset = UIEdgeInsets.zero
+        
+        //BS estimated row height so I can use automatic row height for comment cell
+        self.tableView.estimatedRowHeight = 50
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -155,28 +168,56 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
             alert.addAction(CancelAction)
             self.present(alert, animated: true, completion: nil)
         }
+        
+        //Check if unwinding from updating categories and categories were updated
+        if((self.categoryUpdate ?? false) == true){
+            //Uddate string for categories
+            //Store categories that were passed from mylist:
+            if let cats = self.categories{
+                for (index,cat) in cats.enumerated(){
+                    if(index == 0){
+                        self.placeTypes = cat
+                    }else{
+                        self.placeTypes = self.placeTypes + "/" + cat
+                    }
+                }
+            }
+            self.tableView.reloadData()
+        }
     
     }
     
-    func gatherFriendList(_ completionClosure: @escaping ( _ myFriends: [String]) -> Void){
+    func gatherFriendList(_ completionClosure: @escaping ( _ myFriends: [String: String]) -> Void){
         //Array to hold friends that will be returned by completion closure
-        var tempFriends: [String] = [String]()
+        var tempFriends: [String: String] = [String: String]()
         //firebase ref to current user's friends
         let friendRef = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
         friendRef.observeSingleEvent(of: .value, with: { snapshot in
             //Each item under friends is a user:"true" dictionary item
             if let friendList = snapshot.value as? NSDictionary{
                 //Loop over each friend and store in temp array
-                for (user, _) in friendList{
-                    tempFriends.append(user as! String)
+                //Name child is a dict of 1 entry : ["displayName1" : their name] that must be cast from AnyObject
+                for (user, nameChild) in friendList{
+                    //Have to get the value for the "displayName1" key that is a child of the retrieve Facebook ID Node
+                    if let nameDict = nameChild as? NSDictionary{
+                    
+                        //If nodeDict can't be unwrapped then the value returned from the friends node has no children (no displayName1 key: user's name value)
+                        if let nameString = nameDict["displayName1"] as? String{
+                            tempFriends[user as! String] = nameString
+                        }else{
+                            tempFriends[user as! String] = ""
+                        }
+                    }
+                    
                 }
             }
             completionClosure(tempFriends)
         })
     }
     
-    func countNumFriends(friendList:[String]){
+    func countNumFriends(friendList:[String: String], _ completionClosure: @escaping ( _ friendMatch: [String: String]) -> Void){
         var numFriends = 0
+        var matchedDict: [String: String] = [String: String]()
         //Reference to master list
         let refCheckedPlaces = FIRDatabase.database().reference().child("places")
         guard let placeName = self.titleText else {return}
@@ -191,16 +232,52 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
             //Each item under the places check in is a user:"true" dictionary item
             if let currUsers = snapshot.value as? NSDictionary{
                 //Loop over each user who has checked in here and see that user is in my friend's list
+                //Name child is a dict of 1 entry : ["displayName1" : their name]
                 for (user, _) in currUsers{
-                    if( friendList.contains(user as! String) ){
-                       numFriends += 1
+
+                    if( (friendList.keys).contains((user as! String)) ){
+                        numFriends += 1
+                        //store matching friend id so I can access that friends comments about a place
+                        matchedDict[user as! String] = friendList[user as! String]
                     }
                 }
             }
             
             self.friendString = "\(numFriends) Other People Checked In Here"
             self.myGroup.leave()
+            
+            //Call completion closure so I then retrieve the friends comments if they exist
+                //Event though I don't need to pass a class member it was that or figure out passing empty closure
+            completionClosure(matchedDict)
         })
+    }
+    
+    //All matching friends for a check in will have their individual list searched for a comment
+    func gatherFriendComments(friendList:[String: String]){
+        
+        guard let placeName = self.titleText else {return}
+        let refCheckedPlaces = FIRDatabase.database().reference().child("checked")
+//        let userRef = refCheckedPlaces.child(placeName).child("users")
+        //Get a list of all of my current friends:
+        
+        //Loop over all friends and place a request for their comment on this check in
+        for (userId, userName) in friendList{
+            //Add each firebase retrieval to dispatch group
+            myGroup.enter()
+            //Retrieve a list of the user's current check in list
+            refCheckedPlaces.child("\(userId)/\(placeName)/comment").observeSingleEvent(of: .value, with: { snapshot in
+                //If comment exists then store as a comment string with the user's name
+                if let comment = snapshot.value{
+                    //gather users first letter & last initial, answer from SO: https://stackoverflow.com/a/47165223/5495979
+                    var formattedName = ""
+                    if let lastInitialRange = userName.range(of: " ", options: .backwards, range: userName.startIndex..<userName.endIndex) {
+                        formattedName = String(userName[userName.startIndex..<userName.index(lastInitialRange.upperBound, offsetBy: 1)])
+                    }
+                    self.commentList.append("\(formattedName). said: \"\(comment)\"")
+                }
+                self.myGroup.leave()
+            })
+        }
     }
     
     func getDayOfWeek() -> String? {
@@ -389,13 +466,33 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
         
     }
     
+    //Setup data cell height
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
+    {
+        //Address cell is 75, deets cells are 50, and comment cell sizes automatically
+        switch(indexPath.item){
+            case (self.addressCell):
+                return 75
+                break
+        case (self.commentCell):
+                return UITableViewAutomaticDimension
+                break
+        default:
+                return 50
+        }
+    }
+    
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        //6 defined Detail entries
-        return 6
+        //6 defined Detail entries, with an optional comment cell
+        if(self.commentList.count > 0){
+            return 7
+        }else{
+            return 6
+        }
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
@@ -458,7 +555,6 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
             deetsCell.iconImage.contentMode = .center
             deetsCell.deetsLabel.text = self.placeTypes
             deetsCell.deetsLabel.font = UIFont(name: "Avenir-Light", size: 16)
-            deetsCell.selectionStyle = .none
             return deetsCell
         case 5:
             let deetsCell: PlaceDeetsTableViewCell = tableView.dequeueReusableCell(withIdentifier: deetsCellIdentifier, for: indexPath) as! PlaceDeetsTableViewCell
@@ -468,6 +564,21 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
             deetsCell.deetsLabel.font = UIFont(name: "Avenir-Light", size: 16)
             deetsCell.selectionStyle = .none
             return deetsCell
+        case commentCell:   //Cell 6
+            let commentCell: CommentsTableViewCell = tableView.dequeueReusableCell(withIdentifier: "commentsCell", for: indexPath) as! CommentsTableViewCell
+            commentCell.contentImage.image = UIImage(named: "Human Commenting")
+            commentCell.contentImage.contentMode = .center
+            commentCell.commentLabel.font = UIFont(name: "Avenir-Light", size: 16)
+            //Set comment text if any exist, and set multiple comments image if more than 1 exist
+            if(commentList.count > 0){
+                commentCell.commentLabel.text = self.commentList[self.commentPtr]
+                if(commentList.count > 1){
+                    commentCell.multipleCommentImage.image = UIImage(named: "More Comments icon")
+//                    commentCell.multipleContentImage.contentMode = .center
+                }
+            }
+           return commentCell
+
         default:
             Helpers().myPrint(text: "Table entries exceed place details")
             //Default cell value to return
@@ -593,6 +704,20 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                 UIApplication.shared.open(site, options: [:], completionHandler: nil)
                 break
             
+            //Segue to update categories cell
+        case self.categoryCell:            
+            performSegue(withIdentifier: "segueToCats", sender: self)
+            break
+            
+        case self.commentCell:
+            //Increment to next comment if exists or loop around to beginning of array and redisplay comments
+            if(self.commentPtr >= (self.commentList.count - 1 )){
+                self.commentPtr = 0
+            }else{
+                self.commentPtr += 1
+            }
+            self.tableView.reloadData()
+            break
             default:
                 break
         }
@@ -625,6 +750,25 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                 let pasteboard = UIPasteboard.general
                 pasteboard.string = cell.deetsLabel?.text
             }
+        }
+    }
+    
+    // Unwind seque from category updates
+    @IBAction func unwindFromCat(_ sender: UIStoryboardSegue) {
+        // empty
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
+        //Don't perform prepare for segue when unwinding from list, only for updating categories
+        if(segue.identifier == "segueToCats"){
+            let destinationVC = segue.destination as! UpdateCatsViewController
+            destinationVC.storedCategories = self.categories
+            destinationVC.titleText = self.titleText    //Store check in name
+            
+            //Since the category cell can be selected I need to deselect it
+//            if let itemPath = self.tableView.indexPathForSelectedRow{
+//                self.tableView.deselectRow(at: itemPath, animated: true)
+//            }
         }
     }
     

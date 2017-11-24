@@ -194,7 +194,8 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                                         //Store user ID in NSUserDefaults
                                         Helpers().currUser = user?.uid as! NSString
                                         //Store user's name in UserDefaults
-                                        Helpers().currUsername = "\(firstName) \(lastName)" as NSString
+                                        Helpers().currDisplayName = "\(firstName) \(lastName)" as NSString
+                                        Helpers().currUserName = userName as NSString
                                         //Once login type is successful store the method used in NSUserDefaults
                                         Helpers().loginType = self.parsedLoginType!.rawValue
                                         //Lowercase the email address to make searching standard
@@ -260,9 +261,9 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                         //Once login type is successful store the method used in NSUserDefaults as NSInt since I can't save custom data types (or even swift data types
                         Helpers().loginType = self.parsedLoginType!.rawValue
                         
-                        //Store uid and username to NS User defaults
-                        Helpers().currUsername = "\(firstName) \(lastName)" as NSString
-                        
+                        //Store display Name, and username to NS User defaults (UID was already stored in FBLogin VC
+                        Helpers().currDisplayName = "\(firstName) \(lastName)" as NSString
+                        Helpers().currUserName = userName as NSString
                         
                         //Succesfully finished this screen, now get user Info and username at loginInfo screen
                         self.performSegue(withIdentifier: "startOnboarding", sender: nil)
@@ -490,7 +491,11 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        print("Preparing")
+        //Pass email and password to Login info screen if new login
+        //One way street, no need to check for where I'm segueing to since it will always be Profile Steps VC
+        let destinationVC = segue.destination as! ProfileStepsViewController
+        //Notify the AddPeopleVC that it is being accessed during onboarding
+        destinationVC.isOnboarding = true
     }
  
 
