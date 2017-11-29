@@ -351,6 +351,8 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
             let itemsToShare = [ text, appStoreurl] as [Any]
             //UIActivityVC : you tell it what kind of data you want to share, and it figures out how best to share it
             let activityViewController = UIActivityViewController(activityItems: itemsToShare, applicationActivities: nil)
+            //Set Subject line for email
+            activityViewController.setValue("Join the Check In Out Community", forKey: "Subject")
 //            activityViewController.popoverPresentationController?.sourceView = self.view // so that iPads won't crash
             
             // exclude some activity types from the list (optional)

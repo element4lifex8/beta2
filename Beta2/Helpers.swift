@@ -179,11 +179,12 @@ class Helpers{
     }
     
     //check if the current email exists in the system and if so what type of user are they
-    func emailCheck(email: String, _ completionClosure: @escaping (_ type:  Helpers.userType) -> Void)
+    func emailCheck(email: String, _ completionClosure: @escaping (_ type:  Helpers.userType, _ userName: NSString, _ displayName: NSString) -> Void)
     {
         let userRef = FIRDatabase.database().reference(withPath:"users")
         var returnType : Helpers.userType = Helpers.userType.new
-        
+        var returnUser: NSString = ""
+        var returnName: NSString = ""
         //Query for an email equal to the one that the user attempts a sign in with (queryEqual is case sensitive so string is lowercased)
         userRef.queryOrdered(byChild: "email").queryEqual(toValue: email.lowercased()).observeSingleEvent(of: .value, with: { snapshot in
             //snapshot is the user id of the matching user, email should be unique so only 1 entry should be returned but to only return the items beneath the user id I "loop" over the snapshots child, and if no children return default returnType of userType.new
@@ -209,11 +210,19 @@ class Helpers{
                         //This in coordination with checking for username forces Beta users to complete this onboard details screen
                         returnType = Helpers.userType.new
                     }
+                    
+                    //While we're here grab the user's username and display name so we can store it if needed
+                    if let username = nodeDict["username"] as? NSString{
+                        returnUser = username
+                    }
+                    if let displayname = nodeDict["displayName1"] as? NSString{
+                        returnName = displayname
+                    }
                 }else{  //If downcast fails then user doesn't exist
                     returnType = Helpers.userType.new
                 }
             }
-            completionClosure(returnType)
+            completionClosure(returnType, returnUser, returnName)
         })
     }
     

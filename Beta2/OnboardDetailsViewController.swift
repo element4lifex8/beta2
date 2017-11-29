@@ -138,7 +138,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
             }else{
                 //Ensure the email has not been modified and be actually linked to an existing account
                 //Curently email check will return .new if the user is missing the "type" key in the back end (old beta user)
-                Helpers().emailCheck(email: email){(type: Helpers.userType) in
+                Helpers().emailCheck(email: email){(type: Helpers.userType, username: NSString, displayName: NSString) in
                     switch(type){
                     case(.facebook):
                         Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
@@ -419,7 +419,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
         //Need to calculate keyboard exact size due to Apple suggestions
         self.scrollView.isScrollEnabled = true
         var info = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.size
         
         //Change scroll view content hieght to stop at the bottom of the frame and not display blank space for the content insets
 //        self.scrollView.contentSize = CGSize(width: scrollView.frame.size.width, height: scrollView.frame.size.height - /*(self.textBoxSize + self.textBoxSpacing)*/ self.stackHeight)
@@ -450,7 +450,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
     func keyboardWillBeHidden(notification: NSNotification){
         //Once keyboard disappears, restore original positions
         var info = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.size
         let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, 0.0, 0.0)
         self.scrollView.contentInset = contentInsets
         self.scrollView.scrollIndicatorInsets = contentInsets

@@ -586,7 +586,7 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         //Need to calculate keyboard exact size due to Apple suggestions
         self.scrollView.isScrollEnabled = true
         var info = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.size
         //Height of content inserts considers the height of the keyboard from the bottom of the screen, but the scroll view doesn't extend to the bottom of the screen, so subract the bottom Scroll offset
         //move the text box high enough so that the text box and auto complete frame can be shown without contacting the keyboard
         let insetHeight = (keyboardSize!.height - self.bottomScrollOffset) + (self.boxAndLabelSize + CGFloat(self.autoCompleteFrameMaxHeight) )
@@ -610,7 +610,7 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         //Once keyboard disappears, restore original positions
         
         var info = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.size
         //check-me: Should I be subtracting the max table frame height here too?
         let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, -(keyboardSize!.height - self.bottomScrollOffset + self.boxAndLabelSize), 0.0)
         self.scrollView.contentInset = contentInsets

@@ -26,7 +26,7 @@ class CIOHomeViewController: UIViewController   {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
        
-        //Check if the user needs to be logged up pending new update
+        //Check if the user needs to be logged out pending new update
         let shouldLogout = Helpers().logoutDefault
         let providerData = Helpers().firAuth?.currentUser?.providerData
         if let pData = providerData{
@@ -43,7 +43,7 @@ class CIOHomeViewController: UIViewController   {
             //I have to check that even if the currentUser is not nil I have to make sure that it was an email verified auth user. Only want this to be true if the user is not signed in through facebook and the user is not signed in through firebase (isEmailed verfified is false of nil)
         if ((FBSDKAccessToken.current() == nil) && (Helpers().firAuth?.currentUser == nil /*&& (self.providerId ?? "") == "password")*/))
         {
-            self.performSegue(withIdentifier: "LoginScreen", sender: nil)
+            self.performSegue(withIdentifier: "newUserLogin", sender: nil)
         }else if(shouldLogout == 1){//The NSUserDefault shouldLogut is also checked if the user needs to be forced to login again
             //Update logout Default so the user no longer has to logout 
             Helpers().logoutDefault = 0
@@ -63,7 +63,7 @@ class CIOHomeViewController: UIViewController   {
         var firebaseLoggedIn = false
         self.handle = Helpers().firAuth?.addStateDidChangeListener {auth, user in
             if let user = user{
-                print(user.uid)
+                Helpers().myPrint(text: user.uid)
                 firebaseLoggedIn = true
             }else{
                 //user is not logged in
@@ -83,8 +83,9 @@ class CIOHomeViewController: UIViewController   {
             let loginManager = FBSDKLoginManager()
             loginManager.logOut()
         }
-        performSegue(withIdentifier: "LoginScreen", sender: nil)
+        performSegue(withIdentifier: "newUserLogin", sender: nil)
     }
+    
     /*
     override func viewWillDisappear(_ animated: Bool) {
      //If i want to add the the FirAuth listener then I can remove it with this call:

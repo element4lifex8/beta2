@@ -22,6 +22,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
     var titleText: String?
     var categories: [String]?
     var categoryUpdate: Bool?
+    var isMyPlace: Bool?    //keeps track of whether this is my place or Not
     
     //Variables retrieved using google place ID
     var placeAddress: String = ""
@@ -211,6 +212,8 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                     
                 }
             }
+            //Add the current user to the friend list
+            tempFriends[Helpers().currUser as String] = Helpers().currDisplayName as String
             completionClosure(tempFriends)
         })
     }
@@ -266,14 +269,19 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
             myGroup.enter()
             //Retrieve a list of the user's current check in list
             refCheckedPlaces.child("\(userId)/\(placeName)/comment").observeSingleEvent(of: .value, with: { snapshot in
-                //If comment exists then store as a comment string with the user's name
-                if let comment = snapshot.value{
-                    //gather users first letter & last initial, answer from SO: https://stackoverflow.com/a/47165223/5495979
-                    var formattedName = ""
-                    if let lastInitialRange = userName.range(of: " ", options: .backwards, range: userName.startIndex..<userName.endIndex) {
-                        formattedName = String(userName[userName.startIndex..<userName.index(lastInitialRange.upperBound, offsetBy: 1)])
+                //Check if the value of the snapshot is non-null
+                if(snapshot.exists())
+                {
+                    //If comment exists then store as a comment string with the user's name
+                    if let comment = snapshot.value{
+                        
+                        //gather users first letter & last initial, answer from SO: https://stackoverflow.com/a/47165223/5495979
+                        var formattedName = ""
+                        if let lastInitialRange = userName.range(of: " ", options: .backwards, range: userName.startIndex..<userName.endIndex) {
+                            formattedName = String(userName[userName.startIndex..<userName.index(lastInitialRange.upperBound, offsetBy: 1)])
+                        }
+                        self.commentList.append("\(formattedName). said: \"\(comment)\"")
                     }
-                    self.commentList.append("\(formattedName). said: \"\(comment)\"")
                 }
                 self.myGroup.leave()
             })
@@ -555,6 +563,12 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
             deetsCell.iconImage.contentMode = .center
             deetsCell.deetsLabel.text = self.placeTypes
             deetsCell.deetsLabel.font = UIFont(name: "Avenir-Light", size: 16)
+            //Disable category update when not my list or can't unwrap class member
+            if(!(self.isMyPlace ?? false)){
+                //other user's list
+                deetsCell.selectionStyle = .none
+                deetsCell.isUserInteractionEnabled = false
+            }
             return deetsCell
         case 5:
             let deetsCell: PlaceDeetsTableViewCell = tableView.dequeueReusableCell(withIdentifier: deetsCellIdentifier, for: indexPath) as! PlaceDeetsTableViewCell
@@ -718,8 +732,9 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
             }
             self.tableView.reloadData()
             break
-            default:
-                break
+        default:
+            Helpers().myPrint(text: "non selectable cell")
+            break
         }
         self.tableView.deselectRow(at: indexPath, animated: true)
     }

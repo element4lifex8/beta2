@@ -1514,7 +1514,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     func keyboardWasShown(notification: NSNotification){
         //Need to calculate keyboard exact size due to Apple suggestions
         var info = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.size
         //Create a Y value of the top of the keyboard and subtract the difference between that and the bottom of the textBox (but leave 5 pt of space atop the keyboard)
         self.autoCompleteFrameMaxHeight = Int((view.frame.maxY - keyboardSize!.height - 5) - CheckInRestField.frame.maxY)
         
@@ -1551,7 +1551,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     func keyboardWillBeHidden(notification: NSNotification){
         //Once keyboard disappears, restore original positions
         var info = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.size
 //        let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, 0.0, 0.0)
         self.scrollView.contentSize = CGSize(width: self.view.frame.width, height: self.view.frame.size.height)
         self.contentView.frame = CGRect(x: 0.0, y: 0.0, width: self.scrollView.contentSize.width, height: self.scrollView.contentSize.height)
@@ -1616,6 +1616,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         }
         autoCompleteTableView?.isHidden = true
     }
+    
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
         //If user is entering a city then a clear button appears in the text field to cancel city input
         //Only applies to check in text field
@@ -1651,9 +1652,14 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         //if keyboard is present dismiss before transition
         if let activeField = self.activeTextField{
             activeField.resignFirstResponder()
+            //Force scroll view back to standard height because I called resignFirstResponder so did end editing will be called but keyboard will be dismissed is not, so if pushing a new VC so popping it will return to fresh looking screen
+            if(activeField == self.commentTextField){
+                self.scrollView.contentSize = CGSize(width: self.view.frame.width, height: self.view.frame.size.height)
+                self.contentView.frame = CGRect(x: 0.0, y: 0.0, width: self.scrollView.contentSize.width, height: self.scrollView.contentSize.height)
+                self.scrollView.isScrollEnabled = false
+            }
         }
+
     }
-    
-    
 
 }

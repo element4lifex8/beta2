@@ -12,6 +12,7 @@ import FirebaseDatabase
 class UpdateCatsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     @IBOutlet var tableView: UITableView!
+    @IBOutlet var HeaderView: UIView!
     
     //List of categories previously retrieved for displyaing in my list and place deets, they will appear checked here
     var storedCategories: [String]?
@@ -84,6 +85,11 @@ class UpdateCatsViewController: UIViewController, UITableViewDelegate, UITableVi
         let pinLeft = NSLayoutConstraint(item: buttonView, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1.0, constant: (view.bounds.width/2) - (buttViewWidth/2))
         view.addConstraint(pinBottom)
         view.addConstraint(pinLeft)
+        
+        //Header view was breaking constraints so try setting height in code
+        HeaderView.translatesAutoresizingMaskIntoConstraints = false
+        let headerHeight = HeaderView.heightAnchor.constraint(equalToConstant: 100)
+        NSLayoutConstraint.activate([headerHeight])
 
     }
     

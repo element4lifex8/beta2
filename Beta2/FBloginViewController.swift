@@ -107,7 +107,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                     }
                     else
                     {
-
+                        
                         // Check if any of the permissions are missing and notify accordingly
                         // Write revoked to firebase for later handling if grantedPermissions returns false or nil
                         if !(facebookResult?.grantedPermissions.contains("email") ?? false)
@@ -118,6 +118,11 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                         {
                             friendsFB = "revoked"
                         }
+                        if let authUser = self.authRef?.currentUser{
+                            print(authUser.uid)
+                            print(authUser.email)//If email is empty then user logged in with phone #
+                        }
+                        
                         //Check to see if user is new and has not been added to the user's list in Firebase
                         
                         //Provider data is an optional array, unwrap the optional then iterate over the 1 expected array entry to gather uid, displayName, and email parameters
@@ -196,7 +201,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         }else{
         
             //Check if user is new or needs to be created
-            Helpers().emailCheck(email: email){(type: Helpers.userType) in
+            Helpers().emailCheck(email: email){(type: Helpers.userType, username: NSString, displayName: NSString) in
                 switch(type){
                 case(.facebook):
                     //notify user to login with FB
@@ -254,6 +259,10 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                             Helpers().currUser = user?.uid as! NSString
                             Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                         
+                            //Also need to update the username & display name in User defaults in case this is a new install or a different user from the last login
+                            Helpers().currUserName = username
+                            Helpers().currDisplayName = displayName
+                            
                             //Succesfully finished this screen, existing user so skip onboarding
                             self.performSegue(withIdentifier: "unwindLogin4CurrUser", sender: nil)
                         }
@@ -477,21 +486,10 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
             //If we have no children then its most certain that the current user doesn't exist
             if let nodeDict = rootNode.value as? NSDictionary{
                 user = true
-                
                 //Check for beta users without current username
+                //In here i also store the user's display name and username in NS USer defaults if exists
                 self.checkForUsername(nodeDict: nodeDict)
                 
-                
-                //No longer need to check for user's string in firebase, we can be certain that the user either doesn't exist or its current entry is malformed if the above downcast fails
-//                //Loop over each check in Place and parse its attributes
-//                for (key, _ ) in nodeDict{
-//                //Compare current logged in user to all users stored in the database (child.key is the user id #)
-//                
-//                    //?is childkey a string?
-//                    if(key as! NSString == self.currUser){
-//                        user = true
-//                    }
-//                }
             }
             completionClosure(user)
         })
@@ -499,13 +497,20 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
     }
     
     //For beta testers that haven't created a user name I want them to transition to this screen
+    //Also need to store username for user in user defaults
     func checkForUsername(nodeDict: NSDictionary){
-        if let _ = nodeDict["username"] as? String{
+        if let userName = nodeDict["username"] as? NSString{
             //was able to unwrap username, betaUser is current
             self.betaUser = false
+            //Update core data with the user's name in case logging in and username previously didn't exist in Coredata
+            Helpers().currUserName = userName
         }else{
                 //Beta user missing backend details
                 self.betaUser = true
+        }
+        //While I'm in here check for the display name too
+        if let displayName = nodeDict["displayName1"] as? NSString{
+            Helpers().currDisplayName = displayName
         }
             
     }
@@ -534,7 +539,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         //Need to calculate keyboard exact size due to Apple suggestions
         self.scrollView.isScrollEnabled = true
         var info = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.size
         //Height of content inserts considers the height of the keyboard from the bottom of the screen
         //move the text box high enough so that the text box and auto complete frame can be shown without contacting the keyboard
         let insetHeight = keyboardSize!.height + self.textBoxSize + self.textBoxSpacing
@@ -558,7 +563,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
     func keyboardWillBeHidden(notification: NSNotification){
         //Once keyboard disappears, restore original positions
         var info = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.size
         //check-me: Should I be subtracting the max table frame height here too?
         let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, -(keyboardSize!.height - self.textBoxSize - self.textBoxSpacing), 0.0)
         self.scrollView.contentInset = contentInsets

@@ -55,7 +55,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
 //    Variables set by another view controller
     //Store the user ID whose list is requested by the CheckoutPeopleVc
     var requestedUser: NSString?
-    //Header text indicates is this my List, or pass in the header label from another user's list or their city
+    //Header text is only set when this is not my List, I only pass in the header label from another user's list or their city
     var headerText: String?   //Also store user's first name for header label
     var myFriendIds:[NSString]?
     var showAllCities: Bool?    //When true show all user's check in for a city
@@ -1010,6 +1010,12 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     destinationVC.titleText = selectedNode.nodeValue!
                     destinationVC.placeId = selectedNode.nodePlaceId
                     destinationVC.categories = selectedNode.categories
+                }
+                //Pass whether this is a current user's list:
+                if let _ = headerText{
+                    destinationVC.isMyPlace = false    //If headerText is set then this is not the user
+                }else{
+                    destinationVC.isMyPlace = true
                 }
                 self.tableView.deselectRow(at: itemPath, animated: true)
             }

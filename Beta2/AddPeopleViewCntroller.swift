@@ -839,7 +839,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             msg = "Invite some of your Facebook friends to use Check In Out so that they will appear here as \"Available\" and then you can find places to Check Out"
         }else{  //The user has already added all available friends
             title = "Invite More Friends"
-            msg = "You have already befriend all of your \"Available\" Facebook friends. Invite more friends to Check In Out and then they will appear here as \"Available\""
+            msg = "You have already befriended all of your \"Available\" Facebook friends. Invite more friends to Check In Out and then they will appear here as \"Available\""
         }
         let alert = UIAlertController(title: title, message: msg, preferredStyle: .alert)
         let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
@@ -1155,7 +1155,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         //Need to calculate keyboard exact size due to Apple suggestions
        
         var info = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.size
         //Wait until keyboard was shown to activate accessory view as firstResponder so I don't attempt to show the keyboard twice
         modifyViewOnKeyboard()
         
@@ -1166,7 +1166,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     func keyboardWillBeHidden(notification: NSNotification){
         //Once keyboard disappears, restore original positions
         var info = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.size
         //Only trigger nullifying active text field and removing frosted view when keyboard is actually hidden 
         restoreViewOnKeyboardDissmiss(changeTab: self.changeTab)
     }
