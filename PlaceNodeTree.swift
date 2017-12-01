@@ -106,6 +106,10 @@ class PlaceNodeTree{
         }
     }
     
+    func empty() {
+        self.children?.removeAll()
+    }
+    
     //Function returns tree if the deletion left the Parent childless
     func removeChild(_ nodeVal: String)-> Bool{
         var indexToDelete:Int? = nil

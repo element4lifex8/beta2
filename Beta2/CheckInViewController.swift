@@ -456,6 +456,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 //Convert the range returned by the comma to an index and return the string from the space to end of dispay name
                 let stateName = secondaryText.substring(to: rangeOfSpace.lowerBound)
                 cityState = cityState + ", " + stateName
+            }else{  //If no comma exists then this is likely a country and no states exists
+                cityState = cityState + ", " + secondaryText
             }
             self.CheckInRestField.text = cityState
         }else{  //Not entering city, just select establishment name

@@ -36,7 +36,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     let sectionIndexes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
     var sectionWithObjects = [String]()
     var userRef: FIRDatabaseReference!
-   
+    var friendHandler: FIRDatabaseHandle?
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -147,7 +147,8 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                         self.myPlaceNodes.append(node)
                     }
                 }
-                if(userRetrievalCount == (self.currUsers?.count)! ){  //When data from all friendIds is gathered then generate tree
+                //Made to be greater than or equal since any change to a user's list after the page has loaded will re-iterate through this method when .value of the Firebase observer changes
+                if(userRetrievalCount >= (self.currUsers?.count)! ){  //When data from all friendIds is gathered then generate tree
                     //Stop activity monitor now that asynch calls are finished
                     activityIndicator.stopAnimating()
                     loadingView.removeFromSuperview()
@@ -184,7 +185,10 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         var locPlaceNodeObj:placeNode = placeNode()
 
         //Retrieve a list of the user's current check in list
-        myRef.observeSingleEvent(of: .value, with: { snapshot in
+        self.friendHandler = myRef.observe(.value, with: {snapshot in
+//        self.friendHandler = myRef.observe(of: .value, with: { snapshot in
+            //Clear previous values in localPlaceNodeArr if any
+            locPlaceNodeArr.removeAll()
             
             //rootNode now contains a list of all the places from the current user's Reference
             let rootNode = snapshot as FIRDataSnapshot
@@ -202,33 +206,33 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 locPlaceNodeObj.place = key as? String
                 //Get a snapshot of the current place to iterate over its attributes
                 let placeSnap = snapshot.childSnapshot(forPath: key as! String)
-                    //Iterate over each city and category child of the place's check in
-                    for placeChild in placeSnap.children{
-                        let currNode = placeChild as! FIRDataSnapshot
-                         //If Place dict can be unwrapped as NSDictionary then it now has key of the city or cat attribute, and the value is always "true"
-                        //If place Dict can't be unwrapped then the key value pair is the google place id
-                        if let placeDict = currNode.value as? NSDictionary{
-                            //The placeChild key tells us which type of attribute data we are currently looping over
-                            for (attrKey, _ ) in placeDict{
-                                if((placeChild as AnyObject).key == "city"){
-                                    locPlaceNodeObj.addCity(attrKey as! String)
-                                }
-                                else if((placeChild as AnyObject).key == "category"){
-                                    locPlaceNodeObj.addCategory(attrKey as! String)
-                                }
+                //Iterate over each city and category child of the place's check in
+                for placeChild in placeSnap.children{
+                    let currNode = placeChild as! FIRDataSnapshot
+                     //If Place dict can be unwrapped as NSDictionary then it now has key of the city or cat attribute, and the value is always "true"
+                    //If place Dict can't be unwrapped then the key value pair is the google place id
+                    if let placeDict = currNode.value as? NSDictionary{
+                        //The placeChild key tells us which type of attribute data we are currently looping over
+                        for (attrKey, _ ) in placeDict{
+                            if((placeChild as AnyObject).key == "city"){
+                                locPlaceNodeObj.addCity(attrKey as! String)
                             }
-                        }else{
-                            if let placeId = currNode.value as? String{
-                                locPlaceNodeObj.placeId = placeId
-                            }else{
-                                Helpers().myPrint(text: "Malformed firebase entry for \(locPlaceNodeObj.place)")
+                            else if((placeChild as AnyObject).key == "category"){
+                                locPlaceNodeObj.addCategory(attrKey as! String)
                             }
-                            
                         }
+                    }else{
+                        if let placeId = currNode.value as? String{
+                            locPlaceNodeObj.placeId = placeId
+                        }else{
+                            Helpers().myPrint(text: "Malformed firebase entry for \(locPlaceNodeObj.place)")
+                        }
+                        
                     }
-                    
-                    locPlaceNodeArr.append(locPlaceNodeObj)
-                //Previous code block was in an if let optional chain block, but now FIR snaps are not optionals
+                }
+                
+                locPlaceNodeArr.append(locPlaceNodeObj)
+            //Previous code block was in an if let optional chain block, but now FIR snaps are not optionals
 //                else{
 //                    print("Created place node with no attributes. Child snapshot of \(key as!String) was nil")
 //                }
@@ -241,6 +245,8 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
 //Tree generation functions
     func generateTree(_ nodeArr: [placeNode]){
+        //Clear current place node tree
+        self.placeNodeTreeRoot.empty()
         //Loop through all place nodes, and iterate over array of categories and cities
         for placeNode in nodeArr{
             var siblings:[String]? = nil    //Memory is cheap, just redefine the var for each iteration
@@ -1019,8 +1025,13 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 }
                 self.tableView.deselectRow(at: itemPath, animated: true)
             }
+        }else{
+            //Only When unwind segueing remove the observer, otherwise keep observer in case the update cat screen updates categories
+            if let friendHandle = self.friendHandler {
+//                self.userRef.removeObserver(withHandle: friendHandle)
+                self.userRef.removeAllObservers()
+            }
         }
-        
     }
     
     // Unwind seque from my PlaceDeets

@@ -744,6 +744,9 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
         if(indexPath.row == self.addressCell){
             let cell = tableView.cellForRow(at: indexPath) as! AddressTableViewCell
             return (cell.topLabel?.text != nil)
+        }else if(indexPath.row == self.commentCell){
+            let cell = tableView.cellForRow(at: indexPath) as! CommentsTableViewCell
+            return (cell.commentLabel?.text != nil)
         }else{
             let cell = tableView.cellForRow(at: indexPath) as! PlaceDeetsTableViewCell
             return (cell.deetsLabel?.text != nil)
@@ -760,7 +763,12 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                 let cell = tableView.cellForRow(at: indexPath) as! AddressTableViewCell
                 let pasteboard = UIPasteboard.general
                 pasteboard.string = cell.topLabel?.text
-            }else{
+            }else if(indexPath.row == self.commentCell){
+                let cell = tableView.cellForRow(at: indexPath) as! CommentsTableViewCell
+                let pasteboard = UIPasteboard.general
+                pasteboard.string = cell.commentLabel?.text
+            }
+            else{
                 let cell = tableView.cellForRow(at: indexPath) as! PlaceDeetsTableViewCell
                 let pasteboard = UIPasteboard.general
                 pasteboard.string = cell.deetsLabel?.text
