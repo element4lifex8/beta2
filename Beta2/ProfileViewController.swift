@@ -22,6 +22,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBOutlet var homeCityButton: UIButton!
     @IBOutlet var cityButton: UIButton!
     @IBOutlet var addFriendButton: UIButton!
+    @IBOutlet var settingsButton: UIButton!
     
     //Activity monitor and view background
     var activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView()
@@ -253,7 +254,8 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     @IBAction func requestMenu(_ sender: UIButton) {
         animateMenu(dismiss: false)
-
+        self.settingsButton.isEnabled = false   //Disable settings button so it can't be double pressed
+        
     }
     
     func animateMenu(dismiss: Bool){
@@ -270,6 +272,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
             //Remove from superview if dismissing
             if(dismiss){
                 self.progMenuView.removeFromSuperview()
+                self.settingsButton.isEnabled = true   //re-enable settings button 
             }
         })
 

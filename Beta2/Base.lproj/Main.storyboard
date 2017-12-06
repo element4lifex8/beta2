@@ -1200,10 +1200,10 @@
             </objects>
             <point key="canvasLocation" x="4095" y="-613.73239436619724"/>
         </scene>
-        <!--View Controller-->
+        <!--Faq View Controller-->
         <scene sceneID="jVs-pK-hdy">
             <objects>
-                <viewController automaticallyAdjustsScrollViewInsets="NO" id="8BS-yr-uyo" sceneMemberID="viewController">
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="8BS-yr-uyo" customClass="FaqViewController" customModule="Beta2" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="zmw-PZ-5Vh"/>
                         <viewControllerLayoutGuide type="bottom" id="s7d-vI-Eaa"/>
@@ -1781,6 +1781,9 @@ Cg
                             <constraint firstItem="Fqb-bd-tqJ" firstAttribute="top" secondItem="3g8-ZI-0Ox" secondAttribute="top" id="uVv-v6-3rd"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="textView" destination="d38-20-dLa" id="IyF-yM-eGV"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="rDH-bQ-3BD" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="gPV-bK-3NC" userLabel="Exit" sceneMemberID="exit"/>
@@ -3498,10 +3501,10 @@ Cg
             </objects>
             <point key="canvasLocation" x="5664" y="220"/>
         </scene>
-        <!--View Controller-->
+        <!--Priv Pol View Controller-->
         <scene sceneID="bpl-6l-J5h">
             <objects>
-                <viewController automaticallyAdjustsScrollViewInsets="NO" id="037-fJ-a6X" sceneMemberID="viewController">
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="037-fJ-a6X" customClass="PrivPolViewController" customModule="Beta2" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="CV6-VU-xPJ"/>
                         <viewControllerLayoutGuide type="bottom" id="KJ8-Iy-GI2"/>
@@ -3997,6 +4000,9 @@ Cg
                             <constraint firstItem="P2x-pz-nzB" firstAttribute="top" secondItem="ihz-h1-FJo" secondAttribute="bottom" id="iRO-og-TDc"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="textView" destination="P2x-pz-nzB" id="5YG-9D-xoU"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gUl-za-vgX" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="Z1i-BK-lSe" userLabel="Exit" sceneMemberID="exit"/>
@@ -4015,422 +4021,6 @@ Cg
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fo6-4J-Gy2">
-                                <rect key="frame" x="0.0" y="100" width="320" height="468"/>
-                                <subviews>
-                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" usesAttributedText="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Vl7-iI-bDT">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="468"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                        <attributedString key="attributedText">
-                                            <fragment>
-                                                <string key="content">Check In Out, LLC
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="18" name="TimesNewRomanPS-BoldMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="14.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">	PRIVACY POLICY, Last update: November 20, 2017
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">This privacy policy governs your use of the software application Check In Out (“Application”) for mobile devices that was created by Check In Out, LLC. The Application is a social networking app built on the concept of receiving recommendations of places to see and things to do from the people whose taste you trust. The app combines recommendations from your trusted people in an easy to read list format. With each recommendation you get additional features like personal comments, hours of operation, address and more to help shape your experience. 
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">What information does the Application obtain and how is it used?
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment content="User Provided Information">
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content"> 
-The Application obtains the information you provide when you download and register in the Application. You must register with us to use the app. Registration options include via email or social media applications. Registration with the app enables you to add people to follow and others to follow you. 
-When you register with us and use the Application, you generally provide (a) your name, email address, user name, password and other registration information; (b) information you provide us when you contact us for help; (c) information you enter into our system when using the Application, (d) other shareable information we might receive when you sign in using your social media account. 
-We may also use the information you provided us to contact you from time to time to provide you with important information, required notices and marketing promotions. You will always have an option to alter the communication content or unsubscribe via the link in the emails.
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment content="Automatically Collected Information">
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content"> 
-In addition, the Application may collect certain information automatically, including, but not limited to, the type of mobile device you use, your mobile devices unique device ID, the IP address of your mobile device, your mobile operating system, the type of mobile Internet browsers you use, and information about the way you use the Application. 
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content"> 
-Does the Application collect precise real time location information of the device?
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">When you visit the mobile application, we may use GPS technology (or other similar technology) to determine your current location in order to determine the city you are located within and display a location map with relevant recommendations. We will not share your current location with other users or partners.
-If you do not want us to use your location for the purposes set forth above, you should turn off the location services for the mobile application located in your account settings or in your mobile phone settings and/or within the mobile application. If you decide to do so, you might not get the full functionality and benefits of using the application. 
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">Do third parties see and/or have access to information obtained by the Application?
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">Yes. We will share your information with third parties only in the ways that are described in this privacy statement.
-We may disclose User Provided and Automatically Collected Information:
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">〈	</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="Symbol"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" firstLineHeadIndent="21.5" headIndent="36" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">as required by law, such as to comply with a subpoena, or similar legal process;
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" firstLineHeadIndent="21.5" headIndent="36" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">〈	</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="Symbol"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" firstLineHeadIndent="21.5" headIndent="36" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">when we believe in good faith that disclosure is necessary to protect our rights, protect your safety or the safety of others, investigate fraud, or respond to a government request;
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" firstLineHeadIndent="21.5" headIndent="36" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">〈	</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="Symbol"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" firstLineHeadIndent="21.5" headIndent="36" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">with our trusted services providers who work on our behalf, do not have an independent use of the information we disclose to them, and have agreed to adhere to the rules set forth in this privacy statement.
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" firstLineHeadIndent="21.5" headIndent="36" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">〈	</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="Symbol"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" firstLineHeadIndent="21.5" headIndent="36" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">if Check In Out, LLC is involved in a merger, acquisition, or sale of all or a portion of its assets, you will be notified via email of any change in ownership or uses of this information, as well as any choices you may have regarding this information.
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" firstLineHeadIndent="21.5" headIndent="36" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">What are my opt-out rights?
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">You can stop all collection of information by the Application easily by uninstalling the Application. You may use the standard uninstall processes as may be available as part of your mobile device or via the mobile application marketplace or network. You can also request to opt-out via email, at account@checklinoutlists.com.
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">Data Retention Policy, Managing Your Information
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">We will retain User Provided data for as long as you use the Application and for a reasonable time thereafter. We will retain automatically collected information for up to 24 months and thereafter may store it in aggregate. If you’d like us to delete User Provided Data that you have provided via the Application, please contact us at privacy@checklinoutlists.com and we will respond in a reasonable time. Please note that some or all of the User Provided Data may be required in order for the Application to function properly.
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">Children
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">We do not use the Application to knowingly solicit data from or market to children under the age of 13. If a parent or guardian becomes aware that his or her child has provided us with information without their consent, he or she should contact us at privacy@checlinoutlists.com. We will delete such information from our files within a reasonable time.
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">Security
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">We are concerned about safeguarding the confidentiality of your information. We provide physical, electronic, and procedural safeguards to protect information we process and maintain. For example, we limit access to this information to authorized employees and contractors who need to know that information in order to operate, develop or improve our Application. Please be aware that, although we endeavor provide reasonable security for information we process and maintain, no security system can prevent all potential security breaches.
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">Changes
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">This Privacy Policy may be updated from time to time for any reason. We will notify you of any changes to our Privacy Policy by posting the new Privacy Policy here and informing you via email or text message. You are advised to consult this Privacy Policy regularly for any changes, as continued use is deemed approval of all changes.
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">Your Consent
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">By using the Application, you are consenting to our processing of your information as set forth in this Privacy Policy now and as amended by us. "Processing,” means using cookies on a computer/hand held device or using or touching information in any way, including, but not limited to, collecting, storing, deleting, using, combining and disclosing information, all of which activities will take place in the United States. If you reside outside the United States your information will be transferred, processed and stored there under United States privacy standards. 
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">Contact us
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content">We welcome your comments or questions about this privacy policy. You may contact us at our email address: privacy@checkinoutlists.com.</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="11" name="ArialMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content" base64-UTF8="YES">
-Cg
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="11" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                            <fragment>
-                                                <string key="content" base64-UTF8="YES">
-Cg
-</string>
-                                                <attributes>
-                                                    <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
-                                                        <tabStops/>
-                                                    </paragraphStyle>
-                                                    <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                </attributes>
-                                            </fragment>
-                                        </attributedString>
-                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                                    </textView>
-                                </subviews>
-                                <constraints>
-                                    <constraint firstItem="Vl7-iI-bDT" firstAttribute="centerX" secondItem="fo6-4J-Gy2" secondAttribute="centerX" id="ZcG-XN-Gtb"/>
-                                    <constraint firstAttribute="trailing" secondItem="Vl7-iI-bDT" secondAttribute="trailing" id="bpd-pg-uBb"/>
-                                    <constraint firstItem="Vl7-iI-bDT" firstAttribute="centerY" secondItem="fo6-4J-Gy2" secondAttribute="centerY" id="eIb-6Y-cNO"/>
-                                    <constraint firstAttribute="bottom" secondItem="Vl7-iI-bDT" secondAttribute="bottom" id="jYR-0b-pk6"/>
-                                    <constraint firstItem="Vl7-iI-bDT" firstAttribute="leading" secondItem="fo6-4J-Gy2" secondAttribute="leading" id="l6a-1E-vbr"/>
-                                    <constraint firstItem="Vl7-iI-bDT" firstAttribute="top" secondItem="fo6-4J-Gy2" secondAttribute="top" id="xT2-ma-LIf"/>
-                                </constraints>
-                            </scrollView>
                             <view contentMode="scaleToFill" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="ugu-gH-fH1">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="100"/>
                                 <subviews>
@@ -4503,15 +4093,418 @@ Cg
                                     </mask>
                                 </variation>
                             </view>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" usesAttributedText="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Vl7-iI-bDT">
+                                <rect key="frame" x="0.0" y="100" width="320" height="468"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <attributedString key="attributedText">
+                                    <fragment>
+                                        <string key="content">Check In Out, LLC
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="18" name="TimesNewRomanPS-BoldMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="14.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">	PRIVACY POLICY, Last update: November 20, 2017
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">This privacy policy governs your use of the software application Check In Out (“Application”) for mobile devices that was created by Check In Out, LLC. The Application is a social networking app built on the concept of receiving recommendations of places to see and things to do from the people whose taste you trust. The app combines recommendations from your trusted people in an easy to read list format. With each recommendation you get additional features like personal comments, hours of operation, address and more to help shape your experience. 
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">What information does the Application obtain and how is it used?
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content="User Provided Information">
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content"> 
+The Application obtains the information you provide when you download and register in the Application. You must register with us to use the app. Registration options include via email or social media applications. Registration with the app enables you to add people to follow and others to follow you. 
+When you register with us and use the Application, you generally provide (a) your name, email address, user name, password and other registration information; (b) information you provide us when you contact us for help; (c) information you enter into our system when using the Application, (d) other shareable information we might receive when you sign in using your social media account. 
+We may also use the information you provided us to contact you from time to time to provide you with important information, required notices and marketing promotions. You will always have an option to alter the communication content or unsubscribe via the link in the emails.
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content="Automatically Collected Information">
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content"> 
+In addition, the Application may collect certain information automatically, including, but not limited to, the type of mobile device you use, your mobile devices unique device ID, the IP address of your mobile device, your mobile operating system, the type of mobile Internet browsers you use, and information about the way you use the Application. 
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content"> 
+Does the Application collect precise real time location information of the device?
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">When you visit the mobile application, we may use GPS technology (or other similar technology) to determine your current location in order to determine the city you are located within and display a location map with relevant recommendations. We will not share your current location with other users or partners.
+If you do not want us to use your location for the purposes set forth above, you should turn off the location services for the mobile application located in your account settings or in your mobile phone settings and/or within the mobile application. If you decide to do so, you might not get the full functionality and benefits of using the application. 
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">Do third parties see and/or have access to information obtained by the Application?
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">Yes. We will share your information with third parties only in the ways that are described in this privacy statement.
+We may disclose User Provided and Automatically Collected Information:
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">〈	</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="Symbol"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" firstLineHeadIndent="21.5" headIndent="36" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">as required by law, such as to comply with a subpoena, or similar legal process;
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" firstLineHeadIndent="21.5" headIndent="36" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">〈	</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="Symbol"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" firstLineHeadIndent="21.5" headIndent="36" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">when we believe in good faith that disclosure is necessary to protect our rights, protect your safety or the safety of others, investigate fraud, or respond to a government request;
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" firstLineHeadIndent="21.5" headIndent="36" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">〈	</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="Symbol"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" firstLineHeadIndent="21.5" headIndent="36" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">with our trusted services providers who work on our behalf, do not have an independent use of the information we disclose to them, and have agreed to adhere to the rules set forth in this privacy statement.
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" firstLineHeadIndent="21.5" headIndent="36" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">〈	</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="Symbol"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" firstLineHeadIndent="21.5" headIndent="36" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">if Check In Out, LLC is involved in a merger, acquisition, or sale of all or a portion of its assets, you will be notified via email of any change in ownership or uses of this information, as well as any choices you may have regarding this information.
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" firstLineHeadIndent="21.5" headIndent="36" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">What are my opt-out rights?
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">You can stop all collection of information by the Application easily by uninstalling the Application. You may use the standard uninstall processes as may be available as part of your mobile device or via the mobile application marketplace or network. You can also request to opt-out via email, at account@checklinoutlists.com.
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">Data Retention Policy, Managing Your Information
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">We will retain User Provided data for as long as you use the Application and for a reasonable time thereafter. We will retain automatically collected information for up to 24 months and thereafter may store it in aggregate. If you’d like us to delete User Provided Data that you have provided via the Application, please contact us at privacy@checklinoutlists.com and we will respond in a reasonable time. Please note that some or all of the User Provided Data may be required in order for the Application to function properly.
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">Children
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">We do not use the Application to knowingly solicit data from or market to children under the age of 13. If a parent or guardian becomes aware that his or her child has provided us with information without their consent, he or she should contact us at privacy@checlinoutlists.com. We will delete such information from our files within a reasonable time.
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">Security
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">We are concerned about safeguarding the confidentiality of your information. We provide physical, electronic, and procedural safeguards to protect information we process and maintain. For example, we limit access to this information to authorized employees and contractors who need to know that information in order to operate, develop or improve our Application. Please be aware that, although we endeavor provide reasonable security for information we process and maintain, no security system can prevent all potential security breaches.
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">Changes
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">This Privacy Policy may be updated from time to time for any reason. We will notify you of any changes to our Privacy Policy by posting the new Privacy Policy here and informing you via email or text message. You are advised to consult this Privacy Policy regularly for any changes, as continued use is deemed approval of all changes.
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">Your Consent
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">By using the Application, you are consenting to our processing of your information as set forth in this Privacy Policy now and as amended by us. "Processing,” means using cookies on a computer/hand held device or using or touching information in any way, including, but not limited to, collecting, storing, deleting, using, combining and disclosing information, all of which activities will take place in the United States. If you reside outside the United States your information will be transferred, processed and stored there under United States privacy standards. 
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="12" paragraphSpacingBefore="12" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">Contact us
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPS-BoldMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" paragraphSpacing="15.949999999999999" paragraphSpacingBefore="15.949999999999999" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content">We welcome your comments or questions about this privacy policy. You may contact us at our email address: privacy@checkinoutlists.com.</string>
+                                        <attributes>
+                                            <font key="NSFont" size="11" name="ArialMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content" base64-UTF8="YES">
+Cg
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="11" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content" base64-UTF8="YES">
+Cg
+</string>
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="TimesNewRomanPSMT"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="leftToRight" tailIndent="468" defaultTabInterval="36" tighteningFactorForTruncation="0.0">
+                                                <tabStops/>
+                                            </paragraphStyle>
+                                            <color key="NSUnderlineColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        </attributes>
+                                    </fragment>
+                                </attributedString>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstAttribute="trailing" secondItem="fo6-4J-Gy2" secondAttribute="trailing" id="9jJ-jz-pZD"/>
-                            <constraint firstItem="fo6-4J-Gy2" firstAttribute="leading" secondItem="qGF-3O-pom" secondAttribute="leading" id="FUs-3b-9xc"/>
-                            <constraint firstItem="72s-YU-Dnz" firstAttribute="top" secondItem="fo6-4J-Gy2" secondAttribute="bottom" id="S5o-XJ-jJf"/>
+                            <constraint firstAttribute="trailing" secondItem="Vl7-iI-bDT" secondAttribute="trailing" id="4uy-Bl-JQG"/>
+                            <constraint firstItem="Vl7-iI-bDT" firstAttribute="top" secondItem="ugu-gH-fH1" secondAttribute="bottom" id="Da6-4e-iM9"/>
+                            <constraint firstItem="72s-YU-Dnz" firstAttribute="top" secondItem="Vl7-iI-bDT" secondAttribute="bottom" id="d5C-94-s5K"/>
                             <constraint firstItem="ugu-gH-fH1" firstAttribute="leading" secondItem="qGF-3O-pom" secondAttribute="leading" id="euS-Hr-JXM"/>
                             <constraint firstAttribute="trailing" secondItem="ugu-gH-fH1" secondAttribute="trailing" id="nXJ-CF-pK0"/>
-                            <constraint firstItem="fo6-4J-Gy2" firstAttribute="top" secondItem="ugu-gH-fH1" secondAttribute="bottom" id="vjK-mM-0nb"/>
+                            <constraint firstItem="Vl7-iI-bDT" firstAttribute="leading" secondItem="qGF-3O-pom" secondAttribute="leading" id="wF4-NC-UGL"/>
                             <constraint firstItem="ugu-gH-fH1" firstAttribute="top" secondItem="qGF-3O-pom" secondAttribute="top" id="xtD-e0-u64"/>
                         </constraints>
                     </view>
