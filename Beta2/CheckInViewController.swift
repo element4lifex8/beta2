@@ -48,6 +48,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     //Activity monitor and view background
     var activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView()
     var loadingView: UIView = UIView()
+    //Activity indicator for autocomplete table cell
+    var autoCompleteLoading = false
+    var autoCompleteSeachStarted = false
     
     //Hack to reiterate through check in process after we notify the user they checked in without autocomplete
     var customCheckIn = false
@@ -405,7 +408,15 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
     //TableView delegate functions
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return googlePrediction.count
+        //If I haven't retrieved any values yet when I show the table view i want a cell with a loading parameter
+        if(!self.autoCompleteSeachStarted){
+            self.autoCompleteLoading = true
+            return 1     //If table isn't hidden then display activity indicator
+            
+        }else{
+            self.autoCompleteLoading = false
+            return googlePrediction.count
+        }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -417,8 +428,17 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        //Table always returns at least 1 cell and if this cell is for auto complete loading then just display activity indicator
+        if(self.autoCompleteLoading){
+            var cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+            displayAutoCompleteIndicator(tableCell: &cell)
+            //Disable cell selection (cellection)
+            cell.isUserInteractionEnabled = false
+            cell.selectionStyle = .none
+            return cell
+        }
         //Use the standard cell for adding city
-        if(self.isEnteringCity)
+        else if(self.isEnteringCity)
         {
             let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
             cell.textLabel?.text = googlePrediction[indexPath.row].attributedFullText.string
@@ -955,6 +975,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     }
     
     func placeAutocomplete(queryText: String) {
+        var tableFrame = self.autoCompleteTableView?.frame;
+        
         let filter = GMSAutocompleteFilter()
         //I don't want to print places of these types:
         let filterPlaces = ["route", "locality", "political"]
@@ -964,6 +986,16 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         }else{
             filter.type = .noFilter
         }
+        
+        //Only while searching for the first item to occur display activity monitor
+        //If I'm starting the autocomplete search I need to display loading indicator
+        if(!self.autoCompleteSeachStarted){
+            self.autoCompleteTableView?.isHidden = false
+            //Shrink height to 1 cell
+            tableFrame?.size.height = CGFloat(self.autoCompleteCellHeight + Int(self.googleImageView.frame.height + 10));
+            self.autoCompleteTableView?.frame = tableFrame!;
+        }
+        
         placesClient.autocompleteQuery(queryText, bounds: coordinateBounds(), filter: filter, callback: {(results, error) -> Void in
             if let error = error {
                 Helpers().myPrint(text: "Autocomplete error \(error)")
@@ -989,8 +1021,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 }
             }
             //Determine if the number of entries in the array of table data will exceed the default table frame size of 120pt (~3 tables entries). Shrink table if less than 3 table entries expected
+
             let newTableSize = (self.autoCompleteArray.count * self.autoCompleteCellHeight) + Int(self.googleImageView.frame.height + 10)
-            var tableFrame = self.autoCompleteTableView?.frame;
             
             if(newTableSize < self.autoCompleteFrameMaxHeight){
                 tableFrame?.size.height = CGFloat(newTableSize);
@@ -1005,10 +1037,15 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             //Hide auto complete table view if no autocomplete entries exist
             if(self.autoCompleteArray.count == 0){
                 self.autoCompleteTableView?.isHidden = true
+                //Once I hide the table view the "search" has ended
+                self.autoCompleteSeachStarted = false
             }else{
                 self.autoCompleteTableView?.isHidden = false
+                //Finished my first auto complete search
+                self.autoCompleteSeachStarted = true
                 self.view.bringSubview(toFront: self.autoCompleteTableView!)
             }
+            
             self.autoCompleteTableView?.reloadData()
         })
     }
@@ -1031,6 +1068,39 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             coordBounds = GMSCoordinateBounds(coordinate: coordNone , coordinate: coordNone)
         }
         return coordBounds!
+    }
+    
+    func displayAutoCompleteIndicator(tableCell: inout UITableViewCell){
+        //Create container view then loading for activity indicator to prevent background from overshadowing white color
+        let frameWidth: CGFloat = 170.0, frameHeight: CGFloat = 30.0
+        //center x, and place under text field for y
+        let frameX = (tableCell.frame.size.width - frameWidth) / 2
+        let frameY = (tableCell.frame.size.height - frameHeight) / 2
+        self.loadingView.frame = CGRect(x: frameX ,y: frameY,width: frameWidth,height: frameHeight)
+        //        self.loadingView.center = view.center
+        //Different shaded color than back ground
+        self.loadingView.backgroundColor = UIColor(red: 0x74/255, green: 0x74/255, blue: 0x74/255, alpha: 0.7)
+        self.loadingView.clipsToBounds = true
+        self.loadingView.layer.cornerRadius = 10
+        
+        //Create label to add to view
+        let loadingLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 140, height: 30))
+        loadingLabel.text = "Searching"
+        loadingLabel.font = UIFont(name: "Avenir-Heavy", size: 18)
+        loadingLabel.textColor = .white
+        loadingLabel.textAlignment = .center
+        loadingView.addSubview(loadingLabel)
+        
+        //Create Activity indicator
+        self.activityIndicator = UIActivityIndicatorView(frame:   CGRect(x: 0, y: 0, width: 20, height: 20)) as UIActivityIndicatorView
+        self.activityIndicator.center = CGPoint(x: loadingView.frame.size.width - 20,y: loadingView.frame.size.height / 2);
+        //        activityIndicator.backgroundColor = UIColor(red: 0x60/255, green: 0x60/255, blue: 0x60/255, alpha: 0.3)
+        self.activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.white
+        self.activityIndicator.hidesWhenStopped = true
+        
+        self.loadingView.addSubview(activityIndicator)
+        tableCell.addSubview(loadingView)
+        self.activityIndicator.startAnimating()
     }
     
     //Display an activity monitor while the user waits for the check in process
