@@ -16,6 +16,7 @@ class Helpers{
     fileprivate let defaultsStandard = UserDefaults.standard
     //NSUserDefault keys refer to FB login controller where they originally presided
     static let currUserDefaultKey = "FBloginVC.currUser"
+    static let prevUserDefaultKey = "FBloginVC.prevUser"
     static let currDisplayNameKey = "FBloginVC.displayName"
     static let userNameKey = "FBloginVC.userName"
     static let loginTypeDefaultKey = "FBloginVC.loginType"
@@ -35,6 +36,22 @@ class Helpers{
         {
             defaultsStandard.set(newValue, forKey: Helpers.currUserDefaultKey)
 //            defaultsStandard.synchronize()      //Force user default to immediately update, supposedly slow and memory intensive
+        }
+    }
+    
+    //Keep track of any old FB users if neccessary
+    var prevUser: NSString {
+        get{
+            if let userId = defaultsStandard.object(forKey: Helpers.prevUserDefaultKey) as? NSString{
+                return userId
+            }else{
+                return "0"
+            }
+        }
+        set
+        {
+            defaultsStandard.set(newValue, forKey: Helpers.prevUserDefaultKey)
+            //            defaultsStandard.synchronize()      //Force user default to immediately update, supposedly slow and memory intensive
         }
     }
     

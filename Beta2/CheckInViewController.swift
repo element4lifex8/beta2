@@ -176,7 +176,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         self.commentTextField.attributedPlaceholder = attrPlaceHolder
         
         //Setup Tap gesture so clicking outside of textbox dismisses keyboard
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(AddPeopleViewCntroller.tapDismiss(_:)))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(CheckInViewController.tapDismiss(_:)))
         //        self.tableCover.isUserInteractionEnabled =
         //        self.tableCover.addGestureRecognizer(tapGesture)
         self.scrollView.addGestureRecognizer(tapGesture)
@@ -384,27 +384,28 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         self.locationManager?.stopUpdatingLocation()
     }
     
+    //#Broken when adding everything to scrollview
     //Detect when user taps outside of scroll views and remove any delete city buttons if they are present
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
-        super.touchesBegan(touches, with: event)
-        
-        if let touch: UITouch = touches.first{
-            if (touch.view == checkInView){
-                //dismiss keyboard if present
-                CheckInRestField.resignFirstResponder()
-                for case let btn as DeleteCityUIButton in cityScrollContainerView.subviews{
-                    btn.removeFromSuperview()
-                }
-                //Remove any background from the city button that was added by the touchdown event
-                for case let btn as CityStateUIButton in cityScrollContainerView.subviews{
-                    if(!btn.isSelected){
-                        btn.backgroundColor = UIColor.clear
-                    }
-                }
-            }
-        }
-    }
+//    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+//        
+//        super.touchesBegan(touches, with: event)
+//        
+//        if let touch: UITouch = touches.first{
+//            if (touch.view == checkInView){
+//                //dismiss keyboard if present
+//                CheckInRestField.resignFirstResponder()
+//                for case let btn as DeleteCityUIButton in cityScrollContainerView.subviews{
+//                    btn.removeFromSuperview()
+//                }
+//                //Remove any background from the city button that was added by the touchdown event
+//                for case let btn as CityStateUIButton in cityScrollContainerView.subviews{
+//                    if(!btn.isSelected){
+//                        btn.backgroundColor = UIColor.clear
+//                    }
+//                }
+//            }
+//        }
+//    }
     
     //TableView delegate functions
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -431,7 +432,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         //Table always returns at least 1 cell and if this cell is for auto complete loading then just display activity indicator
         if(self.autoCompleteLoading){
             var cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-            displayAutoCompleteIndicator(tableCell: &cell)
+            cell.textLabel?.text = ""
+            displayActivityMonitor(isTable: true, tableCell: &cell)
             //Disable cell selection (cellection)
             cell.isUserInteractionEnabled = false
             cell.selectionStyle = .none
@@ -447,6 +449,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             cell.textLabel?.lineBreakMode = .byTruncatingTail
             //Remove seperator insets
             cell.layoutMargins = UIEdgeInsets.zero
+            //Make sure cells are selctable
+            cell.isUserInteractionEnabled = true
+            cell.selectionStyle = .default
             return cell
         }else{  //Use two line cell for displaying places
             //Friend cell has nameLabel and isAvailableLabel for two row entries
@@ -457,6 +462,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             cell.secondaryLabel.text = googlePrediction[indexPath.row].attributedSecondaryText?.string
             
             cell.layoutMargins = UIEdgeInsets.zero
+            //Make sure cells are selctable
+            cell.isUserInteractionEnabled = true
+            cell.selectionStyle = .default
             return cell
         }
 
@@ -574,8 +582,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             let dictArrLength = dictArr.count
             if(!restNameText.isEmpty && restNameText != restNamePlaceHolder)
             {
+                //Have to create a fake cell since it's passed as an inout and has to be able to be returned to the calling function,  but it won't get used when I'm not displaying the activity monitor in the tableView
+                var fakeCell = UITableViewCell()
                 //Start activity monitor since check process now has to make async request
-                displayActivityMonitor()
+                displayActivityMonitor(isTable: false, tableCell: &fakeCell)
                 //Firebase Keys must be non-empty and cannot contain '.' '#' '$' '[' or ']'
                 //Loop over string in case in contains multiple bad chars
 //                while(restNameText.characters.contains(where: restNameText.contains(".
@@ -970,6 +980,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 placeAutocomplete(queryText: checkInString)
             }else if (checkInString.characters.count < 3){
                 autoCompleteTableView?.isHidden = true
+                //If I delete to less than 3 chars then I can "restart" the search
+                self.autoCompleteSeachStarted = false
             }
         }
     }
@@ -994,6 +1006,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             //Shrink height to 1 cell
             tableFrame?.size.height = CGFloat(self.autoCompleteCellHeight + Int(self.googleImageView.frame.height + 10));
             self.autoCompleteTableView?.frame = tableFrame!;
+            self.autoCompleteTableView?.reloadData()
         }
         
         placesClient.autocompleteQuery(queryText, bounds: coordinateBounds(), filter: filter, callback: {(results, error) -> Void in
@@ -1038,10 +1051,11 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             if(self.autoCompleteArray.count == 0){
                 self.autoCompleteTableView?.isHidden = true
                 //Once I hide the table view the "search" has ended
-                self.autoCompleteSeachStarted = false
+//                self.autoCompleteSeachStarted = false
             }else{
                 self.autoCompleteTableView?.isHidden = false
-                //Finished my first auto complete search
+                //Finished my first auto complete search, hide search monitor
+                self.clearActivityMonitor()
                 self.autoCompleteSeachStarted = true
                 self.view.bringSubview(toFront: self.autoCompleteTableView!)
             }
@@ -1104,12 +1118,19 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     }
     
     //Display an activity monitor while the user waits for the check in process
-    func displayActivityMonitor(){
+    //Activity monitor will either occur in autocomplete tableview or right beneath the check in rest field
+    func displayActivityMonitor(isTable: Bool, tableCell: inout UITableViewCell){
         //Create container view then loading for activity indicator to prevent background from overshadowing white color
         let frameWidth: CGFloat = 170.0, frameHeight: CGFloat = 30.0
         //center x, and place under text field for y
-        let frameX = (view.frame.size.width - frameWidth) / 2
-        let frameY = self.CheckInRestField.frame.maxY + 7.5
+        var frameX,frameY: CGFloat
+        if(isTable){
+            frameX = (tableCell.frame.size.width - frameWidth) / 2
+            frameY = (tableCell.frame.size.height - frameHeight) / 2
+        }else{
+            frameX = (view.frame.size.width - frameWidth) / 2
+            frameY = self.CheckInRestField.frame.maxY + 7.5
+        }
         self.loadingView.frame = CGRect(x: frameX ,y: frameY,width: frameWidth,height: frameHeight)
 //        self.loadingView.center = view.center
         //Different shaded color than back ground
@@ -1117,9 +1138,18 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         self.loadingView.clipsToBounds = true
         self.loadingView.layer.cornerRadius = 10
         
+        //Since loading view gets created every time its displayed remove the label so multiple labeles don't overlap eachother with differing text
+        for label in self.loadingView.subviews{
+            label.removeFromSuperview()
+        }
+        
         //Create label to add to view
         let loadingLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 140, height: 30))
-        loadingLabel.text = "Check Me Out"
+        if(isTable){
+            loadingLabel.text = "Searching"
+        }else{
+            loadingLabel.text = "Check Me Out"
+        }
         loadingLabel.font = UIFont(name: "Avenir-Heavy", size: 18)
         loadingLabel.textColor = .white
         loadingLabel.textAlignment = .center
@@ -1133,7 +1163,11 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         self.activityIndicator.hidesWhenStopped = true
         
         self.loadingView.addSubview(activityIndicator)
-        view.addSubview(loadingView)
+        if(isTable){
+             tableCell.addSubview(loadingView)
+        }else{
+            view.addSubview(loadingView)
+        }
         self.activityIndicator.startAnimating()
     }
     
@@ -1714,6 +1748,16 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     func tapDismiss(_ sender: UITapGestureRecognizer)
     {
         self.activeTextField?.resignFirstResponder()
+        
+        for case let btn as DeleteCityUIButton in cityScrollContainerView.subviews{
+            btn.removeFromSuperview()
+        }
+        //Remove any background from the city button that was added by the touchdown event
+        for case let btn as CityStateUIButton in cityScrollContainerView.subviews{
+            if(!btn.isSelected){
+                btn.backgroundColor = UIColor.clear
+            }
+        }
     }
     
     

@@ -731,6 +731,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             childString = "username"
         }
         //Query for an username equal to the one that the user attempts to create
+        //Query equal only works when the first level nested value has a key value pair without data nested in the value
         userRef.queryOrdered(byChild: childString).queryEqual(toValue: input).observeSingleEvent(of: .value, with: { snapshot in
             //snapshot is the user id/email of the matching name, each user is unique so only 1 entry should be returned but to only return the items beneath the user id I "loop" over the snapshots child, and if no children return false (username is unique)
             for child in snapshot.children{
