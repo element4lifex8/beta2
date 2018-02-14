@@ -184,7 +184,15 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                                     self.performSegue(withIdentifier: "unwindLogin4CurrUser", sender: nil)
                                 }
                             }else{
-                                self.performSegue(withIdentifier: "loginInfo", sender: nil)
+                                //If old beta user I still want to update ID but then also transition to retrieve new user name
+                                if(shouldUpdate){
+                                    //Use completion closure to stop return from function until async calls finish
+                                    self.updateUserId() {(_: Bool) in
+                                        self.performSegue(withIdentifier: "loginInfo", sender: nil)
+                                    }
+                                }else{
+                                    self.performSegue(withIdentifier: "loginInfo", sender: nil)
+                                }
                             }
                         }
                     }
@@ -534,8 +542,14 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                 //force downcast only works if root node has children, otherwise value will only be a string
                 
                 //If we have no children then its most certain that the user didn't exist under the facebook id
-                if let _ = rootNode.value as? NSDictionary{
+                if let nodeDict = rootNode.value as? NSDictionary{
                     shouldUpdate = true //found the user under the old id
+                    //it is a current user and so I need to store their user name if it exists
+                    user = true
+                    //Check for beta users without current username
+                    //In here i also store the user's display name and username in NS USer defaults if exists
+                    self.checkForUsername(nodeDict: nodeDict)
+                    
                 }
                 myGroup.leave()
             })
@@ -543,10 +557,6 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
             
             //Fire async call once facebook api, and firebase calls have finish
             myGroup.notify(queue: DispatchQueue.main) {
-                //If I should update than force the user to exist since I previously just chcked for the new userID
-                if(shouldUpdate){
-                    user = true
-                }
                 completionClosure(user, shouldUpdate)
             }
         }
@@ -704,6 +714,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                 
                 //Update all the user's friends who have references to their old user id
                 let name = Helpers().currDisplayName
+                print("Curr name \(name)")
                 let friendInfo = ["displayName1" : name]
                 //Remove the current user's prev user id from the ref to their friends list
                 for ref in friendsRefUpdate{
