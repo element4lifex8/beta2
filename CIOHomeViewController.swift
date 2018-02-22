@@ -44,10 +44,11 @@ class CIOHomeViewController: UIViewController   {
         if ((FBSDKAccessToken.current() == nil) && (Helpers().firAuth?.currentUser == nil /*&& (self.providerId ?? "") == "password")*/))
         {
             self.performSegue(withIdentifier: "newUserLogin", sender: nil)
-        }else if(shouldLogout == 1){//The NSUserDefault shouldLogut is also checked if the user needs to be forced to login again
+        }else if(shouldLogout == NSNumber(value: 1)){//The NSUserDefault shouldLogut is also checked if the user needs to be forced to login again
             //Update logout Default so the user no longer has to logout 
             Helpers().logoutDefault = 0
-            LogoutButton(UIButton())
+//            LogoutButton(UIButton())  Button no longer exists on home screen
+            logoutUser()
         }
         
         
@@ -74,9 +75,9 @@ class CIOHomeViewController: UIViewController   {
 
     }
     
-    @IBAction func LogoutButton(_ sender: UIButton) {
-        //code to force logout
-        //If current user is an email user I need to log out of Firebase
+    //Logout button no longer exists, code moved to logoutFunc
+    func logoutUser(){
+//        If current user is an email user I need to log out of Firebase
         if((self.providerId ?? "") == "password"){
             try! Helpers().firAuth!.signOut()
         }else{
@@ -85,6 +86,18 @@ class CIOHomeViewController: UIViewController   {
         }
         performSegue(withIdentifier: "newUserLogin", sender: nil)
     }
+    
+//    @IBAction func LogoutButton(_ sender: UIButton) {
+//        //code to force logout
+//        //If current user is an email user I need to log out of Firebase
+//        if((self.providerId ?? "") == "password"){
+//            try! Helpers().firAuth!.signOut()
+//        }else{
+//            let loginManager = FBSDKLoginManager()
+//            loginManager.logOut()
+//        }
+//        performSegue(withIdentifier: "newUserLogin", sender: nil)
+//    }
     
     /*
     override func viewWillDisappear(_ animated: Bool) {

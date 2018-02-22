@@ -290,6 +290,7 @@
 			children = (
 				EBC29B741FD76B9300E55C6B /* Profile */,
 				EB86294A1F5CBF7C00AB72DA /* Assets.xcassets */,
+				EB06561B1BEE37F300CF8376 /* AppDelegate.swift */,
 				EBA11B761E5FBF6800114D56 /* Helpers.swift */,
 				EB03B8361E06D06E0002098C /* Beta2.entitlements */,
 				EB61CD5F1DC41F4300297225 /* SegueFromLeft.swift */,
@@ -299,7 +300,6 @@
 				EB003CAC1E436597004E7451 /* PlaceDeetsViewController.swift */,
 				EB63152B1BF961D7009683FE /* CheckInViewController.swift */,
 				EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */,
-				EB06561B1BEE37F300CF8376 /* AppDelegate.swift */,
 				EB1405C51D3007B1001D3924 /* CheckedCoreData.xcdatamodeld */,
 				EB61CD631DC4F0A800297225 /* AddPeopleViewCntroller.swift */,
 				EBF790101EA6DEDB005F0B6F /* Main.storyboard */,
