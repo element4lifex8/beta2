@@ -710,15 +710,18 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                 prevUserRef.removeValue()
                 prevCheckedRef.removeValue()
                 userRef.setValue(prevUserSnap.value)
+                //Update the user ref to now contain a nested value with the user's facebook id
+                let fbId = ["facebookid" : "\(Helpers().prevUser)"]
+                userRef.updateChildValues(fbId)
                 checkedRef.setValue(prevCheckedSnap.value)
                 
                 //Update all the user's friends who have references to their old user id
                 let name = Helpers().currDisplayName
-                print("Curr name \(name)")
                 let friendInfo = ["displayName1" : name]
                 //Remove the current user's prev user id from the ref to their friends list
                 for ref in friendsRefUpdate{
                     ref.child("\(Helpers().currUser)").setValue(friendInfo)
+                    //Add a facebook id for the user
                     ref.child("\(Helpers().prevUser)").removeValue()
                 }
                 

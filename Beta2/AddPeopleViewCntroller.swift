@@ -461,6 +461,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                 self.myGroup.enter()
                 self.sortFacebookFriends(){(finished: Bool) in
                     if(finished){   //only "finished" if I was capable of retrieving friends
+                        //I no longer combine facebook id's and user name into a dict so this can be erased
                         self.facebookTaggableFriends.sort(by: {$0.lastName() < $1.lastName()})
                     }
                     self.myGroup.leave()
@@ -523,8 +524,13 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                 self.retrieveAuthFacebookFriends() {(displayName: [String], taggableId: [String]) in
                     self.facebookAuthFriends = displayName
                     self.facebookAuthIds = taggableId
-                    finishedAuth = true
-                    completionClosure(true)
+                    finishedAuth = true  //No longer using, uneeded
+//                    completionClosure(true)
+                    //Convert facebook user id to firebase if the user has already updated their profile
+                        //Update in facebookAuthIds to firebase Id from facebook id
+                    self.equateFacebook2Firebase() {(finished: Bool) in
+                        completionClosure(true)
+                    }
                 }
                 //No longer retrieving taggable friends
 //                self.retrieveUnauthFacebookFriends() {(displayName: [String], unAuthId: [String]) in
@@ -698,7 +704,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         var localFriendsArr = [String]()
         var localFriendsId = [String]()
         //Retrieve a list of the user's current check in list
-        friendsRef.queryOrdered(byChild: "displayName1").observeSingleEvent(of: .value, with: { snapshot in
+        self.friendsRef.queryOrdered(byChild: "displayName1").observeSingleEvent(of: .value, with: { snapshot in
                 for child in (snapshot.children) {    //each child should be a root node named by the users friend ID
                     let rootNode = child as! FIRDataSnapshot
                     let nodeDict = rootNode.value as! NSDictionary
@@ -715,6 +721,42 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         })
     }
     
+    func equateFacebook2Firebase(_ completionClosure: @escaping (_ finished: Bool ) -> Void){
+        let userRef = FIRDatabase.database().reference(withPath:"users")
+        
+        if(self.facebookAuthIds.count > 0){
+            for (index, facebookId) in self.facebookAuthIds.enumerated(){
+//            Query equal only works when the first level nested value has a key value pair without data nested in the value
+                userRef.queryOrdered(byChild: "facebookid").queryEqual(toValue: facebookId).observeSingleEvent(of: .value, with: { snapshot in
+                   //snapshot is the user rootnode and query equal will return no nodes beneath the snapshot if there is no matching id to a "facebookid" key
+                    //each user is unique so only 1 entry should be returned but to only return the items beneath the user id I "loop" over the snapshots child, and if no children the user doesn't have an updated account with their FB id stored in the backend
+                    for child in (snapshot.children) {    //each child should be a root node named by the users friend ID
+                        let rootNode = child as! FIRDataSnapshot
+                        //store the user id key of the current node
+                        let firebaseId = rootNode.key
+                        print("\(firebaseId)")
+                        let nodeDict = rootNode.value as! NSDictionary
+                        //check for facebook id key and if present and equals the id in the array then the user has updated their id to Firebase
+                        for ( key , value ) in nodeDict{
+                            if((key as! String) == "facebookid"){
+                                //Confirm the key exists for the current user then overwrite facebook ID with Firebase ID
+                                print("\(value)")
+                                self.facebookAuthIds[index] = firebaseId
+                            }
+                        }
+                    }
+                    //once I've looped over all id's then we're done
+                    if(index == (self.facebookAuthIds.count - 1)){
+                        completionClosure(true)
+                    }
+                })
+            }
+        }else{//Directly call completion if no user id's to check
+            completionClosure(true)
+        }
+
+    }
+        
     //check if the current username or email exists in the system and return true if it does
     func findUser(input: String, _ completionClosure: @escaping (_ exists:  Bool) -> Void)
     {

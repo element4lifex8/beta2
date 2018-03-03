@@ -244,7 +244,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                     //Continue if Username is unique, lowercase email for standard searching
                     if(valid){
                         let newUser = ["displayName1": "\(firstName) \(lastName)",
-                            "email": email.lowercased() , "username": userName, "friends" : "true", "type" : "facebook"]
+                            "email": email.lowercased() , "username": userName, "friends" : "true", "type" : "facebook", "facebookid": "\(Helpers().prevUser)" ]
                         //Beta users that are only updating information dont need the whole shebang
                         let betaUser = [ "username": userName, "type" : "facebook"]
                         
