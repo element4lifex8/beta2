@@ -25,7 +25,7 @@ class CIOHomeViewController: UIViewController   {
     //Check if user has logged in and force login if not, modal segues must be performed in viewDidAppear
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-       
+        let onboardingCompleted = Helpers().onboardCompleteDefault
         //Check if the user needs to be logged out pending new update
         let shouldLogout = Helpers().logoutDefault
         let providerData = Helpers().firAuth?.currentUser?.providerData
@@ -44,7 +44,7 @@ class CIOHomeViewController: UIViewController   {
         if ((FBSDKAccessToken.current() == nil) && (Helpers().firAuth?.currentUser == nil /*&& (self.providerId ?? "") == "password")*/))
         {
             self.performSegue(withIdentifier: "newUserLogin", sender: nil)
-        }else if(shouldLogout == NSNumber(value: 1)){//The NSUserDefault shouldLogut is also checked if the user needs to be forced to login again
+        }else if(shouldLogout == NSNumber(value: 1) || onboardingCompleted == NSNumber(value: 0) ){//The NSUserDefault shouldLogut is also checked if the user needs to be forced to login again (will force logout if onboarding not completed either
             //Update logout Default so the user no longer has to logout 
             Helpers().logoutDefault = 0
 //            LogoutButton(UIButton())  Button no longer exists on home screen

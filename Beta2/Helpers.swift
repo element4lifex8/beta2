@@ -22,6 +22,7 @@ class Helpers{
     static let loginTypeDefaultKey = "FBloginVC.loginType"
     static let currAppVerKey = "CIOHomeVC.appVer"   //key for storing curr app version so I can force a log out when not up to date
     static let logoutDefaultKey = "CIOHomeVC.logout"    //Key to check if a logout should be forced for a new version 
+    static let onboardCompleteDefaultKey = "OnboardDetailsVC.complete"    //Key to check if the user completed the onboarding username step or if they closed the app and skipped it
     
     //retrieve the current app user from NSUserDefaults
     var currUser: NSString {
@@ -131,6 +132,21 @@ class Helpers{
         set
         {
             defaultsStandard.set(newValue, forKey: Helpers.logoutDefaultKey)
+        }
+    }
+    
+    //Store and readback whether a user skipped the onboard details screen by closing the app
+    var onboardCompleteDefault: NSNumber {
+        get{
+            if let onboardComplete = defaultsStandard.object(forKey: Helpers.onboardCompleteDefaultKey) as? NSNumber{
+                return onboardComplete
+            }else{  //By default I will force the user to complete the onboard details screen if this NSDefault value has not yet been set 
+                return 0
+            }
+        }
+        set
+        {
+            defaultsStandard.set(newValue, forKey: Helpers.onboardCompleteDefaultKey)
         }
     }
     

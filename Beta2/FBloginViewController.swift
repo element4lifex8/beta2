@@ -172,6 +172,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                             //Transition to loginInfo screen for new user or skip onboarding for existing user
                             //For beta I check if their back end details are current and if not I set betaUser = true and transition to onboard details
                             if(existingUser  && !(self.betaUser ?? false)){
+                                Helpers().onboardCompleteDefault = 1    //Explicitly log that user has completed onboarding
                                 //If the user is not having to create a username make sure I save their login type to NS Defaults with this VC
                                 Helpers().loginType = self.loginType!.rawValue
                                   //The user has the old facebook id and I need to update the backend with the firebase id, and then transition to home screen
@@ -185,6 +186,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                                 }
                             }else{
                                 //If old beta user I still want to update ID but then also transition to retrieve new user name
+                                Helpers().onboardCompleteDefault = 0    //Explicitly log that user hasn't completed onboarding
                                 if(shouldUpdate){
                                     //Use completion closure to stop return from function until async calls finish
                                     self.updateUserId() {(_: Bool) in
@@ -294,6 +296,8 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                             Helpers().currUserName = username
                             Helpers().currDisplayName = displayName
                             
+                            //Just in case log here that the user already completed onboarding since this wasn't added until Beta version 1.8
+                            Helpers().onboardCompleteDefault = 1
                             //Succesfully finished this screen, existing user so skip onboarding
                             self.performSegue(withIdentifier: "unwindLogin4CurrUser", sender: nil)
                         }
@@ -313,6 +317,8 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                             self.userPassword = password
                             //Keep track of login type:
                             self.loginType = Helpers.userType.new
+                            //In the event they are unwound to this screen because of failure at onboarddetails VC then make sure button is re-enabled 
+                            self.loginButtOut.isEnabled = true
                             //Succesfully finished this screen, now get user Info and username at loginInfo screen
                             self.performSegue(withIdentifier: "loginInfo", sender: nil)
                         }else{
@@ -487,7 +493,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
             msgBody = "Email sent to reset password."
             break
         default:
-            msgTitle = "Login Failed"
+            msgTitle = "Error: Contact Support"
             msgBody = error
             break
         }

@@ -54,6 +54,10 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
     var passwordFrame: CGRect = CGRect()
     var usernameFrame: CGRect = CGRect()
     
+    //Create activity view then pass to helper function that can display or remove
+    var loadingView: UIView = UIView()
+    var activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView(frame:   CGRect(x: 0, y: 0, width: 50,  height: 50)) as UIActivityIndicatorView
+    
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -102,12 +106,9 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
     @IBAction func signUpButtonPressed(_ sender: UIButton) {
         var errorName = "unknown"
         var errorDesc = ""
-        //Create activity view then pass to helper function that can display or remove
-        var loadingView: UIView = UIView()
-        var activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView(frame:   CGRect(x: 0, y: 0, width: 50,  height: 50)) as UIActivityIndicatorView
         
         //Show activity monitor while waiting
-        Helpers().displayActMon(display: true, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
+        Helpers().displayActMon(display: true, superView: self.view, loadingView: &self.loadingView, activityIndicator: &self.activityIndicator)
         
         //Disable button so its not pressed while thinking
         sender.isEnabled = false
@@ -123,7 +124,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
         case(Helpers.userType.new):
             //Unwrap text boxes and make sure they are not nil
             guard let firstName = self.firstNameTextBox.text, let lastName = self.lastNameTextBox.text, let email = self.emailTextBox.text, let password = self.passwordTextBox.text, let userName = self.usernameTextBox.text else{
-                Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
+//                Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                 loginFailMsg(error: "missing")
                 sender.isEnabled = true
                 return
@@ -131,7 +132,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
 
             //Check if any fields are Empty
             if(firstName.isEmpty || lastName.isEmpty || email.isEmpty || password.isEmpty || userName.isEmpty){
-                Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
+//                Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                 loginFailMsg(error: "missing")
                 //Re-enable the login button so they can try again
                 sender.isEnabled = true
@@ -141,12 +142,12 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                 Helpers().emailCheck(email: email){(type: Helpers.userType, username: NSString, displayName: NSString) in
                     switch(type){
                     case(.facebook):
-                        Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
+//                        Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                         //notify user to login with FB
                         self.loginFailMsg(error: "facebookExists")
                         sender.isEnabled = true
                     case(.email):
-                        Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
+//                        Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                         //Current email is an existing user and needs to go back and log in
                         self.loginFailMsg(error: "emailExists")
                         sender.isEnabled = true
@@ -156,7 +157,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                         //Check if the username previously exists or if the user can create it
                         self.usernameValid(name: userName) {(valid: Bool) in
                             //Stop displaying activity indicator
-                            Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
+                            Helpers().displayActMon(display: false, superView: self.view, loadingView: &self.loadingView, activityIndicator: &self.activityIndicator)
                             //Continue if Username unique, no special chars,  and > 3 chars long
                             if(valid){
                                 //All fields look good, try to create new user
@@ -228,18 +229,22 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
             //unwrap the required fields
             guard let firstName = self.firstNameTextBox.text, let lastName = self.lastNameTextBox.text, let email = self.emailTextBox.text, let userName = self.usernameTextBox.text else{
                 loginFailMsg(error: "missing")
+                //Stop displaying activity indicator
+//                Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                 return
             }
 
             //Check if required fields are Empty
             if(firstName.isEmpty || lastName.isEmpty || email.isEmpty || userName.isEmpty){
                 loginFailMsg(error: "missing")
+                //Stop displaying activity indicator
+//                Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
             }else{
                 
                 //Check if the username previously exists or if the user can create it
                 self.usernameValid(name: userName) {(valid: Bool) in
                     //Stop displaying activity monitor, no more async calls
-                    Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
+                    Helpers().displayActMon(display: false, superView: self.view, loadingView: &self.loadingView, activityIndicator: &self.activityIndicator)
                     
                     //Continue if Username is unique, lowercase email for standard searching
                     if(valid){
@@ -287,6 +292,9 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
         var msgBody = ""
         var unwind = false  //Unwind to login screen on catastrphic error
         
+        //Stop displaying activity indicator so on return from alert no activity monitor is displayed
+        
+        Helpers().displayActMon(display: false, superView: self.view, loadingView: &self.loadingView, activityIndicator: &self.activityIndicator)
         switch(error){
         case "emailForm":
             msgTitle = "Email Format Invalid"
@@ -491,11 +499,17 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        //Pass email and password to Login info screen if new login
-        //One way street, no need to check for where I'm segueing to since it will always be Profile Steps VC
-        let destinationVC = segue.destination as! ProfileStepsViewController
-        //Notify the AddPeopleVC that it is being accessed during onboarding
-        destinationVC.isOnboarding = true
+        //If unwinding because of login error then don't do any prep, only on login
+        if(segue.identifier == "startOnboarding")
+        {
+            //Pass email and password to Login info screen if new login
+            let destinationVC = segue.destination as! ProfileStepsViewController
+            //Notify the AddPeopleVC that it is being accessed during onboarding
+            destinationVC.isOnboarding = true
+            
+            //If I'm seguing then i've finished the onboard process, mark as done
+            Helpers().onboardCompleteDefault = 1
+        }
     }
  
 
