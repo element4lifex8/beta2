@@ -21,7 +21,6 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
     var userEmail: String?
     var userPassword: String?
     var userFullName: String?
-    var betaUser: Bool?     //Force facebook beta users to transition to login details for release 1.1.3
     
     @IBOutlet var scrollView: UIScrollView!
     var activeTextField: UITextField? = nil
@@ -42,24 +41,9 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
     var passAndSubmitSize: CGFloat = 0
     
     
-//    var currUser: NSString {
-//        get
-//        {
-//            return (sharedFbUser.object(forKey: currUserDefaultKey) as? NSString)!
-//        }
-//        set
-//        {
-//            sharedFbUser.set(newValue, forKey: currUserDefaultKey)
-//        }
-//    }
-    
     @IBAction func FacebookLoginButton(_ sender: UIButton) {
-        //Moved instantiation to present activity monitor before calling facebook manager to check login capabilities
-//        let facebookLogin = FBSDKLoginManager()
-
         var loginFinished = false    //keep track of whether the user has previously logged in, will use this to determine if I can automatically segue to the next screen
         var existingUser = false    //Keep track of whether this is a new user so we know to get additional info
-        var shouldUpdate = false    //Will check if the user is a Beta user who is currently using the facebook id and needs to update to firebase id
         
         //variables for saving FB info to firebase
         var emailFB = "", nameFB = "", friendsFB = "true"
@@ -81,6 +65,8 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         loadingView.addSubview(activityIndicator)
         self.view.addSubview(loadingView)
         activityIndicator.startAnimating()
+        
+        //Start FB login manager to begin signin process
         let facebookLogin = FBSDKLoginManager()
         facebookLogin.logIn(withReadPermissions: ["public_profile", "user_friends", "email"], from: self, handler:{(facebookResult, facebookError) -> Void in
             if facebookError != nil {
@@ -97,7 +83,6 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                 let credential = FIRFacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
                 
                 //use current access token from logged in user to pass to firebase's login auth func
-              
                 Helpers().firAuth?.signIn(with: credential) { (user, error) in
                     if error != nil
                     {
@@ -132,69 +117,40 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                             }
 
                             Helpers().myPrint(text: "\(authUser.uid)")
-                            Helpers().myPrint(text: "\(authUser.email)")//If email is empty then user logged in with phone #
-                            Helpers().myPrint(text: "\(authUser.displayName)")
+                            //"describing keyword used to print the best representation of an optional (prints it as a string just fine
+                            Helpers().myPrint(text: "\(String(describing: authUser.email))")//If email is empty then user logged in with phone #
+                            Helpers().myPrint(text: "\(String(describing: authUser.displayName))")
                         }
                         
                         //Check to see if user is new and has not been added to the user's list in Firebase
                         
-                        //Previously used Facebook's explicitly returned object to get user info, now using Firebase object per above code, but for supporting legacy beta users get the facebook id too
+                        //Previously used Facebook's explicitly returned object as the user's id to store / get user info, now using Firebase object per above code, but incase of future need to support FB functions the facebook id too
                         //Provider data is an optional array, unwrap the optional then iterate over the 1 expected array entry to gather uid, displayName, and email parameters
                         if let providerData = user?.providerData {
 //                            //The entry will contain the following items: providerID (facebook.com), userId($uid), displayName (from facebook), photoURL(also from FB), email
                             for entry in providerData{  //Expect only 1 entry
-                                Helpers().prevUser = entry.uid as NSString
-                                Helpers().myPrint(text: "\(Helpers().prevUser)")
-//                                //sometimes facebook doesn't provide an email
-//                                if let emailWrap = entry.email {
-//                                    emailFB = emailWrap
-//                                    self.userEmail = emailWrap
-//                                }
-//                                //The display name is not provided if a user revoked public_profile permissions
-//                                if let nameWrap = entry.displayName {
-//                                    nameFB = nameWrap
-//                                    self.userFullName = nameWrap
-//                                }
+                                Helpers().FBUserId = entry.uid as NSString
+                                Helpers().myPrint(text: "\(Helpers().FBUserId)")
                             }
                         }
                         
-                
-                        
-                        self.isCurrentUser() {(isUser: Bool, requiresUpdate: Bool) in
+                        self.isCurrentUser() {(isUser: Bool) in
                             existingUser = isUser
-                            shouldUpdate = requiresUpdate
-                      
+                            
                             activityIndicator.stopAnimating()
                             loadingView.removeFromSuperview()
 
                             //Keep track of current logintype, it is stored in user defaults for new users in the onboard info VC
                             self.loginType = Helpers.userType.facebook
                             //Transition to loginInfo screen for new user or skip onboarding for existing user
-                            //For beta I check if their back end details are current and if not I set betaUser = true and transition to onboard details
-                            if(existingUser  && !(self.betaUser ?? false)){
+                            if(existingUser){
                                 Helpers().onboardCompleteDefault = 1    //Explicitly log that user has completed onboarding
-                                //If the user is not having to create a username make sure I save their login type to NS Defaults with this VC
+                                //make sure I save their login type to NS Defaults with this VC (otherwise its only save when user completes onboard details VC)
                                 Helpers().loginType = self.loginType!.rawValue
-                                  //The user has the old facebook id and I need to update the backend with the firebase id, and then transition to home screen
-                                if(shouldUpdate){
-                                    //Use completion closure to stop return from function until async calls finish
-                                    self.updateUserId() {(_: Bool) in
-                                        self.performSegue(withIdentifier: "unwindLogin4CurrUser", sender: nil)
-                                    }
-                                }else{
-                                    self.performSegue(withIdentifier: "unwindLogin4CurrUser", sender: nil)
-                                }
+                                self.performSegue(withIdentifier: "unwindLogin4CurrUser", sender: nil)
                             }else{
-                                //If old beta user I still want to update ID but then also transition to retrieve new user name
-                                Helpers().onboardCompleteDefault = 0    //Explicitly log that user hasn't completed onboarding
-                                if(shouldUpdate){
-                                    //Use completion closure to stop return from function until async calls finish
-                                    self.updateUserId() {(_: Bool) in
-                                        self.performSegue(withIdentifier: "loginInfo", sender: nil)
-                                    }
-                                }else{
-                                    self.performSegue(withIdentifier: "loginInfo", sender: nil)
-                                }
+
+                                self.performSegue(withIdentifier: "loginInfo", sender: nil)
                             }
                         }
                     }
@@ -204,6 +160,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
 
     }
     
+    //Function that handles email Logins (called when the other button on screen (not the FB login button) is pressed
     @IBAction func loginButtonPressed(_ sender: Any) {
         var loadingView: UIView = UIView()
         var activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView(frame:   CGRect(x: 0, y: 0, width: 50,  height: 50)) as UIActivityIndicatorView
@@ -218,10 +175,12 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         //Hide keyboard
         self.activeTextField?.resignFirstResponder()
         
-        //Unwrap text boxes
+        //Unwrap text boxes guard against nil value in textbox
         guard let email = self.emailField.text, let password = self.passwordField.text else{
             Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
             loginFailMsg(error: "missing")
+            //Re-enable the login button so they can try again
+            loginButtOut.isEnabled = true
             return
         }
         
@@ -234,6 +193,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         }else{
         
             //Check if user is new or needs to be created
+            //If the user does exists it's login type, user name, and display name are returned, otherwise the type .new is returned with empty strings for user/display name
             Helpers().emailCheck(email: email){(type: Helpers.userType, username: NSString, displayName: NSString) in
                 switch(type){
                 case(.facebook):
@@ -271,24 +231,25 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                                     if let localDesc = errorDict["NSLocalizedDescription"] as? String{
                                         errorDesc = localDesc
                                     }else{
-                                        errorDesc = "A General Error Occured with the email login"
+                                        errorDesc = "A General Error Occured with the email login. Please contact jason@checkinoutlists.com for assistance"
                                     }
                                     break
                                 }
                                 self.loginFailMsg(error: errorDesc)
-                                //Re-enable the login button so they can try again
-                                self.loginButtOut.isEnabled = true
                             }else{  //Casting to NS error failed
-                                errorDesc = "A General Error Occured with the email login"
+                                errorDesc = "A General Error Occured with the email login. Please contact jason@checkinoutlists.com for assistance"
                                 self.loginFailMsg(error: errorDesc)
                             }
+                            
                             Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                             //Re-enable the login button so they can try again
                             self.loginButtOut.isEnabled = true
+                            
                         }else{  //No error found, login existing user complete
                             self.loginType = Helpers.userType.email
                             //Update login type to user defaults since i'm logging in, new users update this item in NSDefaults in the Onboard details VC
                             Helpers().loginType = self.loginType!.rawValue
+                            //Here i'm trusting Firebase to always retrun a user if no error so I use optional chaining instead of unwrapping user variabe
                             Helpers().currUser = user?.uid as! NSString
                             Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                         
@@ -296,8 +257,6 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                             Helpers().currUserName = username
                             Helpers().currDisplayName = displayName
                             
-                            //Just in case log here that the user already completed onboarding since this wasn't added until Beta version 1.8
-                            Helpers().onboardCompleteDefault = 1
                             //Succesfully finished this screen, existing user so skip onboarding
                             self.performSegue(withIdentifier: "unwindLogin4CurrUser", sender: nil)
                         }
@@ -507,23 +466,19 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
     
     
     //Check if the current user is a facebook user
-    //As of build 1.1.6 started migrating Facebook id of users over to firebase id
-    func isCurrentUser(_ completionClosure: @escaping (_ isUser:  Bool, _ requiresUpdate: Bool) -> Void) {
+    func isCurrentUser(_ completionClosure: @escaping (_ isUser:  Bool ) -> Void) {
         //Dispatch group used to sync firebase and facebook api call
-        var myGroup = DispatchGroup()
+        let myGroup = DispatchGroup()
         //Async queue for synchronization
         let queue = DispatchQueue(label: "com.checkinoutlists.checkinout.isCurrentUser", attributes: .concurrent, target: .main)
         
-        //"as" without !? can only be used when the compiler knows the cast will always work, like from NSString to string
-        let prevUserRef = FIRDatabase.database().reference(withPath: "users").child(Helpers().prevUser as String)
-         let userRef = FIRDatabase.database().reference(withPath: "users").child(Helpers().currUser as String)
-        var user = false, shouldUpdate = false
+        let userRef = FIRDatabase.database().reference(withPath: "users").child(Helpers().currUser as String)
+        var user = false
         
         //Create async group so I don't call completion closure til both calls are done
         queue.async(group: myGroup) {
             myGroup.enter()
             userRef.observeSingleEvent(of: .value, with: { snapshot in
-                
                 
                 //Previously I would loop over all users to compare if the curr user existed
 
@@ -533,230 +488,29 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                 //If we have no children then its most certain that the current user doesn't exist
                 if let nodeDict = rootNode.value as? NSDictionary{
                     user = true
-                    //Check for beta users without current username
                     //In here i also store the user's display name and username in NS USer defaults if exists
                     self.checkForUsername(nodeDict: nodeDict)
                     
                 }
                 myGroup.leave()
             })
-            
-            myGroup.enter()
-            prevUserRef.observeSingleEvent(of: .value, with: { snapshot in
-                
-                let rootNode = snapshot as FIRDataSnapshot
-                //force downcast only works if root node has children, otherwise value will only be a string
-                
-                //If we have no children then its most certain that the user didn't exist under the facebook id
-                if let nodeDict = rootNode.value as? NSDictionary{
-                    shouldUpdate = true //found the user under the old id
-                    //it is a current user and so I need to store their user name if it exists
-                    user = true
-                    //Check for beta users without current username
-                    //In here i also store the user's display name and username in NS USer defaults if exists
-                    self.checkForUsername(nodeDict: nodeDict)
-                    
-                }
-                myGroup.leave()
-            })
-
             
             //Fire async call once facebook api, and firebase calls have finish
             myGroup.notify(queue: DispatchQueue.main) {
-                completionClosure(user, shouldUpdate)
+                completionClosure(user)
             }
         }
         
     }
     
-    //User had old facebook ID and I need to update all instances of this Id to firebase Id
-    //Function will block until it is finished to wait before transitioning
-    func updateUserId(_ completionClosure: @escaping (_ isFinished:  Bool) -> Void){
-        let allUserRef = FIRDatabase.database().reference(withPath: "users")
-        let prevUserRef = allUserRef.child(Helpers().prevUser as String)
-        let userRef = allUserRef.child(Helpers().currUser as String)
-        let placesRef = FIRDatabase.database().reference(withPath: "places")
-        let prevCheckedRef = FIRDatabase.database().reference(withPath: "checked").child(Helpers().prevUser as String)
-        let checkedRef = FIRDatabase.database().reference(withPath: "checked").child(Helpers().currUser as String)
-        //Arrary of all of the ref's that a user's friends have to their old user name
-        var friendsRefUpdate = [FIRDatabaseReference]()
-        //Array of all the places that need the checked in user updated
-        var placesRefUpdate = [FIRDatabaseReference]()
-        var prevUserSnap: FIRDataSnapshot = FIRDataSnapshot()
-        var prevCheckedSnap: FIRDataSnapshot = FIRDataSnapshot()
-        
-        
-        var myGroup = DispatchGroup()
-        
-        //Async queue for synchronization
-        // We create a new queue to do our work on, since calling wait() on
-        // the semaphore will cause it to block the current queue
-        //global queues: these are concurrent queues that are shared by the whole system so I won't block the main thread
-        let queue = DispatchQueue(label: "com.checkinoutlists.checkinout.updateUserId", attributes: .concurrent, target: .global())
-        
-        
-        //Sempaphore value is the "thread capacity" (the number of concurrent threads (of dispatch queues that can execute smultaneously on the given data 
-        //The value is essentially a counter that let the Semaphore know how many threads can use its resource
-        //Each time you wait on the semaphore, the dispatch_semaphore_wait function decrements that count variable by 1, if the result is negative it tells the kernel to block your thread
-        //semaphore_signal function increments the count variable by 1
-//        let semaphore = DispatchSemaphore(value: 0)
-        
-        //Start displaying activity indicator in main queue, so perform before entering global queue
-        let loadingView = UIView()
-        loadingView.frame = CGRect(x: 0,y: 0,width: 100,height: 100)
-        loadingView.center = self.view.center
-        loadingView.backgroundColor = UIColor(red: 0x44/255, green: 0x44/255, blue: 0x44/255, alpha: 0.7)
-        loadingView.clipsToBounds = true
-        loadingView.layer.cornerRadius = 10
-        
-        let activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView(frame:   CGRect(x: 0, y: 0, width: 50,  height: 50)) as UIActivityIndicatorView
-        activityIndicator.center = CGPoint(x: loadingView.frame.size.width / 2,y: loadingView.frame.size.height / 2);
-        activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.whiteLarge
-        activityIndicator.hidesWhenStopped = true
-        loadingView.addSubview(activityIndicator)
-        //Create label to add to view
-        let loadingLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 100, height: 30))
-        loadingLabel.text = "Updating App"
-        loadingLabel.font = UIFont(name: "Avenir-Heavy", size: 12)
-        loadingLabel.textAlignment = .center
-        loadingLabel.textColor = .white
-        loadingView.addSubview(loadingLabel)
-        //Create label for please wait
-        let waitLabel = UILabel(frame: CGRect(x: 0, y: (loadingView.frame.size.height - 35 ), width: 100, height: 30))
-        waitLabel.text = "Please Wait"
-        waitLabel.font = UIFont(name: "Avenir-Heavy", size: 14)
-        waitLabel.textAlignment = .center
-        waitLabel.textColor = .white
-        loadingView.addSubview(waitLabel)
-        
-        self.view.addSubview(loadingView)
-        activityIndicator.startAnimating()
-        
-        //Start activity monitor and update block until completed by signaling semaphore
-//        DispatchQueue.main.async {
-        queue.async{
-            
-            //Retrieve the user's entire user data from checked and user refs
-            myGroup.enter()
-            prevUserRef.observeSingleEvent(of: .value, with: {
-                snapshot in
-                prevUserSnap = snapshot
-                myGroup.leave()
-            })
-
-            myGroup.enter()
-            prevCheckedRef.observeSingleEvent(of: .value, with: {
-                snapshot in
-                prevCheckedSnap = snapshot
-                myGroup.leave()
-            })
-            
-            //Retrieve all the user's friends that have a reference to their old user id
-            myGroup.enter()
-            allUserRef.queryOrdered(byChild: "friends").observeSingleEvent(of: .value, with: { snapshot in
-                //One of the hits will be the user's own profile, the rest will be their friends with references to their user id
-                for child in (snapshot.children) {    //each child should be a user's friend's id root node so I have to drill down to their friends
-                    let rootNode = child as! FIRDataSnapshot
-                    let nodeDict = rootNode.value as! NSDictionary
-                    let friendUserId = rootNode.key as String
-                
-                    //Store the ref to the friends section of the curr user to be updated if that user is a friend
-                    //Find the friends list under the each users data and compare them to the current user's previous ID
-                    if let nodeDict = rootNode.value as? NSDictionary{
-                        //Loop over all of the retrieved user's friends
-                        for (key, value ) in nodeDict{
-                            if(key as! NSString == "friends"){
-                                if let friendDict = value as? NSDictionary{
-                                    //loop over all the friends of this user
-                                    for friend in friendDict.allKeys{
-                                        //add the user's reference to update
-                                        if (friend as! NSString == Helpers().prevUser){
-                                            friendsRefUpdate.append(allUserRef.child("\(friendUserId)/friends"))
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                myGroup.leave()
-            })
-            
-            //Retrieve all the check ins from the "places" branch and create ref to the user's check ins
-            myGroup.enter()
-            //currently retrieving all of the places items and not just filtered by prev user
-            placesRef.queryOrdered(byChild: "users").observeSingleEvent(of: .value, with: { snapshot in
-                //Children will be place check in, i need to update the user id under "users" key
-                for child in (snapshot.children) {
-                    let rootNode = child as! FIRDataSnapshot
-                    let placeName = rootNode.key as String
-                    //Store the ref to the users section of the place to be updated
-                    //Check all the users of the current checkin
-                    if let nodeDict = rootNode.value as? NSDictionary{
-                        //Loop over all of attributes of places
-                        for (key, value ) in nodeDict{
-                            //Get the dictionary underneath user node
-                            if (key as! NSString == "users"){
-                                if let userDict = value as? NSDictionary{
-                                    for (userKey, _ ) in userDict {
-                                        if (userKey as! NSString == Helpers().prevUser){
-                                           placesRefUpdate.append(placesRef.child("\(placeName)/users"))
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                myGroup.leave()
-            })
-            
-            myGroup.notify(queue: DispatchQueue.main) {
-                //write new entry and remove old entry
-                prevUserRef.removeValue()
-                prevCheckedRef.removeValue()
-                userRef.setValue(prevUserSnap.value)
-                //Update the user ref to now contain a nested value with the user's facebook id
-                let fbId = ["facebookid" : "\(Helpers().prevUser)"]
-                userRef.updateChildValues(fbId)
-                checkedRef.setValue(prevCheckedSnap.value)
-                
-                //Update all the user's friends who have references to their old user id
-                let name = Helpers().currDisplayName
-                let friendInfo = ["displayName1" : name]
-                //Remove the current user's prev user id from the ref to their friends list
-                for ref in friendsRefUpdate{
-                    ref.child("\(Helpers().currUser)").setValue(friendInfo)
-                    //Add a facebook id for the user
-                    ref.child("\(Helpers().prevUser)").removeValue()
-                }
-                
-                //add user's new id to the places check ins and remove their old ID
-                for ref in placesRefUpdate{
-                    ref.updateChildValues(["\(Helpers().currUser)" : "true"])
-                    ref.child("\(Helpers().prevUser)").removeValue()
-                }
-                //Call completion closure to leave function with async calls
-                completionClosure(true)
-            }
-        
-        }
-
-    }
     
-    
-    //For beta testers that haven't created a user name I want them to transition to this screen
-    //Also need to store username for user in user defaults
+    //In here i also store the user's display name and username in NS USer defaults if exists
     func checkForUsername(nodeDict: NSDictionary){
         if let userName = nodeDict["username"] as? NSString{
-            //was able to unwrap username, betaUser is current
-            self.betaUser = false
             //Update core data with the user's name in case logging in and username previously didn't exist in Coredata
             Helpers().currUserName = userName
-        }else{
-                //Beta user missing backend details
-                self.betaUser = true
         }
+        
         //While I'm in here check for the display name too
         if let displayName = nodeDict["displayName1"] as? NSString{
             Helpers().currDisplayName = displayName
@@ -885,7 +639,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                 destinationVC.parsedFullName = self.userFullName
                 destinationVC.parsedEmail = self.userEmail
                 destinationVC.parsedLoginType = self.loginType
-                destinationVC.parsedBetaUser = self.betaUser    //Track whether this is an existing facebook beta users
+
             default:
                 Helpers().myPrint(text: "ERROR: Login type not set or An existing user should not be entering login info screen")
             }

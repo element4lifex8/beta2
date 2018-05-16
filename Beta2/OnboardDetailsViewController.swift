@@ -45,8 +45,6 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
     var parsedPassword: String?
     var parsedLoginType: Helpers.userType?
     
-    var parsedBetaUser: Bool?   //In the interim I will have beta users reach this screen even if they are current facebook users
-    
     //Get a reference to the current frame of the text box in case I need to move it so it appears above the keyboard
     var firstNameFrame: CGRect = CGRect()
     var lastNameFrame: CGRect = CGRect()
@@ -138,7 +136,6 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                 sender.isEnabled = true
             }else{
                 //Ensure the email has not been modified and be actually linked to an existing account
-                //Curently email check will return .new if the user is missing the "type" key in the back end (old beta user)
                 Helpers().emailCheck(email: email){(type: Helpers.userType, username: NSString, displayName: NSString) in
                     switch(type){
                     case(.facebook):
@@ -249,20 +246,12 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                     //Continue if Username is unique, lowercase email for standard searching
                     if(valid){
                         let newUser = ["displayName1": "\(firstName) \(lastName)",
-                            "email": email.lowercased() , "username": userName, "friends" : "true", "type" : "facebook", "facebookid": "\(Helpers().prevUser)" ]
-                        //Beta users that are only updating information dont need the whole shebang
-                        let betaUser = [ "username": userName, "type" : "facebook"]
+                            "email": email.lowercased() , "username": userName, "friends" : "true", "type" : "facebook", "facebookid": "\(Helpers().FBUserId)" ]
                         
                         let ref = FIRDatabase.database().reference(withPath:"users")
                         //Append user id as root of node and newUser dict nested beneath
-                        //For beta testing if the user isn't new but needed to update the type and username fields in the back end I won't obliterate their current user
-                        if(!(self.parsedBetaUser ?? false)){
-                            ref.child(Helpers().currUser as String).setValue(newUser)
-                        }else{
-                            ref.child(Helpers().currUser as String).updateChildValues(betaUser)
-                        }
+                        ref.child(Helpers().currUser as String).setValue(newUser)
                         
-
                         //Once login type is successful store the method used in NSUserDefaults as NSInt since I can't save custom data types (or even swift data types
                         Helpers().loginType = self.parsedLoginType!.rawValue
                         

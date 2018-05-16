@@ -16,7 +16,7 @@ class Helpers{
     fileprivate let defaultsStandard = UserDefaults.standard
     //NSUserDefault keys refer to FB login controller where they originally presided
     static let currUserDefaultKey = "FBloginVC.currUser"
-    static let prevUserDefaultKey = "FBloginVC.prevUser"
+    static let FBUserIdDefaultKey = "FBloginVC.prevUser"
     static let currDisplayNameKey = "FBloginVC.displayName"
     static let userNameKey = "FBloginVC.userName"
     static let loginTypeDefaultKey = "FBloginVC.loginType"
@@ -40,10 +40,10 @@ class Helpers{
         }
     }
     
-    //Keep track of any old FB users if neccessary
-    var prevUser: NSString {
+    //Keep track of Facebook user id if neccessary
+    var FBUserId: NSString {
         get{
-            if let userId = defaultsStandard.object(forKey: Helpers.prevUserDefaultKey) as? NSString{
+            if let userId = defaultsStandard.object(forKey: Helpers.FBUserIdDefaultKey) as? NSString{
                 return userId
             }else{
                 return "0"
@@ -51,7 +51,7 @@ class Helpers{
         }
         set
         {
-            defaultsStandard.set(newValue, forKey: Helpers.prevUserDefaultKey)
+            defaultsStandard.set(newValue, forKey: Helpers.FBUserIdDefaultKey)
             //            defaultsStandard.synchronize()      //Force user default to immediately update, supposedly slow and memory intensive
         }
     }
@@ -69,7 +69,6 @@ class Helpers{
         set
         {
             defaultsStandard.set(newValue, forKey: Helpers.currDisplayNameKey)
-//            defaultsStandard.synchronize()
         }
     }
     
@@ -85,7 +84,6 @@ class Helpers{
         set
         {
             defaultsStandard.set(newValue, forKey: Helpers.userNameKey)
-            //            defaultsStandard.synchronize()
         }
     }
     
@@ -101,7 +99,6 @@ class Helpers{
         set
         {
             defaultsStandard.set(newValue, forKey: Helpers.loginTypeDefaultKey)
-//            defaultsStandard.synchronize()
         }
     }
     
@@ -212,6 +209,7 @@ class Helpers{
     }
     
     //check if the current email exists in the system and if so what type of user are they
+    //Return the user's login type, username, and displayname
     func emailCheck(email: String, _ completionClosure: @escaping (_ type:  Helpers.userType, _ userName: NSString, _ displayName: NSString) -> Void)
     {
         let userRef = FIRDatabase.database().reference(withPath:"users")
@@ -239,9 +237,6 @@ class Helpers{
                             returnType = Helpers.userType.new
                             break
                         }
-                    }else{  //if entry doesn't include type then user should be recreated
-                        //This in coordination with checking for username forces Beta users to complete this onboard details screen
-                        returnType = Helpers.userType.new
                     }
                     
                     //While we're here grab the user's username and display name so we can store it if needed

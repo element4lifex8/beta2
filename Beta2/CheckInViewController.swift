@@ -22,7 +22,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var dictArr = [[String:String]]()
     var placesDict = [String : String]()
     var cityButtonList: [String] = ["+"]
-    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Sight Seeing", "Winery"]
+    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Sight Seeing", "To Do", "Winery"]
     var placesArr = [String]()
     var arrSize = Int()
     var checkObj = placeNode()  //Appears that this model is filled out, but its actually the dict array contents that are written to the backen
@@ -841,6 +841,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         
         if(sender.currentTitle! == "+")
         {
+            //Make checkin field first responder and show keyboard
+            self.CheckInRestField.becomeFirstResponder()
+            self.activeTextField = self.CheckInRestField
             //Clear the touchdown background color
             sender.backgroundColor = UIColor.clear
             CheckInRestField.placeholder = "Enter new city button name"
