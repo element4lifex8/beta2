@@ -324,7 +324,7 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
              cell.tableCellValue.text = "  \(friendCities[indexPath.row])"
         }
         cell.tableCellValue.textColor = UIColor.white
-        cell.tableCellValue.font = UIFont.systemFont(ofSize: 24, weight: UIFontWeightLight)
+        cell.tableCellValue.font = UIFont.systemFont(ofSize: 24, weight: UIFont.Weight.light)
         //Remove seperator insets
         cell.layoutMargins = UIEdgeInsets.zero
         return cell

@@ -169,9 +169,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
 
         //Create mutable string for text box placeholder
         attrPlaceHolder = NSMutableAttributedString(string: "Add a comment... ",
-                                                   attributes: [ NSFontAttributeName: UIFont(name: "Avenir-Light", size: 20), NSForegroundColorAttributeName: UIColor.white])
+                                                   attributes: [ NSAttributedStringKey.font: UIFont(name: "Avenir-Light", size: 20), NSAttributedStringKey.foregroundColor: UIColor.white])
         attrPlaceHolder.append(NSMutableAttributedString(string: "(no pressure)",
-                                                    attributes: [NSFontAttributeName: UIFont(name: "Avenir-Light", size: 18), NSForegroundColorAttributeName: UIColor.white]))
+                                                    attributes: [NSAttributedStringKey.font: UIFont(name: "Avenir-Light", size: 18), NSAttributedStringKey.foregroundColor: UIColor.white]))
         
         self.commentTextField.attributedPlaceholder = attrPlaceHolder
         
@@ -974,7 +974,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         
     }
     
-    func googleAutoComplete(_ textField: UITextField) {
+    @objc func googleAutoComplete(_ textField: UITextField) {
         if let checkInString = CheckInRestField.text{
             //Anytime the user changes the text field make sure they aren't changing a previously selected establishment, so clear the place id
             checkObj.placeId = nil
@@ -1198,7 +1198,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 //Preserve previous title edge insets by adding 5 to left and right
                 button.titleEdgeInsets = UIEdgeInsetsMake(0.0, -imageSize.width + 5, 0, 5)
                 let labelString = NSString(string: titleLabel.text!)
-                let titleSize = labelString.size(attributes: [NSFontAttributeName: titleLabel.font])
+                let titleSize = labelString.size(withAttributes: [NSAttributedStringKey.font: titleLabel.font])
                 //Shift image down by adding top edge inset of the size of the title + desired space
                 //Shift image right by subtracting right inset by the width of the title
                 button.imageEdgeInsets = UIEdgeInsetsMake(titleSize.height + spacing, 0.0, 0.0, -titleSize.width)
@@ -1421,7 +1421,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
 
     }
     
-    func displayCityDeleteButton(_ sender: UILongPressGestureRecognizer)
+    @objc func displayCityDeleteButton(_ sender: UILongPressGestureRecognizer)
     {
         let buttonSpacing = 13
         let buttonRad = 100
@@ -1466,7 +1466,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         }
     }
     
-    func deleteCity(_ sender: DeleteCityUIButton){
+    @objc func deleteCity(_ sender: DeleteCityUIButton){
         
         let coreData = retrieveCityButtons()  //store list of city attributes from cityButton entity
         //        Remove City from Core Data
@@ -1481,7 +1481,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         //Check if I will have to handle a user attempting to the delete the home city
         //If home city has been added then the user is attempting to delete their home city when buttonEnum is 0
         //If homeAdded is not nil and true then prompt the user that they will delete their home city with this action
-        if (buttonEnum == 0 && ((homeAdded as Bool?) ?? false)){
+        if (buttonEnum == 0 && ((homeAdded as! Bool?) ?? false)){
             let alert = UIAlertController(title: "Tired of this town?", message: "Are you sure you want to delete your home city?", preferredStyle: .alert)
             //Exit function if user clicks now and allow them to reconfigure the check in
             let CancelAction = UIAlertAction(title: "No", style: .cancel, handler: {UIAlertAction in
@@ -1620,7 +1620,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     }
     
     //*method gets the keyboard size from the info dictionary of the notification and calculates the distance between the text box and keyboard */
-    func keyboardWasShown(notification: NSNotification){
+    @objc func keyboardWasShown(notification: NSNotification){
         //Need to calculate keyboard exact size due to Apple suggestions
         var info = notification.userInfo!
         let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.size
@@ -1657,7 +1657,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
 
     //Sets insets to 0, the defaults
-    func keyboardWillBeHidden(notification: NSNotification){
+    @objc func keyboardWillBeHidden(notification: NSNotification){
         //Once keyboard disappears, restore original positions
         var info = notification.userInfo!
         let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.size
@@ -1748,7 +1748,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     
     //Dismiss keyboard if clicking away from text box
     //Detect when user taps on scroll view
-    func tapDismiss(_ sender: UITapGestureRecognizer)
+    @objc func tapDismiss(_ sender: UITapGestureRecognizer)
     {
         self.activeTextField?.resignFirstResponder()
         

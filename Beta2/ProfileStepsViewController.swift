@@ -352,7 +352,7 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         return displayAlert
    }
     
-    func googleAutoComplete(_ textField: UITextField) {
+    @objc func googleAutoComplete(_ textField: UITextField) {
 
         if let cityString = self.activeTextField?.text{
             //Start querying google database with at minimum 3 chars
@@ -582,7 +582,7 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
     }
     
     //*method gets the keyboard size from the info dictionary of the notification and adjusts the bottom content inset of the scroll view by the height of the keyboard. It also sets the scrollIndicatorInsets property of the scroll view to the same value so that the scrolling indicator won’t be hidden by the keyboard. */
-    func keyboardWasShown(notification: NSNotification){
+    @objc func keyboardWasShown(notification: NSNotification){
         //Need to calculate keyboard exact size due to Apple suggestions
         self.scrollView.isScrollEnabled = true
         var info = notification.userInfo!
@@ -606,7 +606,7 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
         
     }
     //Sets insets to 0, the defaults
-    func keyboardWillBeHidden(notification: NSNotification){
+    @objc func keyboardWillBeHidden(notification: NSNotification){
         //Once keyboard disappears, restore original positions
         
         var info = notification.userInfo!

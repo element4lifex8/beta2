@@ -198,7 +198,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         if(self.isOnboarding){
             HeaderView.translatesAutoresizingMaskIntoConstraints = false
             let headerHeight = HeaderView.heightAnchor.constraint(equalToConstant: 170)    //Header height is 170 to match other onboarding heights
-            headerHeight.priority = 750
+            headerHeight.priority = UILayoutPriority(rawValue: 750)
             NSLayoutConstraint.activate([headerHeight])
             
             //Set min distance from bottom of headerView to bottom of screen >= 450 for smaller screens to shrink the header view if neccessary to allow for a large enough table to be displayed
@@ -277,8 +277,8 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     override func awakeFromNib() {
         super.awakeFromNib()
         //
-        UITabBarItem.appearance().setTitleTextAttributes([NSFontAttributeName: UIFont(name: "Avenir-Light", size: 24)!, NSForegroundColorAttributeName : UIColor.white], for: .normal)
-        UITabBarItem.appearance().setTitleTextAttributes([NSFontAttributeName: UIFont(name: "Avenir-Light", size: 24)!, NSForegroundColorAttributeName : UIColor(red: 64/255, green: 64/255, blue: 64/255, alpha: 1)], for: .selected)
+        UITabBarItem.appearance().setTitleTextAttributes([NSAttributedStringKey.font: UIFont(name: "Avenir-Light", size: 24)!, NSAttributedStringKey.foregroundColor : UIColor.white], for: .normal)
+        UITabBarItem.appearance().setTitleTextAttributes([NSAttributedStringKey.font: UIFont(name: "Avenir-Light", size: 24)!, NSAttributedStringKey.foregroundColor : UIColor(red: 64/255, green: 64/255, blue: 64/255, alpha: 1)], for: .selected)
         
     }
     
@@ -1194,7 +1194,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     }
     
     //*method sets the active text box to the field in the accessory input view of the dummy text box which is the view attached to the keyboard */
-    func keyboardWasShown(notification: NSNotification){
+    @objc func keyboardWasShown(notification: NSNotification){
         //Need to calculate keyboard exact size due to Apple suggestions
        
         var info = notification.userInfo!
@@ -1206,7 +1206,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     
     
     //Sets insets to 0, the defaults
-    func keyboardWillBeHidden(notification: NSNotification){
+    @objc func keyboardWillBeHidden(notification: NSNotification){
         //Once keyboard disappears, restore original positions
         var info = notification.userInfo!
         let keyboardSize = (info[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.size
@@ -1246,7 +1246,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
 
     //Dismiss keyboard if clicking away from text box
     //Detect when user taps on scroll view
-    func tapDismiss(_ sender: UITapGestureRecognizer)
+    @objc func tapDismiss(_ sender: UITapGestureRecognizer)
     {
         //Before dissmissing keyboard tell the responder that I want to return to the previously selected tab
         self.changeTab = true
@@ -1263,7 +1263,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
 
     }
     
-    func tapTableCover(_ sender: UITapGestureRecognizer)
+    @objc func tapTableCover(_ sender: UITapGestureRecognizer)
     {
         //Before dissmissing keyboard tell the responder that I want to return to the previously selected tab
         self.changeTab = true
@@ -1277,7 +1277,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     }
     
     //Only function that indicates that the search button was pressed to latch input accessory view input
-    func accessoryEditEnd(_ textField: UITextField)    {
+    @objc func accessoryEditEnd(_ textField: UITextField)    {
 
         //Before dissmissing keyboard tell the responder that I want to return to the previously selected tab
         self.changeTab = true
