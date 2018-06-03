@@ -124,7 +124,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                         
                         //Check to see if user is new and has not been added to the user's list in Firebase
                         
-                        //Previously used Facebook's explicitly returned object as the user's id to store / get user info, now using Firebase object per above code, but incase of future need to support FB functions the facebook id too
+                        //Previously used Facebook's explicitly returned object as the user's id to store / get user info, now using Firebase object per above code, need to retain facebook id too for retrieval of facebook auth friends and converting to firebase id
                         //Provider data is an optional array, unwrap the optional then iterate over the 1 expected array entry to gather uid, displayName, and email parameters
                         if let providerData = user?.providerData {
 //                            //The entry will contain the following items: providerID (facebook.com), userId($uid), displayName (from facebook), photoURL(also from FB), email

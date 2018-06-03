@@ -10,6 +10,7 @@ import UIKit
 import FBSDKCoreKit
 import FBSDKLoginKit
 import FirebaseAuth
+import FirebaseDatabase
 
 class CIOHomeViewController: UIViewController   {
 
@@ -57,6 +58,15 @@ class CIOHomeViewController: UIViewController   {
     override func viewDidLoad()
     {
         super.viewDidLoad()
+        NotificationCenter.default.addObserver(forName:Notification.Name(rawValue:"FBSDKAccessTokenDidChangeNotification"),
+            object:nil, queue:OperationQueue.main, using: { notification in
+                
+            if ((notification.userInfo?[FBSDKAccessTokenDidChangeUserID] ?? NSNumber(booleanLiteral: false)) as! NSNumber == NSNumber(booleanLiteral: true)) {
+                // Update facebook user id in backend when user id changed
+                let ref = FIRDatabase.database().reference(withPath:"users")
+                ref.child(Helpers().currUser as String).updateChildValues(["facebookid" : "\(Helpers().FBUserId)"])
+                }
+            })
     }
     
     func getFIRLoginState(_ completionClosure: @escaping ( _ loggedIn: Bool) -> Void){

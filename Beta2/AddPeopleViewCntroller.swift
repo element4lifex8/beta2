@@ -487,18 +487,22 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             if(self.loginType == Helpers.userType.facebook.rawValue){
                 //Count the number of auth friends that aren't friends of the current user
                 //map will check if each element in the facebookAuthFriends is contained in the myFriends array and only return 1 if the facebookAuthFriend is not already a friend
-                var authFriendMap = self.facebookAuthFriends.map{return self.myFriends.contains($0) ? 0 : 1}
+                var authFriendMap = self.facebookAuthIds.map{return self.myFriendIds.contains($0) ? 0 : 1}
                 //SInce the facebookAuthIds maps directly to facebookAuthFriends, use the indices from the map array indicating the unAdded friends to create an unadded friend id array
                 //Using the enumerated() I create a tuple array of index and friend id that are unAdded
                 var authIdEnumTup = self.facebookAuthIds.enumerated().filter({index, value in authFriendMap[index] == 1})
                 //Retrieve just the unadded friend ID's from the tuple above (index = $0, values = $1)
                 self.unAddedFriendId = authIdEnumTup.map({$1})
+                //Using the indices from authFriend map get the facebook friends names by running through the same filter then map as done above for facebook id's
+                self.unAddedFriends  = self.facebookAuthFriends.enumerated().filter({index,value in authFriendMap[index] == 1}).map({$1})
                 //reduce Initial value of 0 then add all unAdded friends for a total count of what to display
                 self.numUnAddedFriends = authFriendMap.reduce(0, +)
-                //create sub array of auth users that I haven't started following in the app
-                //Remove from the sub array of unAddedFriends if the user is already in Firebase as my friend
-                self.unAddedFriends = self.facebookAuthFriends.filter({!self.myFriends.contains($0)})
+                
+                //              Done differently above:  //create sub array of auth users that I haven't started following in the app
+//                //Remove from the sub array of unAddedFriends if the user is already in Firebase as my friend
+//                self.unAddedFriends = self.facebookAuthFriends.filter({!self.myFriends.contains($0)})
                 //Check if no friends are going to appear in the Available screen and notify the user why that is
+                
                 if(self.numUnAddedFriends == 0){
                     self.displayNoFriendsAlert()
                 }
@@ -734,13 +738,11 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                         let rootNode = child as! FIRDataSnapshot
                         //store the user id key of the current node
                         let firebaseId = rootNode.key
-                        print("\(firebaseId)")
                         let nodeDict = rootNode.value as! NSDictionary
                         //check for facebook id key and if present and equals the id in the array then the user has updated their id to Firebase
                         for ( key , value ) in nodeDict{
                             if((key as! String) == "facebookid"){
                                 //Confirm the key exists for the current user then overwrite facebook ID with Firebase ID
-                                print("\(value)")
                                 self.facebookAuthIds[index] = firebaseId
                             }
                         }
