@@ -223,9 +223,9 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
                     if(!displayAlert){
                         //Choose segue destination whether you need to continue onboard or return to profile VC
                         if(self.isOnboarding){
-                            performSegue(withIdentifier: "segueToAddFriends", sender: nil)
+                            performSegue(withIdentifier: "segueToAddFriends", sender: self)
                         }else{
-                            performSegue(withIdentifier: "unwindFromAddPlaces", sender: nil)
+                            performSegue(withIdentifier: "unwindFromAddPlaces", sender: self)
                         }
                     }
                 }else{
@@ -297,9 +297,9 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
                             }
                             //Choose segue destination whether you need to continue onboard or return to profile VC
                             if(self.isOnboarding){
-                                self.performSegue(withIdentifier: "segueToAddFriends", sender: nil)
+                                self.performSegue(withIdentifier: "segueToAddFriends", sender: self)
                             }else{
-                                self.performSegue(withIdentifier: "unwindFromAddPlaces", sender: nil)
+                                self.performSegue(withIdentifier: "unwindFromAddPlaces", sender: self)
                             }
                         })
                         alert.addAction(CancelAction)

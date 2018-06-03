@@ -147,10 +147,10 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                                 Helpers().onboardCompleteDefault = 1    //Explicitly log that user has completed onboarding
                                 //make sure I save their login type to NS Defaults with this VC (otherwise its only save when user completes onboard details VC)
                                 Helpers().loginType = self.loginType!.rawValue
-                                self.performSegue(withIdentifier: "unwindLogin4CurrUser", sender: nil)
+                                self.performSegue(withIdentifier: "unwindLogin4CurrUser", sender: self)
                             }else{
 
-                                self.performSegue(withIdentifier: "loginInfo", sender: nil)
+                                self.performSegue(withIdentifier: "loginInfo", sender: self)
                             }
                         }
                     }
@@ -258,7 +258,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                             Helpers().currDisplayName = displayName
                             
                             //Succesfully finished this screen, existing user so skip onboarding
-                            self.performSegue(withIdentifier: "unwindLogin4CurrUser", sender: nil)
+                            self.performSegue(withIdentifier: "unwindLogin4CurrUser", sender: self)
                         }
                     }
                     break
@@ -279,7 +279,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                             //In the event they are unwound to this screen because of failure at onboarddetails VC then make sure button is re-enabled 
                             self.loginButtOut.isEnabled = true
                             //Succesfully finished this screen, now get user Info and username at loginInfo screen
-                            self.performSegue(withIdentifier: "loginInfo", sender: nil)
+                            self.performSegue(withIdentifier: "loginInfo", sender: self)
                         }else{
                             self.loginFailMsg(error: "weak_password")
                             self.loginButtOut.isEnabled = true
@@ -620,6 +620,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         }else{
             return false
         }
+        //TBD : I don't think I actually use this anymore
         self.unwindPerformed = true
     }
     

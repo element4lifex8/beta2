@@ -204,7 +204,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                                         ref.child(Helpers().currUser as String).setValue(newUser)
                                         
                                         //Succesfully finished this screen, now get user Info and username at loginInfo screen
-                                        self.performSegue(withIdentifier: "startOnboarding", sender: nil)
+                                        self.performSegue(withIdentifier: "startOnboarding", sender: self)
                                     }
                                 }//End of if that checks bool returned by closure
                             }else{  //If username not valid re-enable login button to retry
@@ -260,7 +260,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                         Helpers().currUserName = userName as NSString
                         
                         //Succesfully finished this screen, now get user Info and username at loginInfo screen
-                        self.performSegue(withIdentifier: "startOnboarding", sender: nil)
+                        self.performSegue(withIdentifier: "startOnboarding", sender: self)
                     }
                 }
             }

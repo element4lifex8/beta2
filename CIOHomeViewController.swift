@@ -43,7 +43,7 @@ class CIOHomeViewController: UIViewController   {
             //I have to check that even if the currentUser is not nil I have to make sure that it was an email verified auth user. Only want this to be true if the user is not signed in through facebook and the user is not signed in through firebase (isEmailed verfified is false of nil)
         if ((FBSDKAccessToken.current() == nil) && (Helpers().firAuth?.currentUser == nil /*&& (self.providerId ?? "") == "password")*/))
         {
-            self.performSegue(withIdentifier: "newUserLogin", sender: nil)
+            self.performSegue(withIdentifier: "newUserLogin", sender: self)
         }else if(shouldLogout == NSNumber(value: 1) || onboardingCompleted == NSNumber(value: 0) ){//The NSUserDefault shouldLogut is also checked if the user needs to be forced to login again (will force logout if onboarding not completed either
             //Update logout Default so the user no longer has to logout 
             Helpers().logoutDefault = 0
@@ -84,7 +84,7 @@ class CIOHomeViewController: UIViewController   {
             let loginManager = FBSDKLoginManager()
             loginManager.logOut()
         }
-        performSegue(withIdentifier: "newUserLogin", sender: nil)
+        performSegue(withIdentifier: "newUserLogin", sender: self)
     }
     
 //    @IBAction func LogoutButton(_ sender: UIButton) {

@@ -378,7 +378,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
                 let loginManager = FBSDKLoginManager()
                 loginManager.logOut()
             }
-            performSegue(withIdentifier: "LoginScreen", sender: nil)
+            performSegue(withIdentifier: "LoginScreen", sender: self)
         default:
             Helpers().myPrint(text: "Invalid cell in settings table")
         }
