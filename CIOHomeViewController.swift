@@ -93,6 +93,7 @@ class CIOHomeViewController: UIViewController   {
         }else{
             let loginManager = FBSDKLoginManager()
             loginManager.logOut()
+            try! Helpers().firAuth!.signOut()
         }
         performSegue(withIdentifier: "newUserLogin", sender: self)
     }

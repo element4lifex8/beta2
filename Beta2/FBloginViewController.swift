@@ -257,6 +257,8 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                             Helpers().currUserName = username
                             Helpers().currDisplayName = displayName
                             
+                             Helpers().onboardCompleteDefault = 1    //Explicitly log that user has completed onboarding
+                            
                             //Succesfully finished this screen, existing user so skip onboarding
                             self.performSegue(withIdentifier: "unwindLogin4CurrUser", sender: self)
                         }

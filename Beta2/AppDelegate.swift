@@ -43,9 +43,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         //Compare to the version stored in user defaults
         let appVer = Helpers().appVer
-        //create a default key for the logout option, default value is true when new version exists
+        //create a default key for the logout option, default value is true when new app version exists
         //Registering the User default creates a new value and key regardless of what previously existed
-        if(plistVersion != appVer){
+        //When appVer returns 0.0 this should be a new install of the app so I'd hope the firebase auth won't exist so don't force them to logout (let firebase auth handle logon)
+        if((plistVersion != appVer) && (appVer != "0.0")){
             //Register the defaults key with default of 1 wasn't setting the value still
             defaultsStandard.register(defaults: [Helpers.logoutDefaultKey: 1])
             Helpers().logoutDefault = 1

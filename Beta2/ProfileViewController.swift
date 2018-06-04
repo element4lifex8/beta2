@@ -377,6 +377,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
             }else{
                 let loginManager = FBSDKLoginManager()
                 loginManager.logOut()
+                try! Helpers().firAuth!.signOut()
             }
             performSegue(withIdentifier: "LoginScreen", sender: self)
         default:
