@@ -31,7 +31,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var selectedFilters = [String]()
     var headerCount = 0
     var maxHeaderLength: CGFloat = 0.0
-    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Site Seeing", "To Do", "Winery"]
+    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lodging", "Lunch", "Museums", "Night Club", "Parks", "Site Seeing", "To Do", "Winery"]
     //Create list of tableview indexes
     let sectionIndexes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
     var sectionWithObjects = [String]()
@@ -566,8 +566,9 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         if let textLabel = header.textLabel {
             textLabel.font = UIFont(name: "Avenir-HeavyOblique", size: 24)
             textLabel.textColor = UIColor.white
+            textLabel.textAlignment = .center
         }else{
-            Helpers().myPrint(text: "Label not ready")
+            Helpers().myPrint(text: "Current City")
         }
     }
     
@@ -575,11 +576,11 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
         let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "TableViewSectionHeaderViewIdentifier")
 
-        headerView?.textLabel?.text = " \(placeNodeTreeRoot.children![section].nodeValue!)"
-
+        headerView?.textLabel?.text = "\(placeNodeTreeRoot.children![section].nodeValue!)"
         return headerView
         
     }
+
     
     //Parameters are the name of letter in the alphabet from the tableview index, and the index is that letters position in the alphabet
     open func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {

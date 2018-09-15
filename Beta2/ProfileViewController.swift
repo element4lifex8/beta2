@@ -25,8 +25,12 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBOutlet var settingsButton: UIButton!
     
     //Activity monitor and view background
-    var activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView()
-    var loadingView: UIView = UIView()
+//    var activityIndicator : UIActivityIndicatorView = UIActivityIndicatorView()
+//    var loadingView: UIView = UIView()
+    
+    //When cities change I'll re-check the number of cities
+    var cityHandler: FIRDatabaseHandle?
+    var cityRef: FIRDatabaseReference!
     
     var progMenuView: UIView = UIView()
     let menuWidth: CGFloat = 187.0
@@ -55,8 +59,8 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         homeCityButton.titleLabel!.lineBreakMode = .byTruncatingTail
         
         //Until the buttons are used diable touch selection
-        peopleButton.isUserInteractionEnabled = false
-        cityButton.isUserInteractionEnabled = false
+//        peopleButton.isUserInteractionEnabled = false
+//        cityButton.isUserInteractionEnabled = false
         
         //Populate the text on the city, home city, and num friends icons
         var cityDict = retrieveCoreCities()
@@ -65,10 +69,10 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
 //            self.homeCityButton.titleLabel?.text = homeCity
             self.homeCityButton.setTitle(homeCity, for: .normal)
         }
-        if let cityCount = cityDict["city"]{
-//            self.cityButton.titleLabel?.text = cityCount
-            self.cityButton.setTitle(cityCount, for: .normal)
-        }
+//        if let cityCount = cityDict["city"]{
+////            self.cityButton.titleLabel?.text = cityCount
+//            self.cityButton.setTitle(cityCount, for: .normal)
+//        }
         //Set display name from User Defaults
         self.userNameLabel.text = Helpers().currDisplayName as String
         //Set user name from User defaults
@@ -91,6 +95,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        var myFriendIds: [String] = [String()]
         
         //Add touchdown event to add people button so I can adjust the background color when highlighted
         //Function to highlight when touches begin
@@ -104,14 +109,25 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         //Perform backend access and configure activity monitor in viewDidAppear so frame sizes are known
         
-        //Display the number of friends retrieved from firebase for the curr user
+        //Display the number of friends and their cities retrieved from firebase for the curr user
         let friendsRef = FIRDatabase.database().reference().child("users/\(Helpers().currUser)/friends")
-        displayActivityMonitor()
+        self.cityRef = FIRDatabase.database().reference().child("checked")
+        
+        let citySpinner = displayActivityMonitor(thisButton: self.cityButton)
+        let peopleSpinner = displayActivityMonitor(thisButton: self.peopleButton)
         Helpers().retrieveMyFriends(friendsRef: friendsRef) {(friendStr:[String], friendId:[String]) in
-            self.clearActivityMonitor()  //Clear activity monitor before displaying friend count in button
+            //Clear activity monitor before displaying friend count in button
+            self.clearActivityMonitor(loadingView: peopleSpinner.load, actInd: peopleSpinner.spinner)
             //            self.peopleButton.titleLabel?.text = String(friendStr.count)
             self.peopleButton.setTitle(String(friendStr.count), for: .normal)
-            let _ = friendId.count
+            myFriendIds = friendId
+            
+            //Once I have a list of all friends, get all of their cities using their facebook id
+            self.cityHandler = Helpers().retrieveFriendCity(cityRef: self.cityRef, friendsList: friendId) {(completedArr:[String]) in
+                self.clearActivityMonitor(loadingView: citySpinner.load, actInd: citySpinner.spinner)
+                //All of my friends cities are returned in this array, so just count them
+                self.cityButton.setTitle(String(completedArr.count), for: .normal)
+            }
         }
         
         createMenuView()
@@ -182,37 +198,41 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     //Display an activity monitor inside the # friends button while retrieving and counting the # friends in the backend
-    func displayActivityMonitor(){
+    func displayActivityMonitor(thisButton: UIButton) -> (load: UIView, spinner: UIActivityIndicatorView) {
         //Create container view then loading for activity indicator to prevent background from overshadowing white color
+        var ActivityIndView : UIActivityIndicatorView
+        var loadingView: UIView = UIView()
         
         //Create fame that fits inside the peopleButton
-        let frameSquare: CGFloat = self.peopleButton.frame.width * (2/3)
+        let frameSquare: CGFloat = thisButton.frame.width * (2/3)
         //Find x,y centerpoint inside people button then set frame origin to be at the top left corner of where frame will begin
-        let frameX = (self.peopleButton.frame.minX + (self.peopleButton.frame.width / 2))
-        let frameY = (self.peopleButton.frame.minY + (self.peopleButton.frame.height / 2))
-        self.loadingView.frame = CGRect(x: frameX - (frameSquare / 2) ,y: frameY - (frameSquare / 2),width: frameSquare, height: frameSquare)
+        let frameX = (thisButton.frame.minX + (thisButton.frame.width / 2))
+        let frameY = (thisButton.frame.minY + (thisButton.frame.height / 2))
+        loadingView.frame = CGRect(x: frameX - (frameSquare / 2) ,y: frameY - (frameSquare / 2),width: frameSquare, height: frameSquare)
         //        self.loadingView.center = view.center
         //Different shaded color than back ground
-        self.loadingView.backgroundColor = UIColor(red: 0x74/255, green: 0x74/255, blue: 0x74/255, alpha: 0.7)
-        self.loadingView.clipsToBounds = true
-        self.loadingView.layer.cornerRadius = 10
+        loadingView.backgroundColor = UIColor(red: 0x74/255, green: 0x74/255, blue: 0x74/255, alpha: 0.7)
+        loadingView.clipsToBounds = true
+        loadingView.layer.cornerRadius = 10
         
         //Create Activity indicator
-        self.activityIndicator = UIActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: frameSquare , height: frameSquare)) as UIActivityIndicatorView
-        self.activityIndicator.center = CGPoint(x: frameSquare / 2,y: frameSquare / 2);
+        ActivityIndView = UIActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: frameSquare , height: frameSquare)) as UIActivityIndicatorView
+        ActivityIndView.center = CGPoint(x: frameSquare / 2,y: frameSquare / 2);
         //        activityIndicator.backgroundColor = UIColor(red: 0x60/255, green: 0x60/255, blue: 0x60/255, alpha: 0.3)
 //        self.activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.white
-        self.activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.whiteLarge
-        self.activityIndicator.hidesWhenStopped = true
+        ActivityIndView.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.whiteLarge
+        ActivityIndView.hidesWhenStopped = true
         
-        self.loadingView.addSubview(activityIndicator)
+        loadingView.addSubview(ActivityIndView)
         view.addSubview(loadingView)
-        self.activityIndicator.startAnimating()
+        ActivityIndView.startAnimating()
+        
+        return(loadingView, ActivityIndView)
     }
     
-    func clearActivityMonitor(){
-        self.activityIndicator.stopAnimating()
-        self.loadingView.removeFromSuperview()
+    func clearActivityMonitor(loadingView: UIView,actInd: UIActivityIndicatorView ){
+        actInd.stopAnimating()
+        loadingView.removeFromSuperview()
     }
 
     func createMenuView(){
@@ -220,13 +240,18 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         let labelHeight: CGFloat = 60.0
         let labelOffset: CGFloat = 20.0
         let borderWidth: CGFloat = 2
-        self.progMenuView = UIView(frame: CGRect(x: self.view.frame.maxX, y: self.view.frame.minY, width: self.menuWidth, height: self.view.frame.height))
+        //Use safe area for ios11 devices to put menu view below status bar otherwise assume the 20pt status bar height of non iphone X phones
+        if #available(iOS 11, *) {
+            self.progMenuView = UIView(frame: CGRect(x: self.view.frame.maxX, y: self.view.safeAreaInsets.top, width: self.menuWidth, height: self.view.frame.height))
+        }else{
+           self.progMenuView = UIView(frame: CGRect(x: self.view.frame.maxX, y: labelOffset, width: self.menuWidth, height: self.view.frame.height))
+        }
         self.progMenuView.backgroundColor = .white
         self.progMenuView.layer.borderWidth = borderWidth
         self.progMenuView.layer.borderColor = UIColor.black.cgColor
         
-        //Create settings label at top of menu but start beneath menu bar
-        let labelView = UIView(frame: CGRect(x: 0, y: labelOffset, width: self.progMenuView.frame.width, height: labelHeight))
+        //Create settings label at top of menu but start beneath status bar
+        let labelView = UIView(frame: CGRect(x: 0, y: 0, width: self.progMenuView.frame.width, height: labelHeight))
         labelView.layer.borderWidth = borderWidth
         labelView.layer.borderColor = UIColor.black.cgColor
 //        let settingsLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.progMenuView.frame.width, height: labelHeight))
@@ -243,7 +268,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         self.progMenuView.addSubview(labelView)
         
         //Calculate Table view to sit beneath label and extend to bottom of screen
-        tableView = UITableView(frame: CGRect(x: 0, y: labelOffset + labelHeight + borderWidth, width: self.progMenuView.frame.width, height: self.progMenuView.frame.height - (labelHeight + borderWidth)))
+        tableView = UITableView(frame: CGRect(x: 0, y: labelHeight + borderWidth, width: self.progMenuView.frame.width, height: self.progMenuView.frame.height - (labelHeight + borderWidth)))
         //Remove seperator lines
         self.tableView.separatorStyle = .none
         //Stop table view from bouncing since cells will not fill the screen
@@ -400,11 +425,38 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBAction func unwindFromFAQs(_ sender: UIStoryboardSegue) {
         // empty
     }
+    
+    // Unwind seque from my CheckOutVC (from the "Explore" button)
+    @IBAction func unwindFromCheckOut(_ sender: UIStoryboardSegue) {
+        // empty
+    }
+    
+    // Unwind if user checked T&C's before logging in
+    @IBAction func unwindFromTC(_ sender: UIStoryboardSegue) {
+        // empty
+    }
+    
+    // Unwind seque always bypassed and return to CIO Home
+    @IBAction func unwindPrivPol(_ sender: UIStoryboardSegue) {
+        // empty
+        print("Unwound")
+    }
+    
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         //Dismiss the settings view if it is present when leaving screen
         if(self.view.bounds.contains(self.progMenuView.frame.origin)){
             animateMenu(dismiss: true)
+        }
+        if let cityHandle = self.cityHandler{
+            self.cityRef.removeObserver(withHandle: cityHandle)
+        }
+        
+        //Check if transitioning to check out screen and if doing so from add friends button
+        if(segue.identifier == "segueToFriends")
+        {
+            let destinationVC = segue.destination as! CheckOutContainedViewController
+            destinationVC.callerWantsToShowPeople = true
         }
     }
 

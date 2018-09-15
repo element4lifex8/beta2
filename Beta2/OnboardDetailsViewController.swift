@@ -121,12 +121,15 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
             //New email login needs first, last name, email, password, username
         case(Helpers.userType.new):
             //Unwrap text boxes and make sure they are not nil
-            guard let firstName = self.firstNameTextBox.text, let lastName = self.lastNameTextBox.text, let email = self.emailTextBox.text, let password = self.passwordTextBox.text, let userName = self.usernameTextBox.text else{
+            guard let firstName = self.firstNameTextBox.text, let lastName = self.lastNameTextBox.text, let email = self.emailTextBox.text, let password = self.passwordTextBox.text, var userName = self.usernameTextBox.text else{
 //                Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                 loginFailMsg(error: "missing")
                 sender.isEnabled = true
                 return
             }
+            
+            //Update username to ensure no trailing whitepace characters exist
+            userName = userName.trimmingCharacters(in: .whitespaces)
 
             //Check if any fields are Empty
             if(firstName.isEmpty || lastName.isEmpty || email.isEmpty || password.isEmpty || userName.isEmpty){
@@ -141,7 +144,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                     case(.facebook):
 //                        Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                         //notify user to login with FB
-                        self.loginFailMsg(error: "facebookExists")
+                        self.loginFailMsg(error: "facebookUser")
                         sender.isEnabled = true
                     case(.email):
 //                        Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
@@ -224,12 +227,15 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
             sender.isEnabled = true
             
             //unwrap the required fields
-            guard let firstName = self.firstNameTextBox.text, let lastName = self.lastNameTextBox.text, let email = self.emailTextBox.text, let userName = self.usernameTextBox.text else{
+            guard let firstName = self.firstNameTextBox.text, let lastName = self.lastNameTextBox.text, let email = self.emailTextBox.text, var userName = self.usernameTextBox.text else{
                 loginFailMsg(error: "missing")
                 //Stop displaying activity indicator
 //                Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                 return
             }
+            
+            //Update username to ensure no trailing whitepace characters exist
+            userName = userName.trimmingCharacters(in: .whitespaces)
 
             //Check if required fields are Empty
             if(firstName.isEmpty || lastName.isEmpty || email.isEmpty || userName.isEmpty){
@@ -237,8 +243,6 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                 //Stop displaying activity indicator
 //                Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
             }else{
-                
-                //Check if the username previously exists or if the user can create it
                 self.usernameValid(name: userName) {(valid: Bool) in
                     //Stop displaying activity monitor, no more async calls
                     Helpers().displayActMon(display: false, superView: self.view, loadingView: &self.loadingView, activityIndicator: &self.activityIndicator)
@@ -299,7 +303,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
             break
         case "email_in_use":
             msgTitle = "Missing account"    //Happens with the backend doesn't have the user but the firebase auth already has them
-            msgBody = "Your Check In Out account info for this email is outdated. Please contact technical support at jason@checkinoutlists.com or create a new account with a different email address."
+            msgBody = "The . Please contact technical support at jason@checkinoutlists.com or create a new account with a different email address."
             break
         case "username":
             msgTitle = "Username Taken"    //Happens with the backend doesn't have the user but the firebase auth already has them
@@ -322,8 +326,8 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
             msgBody = "The email address you have entered is for an existing user. Please log in with this email address."
                 unwind = true
             break
-        case "facebookUser":  //Not current used
-            msgTitle = "Existing"    //Happens with the backend doesn't have the user but the firebase auth already has them
+        case "facebookUser":
+            msgTitle = "Existing User"    //Happens with the backend doesn't have the user but the firebase auth already has them
             msgBody = "The email address you have entered is for an existing user. Please log in the the FaceBook associated with this email."
                 unwind = true
             break

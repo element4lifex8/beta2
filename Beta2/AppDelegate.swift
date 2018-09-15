@@ -48,8 +48,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //When appVer returns 0.0 this should be a new install of the app so I'd hope the firebase auth won't exist so don't force them to logout (let firebase auth handle logon)
         if((plistVersion != appVer) && (appVer != "0.0")){
             //Register the defaults key with default of 1 wasn't setting the value still
-            defaultsStandard.register(defaults: [Helpers.logoutDefaultKey: 1])
-            Helpers().logoutDefault = 1
+            defaultsStandard.register(defaults: [Helpers.logoutDefaultKey: 0])
+            //Only uncomment when I want a user to be logged out on a new version
+            //            defaultsStandard.register(defaults: [Helpers.logoutDefaultKey: 1])
+//            Helpers().logoutDefault = 1
             //If I have to logout then update my current version number
             Helpers().appVer = plistVersion
         }else{

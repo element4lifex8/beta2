@@ -28,6 +28,8 @@ class HeaderTableViewCell: UITableViewCell {
         self.headerView.addSubview(bottomLine)
         topLine.backgroundColor = UIColor.white
         bottomLine.backgroundColor = UIColor.white
+        
+//        tableCellValue.textAlignment = .center
     }
     
     override func awakeFromNib() {

@@ -15,8 +15,15 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var cityPeopleTabButton: UIButton!
     
+    //If transition to this screen wants to force showing people, update this var
+    //Info from login screen that will be populated here
+    var callerWantsToShowPeople: Bool?
+    
     //Keeps track of with button on the tab bar is selected
-    var showPeopleView:Bool = false 
+    //If calling VC specifies to show people then do so, otherwise false
+    var showPeopleView:Bool = false
+    //Keep track of whether I am controlling the button manually or if its controlled from the GUI
+    var manualTabControl = false
     var myFriends:[String] = []
     var myFriendIds: [NSString] = []    //list of Facebook Id's with matching index to myFriends array
     var friendCities:[String] = []
@@ -31,9 +38,20 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     //Retrieve curr user from User Defaults
     var currUser = Helpers().currUser
 
-//    override func viewDidAppear(_ animated: Bool) {
-//        super.viewDidAppear(animated)
-//        
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        //If calling VC specifies to show people then do so, otherwise false
+        showPeopleView = (callerWantsToShowPeople ?? false) || showPeopleView
+        //Show people view when tab bar button is selected
+        if (showPeopleView)
+        {
+            cityPeopleTabButton.isSelected = true
+            self.manualTabControl = true
+            setTabBarBackground(cityPeopleTabButton)
+        }
+        
+    }
 //        //Create container view then loading for activity indicator to prevent background from overshadowing white color
 //        let loadingView: UIView = UIView()
 //        
@@ -145,33 +163,47 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     }
     
     @IBAction func pressTabBar(_ sender: UIButton) {
+        //update image for tab bar
+        sender.isSelected = sender.state == .highlighted ? true : false
+        setTabBarBackground(sender)
+    }
+    
+    func setTabBarBackground(_ sender: UIButton)
+    {
         let peopleHighImage = UIImage(named: "peopleButton")
         let addPeopleImage = UIImage(named: "addFriendIcon")
         let addCityImage = UIImage(named: "addCityIcon")
+        //Set tab bar background button
         cityPeopleTabButton.setBackgroundImage(peopleHighImage, for: .selected)
         
-        sender.isSelected = sender.state == .highlighted ? true : false
         //        Default tab is city view, when button is selected people view is shown
         if(sender.isSelected){
             showPeopleView = true
+            if(self.manualTabControl)
+            {
+                sender.isHighlighted = false
+                self.manualTabControl = false
+            }
             //Set image location and remove background of add button when changing image so that image doesn't stretch
             addButton.setBackgroundImage(nil, for: UIControlState())
             addButton.titleEdgeInsets.top = 8.0
             addButton.titleEdgeInsets.right = 7.0
             addButton.setImage(addPeopleImage, for: UIControlState())
-            addButton.isEnabled = true
-            addButton.isHidden = false
+            //Don't display add friend button on old iOS, wasn't working for some reason, check for ios 10 or later
+            if #available(iOS 10.0, *) {
+                addButton.isEnabled = true
+                addButton.isHidden = false
+            }
         }else{
             showPeopleView = false
-//            For now the add city button is disabled
-//            addButton.setImage(nil, for: UIControlState())
-//            addButton.setBackgroundImage(addCityImage, for: UIControlState())
+            //            For now the add city button is disabled
+            //            addButton.setImage(nil, for: UIControlState())
+            //            addButton.setBackgroundImage(addCityImage, for: UIControlState())
             addButton.isHidden = true
             addButton.isEnabled = false
         }
         self.tableView.reloadData()
     }
-    
     //Function retrieves friends and cities and returns when both retrievals are finished
     func retrieveFromFirebase(_ completionClosure: @escaping (_ finished: Bool) -> Void) {
       
@@ -190,7 +222,7 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
 
                 
                 //Once I have a list of all friends, get all of their cities using their facebook id
-                self.retrieveFriendCity(friendsList: friendId) {(completedArr:[String]) in
+                self.cityHandler = Helpers().retrieveFriendCity(cityRef: self.cityRef, friendsList: friendId) {(completedArr:[String]) in
                     self.friendCities = completedArr
                     if(self.friendCities.count > 0){
                         self.friendCities.sort(by: <)
@@ -206,6 +238,7 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         }
     }
     
+
     //retrieve a list of all the user's friends
     func retrieveMyFriends(_ completionClosure: @escaping (_ friendStr: [String], _ friendId:[String]) -> Void) {
 
@@ -237,6 +270,8 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         })
     }
     
+    //Functions moved to Helpers() so they were also accessible from Profile screen
+    #if false
     //Retrieve a list of all of the cities the user's friends have
     func retrieveFriendCity(friendsList: [String], completionClosure: @escaping (_ completedArr: [String]) -> Void) {
         var localCityArr = [String]()
@@ -273,6 +308,7 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
             })
         }
     }
+#endif
     
     func displayNoDataAlert(missingData: String){
         //FOr this function to be called there are no friends, or the friends have no check ins
@@ -309,7 +345,7 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         if(showPeopleView){
             return myFriends.count
         }else{
-            return friendCities.count
+            return self.friendCities.count
         }
     }
     

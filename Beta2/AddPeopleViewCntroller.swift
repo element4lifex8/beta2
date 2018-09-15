@@ -202,7 +202,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             NSLayoutConstraint.activate([headerHeight])
             
             //Set min distance from bottom of headerView to bottom of screen >= 450 for smaller screens to shrink the header view if neccessary to allow for a large enough table to be displayed
-            let headerToBottom = NSLayoutConstraint(item: bottomLayoutGuide, attribute: .top, relatedBy: .greaterThanOrEqual, toItem: HeaderView, attribute: .bottom, multiplier: 1.0, constant: 450)
+            let headerToBottom = NSLayoutConstraint(item: bottomLayoutGuide, attribute: .top, relatedBy: .greaterThanOrEqual, toItem: HeaderView, attribute: .bottom, multiplier: 1.0, constant: 400)
             view.addConstraint(headerToBottom)
             
         }else{//set header view height to 100
@@ -795,6 +795,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                         //Unwrap the name and id of the user to add to the tableview's source (unaddedFriends array) otherwise return user not found
                         guard let displayName = nodeDict["displayName1"] as? String, let id = rootNode.key as? String else{
                             nameExists = false
+                            completionClosure(nameExists)
                             return
                         }
                         //Verify the user hasn't already added or searched for this friend before adding to unAdded frineds ( also make sure the user doesn't try to add themself

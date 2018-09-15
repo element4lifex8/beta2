@@ -22,14 +22,17 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var dictArr = [[String:String]]()
     var placesDict = [String : String]()
     var cityButtonList: [String] = ["+"]
-    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Sight Seeing", "To Do", "Winery"]
+    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lodging", "Lunch", "Museums", "Night Club", "Parks", "Sight Seeing", "To Do", "Winery"]
     var placesArr = [String]()
     var arrSize = Int()
-    var checkObj = placeNode()  //Appears that this model is filled out, but its actually the dict array contents that are written to the backen
+    var checkObj = placeNode()  //Appears that this model is filled out, but its actually the dict array contents that are written to the backend
     let restNameDefaultKey = "CheckInView.restName"
     var isEnteringCity = false
     var isEnteringCategory = false
     let restNamePlaceHolder = "Enter Name..."
+    //Buton spacing and size
+    let buttonSpacing = 13
+    let buttonRad = 100
     //Create attributed place holder for comment box which will later append a smaller substring to the end
     var attrPlaceHolder = NSMutableAttributedString()
     var autoCompleteArray = [String]()  //Table data containing string from google prediction array
@@ -37,6 +40,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var autoCompleteTableView: UITableView?
     var autoCompleteFrameMaxHeight = 200    //Default to 200, but the distance to the keyboard will be calculated
     let autoCompleteCellHeight = 40
+    var seclectdAutoComplete = false //Keep track of whether operations are being performed pre/post auto complete selection
     let googleImageView = UIImageView(image: UIImage(named: "poweredByGoogle")) //Google attribution image view
     var tableContainerView: UIView?     //Container view for autocomplete table so border and rounded edges can be achieved
     //Google places client
@@ -473,29 +477,105 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //If entering the city, add the state to the text box too
         if(self.isEnteringCity){
-            var cityState = googlePrediction[indexPath.row].attributedPrimaryText.string
-
-            //unwrap secondary text or quit while we're ahead
-            guard let secondaryText = googlePrediction[indexPath.row].attributedSecondaryText?.string else {self.CheckInRestField.text = cityState
-                return
-            }
-            //Find the first comma in the secondary text, which should fall after the state
-            if let rangeOfSpace = secondaryText.range(of: ",") {
-                //Convert the range returned by the comma to an index and return the string from the space to end of dispay name
-                let stateName = secondaryText.substring(to: rangeOfSpace.lowerBound)
-                cityState = cityState + ", " + stateName
-            }else{  //If no comma exists then this is likely a country and no states exists
-                cityState = cityState + ", " + secondaryText
-            }
-            self.CheckInRestField.text = cityState
+            //Parse the city string and display only what I want int rest name text field
+            self.selectAndDisplayFromAutoComplete(tableRow: indexPath.row)
         }else{  //Not entering city, just select establishment name
             self.CheckInRestField.text = googlePrediction[indexPath.row].attributedPrimaryText.string
         }
         //Store placeId object to be stored in firebase with the check in
         checkObj.placeId = googlePrediction[indexPath.row].placeID
+        //Dismiss keyboard and autocomplete but indicate that dismissal is post selection and not prior to select
+        self.seclectdAutoComplete = true
         autoCompleteTableView?.isHidden = true
         //dismiss keyboard if present
         CheckInRestField.resignFirstResponder()
+        //Now that I'm done selecting the item if its a city then it will be saved immediately
+        if(self.isEnteringCity)
+        {
+            //Save off current city name since it will be
+            let newCity = CheckInRestField.text!
+            //Save city and if successful scroll new city to visible
+            if(saveSelectedCity())
+            {
+                //Scroll the current city button the center of the screen
+                scrollButtonToCenter( cityName: newCity)
+            }
+        }
+        //Done with auto complete selections
+        self.seclectdAutoComplete = false
+    }
+    
+    //Select the city at index path from auto complete and display in check in rest field
+    func selectAndDisplayFromAutoComplete(tableRow : Int)
+    {
+        var cityState = googlePrediction[tableRow].attributedPrimaryText.string
+    
+        //unwrap secondary text or quit while we're ahead
+        guard let secondaryText = googlePrediction[tableRow].attributedSecondaryText?.string else {
+            self.CheckInRestField.text = cityState
+            return
+        }
+        //Find the first comma in the secondary text, which should fall after the state
+        if let rangeOfSpace = secondaryText.range(of: ",") {
+        //Convert the range returned by the comma to an index and return the string from the space to end of dispay name
+        let stateName = secondaryText.substring(to: rangeOfSpace.lowerBound)
+        cityState = cityState + ", " + stateName
+        }else{  //If no comma exists then this is likely a country and no states exists
+        cityState = cityState + ", " + secondaryText
+        }
+        self.CheckInRestField.text = cityState
+    }
+    
+    //City must first be selected by the process which stores its deets in the placeNode obj and displays its text in the rest name text field and then this function can save it as a new button
+    //Returns whether the saving was successful as a bool
+    func saveSelectedCity() -> Bool
+    {
+        var saveSuccess = false
+        //Now save the city that was selected
+        let addButtonText = CheckInRestField.text!
+        let cityDefaultText = "Enter new city button name"
+        //            let catDefaultText = "Enter new category button name"
+        if(addButtonText == cityDefaultText || addButtonText.isEmpty || addButtonText == "+")
+        {
+            let alert = UIAlertController(title: "Invalid City", message: "You attempted to create a city button but did not provide a city name.", preferredStyle: .alert)
+            let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+            alert.addAction(CancelAction)
+            self.present(alert, animated: true, completion: nil)
+            CheckInRestField.placeholder = self.restNamePlaceHolder
+            CheckInRestField.text = ""
+            isEnteringCity = false
+            isEnteringCategory = false
+        }
+        else
+        {
+            if(self.checkObj.placeId != nil)
+            {
+                saveCityButton(addButtonText)
+                CheckInRestField.text = ""
+                CheckInRestField.placeholder = restNamePlaceHolder
+                isEnteringCity = false
+                //Remove clear button after city is checked in
+                CheckInRestField.clearButtonMode = .never
+                createCityButtons()
+                saveSuccess = true
+            }else{
+                let alert = UIAlertController(title: "Google is your friend", message: "You entered \(addButtonText) manually, instead please use our reccomended cities from the list. Try editing your current city until you find a viable match from the list", preferredStyle: .alert)
+                let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+                alert.addAction(CancelAction)
+                self.present(alert, animated: true, completion: nil)
+            }
+        }
+        //No Longer supporting user supported categories
+        //            else if(isEnteringCategory)
+        //            {
+        //                let newCatLoc = catButtonList.count - 1
+        //                catButtonList.insert(addButtonText, at: newCatLoc)
+        //                CheckInRestField.text = ""
+        //                CheckInRestField.placeholder = "Enter Name..."
+        //                isEnteringCategory = false
+        //                createCategoryButtons()
+        //            }
+        return saveSuccess
     }
     
     @IBOutlet var scrollView: UIScrollView!
@@ -524,7 +604,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         
         //If the text box is still shown from adding a comment then remove
         self.activeTextField?.resignFirstResponder()
-        
+#if false
+        //No longer wait til submit button is hit to add city, added after selecting city in autocomplete
         //Create a new button
         if(isEnteringCity)
         {
@@ -571,26 +652,28 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
 //                createCategoryButtons()
 //            }
         }
-        //Save an establishment Check in entry
+        
         else
+        {}
+#endif
+        //Save an establishment Check in entry
+        //Retrieve a snapshot of the city/category dict cause slow internet could allow ample time for the user to hit a bunch of buttons
+        let cityCatDict: [Dictionary] = self.dictArr    //[[String:String]]
+        var restNameText = CheckInRestField.text!
+        //Remove any trailing spaces from restNameText
+        restNameText = restNameText.trimmingCharacters(in: .whitespaces)
+        let dictArrLength = dictArr.count
+        if(!restNameText.isEmpty && restNameText != restNamePlaceHolder)
         {
-            //Retrieve a snapshot of the city/category dict cause slow internet could allow ample time for the user to hit a bunch of buttons
-            let cityCatDict: [Dictionary] = self.dictArr    //[[String:String]]
-            var restNameText = CheckInRestField.text!
-            //Remove any trailing spaces from restNameText
-            restNameText = restNameText.trimmingCharacters(in: .whitespaces)
-            let dictArrLength = dictArr.count
-            if(!restNameText.isEmpty && restNameText != restNamePlaceHolder)
-            {
-                //Have to create a fake cell since it's passed as an inout and has to be able to be returned to the calling function,  but it won't get used when I'm not displaying the activity monitor in the tableView
-                var fakeCell = UITableViewCell()
-                //Start activity monitor since check process now has to make async request
-                displayActivityMonitor(isTable: false, tableCell: &fakeCell)
-                //Firebase Keys must be non-empty and cannot contain '.' '#' '$' '[' or ']'
-                //Loop over string in case in contains multiple bad chars
+            //Have to create a fake cell since it's passed as an inout and has to be able to be returned to the calling function,  but it won't get used when I'm not displaying the activity monitor in the tableView
+            var fakeCell = UITableViewCell()
+            //Start activity monitor since check process now has to make async request
+            displayActivityMonitor(isTable: false, tableCell: &fakeCell)
+            //Firebase Keys must be non-empty and cannot contain '.' '#' '$' '[' or ']'
+            //Loop over string in case in contains multiple bad chars
 //                while(restNameText.characters.contains(where: restNameText.contains(".
 //                    ")))*/{
-                
+            
 //                restNameText.characters.forEach({
 //                    if ($0 == "."){
 //                        let index = restNameText.remove(at: $0.enum)
@@ -602,177 +685,176 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
 //                        restNameText.remove(at: index)
 //                    }
 //                }
-                let badChars: [Character] = [".", "#", "$", "[", "]"]
-                while(restNameText.characters.contains(where: {badChars.contains($0)})){
-                    if let idx = restNameText.characters.index(where: {$0 == "."}){
-                        restNameText.remove(at: idx)
-                    }
-                    if let index = restNameText.characters.index(of: "#") {
-                        restNameText.remove(at: index)
-                    }
-                    if let index = restNameText.characters.index(of: "$") {
-                        restNameText.remove(at: index)
-                    }
-                    if let index = restNameText.characters.index(of: "[") {
-                        restNameText.remove(at: index)
-                    }
-                    if let index = restNameText.characters.index(of: "]") {
-                        restNameText.remove(at: index)
-                    }
+            let badChars: [Character] = [".", "#", "$", "[", "]"]
+            while(restNameText.characters.contains(where: {badChars.contains($0)})){
+                if let idx = restNameText.characters.index(where: {$0 == "."}){
+                    restNameText.remove(at: idx)
                 }
+                if let index = restNameText.characters.index(of: "#") {
+                    restNameText.remove(at: index)
+                }
+                if let index = restNameText.characters.index(of: "$") {
+                    restNameText.remove(at: index)
+                }
+                if let index = restNameText.characters.index(of: "[") {
+                    restNameText.remove(at: index)
+                }
+                if let index = restNameText.characters.index(of: "]") {
+                    restNameText.remove(at: index)
+                }
+            }
 
-                
-                //Make sure user has added one city and one category, or prompt the user and have them try again
-                if(dictArr.contains(where: {($0.keys).contains("city")}) && dictArr.contains(where: {($0.keys).contains("category")})){      
-                
-                    //Ignore submit button whenever in the processes of checking in (due to the delay caused by the async call to the back in when checking in
-                    sender.isEnabled = false    //Only disabling the submit button once we know we will be accessubg the back end
-                    self.checkObj.place = restNameText
-                    // Create a reference to a Firebase location
-    //                let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
-                    let refChecked = FIRDatabase.database().reference().child("checked/\(self.currUser)")
-    //                let refCheckedPlaces = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
-                    let refCheckedPlaces = FIRDatabase.database().reference().child("places")
-                    // Write establishment name to user's collection
+            
+            //Make sure user has added one city and one category, or prompt the user and have them try again
+            if(dictArr.contains(where: {($0.keys).contains("city")}) && dictArr.contains(where: {($0.keys).contains("category")})){
+            
+                //Ignore submit button whenever in the processes of checking in (due to the delay caused by the async call to the back in when checking in
+                sender.isEnabled = false    //Only disabling the submit button once we know we will be accessubg the back end
+                self.checkObj.place = restNameText
+                // Create a reference to a Firebase location
+//                let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
+                let refChecked = FIRDatabase.database().reference().child("checked/\(self.currUser)")
+//                let refCheckedPlaces = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
+                let refCheckedPlaces = FIRDatabase.database().reference().child("places")
+                // Write establishment name to user's collection
 
-                    //Don't create new Place in the refCheckedPlaces ref ("Places" category) if another user has already created this place
-                    //Check if the user had entered this place before and stop them from doing it again
-                    findPlaceInFirebase(placeName: restNameText, userRef: refChecked, placesRef: refCheckedPlaces){ (userDoubleEntry: Bool, placeExistsMaster: Bool) in
+                //Don't create new Place in the refCheckedPlaces ref ("Places" category) if another user has already created this place
+                //Check if the user had entered this place before and stop them from doing it again
+                findPlaceInFirebase(placeName: restNameText, userRef: refChecked, placesRef: refCheckedPlaces){ (userDoubleEntry: Bool, placeExistsMaster: Bool) in
+                    
+                    //Add place to user's list if its not a repeat check in
+                    if(!userDoubleEntry){
                         
-                        //Add place to user's list if its not a repeat check in
-                        if(!userDoubleEntry){
-                            
-                            //Store place Name and place ID with the check in if the user used google's autocomplete
-                            if(self.checkObj.placeId != nil)
-                            {
-                                refChecked.updateChildValues([restNameText:true])
-                                refChecked.child(restNameText).updateChildValues(["placeId":self.checkObj.placeId!])
-                            }else if(self.customCheckIn == false){  //Have the user confirm that they want to check in without using auto complete
-                                let alert = UIAlertController(title: "Is this a custom Check In?", message: "You didn't use Google's auto complete for this check in. Are you sure this place exists and that you want to check it in under this name?", preferredStyle: .alert)
-                                //Exit function if user clicks now and allow them to reconfigure the check in
-                                let CancelAction = UIAlertAction(title: "No", style: .cancel, handler: nil)
-                                //Async call to create button would complete function, so I return after presenting, and if the user wishes I will reiterate through the function
-                                let ConfirmAction = UIAlertAction(title: "Yes", style: .default, handler: { UIAlertAction in
-                                    //Skip this part on the next iteration so add the place name now
-                                    refChecked.updateChildValues([restNameText:true])
-                                    self.customCheckIn = true
-                                    self.SaveRestField(UIButton(type: .custom))
-                                })
-                                alert.addAction(ConfirmAction)
-                                alert.addAction(CancelAction)
-                                //Remove activity monitor so alertview can be presented
-                                self.present(alert, animated: true, completion: {
-                                    self.clearActivityMonitor()
-                                })
-                                
-                                //Re-enable the submit button for the next use
-                                sender.isEnabled = true
-                                
-                                return
-                            }
-                            
-                        }else{  //Notify the user and skip the process if they have previously checked in here
-                            let alert = UIAlertController(title: "Reapeated Check In", message: "\(restNameText) is already part of your List.", preferredStyle: .alert)
+                        //Store place Name and place ID with the check in if the user used google's autocomplete
+                        if(self.checkObj.placeId != nil)
+                        {
+                            refChecked.updateChildValues([restNameText:true])
+                            refChecked.child(restNameText).updateChildValues(["placeId":self.checkObj.placeId!])
+                        }else if(self.customCheckIn == false){  //Have the user confirm that they want to check in without using auto complete
+                            let alert = UIAlertController(title: "Is this a custom Check In?", message: "You didn't use Google's auto complete for this check in. Are you sure this place exists and that you want to check it in under this name?", preferredStyle: .alert)
                             //Exit function if user clicks now and allow them to reconfigure the check in
-                            let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: {
-                                UIAlertAction in
-                                self.cleanScreen()
+                            let CancelAction = UIAlertAction(title: "No", style: .cancel, handler: nil)
+                            //Async call to create button would complete function, so I return after presenting, and if the user wishes I will reiterate through the function
+                            let ConfirmAction = UIAlertAction(title: "Yes", style: .default, handler: { UIAlertAction in
+                                //Skip this part on the next iteration so add the place name now
+                                refChecked.updateChildValues([restNameText:true])
+                                self.customCheckIn = true
+                                self.SaveRestField(UIButton(type: .custom))
                             })
+                            alert.addAction(ConfirmAction)
                             alert.addAction(CancelAction)
                             //Remove activity monitor so alertview can be presented
-                            self.clearActivityMonitor()
-                            self.present(alert, animated: true, completion:{
-                                //Before returning I don't want the user to retain the current place ID and then change the name to something not matching this place ID so I will clear it
-                                self.checkObj.placeId = nil
+                            self.present(alert, animated: true, completion: {
                                 self.clearActivityMonitor()
                             })
                             
                             //Re-enable the submit button for the next use
                             sender.isEnabled = true
                             
-                          return
+                            return
                         }
                         
-                        if(!placeExistsMaster){
-                        // Write establishment name to places collection
-                            refCheckedPlaces.updateChildValues([restNameText:true])
-                            //Store place ID with the check in if the user used google's autocomplete
-                            if(self.checkObj.placeId != nil)
-                            {
-                                 refCheckedPlaces.child( restNameText).updateChildValues(["placeId":self.checkObj.placeId!])
-                            }
-                        }
-                        //Add user id to the checked in place in the master list
-                        refCheckedPlaces.child(restNameText).child("users").updateChildValues([self.currUser:"true"])
-                        
-                        
-                        //update user's and master list with the city & categories chosen by this user
-                        //Create city dict and category dict to allow for one write to firebase with both
-                        var cityFire = [String : String]()
-                        var catFire = [String : String]()
-                        for i in 0 ..< cityCatDict.count    //array of [cat/city: catName/cityName]
-                        {
-                            for (key,value) in self.dictArr[i]   //key: city or category
-                            {
-                                if(key == "city"){
-                                    cityFire[value] = "true"
-                                }else{
-                                    catFire[value] = "true"
-                                }
-                                //I used to repeately access firebase to Store categories and cities in user list
-//refChecked.child(restNameText).child(key).updateChildValues([value:"true"])
-//                                //Store categories and city info in master list
-//                                refCheckedPlaces.child( restNameText).child(byAppendingPath: key).updateChildValues([value:"true"])
-                            }
-                        }
-                        let fireUpdate = [ "city" : cityFire, "category" : catFire ]
-                        //Update the city and categories in FIrebase for the current place
-                        refChecked.child(restNameText).updateChildValues(fireUpdate)
-                        //Update the city then category nodes seperately in the places node since I couldn't figure out a way to update both without overwriting existing data
-                        refCheckedPlaces.child( restNameText).child(byAppendingPath: "city").updateChildValues(cityFire)
-                        refCheckedPlaces.child( restNameText).child(byAppendingPath: "category").updateChildValues(catFire)
-                        //Check if a comment exists and unwrap and store in firebase
-                        if let comment = self.commentTextField.text{
-                            if(!comment.isEmpty){
-                                 refChecked.child(restNameText).updateChildValues(["comment": comment])
-                            }
-                        }
-                        
-                        //Save to NSUser defaults
-        //                restNameHistory += [restNameText]
-                        
-                       //Return check in screen to defaults and clear objects created for the previous check in
-                        self.cleanScreen()
-                        //Turn off activity monitor
+                    }else{  //Notify the user and skip the process if they have previously checked in here
+                        let alert = UIAlertController(title: "Reapeated Check In", message: "\(restNameText) is already part of your List.", preferredStyle: .alert)
+                        //Exit function if user clicks now and allow them to reconfigure the check in
+                        let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: {
+                            UIAlertAction in
+                            self.cleanScreen()
+                        })
+                        alert.addAction(CancelAction)
+                        //Remove activity monitor so alertview can be presented
                         self.clearActivityMonitor()
-                        //perform check animation signaling check in complete
-                        self.animateCheckComplete()
+                        self.present(alert, animated: true, completion:{
+                            //Before returning I don't want the user to retain the current place ID and then change the name to something not matching this place ID so I will clear it
+                            self.checkObj.placeId = nil
+                            self.clearActivityMonitor()
+                        })
                         
                         //Re-enable the submit button for the next use
                         sender.isEnabled = true
-                       
-                    }//Finish closure after checking whether the place had already been added to the back end
-                }else{//End of if checking for a city and a catagory being selected
-                    var msgAddition = ""
-                    if(cityButtonList.count == 1){      //Only the "+" button exists
-                        msgAddition = " Don't forget to add cities with the \"+\" button"
+                        
+                      return
                     }
-                    let alert = UIAlertController(title: "Give us more details!", message: "Make sure to select a city and category for \(restNameText).\(msgAddition)", preferredStyle: .alert)
-                    //Exit function if user clicks now and allow them to reconfigure the check in
-                    let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
-                    alert.addAction(CancelAction)
-                    self.present(alert, animated: true, completion: {
-                        self.clearActivityMonitor()
-                    })
+                    
+                    if(!placeExistsMaster){
+                    // Write establishment name to places collection
+                        refCheckedPlaces.updateChildValues([restNameText:true])
+                        //Store place ID with the check in if the user used google's autocomplete
+                        if(self.checkObj.placeId != nil)
+                        {
+                             refCheckedPlaces.child( restNameText).updateChildValues(["placeId":self.checkObj.placeId!])
+                        }
+                    }
+                    //Add user id to the checked in place in the master list
+                    refCheckedPlaces.child(restNameText).child("users").updateChildValues([self.currUser:"true"])
+                    
+                    
+                    //update user's and master list with the city & categories chosen by this user
+                    //Create city dict and category dict to allow for one write to firebase with both
+                    var cityFire = [String : String]()
+                    var catFire = [String : String]()
+                    for i in 0 ..< cityCatDict.count    //array of [cat/city: catName/cityName]
+                    {
+                        for (key,value) in self.dictArr[i]   //key: city or category
+                        {
+                            if(key == "city"){
+                                cityFire[value] = "true"
+                            }else{
+                                catFire[value] = "true"
+                            }
+                            //I used to repeately access firebase to Store categories and cities in user list
+//refChecked.child(restNameText).child(key).updateChildValues([value:"true"])
+//                                //Store categories and city info in master list
+//                                refCheckedPlaces.child( restNameText).child(byAppendingPath: key).updateChildValues([value:"true"])
+                        }
+                    }
+                    let fireUpdate = [ "city" : cityFire, "category" : catFire ]
+                    //Update the city and categories in FIrebase for the current place
+                    refChecked.child(restNameText).updateChildValues(fireUpdate)
+                    //Update the city then category nodes seperately in the places node since I couldn't figure out a way to update both without overwriting existing data
+                    refCheckedPlaces.child( restNameText).child(byAppendingPath: "city").updateChildValues(cityFire)
+                    refCheckedPlaces.child( restNameText).child(byAppendingPath: "category").updateChildValues(catFire)
+                    //Check if a comment exists and unwrap and store in firebase
+                    if let comment = self.commentTextField.text{
+                        if(!comment.isEmpty){
+                             refChecked.child(restNameText).updateChildValues(["comment": comment])
+                        }
+                    }
+                    
+                    //Save to NSUser defaults
+    //                restNameHistory += [restNameText]
+                    
+                   //Return check in screen to defaults and clear objects created for the previous check in
+                    self.cleanScreen()
+                    //Turn off activity monitor
+                    self.clearActivityMonitor()
+                    //perform check animation signaling check in complete
+                    self.animateCheckComplete()
+                    
+                    //Re-enable the submit button for the next use
+                    sender.isEnabled = true
+                   
+                }//Finish closure after checking whether the place had already been added to the back end
+            }else{//End of if checking for a city and a catagory being selected
+                var msgAddition = ""
+                if(cityButtonList.count == 1){      //Only the "+" button exists
+                    msgAddition = " Don't forget to add cities with the \"+\" button"
                 }
-            }else{//If user hits submit with empty check in display alert
-                let alert = UIAlertController(title: "Empty Check In", message: "You attempted to add a Check In but did not provide a name.", preferredStyle: .alert)
+                let alert = UIAlertController(title: "Give us more details!", message: "Make sure to select a city and category for \(restNameText).\(msgAddition)", preferredStyle: .alert)
+                //Exit function if user clicks now and allow them to reconfigure the check in
                 let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
                 alert.addAction(CancelAction)
                 self.present(alert, animated: true, completion: {
                     self.clearActivityMonitor()
                 })
             }
+        }else{//If user hits submit with empty check in display alert
+            let alert = UIAlertController(title: "Empty Check In", message: "You attempted to add a Check In but did not provide a name.", preferredStyle: .alert)
+            let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+            alert.addAction(CancelAction)
+            self.present(alert, animated: true, completion: {
+                self.clearActivityMonitor()
+            })
         }
     }
     
@@ -1215,6 +1297,16 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         return button.isSelected
     }
     
+    //Find the city in the city array by name and calculate math to scroll that button to the center
+    func scrollButtonToCenter(cityName: String)
+    {
+        //If the city to find exists int he city list then scroll it to visible
+        if let index = self.cityButtonList.index(of: cityName)
+        {
+            //Use index - 1 so that the previous button sits at the edge of the screen
+            cityScrollView.scrollRectToVisible(CGRect(x: ((index-1) * self.buttonRad) + ((index+1)*self.buttonSpacing), y: 0, width: 1, height: 1), animated: true)
+        }
+    }
     //save City button to CoreData for persistance
     func saveCityButton(_ city: String)
     {
@@ -1317,8 +1409,6 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
 
     func createCityButtons()
     {
-        let buttonSpacing = 13
-        let buttonRad = 100
         //Update city button array to be current with all cities in CoreData Entity CityButton
         retrieveCityButtons()
         
@@ -1722,6 +1812,12 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 self.commentTextField.attributedPlaceholder = attrPlaceHolder
             }
             self.activeTextField = nil
+        }
+        //If i'm dismissing the keyboard but haven't selected an auto complete then select first entry
+        if(isEnteringCity && !self.seclectdAutoComplete)
+        {
+            //If entering city when I dissmiss the keyboard then I was to save the first item in the autocomplete array
+            self.selectAndDisplayFromAutoComplete(tableRow: 0)
         }
         autoCompleteTableView?.isHidden = true
     }

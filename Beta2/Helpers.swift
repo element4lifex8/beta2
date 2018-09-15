@@ -289,6 +289,48 @@ class Helpers{
         //Return handler to calling function so it can unattach when needed
         return friendHandler
     }
+    
+    //Retrieve a list of all of the cities the user's friends have
+    func retrieveFriendCity(cityRef: FIRDatabaseReference, friendsList: [String], _  completionClosure: @escaping (_ completedArr: [String]) -> Void) -> FIRDatabaseHandle? {
+        var localCityArr = [String]()
+        var loopCount = 0
+        //FIR database handler for removing reference if I decide to user observe instead of observeSingleEvent
+        var cityHandler: FIRDatabaseHandle?
+        
+        //Loop over all the user's friends to get a list of their cities
+        for friendId in friendsList{
+            //Query ordered by child will loop each place in the cityRef
+            cityHandler = cityRef.child(friendId).queryOrdered(byChild: "city").observe( .value, with: { snapshot in
+                
+                for child in (snapshot.children) {    //each child is either city, cat or place ID
+                    let rootNode = child as! FIRDataSnapshot
+                    
+                    //force downcast only works if root node has children, otherwise value will only be a string
+                    //If nodeDict can't be unwrapped then the key value pair is the google place id
+                    if let nodeDict = rootNode.value as? NSDictionary{
+                        if let city = nodeDict["city"] as? NSDictionary {
+                            //value of city key is a dictionary of [ cityName : "true" ]
+                            for (key, _ ) in city{
+                                if(!localCityArr.contains(key as! String)){
+                                    localCityArr.append(key as! String)
+                                }
+                            }
+                        }
+                    }else{  //Enters this block when a place ID is found
+                        //                            print("got a place ID for \(rootNode.value)")
+                    }
+                }
+                
+                loopCount+=1
+                //Once all friends have been looped over, call completion closure
+                if(loopCount >= friendsList.count){
+                    completionClosure(localCityArr)
+                }
+            })
+        }
+        //Return handler to calling function so it can unattach when needed
+        return cityHandler
+    }
 
 
 }

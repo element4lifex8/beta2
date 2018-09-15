@@ -340,7 +340,13 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
         //Add the below async call to places web api to dispatch group
         myGroup.enter()
         let url = URL(string: urlString)
-        URLSession.shared.dataTask(with:url!, completionHandler: {(data, response, error) in
+        //Added guard to unwrap url because app store users saw a crasclouh here
+        guard let unURL = url else {
+            self.openNow = "Hours Unknown"
+            self.myGroup.leave()    //Notify that we gave up on this async call and return
+            return
+        }
+        URLSession.shared.dataTask(with: unURL, completionHandler: {(data, response, error) in
             guard let data = data, error == nil else {
                 self.openNow = "Hours Unknown"
                 self.myGroup.leave()    //Notify that we gave up on this async call and return
@@ -663,7 +669,14 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                 guard let urlWrapper = mapsUrl else {break}
                 //Open google maps and query the name of the place at the coordinates provided from the places api
                 if (UIApplication.shared.canOpenURL(URL(string:"comgooglemaps://")!)) {
-                    UIApplication.shared.open(urlWrapper)
+                    if #available(iOS 10.0, *) {
+                        UIApplication.shared.open(urlWrapper)
+                    } else {
+                        //fallback for iphone 4 and ver 9.3
+                        if UIApplication.shared.canOpenURL(urlWrapper) {
+                            UIApplication.shared.openURL(urlWrapper)
+                        }
+                    }
                 } else {    //If they don't have google maps app this will alert the user
                     let alert = UIAlertController(title: "You don't use Google maps!?", message: "It looks like you don't have google maps installed on your phone! Feel free to copy this address and paste into the navigation app of your choice", preferredStyle: .alert)
                     //Exit function if user clicks now and allow them to reconfigure the check in
@@ -706,7 +719,14 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                 break
             }
 
-            UIApplication.shared.open(number, options: [:], completionHandler: nil)
+                if #available(iOS 10.0, *) {
+                    UIApplication.shared.open(number, options: [:], completionHandler: nil)
+                } else {
+                    //fallback for iphone 4 and ver 9.3
+                    if UIApplication.shared.canOpenURL(number) {
+                        UIApplication.shared.openURL(number)
+                    }
+                }
             break
             
             //open websitre url
@@ -715,7 +735,14 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
                     Helpers().myPrint(text: "guard website failed")
                     break
                 }
-                UIApplication.shared.open(site, options: [:], completionHandler: nil)
+                if #available(iOS 10.0, *) {
+                    UIApplication.shared.open(site, options: [:], completionHandler: nil)
+                } else {
+                    //fallback for iphone 4 and ver 9.3
+                    if UIApplication.shared.canOpenURL(site) {
+                        UIApplication.shared.openURL(site)
+                    }
+                }
                 break
             
             //Segue to update categories cell
