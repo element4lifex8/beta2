@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="d9b-uY-bxQ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="d9b-uY-bxQ">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -177,7 +177,7 @@
                                             </attributedString>
                                         </state>
                                         <connections>
-                                            <segue destination="037-fJ-a6X" kind="custom" customClass="SegueFromRight" customModule="Beta2" customModuleProvider="target" id="1ju-Nu-XO4"/>
+                                            <segue destination="037-fJ-a6X" kind="custom" identifier="PrivPolSegue" customClass="SegueFromRight" customModule="Beta2" customModuleProvider="target" id="1ju-Nu-XO4"/>
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="&amp;" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h3a-uz-KsF">
@@ -212,7 +212,7 @@
                                             </attributedString>
                                         </state>
                                         <connections>
-                                            <segue destination="vYS-qE-3QG" kind="custom" customClass="SegueFromRight" customModule="Beta2" customModuleProvider="target" id="kRf-9H-gV3"/>
+                                            <segue destination="vYS-qE-3QG" kind="custom" identifier="TermsSegue" customClass="SegueFromRight" customModule="Beta2" customModuleProvider="target" id="kRf-9H-gV3"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -984,7 +984,7 @@
                             <constraint firstItem="csb-Uj-77y" firstAttribute="leading" secondItem="rZ7-gk-oEC" secondAttribute="leading" id="c91-qh-NBa"/>
                             <constraint firstItem="eNa-J1-JzE" firstAttribute="width" secondItem="WG3-Io-EfA" secondAttribute="width" id="lNu-f7-fgS"/>
                             <constraint firstItem="rZ7-gk-oEC" firstAttribute="bottom" secondItem="8fX-tS-Drm" secondAttribute="bottom" constant="13" id="rpa-j2-J54"/>
-                            <constraint firstItem="csb-Uj-77y" firstAttribute="top" secondItem="WG3-Io-EfA" secondAttribute="top" id="wSL-4D-nge"/>
+                            <constraint firstItem="csb-Uj-77y" firstAttribute="top" secondItem="rZ7-gk-oEC" secondAttribute="top" constant="-20" id="wSL-4D-nge"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="rZ7-gk-oEC"/>
                     </view>
@@ -1038,7 +1038,7 @@
                                     </mask>
                                 </variation>
                                 <connections>
-                                    <segue destination="kh7-B7-wlp" kind="unwind" customClass="SegueFromLeft" customModule="Beta2" customModuleProvider="target" unwindAction="unwindFromProfile:" id="21j-wl-Xwt"/>
+                                    <segue destination="kh7-B7-wlp" kind="unwind" identifier="unwindProfile" customClass="SegueFromLeft" customModule="Beta2" customModuleProvider="target" unwindAction="unwindFromProfile:" id="21j-wl-Xwt"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="User" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vuo-oE-de1">
@@ -3554,7 +3554,7 @@ Cg
                                             </mask>
                                         </variation>
                                         <connections>
-                                            <segue destination="Z1i-BK-lSe" kind="unwind" unwindAction="unwindPrivPol:" id="twz-n3-14T"/>
+                                            <action selector="PushBackButton:" destination="037-fJ-a6X" eventType="touchUpInside" id="2ES-bq-lAd"/>
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Privacy Policy" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="O1N-Jt-W5K">
@@ -4016,6 +4016,7 @@ Cg
                     </view>
                     <connections>
                         <outlet property="textView" destination="P2x-pz-nzB" id="5YG-9D-xoU"/>
+                        <segue destination="Z1i-BK-lSe" kind="unwind" identifier="UnwindPriv2Profile" unwindAction="unwindPrivPol:" id="aLK-cn-iWI"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gUl-za-vgX" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -4058,7 +4059,7 @@ Cg
                                             </mask>
                                         </variation>
                                         <connections>
-                                            <segue destination="1gH-fP-3ew" kind="unwind" customClass="SegueFromLeft" customModule="Beta2" customModuleProvider="target" unwindAction="unwindFromTC:" id="EJ2-Q0-gaR"/>
+                                            <action selector="PressBackButton:" destination="vYS-qE-3QG" eventType="touchUpInside" id="q02-3n-xbu"/>
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Terms &amp; Conditions" textAlignment="center" lineBreakMode="wordWrap" baselineAdjustment="alignBaselines" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Ukp-vV-50B">
@@ -6959,6 +6960,7 @@ Email: anuj@checkinoutlists.com
                     </view>
                     <connections>
                         <outlet property="textView" destination="msD-g0-Mkf" id="atP-V3-5D8"/>
+                        <segue destination="1gH-fP-3ew" kind="unwind" identifier="UnwindTerms2Profile" unwindAction="unwindFromTC:" id="lg2-NT-Y9N"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Unq-hb-T13" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -6985,12 +6987,12 @@ Email: anuj@checkinoutlists.com
         <image name="pagenation page2" width="55" height="10"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="u0b-hX-sm4"/>
-        <segue reference="gbO-rv-cTh"/>
-        <segue reference="UMl-Eg-YFD"/>
+        <segue reference="kRf-9H-gV3"/>
+        <segue reference="1ju-Nu-XO4"/>
+        <segue reference="VL1-aN-paN"/>
         <segue reference="0W0-tu-1ts"/>
         <segue reference="pC0-bG-BYT"/>
-        <segue reference="t9w-jJ-aii"/>
-        <segue reference="tgB-4u-O1P"/>
+        <segue reference="5by-zv-PsO"/>
+        <segue reference="1EQ-Cd-qfT"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -609,22 +609,11 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         // Dispose of any resources that can be recreated.
     }
     
-    // Unwind seque always bypassed a   nd return to CIO Home
+    // Unwind seque always bypassed and return to CIO Home
     @IBAction func unwindToStartFbLogin(_ sender: UIStoryboardSegue) {
         // empty
     }
     
-    // Unwind if user checked T&C's before logging in
-    @IBAction func unwindFromTC(_ sender: UIStoryboardSegue) {
-        // empty
-        print("TC")
-    }
-    
-    // Unwind seque always bypassed and return to CIO Home
-    @IBAction func unwindPrivPol(_ sender: UIStoryboardSegue) {
-        // empty
-        print("Priv POL")
-    }
     
     override func canPerformUnwindSegueAction(_ action: Selector, from fromViewController: UIViewController, withSender sender: Any) -> Bool {
         //Check if unwind segue was performed so that viewDidLoad can guard against seguing to profile steps on an unwind unless I am unwinding from the Onboard details screen due to error
@@ -657,7 +646,14 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
             default:
                 Helpers().myPrint(text: "ERROR: Login type not set or An existing user should not be entering login info screen")
             }
+        }else if(segue.identifier == "TermsSegue"){
+            let destinationVC = segue.destination as! T_CviewController
+            destinationVC.isOnboarding = true
+        }else if(segue.identifier == "PrivPolSegue"){
+            let destinationVC = segue.destination as! PrivPolViewController
+            destinationVC.isOnboarding = true
         }
+        
     }
     
 }

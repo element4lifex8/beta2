@@ -22,7 +22,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var dictArr = [[String:String]]()
     var placesDict = [String : String]()
     var cityButtonList: [String] = ["+"]
-    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lodging", "Lunch", "Museums", "Night Club", "Parks", "Sight Seeing", "To Do", "Winery"]
+    var catButtonList = ["Bar", "Beaches", "Breakfast", "Brewery", "Brunch", "Bucket List", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lodging", "Lunch", "Museums", "Night Club", "Parks", "Sight Seeing", "Winery"]
     var placesArr = [String]()
     var arrSize = Int()
     var checkObj = placeNode()  //Appears that this model is filled out, but its actually the dict array contents that are written to the backend
@@ -1754,6 +1754,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
 //        let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, 0.0, 0.0)
         self.scrollView.contentSize = CGSize(width: self.view.frame.width, height: self.view.frame.size.height)
         self.contentView.frame = CGRect(x: 0.0, y: 0.0, width: self.scrollView.contentSize.width, height: self.scrollView.contentSize.height)
+        self.scrollView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
 //        self.scrollView.contentInset = contentInsets
 //        self.scrollView.scrollIndicatorInsets = contentInsets
 //        self.view.endEditing(true)

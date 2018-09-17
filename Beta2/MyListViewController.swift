@@ -31,7 +31,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var selectedFilters = [String]()
     var headerCount = 0
     var maxHeaderLength: CGFloat = 0.0
-    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lodging", "Lunch", "Museums", "Night Club", "Parks", "Site Seeing", "To Do", "Winery"]
+    var catButtonList = ["Bar",  "Beaches", "Breakfast", "Brewery", "Brunch", "Bucket List", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lodging", "Lunch", "Museums", "Night Club", "Parks", "Site Seeing", "To Do", "Winery"]
     //Create list of tableview indexes
     let sectionIndexes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
     var sectionWithObjects = [String]()

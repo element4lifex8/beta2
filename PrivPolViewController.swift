@@ -12,6 +12,9 @@ class PrivPolViewController: UIViewController {
 
     @IBOutlet var textView: UITextView!
 
+    //Class member that can be set when transitioning to this VC during the onboarding process
+    var isOnboarding: Bool = false
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         //         self.textView.scrollRectToVisible(CGRect(origin: CGPoint(x: 0,y: 0), size: CGSize(width: 1, height: 1)), animated: false)
@@ -19,4 +22,13 @@ class PrivPolViewController: UIViewController {
         self.textView.scrollRangeToVisible(NSMakeRange(0, 0))
     }
 
+    @IBAction func PushBackButton(_ sender: UIButton) {
+        //If we're coming from onboarding then dismiss, otherwise unwind
+        if(isOnboarding)
+        {
+            dismiss(animated: true, completion: nil)
+        }else{
+            self.performSegue(withIdentifier: "UnwindPriv2Profile", sender: self)
+        }
+    }
 }
