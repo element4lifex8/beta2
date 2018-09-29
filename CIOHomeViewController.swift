@@ -22,9 +22,22 @@ class CIOHomeViewController: UIViewController   {
     
     var providerId: String?     //Extract the type of auth process that was used
     
+    //Profile information views
+    @IBOutlet weak var checkInInfoView: UIView!
+    @IBOutlet weak var followingInfoView: UIView!
+    
+    //Profile info numbers
+    @IBOutlet weak var checkInNumLabel: UILabel!
+    @IBOutlet weak var followerNumLabel: UILabel!
+    @IBOutlet weak var FollowingNumLabel: UILabel!
+    
+    
     
     //Check if user has logged in and force login if not, modal segues must be performed in viewDidAppear
     override func viewDidAppear(_ animated: Bool) {
+        let currUser = Helpers().currUser
+        let friendsRef = FIRDatabase.database().reference().child("users/\(currUser)/friends")
+        
         super.viewDidAppear(animated)
         let onboardingCompleted = Helpers().onboardCompleteDefault
         //Check if the user needs to be logged out pending new update
@@ -42,17 +55,27 @@ class CIOHomeViewController: UIViewController   {
         
             //If user is not authenicated through either system then show login screen
             //I have to check that even if the currentUser is not nil I have to make sure that it was an email verified auth user. Only want this to be true if the user is not signed in through facebook and the user is not signed in through firebase (isEmailed verfified is false of nil)
-        if ((FBSDKAccessToken.current() == nil) && (Helpers().firAuth?.currentUser == nil /*&& (self.providerId ?? "") == "password")*/))
-        {
-            self.performSegue(withIdentifier: "newUserLogin", sender: self)
-        }else if(shouldLogout == NSNumber(value: 1) || onboardingCompleted == NSNumber(value: 0) ){//The NSUserDefault shouldLogut is also checked if the user needs to be forced to login again (will force logout if onboarding not completed either
-            //Update logout Default so the user no longer has to logout 
-            Helpers().logoutDefault = 0
-//            LogoutButton(UIButton())  Button no longer exists on home screen
-            logoutUser()
+//        if ((FBSDKAccessToken.current() == nil) && (Helpers().firAuth?.currentUser == nil /*&& (self.providerId ?? "") == "password")*/))
+//        {
+//            self.performSegue(withIdentifier: "newUserLogin", sender: self)
+//        }else if(shouldLogout == NSNumber(value: 1) || onboardingCompleted == NSNumber(value: 0) ){//The NSUserDefault shouldLogut is also checked if the user needs to be forced to login again (will force logout if onboarding not completed either
+//            //Update logout Default so the user no longer has to logout
+//            Helpers().logoutDefault = 0
+////            LogoutButton(UIButton())  Button no longer exists on home screen
+//            logoutUser()
+//        }
+        
+        //Calculate the number of user check-ins, number of followers and followed friends and display
+        //TODO handle handler
+        let _ = Helpers().retrieveMyFriends(friendsRef: friendsRef) {(friendStr:[String], friendId:[String]) in
+            self.FollowingNumLabel.text = "\(friendStr.count)"
         }
         
-        
+        //Add gesture recognizer to allowing clicking on following/followers and transition to that screen
+        //Setup Tap gesture so clicking outside of textbox dismisses keyboard
+        let followingTapGesture = UITapGestureRecognizer(target: self, action: #selector(CIOHomeViewController.tapFollowingView(_:)))
+        //Make sure gesture recognizer is added after the view frame has been created otherwise the event won't be triggered since it won't have a frame to receieve the touch
+        self.followingInfoView.addGestureRecognizer(followingTapGesture)
     }
 
     override func viewDidLoad()
@@ -83,6 +106,11 @@ class CIOHomeViewController: UIViewController   {
             completionClosure(firebaseLoggedIn)
         }
 
+    }
+    
+    @objc func tapFollowerView(_ sender: UITapGestureRecognizer)
+    {
+        self.performSegue(withIdentifier: "segueToFollowVC", sender: self)
     }
     
     //Logout button no longer exists, code moved to logoutFunc
