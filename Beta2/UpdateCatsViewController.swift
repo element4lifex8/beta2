@@ -18,7 +18,7 @@ class UpdateCatsViewController: UIViewController, UITableViewDelegate, UITableVi
     var storedCategories: [String]?
     var titleText: String?  //Name of restaurant as store in database, written from place deets
     
-    var catButtonList = ["Bar", "Breakfast", "Brewery", "Brunch", "Beaches", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Sight Seeing", "Winery"]
+    var catButtonList = ["Bar", "Beaches", "Breakfast", "Brewery", "Brunch", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lunch", "Museums", "Night Club", "Parks", "Sight Seeing", "Winery"]
     var catVals = [String]()    //Create array of the final cat value array
     //Array or current selected accessory views
     var selectedCatButt : [Int] = []

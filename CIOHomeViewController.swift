@@ -25,6 +25,8 @@ class CIOHomeViewController: UIViewController   {
     //Profile information views
     @IBOutlet weak var checkInInfoView: UIView!
     @IBOutlet weak var followingInfoView: UIView!
+    @IBOutlet weak var followersInfoView: UIView!
+    
     
     //Profile info numbers
     @IBOutlet weak var checkInNumLabel: UILabel!
@@ -66,16 +68,26 @@ class CIOHomeViewController: UIViewController   {
 //        }
         
         //Calculate the number of user check-ins, number of followers and followed friends and display
-        //TODO handle handler
+        //TODO change this to NSDefaults
         let _ = Helpers().retrieveMyFriends(friendsRef: friendsRef) {(friendStr:[String], friendId:[String]) in
             self.FollowingNumLabel.text = "\(friendStr.count)"
         }
         
         //Add gesture recognizer to allowing clicking on following/followers and transition to that screen
-        //Setup Tap gesture so clicking outside of textbox dismisses keyboard
         let followingTapGesture = UITapGestureRecognizer(target: self, action: #selector(CIOHomeViewController.tapFollowingView(_:)))
+        
         //Make sure gesture recognizer is added after the view frame has been created otherwise the event won't be triggered since it won't have a frame to receieve the touch
         self.followingInfoView.addGestureRecognizer(followingTapGesture)
+        
+        let followerTapGesture = UITapGestureRecognizer(target: self, action: #selector(CIOHomeViewController.tapFollowerView(_:)))
+        
+        //Make sure gesture recognizer is added after the view frame has been created otherwise the event won't be triggered since it won't have a frame to receieve the touch
+        self.followersInfoView.addGestureRecognizer(followerTapGesture)
+        
+        let checkInTapGesture = UITapGestureRecognizer(target: self, action: #selector(CIOHomeViewController.tapCheckInView(_:)))
+        
+        //Make sure gesture recognizer is added after the view frame has been created otherwise the event won't be triggered since it won't have a frame to receieve the touch
+        self.checkInInfoView.addGestureRecognizer(checkInTapGesture)
     }
 
     override func viewDidLoad()
@@ -108,9 +120,19 @@ class CIOHomeViewController: UIViewController   {
 
     }
     
+    @objc func tapCheckInView(_ sender: UITapGestureRecognizer)
+    {
+        self.performSegue(withIdentifier: "segueToCheckIns", sender: self)
+    }
+    
     @objc func tapFollowerView(_ sender: UITapGestureRecognizer)
     {
-        self.performSegue(withIdentifier: "segueToFollowVC", sender: self)
+        self.performSegue(withIdentifier: "segueToFollowers", sender: self)
+    }
+    
+    @objc func tapFollowingView(_ sender: UITapGestureRecognizer)
+    {
+        self.performSegue(withIdentifier: "segueToFollowing", sender: self)
     }
     
     //Logout button no longer exists, code moved to logoutFunc
@@ -169,4 +191,17 @@ class CIOHomeViewController: UIViewController   {
         // empty
     }
 
+    // Unwind seque from my CheckOutVC
+    @IBAction func unwindFromFollowers(_ sender: UIStoryboardSegue) {
+        // empty
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        //Check if transitioning to check out screen and if doing so from add friends button
+        if(segue.identifier == "segueToFollowing")
+        {
+            let destinationVC = segue.destination as! CheckOutContainedViewController
+            destinationVC.callerWantsToShowPeople = true
+        }
+    }
 }
