@@ -67,11 +67,14 @@ class CIOHomeViewController: UIViewController   {
 //            logoutUser()
 //        }
         
-        //Calculate the number of user check-ins, number of followers and followed friends and display
+        //Calculate the number of user check-ins, number of followers and followed friends if not already stored in user defaults
         //TODO change this to NSDefaults
-        let _ = Helpers().retrieveMyFriends(friendsRef: friendsRef) {(friendStr:[String], friendId:[String]) in
-            self.FollowingNumLabel.text = "\(friendStr.count)"
-        }
+//        let _ = Helpers().retrieveMyFriends(friendsRef: friendsRef) {(friendStr:[String], friendId:[String]) in
+//            self.FollowingNumLabel.text = "\(friendStr.count)"
+//        }
+        self.FollowingNumLabel.text = "\(Helpers().numFriendsDefault)"
+        self.followerNumLabel.text = "\(Helpers().numFollowersDefault)"
+        self.checkInNumLabel.text = "\(Helpers().numCheckInDefault)"
         
         //Add gesture recognizer to allowing clicking on following/followers and transition to that screen
         let followingTapGesture = UITapGestureRecognizer(target: self, action: #selector(CIOHomeViewController.tapFollowingView(_:)))
@@ -132,7 +135,7 @@ class CIOHomeViewController: UIViewController   {
     
     @objc func tapFollowingView(_ sender: UITapGestureRecognizer)
     {
-        self.performSegue(withIdentifier: "segueToFollowing", sender: self)
+        self.performSegue(withIdentifier: "segueToFriends", sender: self)
     }
     
     //Logout button no longer exists, code moved to logoutFunc
@@ -198,7 +201,7 @@ class CIOHomeViewController: UIViewController   {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         //Check if transitioning to check out screen and if doing so from add friends button
-        if(segue.identifier == "segueToFollowing")
+        if(segue.identifier == "segueToFriends")
         {
             let destinationVC = segue.destination as! CheckOutContainedViewController
             destinationVC.callerWantsToShowPeople = true

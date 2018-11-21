@@ -793,7 +793,7 @@
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="144" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hck-ep-bfO">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hck-ep-bfO">
                                         <rect key="frame" x="0.0" y="0.0" width="80" height="40"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="80" id="moB-ye-dl4"/>
@@ -819,7 +819,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="S4h-gJ-05I">
                                 <rect key="frame" x="107" y="32" width="80" height="62"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="17" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aLZ-sL-nAJ">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aLZ-sL-nAJ">
                                         <rect key="frame" x="0.0" y="0.0" width="80" height="40"/>
                                         <fontDescription key="fontDescription" name="Avenir-Light" family="Avenir" pointSize="24"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -924,7 +924,7 @@
                         <outlet property="followersInfoView" destination="S4h-gJ-05I" id="Zh9-9H-Cvu"/>
                         <outlet property="followingInfoView" destination="eJ2-Mp-ACN" id="Xf0-va-HMh"/>
                         <segue destination="EQ1-VU-sPl" kind="show" identifier="newUserLogin" id="1EQ-Cd-qfT"/>
-                        <segue destination="F5Z-PP-fCT" kind="custom" identifier="segueToFollowing" customClass="SegueFromRight" customModule="Beta2" customModuleProvider="target" id="7eM-Un-hJZ"/>
+                        <segue destination="F5Z-PP-fCT" kind="show" identifier="segueToFriends" customClass="SegueFromRight" customModule="Beta2" customModuleProvider="target" id="7eM-Un-hJZ"/>
                         <segue destination="vbM-30-V0t" kind="show" identifier="segueToFollowers" customClass="SegueFromRight" customModule="Beta2" customModuleProvider="target" id="vCP-Ay-172"/>
                     </connections>
                 </viewController>
@@ -7261,7 +7261,7 @@ Email: anuj@checkinoutlists.com
         <segue reference="7eM-Un-hJZ"/>
         <segue reference="6bs-N6-6yd"/>
         <segue reference="8zc-AM-fSt"/>
-        <segue reference="t9w-jJ-aii"/>
+        <segue reference="o1O-Sv-gBK"/>
         <segue reference="1EQ-Cd-qfT"/>
     </inferredMetricsTieBreakers>
 </document>

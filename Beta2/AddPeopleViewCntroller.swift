@@ -953,6 +953,10 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                 Helpers().myPrint(text: "No id was found for the following friend: \(friend.displayName ?? "friend name failed too")")
             }
         }
+        
+        //After new friend added to firebase, update the NSDefaults count of user's friends
+        Helpers().numFriendsDefault = NSNumber(value: Helpers().numFriendsDefault.intValue + 1)
+        
         //Transition to the home screen from onboarding
         if(self.isOnboarding){
             performSegue(withIdentifier: "unwindFromFbLoginIdentifier", sender: self)

@@ -156,6 +156,8 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     if(self.myPlaceNodes.count == 1){   //The myPlaceNodes array is a property instantiated with 1 nil placeNode
                         self.emptyListMsg()    //self.headerText tells me if this is for my list if its nil
                     }else{
+                        //Update total count of all checkins stored in core data
+                        Helpers().numCheckInDefault = NSNumber(value: self.myPlaceNodes.count)
                         self.generateTree(self.myPlaceNodes)
                         self.placeNodeTreeRoot.sortChildNodes()
                         self.tableView.reloadData()

@@ -209,6 +209,9 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
       
         retrieveMyFriends() {(friendStr:[String], friendId:[String]) in
             if(friendStr.count > 0){
+                //Keep track of the number of user's friends in firebase each time they are retrieved
+                Helpers().numFriendsDefault = NSNumber(value: friendStr.count)
+                
                 self.myFriends = friendStr
                 self.myFriendIds = friendId as [NSString]
                 //Combine the Friends names and IDs into a tuple so I can sort by last name

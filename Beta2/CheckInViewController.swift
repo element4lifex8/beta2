@@ -823,6 +823,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                     
                     //Save to NSUser defaults
     //                restNameHistory += [restNameText]
+                    //Update the user's count of checkins that is displayed on the home screen
+                    Helpers().numCheckInDefault = NSNumber(value: Helpers().numCheckInDefault.intValue + 1)
                     
                    //Return check in screen to defaults and clear objects created for the previous check in
                     self.cleanScreen()
