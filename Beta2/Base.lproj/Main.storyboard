@@ -992,7 +992,7 @@
                     <connections>
                         <outlet property="CheckInRestField" destination="yXC-Nu-0qj" id="tAM-XQ-5vN"/>
                         <outlet property="catScrollView" destination="ZqJ-yO-2C0" id="lJ1-vp-9Bn"/>
-                        <outlet property="checkInView" destination="WG3-Io-EfA" id="XSW-Cx-ebZ"/>
+                        <outlet property="checkInView" destination="WG3-Io-EfA" id="pK0-SK-isA"/>
                         <outlet property="cityScrollView" destination="1zm-Rv-aVN" id="IMI-MD-sB2"/>
                         <outlet property="commentTextField" destination="hkN-lE-e9u" id="jyn-24-Boi"/>
                         <outlet property="contentView" destination="eNa-J1-JzE" id="0Jh-1T-cSh"/>
@@ -6992,7 +6992,7 @@ Email: anuj@checkinoutlists.com
         <segue reference="VL1-aN-paN"/>
         <segue reference="0W0-tu-1ts"/>
         <segue reference="pC0-bG-BYT"/>
-        <segue reference="5by-zv-PsO"/>
+        <segue reference="o1O-Sv-gBK"/>
         <segue reference="1EQ-Cd-qfT"/>
     </inferredMetricsTieBreakers>
 </document>

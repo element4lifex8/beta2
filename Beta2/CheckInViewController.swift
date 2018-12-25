@@ -55,6 +55,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     //Activity indicator for autocomplete table cell
     var autoCompleteLoading = false
     var autoCompleteSeachStarted = false
+    var heightConstraint: NSLayoutConstraint? = nil
+    
+    //Height constraint needs to be global so it can be deactivated
     
     //Hack to reiterate through check in process after we notify the user they checked in without autocomplete
     var customCheckIn = false
@@ -120,7 +123,31 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         autoCompleteTableView?.isScrollEnabled = true;
         autoCompleteTableView?.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         autoCompleteTableView?.layer.cornerRadius = 15
-        view.addSubview(autoCompleteTableView!)
+        self.checkInView.addSubview(autoCompleteTableView!)
+        autoCompleteTableView?.layer.zPosition = 1
+        self.autoCompleteTableView?.translatesAutoresizingMaskIntoConstraints = false    //First turn off auto created constraints when calling addSubView
+        //Set Button view width/height constraints so it doesn't default to zero at runtime
+        let widthConstraint = autoCompleteTableView?.widthAnchor.constraint(equalToConstant: self.CheckInRestField.frame.width)
+        // set the height constraint to the min size
+        //Have to also set auto layout in addition to frame height for supporting iPhone X
+        self.heightConstraint = self.autoCompleteTableView?.heightAnchor.constraint(equalToConstant: CGFloat(self.autoCompleteFrameMaxHeight))
+        NSLayoutConstraint.activate([widthConstraint!, self.heightConstraint!])
+        //add auto layout constraints to tableview which doesn't display properly on the Iphone x when added to the checkInView bevause of the larger menu bar, and I can't add a tableview to the scroll view or contentview which violates apple's policy
+//        NSLayoutConstraint(item: autoCompleteTableView, attribute: .left, relatedBy: .equal, toItem: self.checkInView, attribute: .left, multiplier: 1, constant: 0).isActive = true
+//        NSLayoutConstraint(item: autoCompleteTableView, attribute: .top, relatedBy: .equal, toItem: self.checkInView, attribute: .bottom, multiplier: 1, constant: 0).isActive = true
+            let topToParent = NSLayoutConstraint(item: autoCompleteTableView, attribute: .top, relatedBy: .equal, toItem: self.CheckInRestField, attribute: .bottom, multiplier: 1.0, constant: 0)
+        //            //Pin left of content view to screen edge
+            let pinLeftToParent = NSLayoutConstraint(item: autoCompleteTableView, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1.0, constant: CheckInRestField.frame.minX)
+        //            let pinRightToParent = NSLayoutConstraint(item: contentView, attribute: .trailing, relatedBy: .equal, toItem: self.view, attribute: .trailing, multiplier: 1.0, constant: 0)
+        //            let pinBottomToParent = NSLayoutConstraint(item: contentView, attribute: .bottom, relatedBy: .equal, toItem: self.view, attribute: .bottom, multiplier: 1.0, constant: 80)
+        //        pinBottomToComment.priority = 600
+        //        let pinBottomToCommentGE = NSLayoutConstraint(item: catScrollView, attribute: .bottom, relatedBy: .greaterThanOrEqual, toItem: commentTextField, attribute: .top, multiplier: 1.0, constant: 18)
+        
+        view.addConstraint(topToParent)
+        view.addConstraint(pinLeftToParent)
+        //            view.addConstraint(pinRightToParent)
+        //        view.addConstraint(pinBottomToParent)
+        
         //remove left padding from tableview seperators
 //        autoCompleteTableView?.layoutMargins = UIEdgeInsets.zero
 //        autoCompleteTableView?.separatorInset = UIEdgeInsets.zero
@@ -1056,12 +1083,13 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         
     }
     
+    //Called whenever editing occurs in text field
     @objc func googleAutoComplete(_ textField: UITextField) {
         if let checkInString = CheckInRestField.text{
             //Anytime the user changes the text field make sure they aren't changing a previously selected establishment, so clear the place id
             checkObj.placeId = nil
-            //Start querying google database with at minimum 3 chars
-            if(checkInString.characters.count >= 3 && (checkInString.characters.count % 2 != 0)){
+            //Start querying google database with at minimum 3 chars and only for every other letter entered
+            if(checkInString.characters.count >= 3 /*&& (checkInString.characters.count % 2 != 0)*/){
                 placeAutocomplete(queryText: checkInString)
             }else if (checkInString.characters.count < 3){
                 autoCompleteTableView?.isHidden = true
@@ -1088,10 +1116,16 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         //If I'm starting the autocomplete search I need to display loading indicator
         if(!self.autoCompleteSeachStarted){
             self.autoCompleteTableView?.isHidden = false
-            //Shrink height to 1 cell
-            tableFrame?.size.height = CGFloat(self.autoCompleteCellHeight + Int(self.googleImageView.frame.height + 10));
+            //Shrink height to 1 cell (used to use frame size only, now need auto layout cause of iphone X
+            let tableHeight =  CGFloat(self.autoCompleteCellHeight + Int(self.googleImageView.frame.height + 10))
+            tableFrame?.size.height = tableHeight
             self.autoCompleteTableView?.frame = tableFrame!;
             self.autoCompleteTableView?.reloadData()
+            self.autoCompleteTableView?.setNeedsDisplay()
+            //auto layout
+            NSLayoutConstraint.deactivate([self.heightConstraint!])
+            self.heightConstraint = autoCompleteTableView?.heightAnchor.constraint(equalToConstant: tableHeight)
+            NSLayoutConstraint.activate([self.heightConstraint!])
         }
         
         placesClient.autocompleteQuery(queryText, bounds: coordinateBounds(), filter: filter, callback: {(results, error) -> Void in
@@ -1125,11 +1159,19 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             if(newTableSize < self.autoCompleteFrameMaxHeight){
                 tableFrame?.size.height = CGFloat(newTableSize);
                 self.autoCompleteTableView?.frame = tableFrame!;
-                self.autoCompleteTableView?.setNeedsDisplay()
+//                self.autoCompleteTableView?.setNeedsDisplay()
+                //Have to also set auto layout in addition to frame height for supporting iPhone X
+                NSLayoutConstraint.deactivate([self.heightConstraint!])
+                self.heightConstraint = self.autoCompleteTableView?.heightAnchor.constraint(equalToConstant: CGFloat(newTableSize))
+                NSLayoutConstraint.activate([self.heightConstraint!])
             }else if(Int((tableFrame?.height)!) < self.autoCompleteFrameMaxHeight){  //If table was previously shrunk then resize to max table size
                 tableFrame?.size.height = CGFloat(self.autoCompleteFrameMaxHeight);
                 self.autoCompleteTableView?.frame = tableFrame!;
                 self.autoCompleteTableView?.setNeedsDisplay()
+                //Have to also set auto layout in addition to frame height for supporting iPhone X
+                NSLayoutConstraint.deactivate([self.heightConstraint!])
+                self.heightConstraint = self.autoCompleteTableView?.heightAnchor.constraint(equalToConstant: CGFloat(self.autoCompleteFrameMaxHeight))
+                NSLayoutConstraint.activate([self.heightConstraint!])
             }
             
             //Hide auto complete table view if no autocomplete entries exist
