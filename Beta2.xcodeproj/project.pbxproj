@@ -876,7 +876,7 @@
 					"\"${PODS_ROOT}/Headers/Public/GoogleSymbolUtilities\"",
 				);
 				INFOPLIST_FILE = Beta2/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-DDEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.checkinoutllc.checkinout;
@@ -919,7 +919,7 @@
 					"\"${PODS_ROOT}/Headers/Public/GoogleSymbolUtilities\"",
 				);
 				INFOPLIST_FILE = Beta2/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.checkinoutllc.checkinout;
 				PRODUCT_NAME = "$(TARGET_NAME)";

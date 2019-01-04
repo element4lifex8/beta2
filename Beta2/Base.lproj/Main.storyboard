@@ -63,7 +63,7 @@
                                             <constraint firstAttribute="width" constant="248" id="la5-WV-tdb"/>
                                             <constraint firstAttribute="height" constant="44" id="u1K-vL-YUt"/>
                                         </constraints>
-                                        <state key="normal" backgroundImage="Facebook"/>
+                                        <state key="normal" backgroundImage="facebook"/>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="layer.borderWidth">
                                                 <integer key="value" value="2"/>
@@ -6970,7 +6970,6 @@ Email: anuj@checkinoutlists.com
         </scene>
     </scenes>
     <resources>
-        <image name="Facebook" width="248" height="44"/>
         <image name="Grey Background" width="375" height="667"/>
         <image name="Pagenation Screen 1" width="55" height="10"/>
         <image name="Pagenation Screen 3" width="55" height="10"/>
@@ -6979,6 +6978,7 @@ Email: anuj@checkinoutlists.com
         <image name="Settings Icon" width="32" height="30"/>
         <image name="backArrow" width="21" height="23"/>
         <image name="cityButton" width="375" height="60"/>
+        <image name="facebook" width="248" height="44"/>
         <image name="locationIcon" width="15" height="20"/>
         <image name="myListIcon" width="30" height="27"/>
         <image name="page1Background" width="375" height="667"/>
@@ -6991,8 +6991,8 @@ Email: anuj@checkinoutlists.com
         <segue reference="1ju-Nu-XO4"/>
         <segue reference="VL1-aN-paN"/>
         <segue reference="0W0-tu-1ts"/>
-        <segue reference="pC0-bG-BYT"/>
-        <segue reference="o1O-Sv-gBK"/>
+        <segue reference="8zc-AM-fSt"/>
+        <segue reference="5by-zv-PsO"/>
         <segue reference="1EQ-Cd-qfT"/>
     </inferredMetricsTieBreakers>
 </document>

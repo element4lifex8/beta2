@@ -22,7 +22,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var dictArr = [[String:String]]()
     var placesDict = [String : String]()
     var cityButtonList: [String] = ["+"]
-    var catButtonList = ["Bar", "Beaches", "Breakfast", "Brewery", "Brunch", "Bucket List", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lodging", "Lunch", "Museums", "Night Club", "Parks", "Sight Seeing", "Winery"]
+    var catButtonList = ["Bar", "Beaches", "Breakfast", "Brewery", "Brunch", "Bucket List", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lodging", "Lunch", "Museums", "Night Club", "Parks", "Sightseeing", "Winery"]
     var placesArr = [String]()
     var arrSize = Int()
     var checkObj = placeNode()  //Appears that this model is filled out, but its actually the dict array contents that are written to the backend
@@ -782,7 +782,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                         }
                         
                     }else{  //Notify the user and skip the process if they have previously checked in here
-                        let alert = UIAlertController(title: "Reapeated Check In", message: "\(restNameText) is already part of your List.", preferredStyle: .alert)
+                        let alert = UIAlertController(title: "Repeated Check In", message: "\(restNameText) is already part of your List.", preferredStyle: .alert)
                         //Exit function if user clicks now and allow them to reconfigure the check in
                         let CancelAction = UIAlertAction(title: "OK", style: .cancel, handler: {
                             UIAlertAction in
