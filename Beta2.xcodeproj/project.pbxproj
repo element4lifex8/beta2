@@ -45,6 +45,7 @@
 		EB61CD661DC4F50500297225 /* FriendTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB61CD651DC4F50500297225 /* FriendTableViewCell.swift */; };
 		EB61CD681DC5025400297225 /* SegueFromRight.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB61CD671DC5025400297225 /* SegueFromRight.swift */; };
 		EB8184BC1FC1C00200F787E7 /* CommentsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB8184BB1FC1C00200F787E7 /* CommentsTableViewCell.swift */; };
+		EB8582E02166DECB001EFD02 /* FollowersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB8582DF2166DECB001EFD02 /* FollowersViewController.swift */; };
 		EB85D5551C51B5B200F2E29F /* ProfileStepsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */; };
 		EB85D5701C5982F000F2E29F /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB85D5641C5982F000F2E29F /* CoreData.framework */; };
 		EB86294B1F5CBF7C00AB72DA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB86294A1F5CBF7C00AB72DA /* Assets.xcassets */; };
@@ -147,6 +148,7 @@
 		EB61CD671DC5025400297225 /* SegueFromRight.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SegueFromRight.swift; sourceTree = "<group>"; };
 		EB63152B1BF961D7009683FE /* CheckInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; name = CheckInViewController.swift; path = Beta2/CheckInViewController.swift; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		EB8184BB1FC1C00200F787E7 /* CommentsTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentsTableViewCell.swift; sourceTree = "<group>"; };
+		EB8582DF2166DECB001EFD02 /* FollowersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowersViewController.swift; sourceTree = "<group>"; };
 		EB85D5541C51B5B200F2E29F /* ProfileStepsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ProfileStepsViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		EB85D5641C5982F000F2E29F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		EB86294A1F5CBF7C00AB72DA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -300,6 +302,7 @@
 				EB1405C51D3007B1001D3924 /* CheckedCoreData.xcdatamodeld */,
 				EB61CD631DC4F0A800297225 /* AddPeopleViewCntroller.swift */,
 				EBF790101EA6DEDB005F0B6F /* Main.storyboard */,
+				EB8582DF2166DECB001EFD02 /* FollowersViewController.swift */,
 				EB03E5C31C3864FF009A55F1 /* Bridging-Header.h */,
 				EB4B128C1D57B9C500F8B62C /* MyListViewController.swift */,
 				EB489D241FB8E3AB00C0CB6C /* UpdateCatsViewController.swift */,
@@ -665,6 +668,7 @@
 				EB8184BC1FC1C00200F787E7 /* CommentsTableViewCell.swift in Sources */,
 				EBC161481EB614F00081F239 /* RoundButtCollectionViewCell.swift in Sources */,
 				EB003CAD1E436597004E7451 /* PlaceDeetsViewController.swift in Sources */,
+				EB8582E02166DECB001EFD02 /* FollowersViewController.swift in Sources */,
 				EBC29B731FD6281900E55C6B /* FaqViewController.swift in Sources */,
 				EB40AD321F9B8C3D000E58E2 /* ProfileViewController.swift in Sources */,
 				EB61CD641DC4F0A800297225 /* AddPeopleViewCntroller.swift in Sources */,

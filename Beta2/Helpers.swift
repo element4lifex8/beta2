@@ -23,6 +23,9 @@ class Helpers{
     static let currAppVerKey = "CIOHomeVC.appVer"   //key for storing curr app version so I can force a log out when not up to date
     static let logoutDefaultKey = "CIOHomeVC.logout"    //Key to check if a logout should be forced for a new version 
     static let onboardCompleteDefaultKey = "OnboardDetailsVC.complete"    //Key to check if the user completed the onboarding username step or if they closed the app and skipped it
+    static let numChecksDefaultKey = "CIOHomeVC.numChecked"    //Key to reference the number of user check ins
+    static let numFollowersDefaultKey = "CIOHomeVC.numFollowers"    //Key to reference the number of user followers
+    static let numFriendsDefaultKey = "CIOHomeVC.numFriends"    //Key to reference the number of user friends
     
     //retrieve the current app user from NSUserDefaults
     var currUser: NSString {
@@ -144,6 +147,51 @@ class Helpers{
         set
         {
             defaultsStandard.set(newValue, forKey: Helpers.onboardCompleteDefaultKey)
+        }
+    }
+    
+    //Store and readback number of user checkins
+    var numCheckInDefault: NSNumber {
+        get{
+            if let numChecks = defaultsStandard.object(forKey: Helpers.numChecksDefaultKey) as? NSNumber{
+                return numChecks
+            }else{  //By default no check ins have been counted
+                return 0
+            }
+        }
+        set
+        {
+            defaultsStandard.set(newValue, forKey: Helpers.numChecksDefaultKey)
+        }
+    }
+    
+    //Store and readback number of user friends
+    var numFriendsDefault: NSNumber {
+        get{
+            if let numFriends = defaultsStandard.object(forKey: Helpers.numFriendsDefaultKey) as? NSNumber{
+                return numFriends
+            }else{  //By default no friends
+                return 0
+            }
+        }
+        set
+        {
+            defaultsStandard.set(newValue, forKey: Helpers.numFollowersDefaultKey)
+        }
+    }
+    
+    //Store and readback number of peeps following the user
+    var numFollowersDefault: NSNumber {
+        get{
+            if let numFollowers = defaultsStandard.object(forKey: Helpers.numFollowersDefaultKey) as? NSNumber{
+                return numFollowers
+            }else{  //By default no followers have been counted
+                return 0
+            }
+        }
+        set
+        {
+            defaultsStandard.set(newValue, forKey: Helpers.numFollowersDefaultKey)
         }
     }
     

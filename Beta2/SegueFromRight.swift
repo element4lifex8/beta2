@@ -11,8 +11,8 @@ import UIKit
 class SegueFromRight: UIStoryboardSegue {
     override func perform()
     {
-        let src = self.source.view as UIView!
-        let dst = self.destination.view as UIView!
+        let src = self.source.view as UIView?
+        let dst = self.destination.view as UIView?
         
         let window = UIApplication.shared.delegate?.window!
         // the Views must be in the Window hierarchy, so insert as a subview the destionation above the source
