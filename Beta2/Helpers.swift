@@ -26,6 +26,10 @@ class Helpers{
     static let numChecksDefaultKey = "CIOHomeVC.numChecked"    //Key to reference the number of user check ins
     static let numFollowersDefaultKey = "CIOHomeVC.numFollowers"    //Key to reference the number of user followers
     static let numFriendsDefaultKey = "CIOHomeVC.numFriends"    //Key to reference the number of user friends
+    static let numCheckValDefaultKey = "CIOHomeVC.numChecksValid"    //Key to reference if the number of user check ins is current
+    static let numFollowerValDefaultKey = "CIOHomeVC.numFollowerValid"    //Key to reference the number if the number of user followers are current
+    static let numFriendValDefaultKey = "CIOHomeVC.numFriendValid"    //Key to reference the number if user friends num is current
+    static let followNoteDefaultKey = "FollowersVC.followNote"    //Key for flag to display new follower notification
     
     //retrieve the current app user from NSUserDefaults
     var currUser: NSString {
@@ -176,7 +180,7 @@ class Helpers{
         }
         set
         {
-            defaultsStandard.set(newValue, forKey: Helpers.numFollowersDefaultKey)
+            defaultsStandard.set(newValue, forKey: Helpers.numFriendsDefaultKey)
         }
     }
     
@@ -189,10 +193,89 @@ class Helpers{
                 return 0
             }
         }
+        
         set
         {
             defaultsStandard.set(newValue, forKey: Helpers.numFollowersDefaultKey)
         }
+        
+        //        //add property oberver so that when the number is increased add notification that is now a new follower
+        //        didSet{
+        //            //If the new value that was just set is greater than the new value then a new follower exists
+        //            if(numFollowersDefault.compare(oldValue) == .orderedAscending) {
+        //                print("AHHHHHHHHH:New follower added")
+        //            }
+        //        }
+    }
+    
+    //Store and readback if number of user checkins is current
+    var numCheckValDefault: NSNumber {
+        get{
+            if let numCheckVal = defaultsStandard.object(forKey: Helpers.numCheckValDefaultKey) as? NSNumber{
+                return numCheckVal
+            }else{  //By default no check ins have been counted
+                return 0
+            }
+        }
+        set
+        {
+            defaultsStandard.set(newValue, forKey: Helpers.numCheckValDefaultKey)
+        }
+    }
+    
+    //Store and readback number of user friends
+    var numFriendValDefault: NSNumber {
+        get{
+            if let numFriendVal = defaultsStandard.object(forKey: Helpers.numFriendValDefaultKey) as? NSNumber{
+                return numFriendVal
+            }else{  //By default no friends
+                return 0
+            }
+        }
+        set
+        {
+            defaultsStandard.set(newValue, forKey: Helpers.numFriendValDefaultKey)
+        }
+    }
+    
+    //Store and readback number if number of peeps following the user is current
+    var numFollowerValDefault: NSNumber {
+        get{
+            if let numFollowerVal = defaultsStandard.object(forKey: Helpers.numFollowerValDefaultKey) as? NSNumber{
+                return numFollowerVal
+            }else{  //By default no followers have been counted
+                return 0
+            }
+        }
+        
+        set
+        {
+            defaultsStandard.set(newValue, forKey: Helpers.numFollowerValDefaultKey)
+        }
+        
+        //        //add property oberver so that when the number is increased add notification that is now a new follower
+        //        didSet{
+        //            //If the new value that was just set is greater than the new value then a new follower exists
+        //            if(numFollowersDefault.compare(oldValue) == .orderedAscending) {
+        //                print("AHHHHHHHHH:New follower added")
+        //            }
+        //        }
+    }
+    
+    //Flag indicates when on the home screen if the
+    var displayFollowersNote: NSNumber {
+        get{
+            if let displayNote = defaultsStandard.object(forKey: Helpers.followNoteDefaultKey) as? NSNumber{
+                return displayNote
+            }else{  //By default don't display new follower notification
+                return 0
+            }
+        }
+        set
+        {
+            defaultsStandard.set(newValue, forKey: Helpers.followNoteDefaultKey)
+        }
+        
     }
     
     //Enum for login type to be used in login screen and login info screen
@@ -226,6 +309,34 @@ class Helpers{
         #if DEBUG
             print(text)
         #endif
+    }
+    
+    // function chooses to display or remove notification of a new follower
+    //Use inout types to pass by reference from the caller
+    func displayNewFollNote(display: Bool, superView: UIView, noteView: inout UIView)
+    {
+        if(display){
+            //Calculate size of text and compare to size of follower view to decide location of notification
+            var size: CGSize = CGSize(width: 0, height: 0)
+            if let font = UIFont(name: "Avenir Light", size: 24) {
+                let fontAttributes = [NSAttributedStringKey.font: font]
+                let myText = "\(Helpers().numFollowersDefault)"
+                //Size of Text string
+                size = (myText as NSString).size(withAttributes: fontAttributes)
+            }
+            //Calculate
+            var noteX = superView.frame.size.width/2 - size.width - 5
+            noteX = (noteX < 5) ? 5 : noteX //Guard for too many numbers putting it over the edge
+    //        print("Size; \(size), frame: \(superView.frame.size), noteX: \(noteX)")
+            
+            noteView.frame = CGRect(x: noteX,y: 5,width: 10,height: 10)
+            noteView.layer.cornerRadius = 5
+            noteView.backgroundColor = UIColor.red
+        
+            superView.addSubview(noteView)
+        }else{//Remove notification from view
+            noteView.removeFromSuperview()            
+        }
     }
     
     // function chooses to display or remove Activity monitor
@@ -381,4 +492,34 @@ class Helpers{
     }
 
 
+    //retrieve a list of all the user's friends from the database and return the firebase handle created by the query
+    func retrieveCheckInCount(currUser: NSString, _ completionClosure: @escaping (_ checkInCount: Int) -> Void) -> Void {
+        let currRef = FIRDatabase.database().reference().child("checked/\(currUser)")
+        var checkCount = 0
+        
+        MyListViewController().retrieveWithRef(currRef){ (placeNodeArr: [placeNode]) in
+            
+            for _ in placeNodeArr{
+                checkCount += 1
+            }
+            completionClosure(checkCount)
+        }
+        
+    }
+    
+    func addNewFriend(friendId: NSString, friendName: String) -> Void{
+        let userChecked = FIRDatabase.database().reference().child("users/\(Helpers().currUser)/friends")
+        let currInfo = ["displayName1" : Helpers().currDisplayName as String]
+
+        //Add id of curr friend with their display name stored underneath
+        let friendInfo = ["displayName1" : friendName]
+        //add friend to Curr user's list
+        userChecked.child(byAppendingPath: friendId as String).setValue(friendInfo)
+        //Add curr user to their new friend's list
+        let friendChecked = FIRDatabase.database().reference().child("users/\(friendId)/followers")
+        
+        //add friend to Curr user's list
+        friendChecked.child(byAppendingPath: Helpers().currUser as String).setValue(currInfo)
+    }
 }
+

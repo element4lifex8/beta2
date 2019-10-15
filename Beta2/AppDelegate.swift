@@ -11,6 +11,7 @@ import FBSDKCoreKit
 import CoreData
 import Firebase
 import GooglePlaces
+import GoogleMaps
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -18,10 +19,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     var plistVersion: NSString = "0.0"
     
+    //Function executes when the app is launched
     //2 facebook delegate methods
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        //I probably should restrict these like it talks about: https://developers.google.com/maps/documentation/ios-sdk/get-api-key#get_key
         //Enable google places api key
         GMSPlacesClient.provideAPIKey("AIzaSyB3q-ufoRBaQCJrSkAXHzMVxr4kpFY0dsk")
+        //Enable the google maps api key
+        GMSServices.provideAPIKey("AIzaSyAM7fVHS1gZ8uq8sQ7TdydD21842tLi1Ws")
         //change status bar background to solid color so that images can scroll behind it without affecting the status text
         let statusBar: UIView = UIApplication.shared.value(forKey: "statusBar") as! UIView
         if statusBar.responds(to:#selector(setter: UIView.backgroundColor)) {
@@ -59,6 +64,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             Helpers().logoutDefault = 0
         }
         
+        //Invalidate the current flag on the home screen status counts
+        Helpers().numCheckValDefault = 0
+        Helpers().numFriendValDefault = 0
+        Helpers().numFollowerValDefault = 0
+
         //Configure Firebase
         FIRApp.configure()
         //enable firebase to work offline - can cause a delay in items being synced to/from Firebase

@@ -257,7 +257,7 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
             }
 //            each entry in nsSnapDict is a [friendID : ["display Name": name]] dict
             //currID = friendsId displayName = [key = "displayName1", value = friend's name]
-            for ( currID , displayName ) in nsSnapDict{
+        for ( currID , displayName ) in nsSnapDict{
                 //Cast displayName dict [key = "displayName1", value = friend's name] or quit before storing to name or Id array
                 guard let nameDict = displayName as? NSDictionary else{
                     completionClosure(localFriendsArr, localFriendsId)

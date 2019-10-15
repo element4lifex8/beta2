@@ -16,6 +16,7 @@ pod 'Firebase/Analytics'
 #Google Places Autocomplete
 pod 'GooglePlaces'
 pod 'GooglePlacePicker'
+pod 'GoogleMaps'
 
 #pod 'Firebase/AdMob'
 #pod 'Firebase/AppIndexing'

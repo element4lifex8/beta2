@@ -29,6 +29,7 @@
 		EB1959C81C62C57E001E0F62 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C71C62C57E001E0F62 /* CFNetwork.framework */; };
 		EB1959CA1C62C585001E0F62 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C91C62C585001E0F62 /* Security.framework */; };
 		EB1959CC1C62C58D001E0F62 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */; };
+		EB30D8CF2318A9C300046E3A /* MapVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB30D8CE2318A9C200046E3A /* MapVC.swift */; };
 		EB38B9A71E91810A004A08D8 /* FBSDKMessengerShareKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB38B9A61E91810A004A08D8 /* FBSDKMessengerShareKit.framework */; };
 		EB38B9A91E918381004A08D8 /* FBSDKShareKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB38B9A81E918381004A08D8 /* FBSDKShareKit.framework */; };
 		EB40AD321F9B8C3D000E58E2 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB40AD311F9B8C3D000E58E2 /* ProfileViewController.swift */; };
@@ -128,6 +129,7 @@
 		EB1959C71C62C57E001E0F62 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		EB1959C91C62C585001E0F62 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		EB1959CB1C62C58D001E0F62 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		EB30D8CE2318A9C200046E3A /* MapVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapVC.swift; sourceTree = "<group>"; };
 		EB38B9A61E91810A004A08D8 /* FBSDKMessengerShareKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKMessengerShareKit.framework; path = ../../FacebookSDK/FBSDKMessengerShareKit.framework; sourceTree = "<group>"; };
 		EB38B9A81E918381004A08D8 /* FBSDKShareKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKShareKit.framework; path = ../../FacebookSDK/FBSDKShareKit.framework; sourceTree = "<group>"; };
 		EB3C7E9F1EB93182004E417E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
@@ -308,6 +310,7 @@
 				EB489D241FB8E3AB00C0CB6C /* UpdateCatsViewController.swift */,
 				EB5161C61DAAA6B600321D98 /* CheckOutContainedViewController.swift */,
 				EB40AD311F9B8C3D000E58E2 /* ProfileViewController.swift */,
+				EB30D8CE2318A9C200046E3A /* MapVC.swift */,
 				EB3A98211D9813D400C16E89 /* Model */,
 				EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */,
 				EBC161451EB613EB0081F239 /* CheckInView.swift */,
@@ -400,8 +403,6 @@
 				EB0656281BEE37F300CF8376 /* Sources */,
 				EB0656291BEE37F300CF8376 /* Frameworks */,
 				EB06562A1BEE37F300CF8376 /* Resources */,
-				45583E1FE0A8E1C42A50F2ED /* [CP] Embed Pods Frameworks */,
-				8CC0CC637DCB4B337FEBFBFD /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -421,8 +422,6 @@
 				EB0656331BEE37F300CF8376 /* Sources */,
 				EB0656341BEE37F300CF8376 /* Frameworks */,
 				EB0656351BEE37F300CF8376 /* Resources */,
-				09E0E5B0697BF0E941592EF6 /* [CP] Embed Pods Frameworks */,
-				538ED9CC18BA9540B7003103 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -513,79 +512,26 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		09E0E5B0697BF0E941592EF6 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Beta2UITests/Pods-Beta2UITests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		11EBDCD1DAA3A0BBAA596BA5 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-Beta2/Pods-Beta2-resources.sh",
+				"${PODS_ROOT}/GoogleMaps/Maps/Frameworks/GoogleMaps.framework/Versions/A/Resources/GoogleMaps.bundle",
+				"${PODS_ROOT}/GooglePlacePicker/Frameworks/GooglePlacePicker.framework/Versions/A/Resources/GooglePlacePicker.bundle",
+				"${PODS_ROOT}/GooglePlaces/Frameworks/GooglePlaces.framework/Versions/A/Resources/GooglePlaces.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleMaps.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GooglePlacePicker.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GooglePlaces.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Beta2/Pods-Beta2-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		45583E1FE0A8E1C42A50F2ED /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Beta2Tests/Pods-Beta2Tests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		538ED9CC18BA9540B7003103 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Beta2UITests/Pods-Beta2UITests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		8CC0CC637DCB4B337FEBFBFD /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Beta2Tests/Pods-Beta2Tests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		B39029A3C7FEEAE99DABC705 /* [CP] Check Pods Manifest.lock */ = {
@@ -594,13 +540,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Beta2Tests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		D1AFA86BA9F129A480C2D1E2 /* [CP] Check Pods Manifest.lock */ = {
@@ -609,13 +558,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Beta2UITests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		DF82C3E32BBDCE2727A6EADD /* [CP] Check Pods Manifest.lock */ = {
@@ -624,13 +576,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Beta2-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FEFC7A69C961741B7BDF280D /* [CP] Embed Pods Frameworks */ = {
@@ -639,9 +594,14 @@
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-Beta2/Pods-Beta2-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -682,6 +642,7 @@
 				EBC161461EB613EB0081F239 /* CheckInView.swift in Sources */,
 				EB06564E1BEE3B4900CF8376 /* CIOHomeViewController.swift in Sources */,
 				EBBA52E21CFE62730047E22A /* SubheaderTableViewCell.swift in Sources */,
+				EB30D8CF2318A9C300046E3A /* MapVC.swift in Sources */,
 				EB4B128D1D57B9C500F8B62C /* MyListViewController.swift in Sources */,
 				EB489D271FB8EE7400C0CB6C /* CategoryTableViewCell.swift in Sources */,
 				EB61CD681DC5025400297225 /* SegueFromRight.swift in Sources */,

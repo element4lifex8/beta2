@@ -307,6 +307,10 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
 //        if (FBSDKAccessToken.current() != nil && !unwindPerformed){
 //           self.performSegue(withIdentifier: "profileSteps", sender: nil)
 //        }
+        //Always invalidate home screen metrics when user has to log in:
+        Helpers().numCheckValDefault = 0
+        Helpers().numFriendValDefault = 0
+        Helpers().numFollowerValDefault = 0
     }
     
     override func viewDidLoad()
@@ -315,7 +319,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         //Set text field delegates so they can dismiss the keyboard
         self.emailField.delegate = self
         self.passwordField.delegate = self
-
+        
         //register so that I receive notifications from the keyboard
         registerForKeyboardNotifications()
         
@@ -455,7 +459,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
             break
         default:
             msgTitle = "Error: Contact Support"
-            msgBody = error
+            msgBody = "Please check internet connection and try again or email technical support at jason@checkinoutlists.com with your name and email address and we will address the issue."
             break
         }
         let alert = UIAlertController(title: msgTitle, message: msgBody, preferredStyle: .alert)

@@ -309,6 +309,7 @@ class ProfileStepsViewController: UIViewController, UITextFieldDelegate, UITable
                     }
                 }else if let cityNameStr = homeCityCoreData[i].value(forKey: "city") as? String{
                     //Check all other cities to make sure their home city doesn't exist there
+                    //TODO confirm this check is working because plus button issue seems to occur whenbyou make your home  city a city that is already on you list!
                     if( cityNameStr == homeCity){
                         addNewHome = false
                         displayAlert = true

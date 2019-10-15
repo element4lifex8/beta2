@@ -944,11 +944,18 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
      @IBAction func submitSelected(_ sender: UIButton) {
 //         let userChecked = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
         let userChecked = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
+        let currInfo = ["displayName1" : Helpers().currDisplayName as String]
         for friend in self.selectedFBfriends{
             if let name = friend.displayName, let id = friend.id{
                 //Add id of curr friend with their display name stored underneath
                 let friendInfo = ["displayName1" : name]
+                //add friend to Curr user's list
                 userChecked.child(byAppendingPath: id).setValue(friendInfo)
+                //Add curr user to their new friend's followers list
+                let friendChecked = FIRDatabase.database().reference().child("users/\(id)/followers")
+                
+                //add friend to Curr user's list
+                friendChecked.child(byAppendingPath: Helpers().currUser as String).setValue(currInfo)
             }else{
                 Helpers().myPrint(text: "No id was found for the following friend: \(friend.displayName ?? "friend name failed too")")
             }

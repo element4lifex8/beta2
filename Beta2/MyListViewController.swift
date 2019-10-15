@@ -574,10 +574,22 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
     }
     
+    //Header keeps city at top of screen
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         
         let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "TableViewSectionHeaderViewIdentifier")
-
+        /* Will have to try to grab category data and display it custom in the current header
+        let treeRetCat = self.placeNodeTreeRoot.children![section].returnNodeAtIndex(1)
+        var myText = ""
+        if let treeNode = treeRetCat{
+            if let cellText = treeNode.nodeValue {
+                myText = "  \(cellText)"
+            }else{
+                myText = ""
+                Helpers().myPrint(text: "category treeNode was nil")
+            }
+        }
+ */
         headerView?.textLabel?.text = "\(placeNodeTreeRoot.children![section].nodeValue!)"
         return headerView
         

@@ -22,6 +22,8 @@ class CIOHomeViewController: UIViewController   {
     
     var providerId: String?     //Extract the type of auth process that was used
     
+    var noteView = UIView()
+    
     //Profile information views
     @IBOutlet weak var checkInInfoView: UIView!
     @IBOutlet weak var followingInfoView: UIView!
@@ -34,11 +36,11 @@ class CIOHomeViewController: UIViewController   {
     @IBOutlet weak var FollowingNumLabel: UILabel!
     
     
-    
     //Check if user has logged in and force login if not, modal segues must be performed in viewDidAppear
     override func viewDidAppear(_ animated: Bool) {
         let currUser = Helpers().currUser
         let friendsRef = FIRDatabase.database().reference().child("users/\(currUser)/friends")
+        var currentlyDisplaying = 0
         
         super.viewDidAppear(animated)
         let onboardingCompleted = Helpers().onboardCompleteDefault
@@ -57,25 +59,79 @@ class CIOHomeViewController: UIViewController   {
         
             //If user is not authenicated through either system then show login screen
             //I have to check that even if the currentUser is not nil I have to make sure that it was an email verified auth user. Only want this to be true if the user is not signed in through facebook and the user is not signed in through firebase (isEmailed verfified is false of nil)
-//        if ((FBSDKAccessToken.current() == nil) && (Helpers().firAuth?.currentUser == nil /*&& (self.providerId ?? "") == "password")*/))
-//        {
-//            self.performSegue(withIdentifier: "newUserLogin", sender: self)
-//        }else if(shouldLogout == NSNumber(value: 1) || onboardingCompleted == NSNumber(value: 0) ){//The NSUserDefault shouldLogut is also checked if the user needs to be forced to login again (will force logout if onboarding not completed either
-//            //Update logout Default so the user no longer has to logout
-//            Helpers().logoutDefault = 0
-////            LogoutButton(UIButton())  Button no longer exists on home screen
-//            logoutUser()
-//        }
+        if ((FBSDKAccessToken.current() == nil) && (Helpers().firAuth?.currentUser == nil /*&& (self.providerId ?? "") == "password")*/))
+        {
+            self.performSegue(withIdentifier: "newUserLogin", sender: self)
+        }else if(shouldLogout == NSNumber(value: 1) || onboardingCompleted == NSNumber(value: 0) ){//The NSUserDefault shouldLogut is also checked if the user needs to be forced to login again (will force logout if onboarding not completed either
+            //Update logout Default so the user no longer has to logout
+            Helpers().logoutDefault = 0
+//            LogoutButton(UIButton())  Button no longer exists on home screen
+            logoutUser()
+        }
         
         //Calculate the number of user check-ins, number of followers and followed friends if not already stored in user defaults
-        //TODO change this to NSDefaults
-//        let _ = Helpers().retrieveMyFriends(friendsRef: friendsRef) {(friendStr:[String], friendId:[String]) in
-//            self.FollowingNumLabel.text = "\(friendStr.count)"
-//        }
+        
+        //Make sure the User defaults is current and update if not, then re print
         self.FollowingNumLabel.text = "\(Helpers().numFriendsDefault)"
         self.followerNumLabel.text = "\(Helpers().numFollowersDefault)"
         self.checkInNumLabel.text = "\(Helpers().numCheckInDefault)"
+
+        //Check if any of the currently listed defaults are invalid and update
+        if(Helpers().numCheckValDefault == NSNumber(value:0)){  //Need to divorce line 160 on MyList VC where this is set, and set in helpers
+             Helpers().retrieveCheckInCount(currUser: currUser) {(checkInCount:Int) in
+                Helpers().numCheckInDefault = NSNumber(value: checkInCount)
+                self.checkInNumLabel.text = "\(checkInCount)"
+            }
+            //set the current flag on the home screen status counts
+            Helpers().numCheckValDefault = 1
+        }
         
+        if(Helpers().numFriendValDefault == NSNumber(value:0)){
+            Helpers().retrieveMyFriends(friendsRef: FIRDatabase.database().reference().child("users/\(Helpers().currUser as String)/friends")) {(friendStr:[String], friendId:[String]) in
+                //Keep track of the number of user's friends in firebase each time they are retrieved
+                Helpers().numFriendsDefault = NSNumber(value: friendStr.count)
+                self.FollowingNumLabel.text = "\(Helpers().numFriendsDefault)"
+            }
+            Helpers().numFriendValDefault = 1
+        }
+        
+        if(Helpers().numFollowerValDefault == NSNumber(value:0)){//Need to divorce from line 54 of Followers VC and add to helpers
+            FollowersViewController().retrieveFollowersFromFirebase{(finished:Bool, friendCount: Int) in
+
+                //Check if a new follower was found and add notification flag
+                if(Helpers().numFollowersDefault.compare(NSNumber(value: friendCount)) == .orderedAscending)
+                {
+                    //print("disp foll: \(Helpers().displayFollowersNote)")
+                    Helpers().displayFollowersNote = 1
+                    //print("disp foll: \(Helpers().displayFollowersNote)")
+                }
+                //Update number of followers in user defaults
+                Helpers().numFollowersDefault = NSNumber(value: friendCount)
+                //Display the new follower notification on activivation of observer
+                if(Helpers().displayFollowersNote == NSNumber(value: 1)){
+                    Helpers().displayNewFollNote(display: true, superView:  self.followersInfoView, noteView:  &self.noteView)
+                }
+                
+                //Update home screen
+                self.followerNumLabel.text = "\(friendCount)"
+            }
+            Helpers().numFollowerValDefault = 1
+        }
+
+        //For the new follower notification on first display of home screen
+//        if(Helpers().displayFollowersNote == NSNumber(value: 1)){
+//            if(currentlyDisplaying == 0){
+//                Helpers().displayNewFollNote(display: true, superView:  self.followersInfoView, noteView:  &self.noteView)
+//                currentlyDisplaying = 1
+//            }
+
+        //Remove notifiation of new follower
+    if(Helpers().displayFollowersNote == NSNumber(value: 0)){
+        if(self.followersInfoView.subviews.contains(noteView)){
+            Helpers().displayNewFollNote(display: false, superView:  self.followersInfoView, noteView:  &self.noteView)
+        }
+    }
+       
         //Add gesture recognizer to allowing clicking on following/followers and transition to that screen
         let followingTapGesture = UITapGestureRecognizer(target: self, action: #selector(CIOHomeViewController.tapFollowingView(_:)))
         
@@ -91,6 +147,7 @@ class CIOHomeViewController: UIViewController   {
         
         //Make sure gesture recognizer is added after the view frame has been created otherwise the event won't be triggered since it won't have a frame to receieve the touch
         self.checkInInfoView.addGestureRecognizer(checkInTapGesture)
+        
     }
 
     override func viewDidLoad()
@@ -105,6 +162,7 @@ class CIOHomeViewController: UIViewController   {
                 ref.child(Helpers().currUser as String).updateChildValues(["facebookid" : "\(Helpers().FBUserId)"])
                 }
             })
+    
     }
     
     func getFIRLoginState(_ completionClosure: @escaping ( _ loggedIn: Bool) -> Void){
