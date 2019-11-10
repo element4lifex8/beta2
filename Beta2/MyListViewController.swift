@@ -25,8 +25,8 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var cityDict = [String: Int]()
     var tableDataArr = [String]()
     var arrSize = Int()
-    var ref: FIRDatabaseReference!
-    var placesRef: FIRDatabaseReference!
+    var ref: DatabaseReference!
+    var placesRef: DatabaseReference!
     var selectedCollection = [Int]()
     var selectedFilters = [String]()
     var headerCount = 0
@@ -35,8 +35,8 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     //Create list of tableview indexes
     let sectionIndexes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
     var sectionWithObjects = [String]()
-    var userRef: FIRDatabaseReference!
-    var friendHandler: FIRDatabaseHandle?
+    var userRef: DatabaseReference!
+    var friendHandler: DatabaseHandle?
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -79,11 +79,11 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
     
     override func viewDidLoad() {
-        var currRef: FIRDatabaseReference!
+        var currRef: DatabaseReference!
         var userRetrievalCount:Int = 0     //Count the number of user's with their info pulled from the dataBase
         super.viewDidLoad()
 
-        userRef = FIRDatabase.database().reference().child("checked/\(defaultUser)")
+        userRef = Database.database().reference().child("checked/\(defaultUser)")
 //        //If another user's list was requested then requestedUser will be set
         if let userIds = myFriendIds{
             self.currUsers = userIds
@@ -110,7 +110,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         collectionView?.allowsMultipleSelection = true
         collectionView.showsHorizontalScrollIndicator = false
 //        placesRef = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
-        placesRef = FIRDatabase.database().reference().child("places")
+        placesRef = Database.database().reference().child("places")
         
         //Create container view then loading for activity indicator to prevent background from overshadowing white color
         let loadingView: UIView = UIView()
@@ -135,7 +135,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         //Loop over all the current users that are expected (1 if viewing my list or a friend's list, all friends if viewing a city only list)
         for friendId in self.currUsers!{
 //            currRef = Firebase(url:"https://check-inout.firebaseio.com/checked/\(friendId)")
-            currRef = FIRDatabase.database().reference().child("checked/\(friendId)")
+            currRef = Database.database().reference().child("checked/\(friendId)")
             retrieveWithRef(currRef){ (placeNodeArr: [placeNode]) in
                 userRetrievalCount += 1     //finished retrieving current user's check in info
                 for node in placeNodeArr{
@@ -182,7 +182,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     
     //Retrieve list of all checked in places for curr user
-    func retrieveWithRef(_ myRef: FIRDatabaseReference, completionClosure: @escaping (_ placeNodeArr: [placeNode]) -> Void) {
+    func retrieveWithRef(_ myRef: DatabaseReference, completionClosure: @escaping (_ placeNodeArr: [placeNode]) -> Void) {
         var locPlaceNodeArr = [placeNode]()
         var locPlaceNodeObj:placeNode = placeNode()
 
@@ -193,7 +193,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             locPlaceNodeArr.removeAll()
             
             //rootNode now contains a list of all the places from the current user's Reference
-            let rootNode = snapshot as FIRDataSnapshot
+            let rootNode = snapshot as DataSnapshot
             //force downcast only works if root node has children, otherwise user has no valid check in entries
             //each entry in nodeDict now has a key of the check in's place name and a value of the city/category attributes
             guard let nodeDict = rootNode.value as? NSDictionary else{
@@ -210,7 +210,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 let placeSnap = snapshot.childSnapshot(forPath: key as! String)
                 //Iterate over each city and category child of the place's check in
                 for placeChild in placeSnap.children{
-                    let currNode = placeChild as! FIRDataSnapshot
+                    let currNode = placeChild as! DataSnapshot
                      //If Place dict can be unwrapped as NSDictionary then it now has key of the city or cat attribute, and the value is always "true"
                     //If place Dict can't be unwrapped then the key value pair is the google place id
                     if let placeDict = currNode.value as? NSDictionary{
@@ -793,12 +793,12 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
 //            confirmDelete(itemToDelete, index: indexPath)
             //Delete item without providing UI alert for confirmation
 //            let refToDelete: Firebase! = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.defaultUser)/\(itemToDelete.nodeValue!)")
-            let refToDelete: FIRDatabaseReference = FIRDatabase.database().reference().child("checked/\(self.defaultUser)/\(itemToDelete.nodeValue!)")
+            let refToDelete: DatabaseReference = Database.database().reference().child("checked/\(self.defaultUser)/\(itemToDelete.nodeValue!)")
             self.tableView.beginUpdates()
             //Remove deleted item from Firebase,the tree and then table
             if(itemToDelete.sibling != nil)
             {
-                let cityRef = refToDelete.child(byAppendingPath: "city").child(byAppendingPath: (itemToDelete.parent)!.parent!.nodeValue!)
+                let cityRef = refToDelete.child("city").child((itemToDelete.parent)!.parent!.nodeValue!)
                 cityRef.removeValue()
             }else{
                 refToDelete.removeValue()
@@ -840,12 +840,12 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
         let DeleteAction = UIAlertAction(title: "Delete", style: .destructive, handler:{action in
 //            let refToDelete = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.defaultUser)/\(checkInItem.nodeValue!)")
-            let refToDelete = FIRDatabase.database().reference().child("checked/\(self.defaultUser)/\(checkInItem.nodeValue!)")
+            let refToDelete = Database.database().reference().child("checked/\(self.defaultUser)/\(checkInItem.nodeValue!)")
             self.tableView.beginUpdates()
             //Remove deleted item from Firebase,the tree and then table
             if(checkInItem.sibling != nil)
             {
-                refToDelete.child(byAppendingPath: "city").child(byAppendingPath: (checkInItem.parent)!.parent!.nodeValue!)
+                refToDelete.child("city").child((checkInItem.parent)!.parent!.nodeValue!)
             }else{
                 refToDelete.removeValue()
             }
@@ -865,7 +865,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     func handleDeleteTableItem(_ alertAction: UIAlertAction!) -> Void
     {
 //        let refToDelete = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)/\("insert index path item")")
-        let refToDelete = FIRDatabase.database().reference().child("checked/\(self.currUser)/\("insert index Path item")")
+        let refToDelete = Database.database().reference().child("checked/\(self.currUser)/\("insert index Path item")")
         tableView.beginUpdates()
         
         tableView.endUpdates()

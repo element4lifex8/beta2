@@ -24,9 +24,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         //I probably should restrict these like it talks about: https://developers.google.com/maps/documentation/ios-sdk/get-api-key#get_key
         //Enable google places api key
-        GMSPlacesClient.provideAPIKey("AIzaSyB3q-ufoRBaQCJrSkAXHzMVxr4kpFY0dsk")
+        GMSPlacesClient.provideAPIKey(GoogleAPIKeys().GoogleApiGMSPlacesKey)
         //Enable the google maps api key
-        GMSServices.provideAPIKey("AIzaSyAM7fVHS1gZ8uq8sQ7TdydD21842tLi1Ws")
+        GMSServices.provideAPIKey(GoogleAPIKeys().GoogleApiGMServicesKey)
         //change status bar background to solid color so that images can scroll behind it without affecting the status text
         let statusBar: UIView = UIApplication.shared.value(forKey: "statusBar") as! UIView
         if statusBar.responds(to:#selector(setter: UIView.backgroundColor)) {
@@ -34,6 +34,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         //Change status bar text  to light color
         UIApplication.shared.statusBarStyle = .lightContent
+        
+        //Configure Firebase
+        FirebaseApp.configure()
         
         //Ensure NSUserDefault has a default value for each key the app is started
         let defaultsStandard = UserDefaults.standard
@@ -69,8 +72,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Helpers().numFriendValDefault = 0
         Helpers().numFollowerValDefault = 0
 
-        //Configure Firebase
-        FIRApp.configure()
         //enable firebase to work offline - can cause a delay in items being synced to/from Firebase
 //        FIRDatabase.database().persistenceEnabled = true
         

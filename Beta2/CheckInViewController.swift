@@ -43,8 +43,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
     var seclectdAutoComplete = false //Keep track of whether operations are being performed pre/post auto complete selection
     let googleImageView = UIImageView(image: UIImage(named: "poweredByGoogle")) //Google attribution image view
     var tableContainerView: UIView?     //Container view for autocomplete table so border and rounded edges can be achieved
-    //Google places client
+    //Google places client and session token
     var placesClient: GMSPlacesClient!
+    let token: GMSAutocompleteSessionToken = GMSAutocompleteSessionToken.init()
     //Location manager for detecting user's location
     var locationManager: CLLocationManager? = nil
     //Keep track of which text field is active so I can scroll the comment field into view
@@ -740,9 +741,9 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                 self.checkObj.place = restNameText
                 // Create a reference to a Firebase location
 //                let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/\(self.currUser)")
-                let refChecked = FIRDatabase.database().reference().child("checked/\(self.currUser)")
+                let refChecked = Database.database().reference().child("checked/\(self.currUser)")
 //                let refCheckedPlaces = Firebase(url:"https://check-inout.firebaseio.com/checked/places")
-                let refCheckedPlaces = FIRDatabase.database().reference().child("places")
+                let refCheckedPlaces = Database.database().reference().child("places")
                 // Write establishment name to user's collection
 
                 //Don't create new Place in the refCheckedPlaces ref ("Places" category) if another user has already created this place
@@ -839,8 +840,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
                     //Update the city and categories in FIrebase for the current place
                     refChecked.child(restNameText).updateChildValues(fireUpdate)
                     //Update the city then category nodes seperately in the places node since I couldn't figure out a way to update both without overwriting existing data
-                    refCheckedPlaces.child( restNameText).child(byAppendingPath: "city").updateChildValues(cityFire)
-                    refCheckedPlaces.child( restNameText).child(byAppendingPath: "category").updateChildValues(catFire)
+                    refCheckedPlaces.child( restNameText).child("city").updateChildValues(cityFire)
+                    refCheckedPlaces.child( restNameText).child("category").updateChildValues(catFire)
                     //Check if a comment exists and unwrap and store in firebase
                     if let comment = self.commentTextField.text{
                         if(!comment.isEmpty){
@@ -1052,7 +1053,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         })
     }
     
-    func findPlaceInFirebase(placeName : String, userRef: FIRDatabaseReference, placesRef: FIRDatabaseReference, _ completionClosure: @escaping (_ userDoubleEntry: Bool, _ placeExistsMaster: Bool) -> Void) {
+    func findPlaceInFirebase(placeName : String, userRef: DatabaseReference, placesRef: DatabaseReference, _ completionClosure: @escaping (_ userDoubleEntry: Bool, _ placeExistsMaster: Bool) -> Void) {
         //create dispatch group to wait for both entries to complete before calling completion closure
         let myGroup = DispatchGroup()
         
@@ -1072,7 +1073,7 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         
         myGroup.enter()
         //Check if another user has checked in here before and the place resides in the master restaurant
-        placesRef.child(byAppendingPath: placeName).observeSingleEvent(of: .value, with: { snapshot in
+        placesRef.child(placeName).observeSingleEvent(of: .value, with: { snapshot in
             if let placeFound = snapshot.value as? NSDictionary{
                 placesHasChecked = true
             }
@@ -1129,8 +1130,8 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
             self.heightConstraint = autoCompleteTableView?.heightAnchor.constraint(equalToConstant: tableHeight)
             NSLayoutConstraint.activate([self.heightConstraint!])
         }
-        
-        placesClient.autocompleteQuery(queryText, bounds: coordinateBounds(), filter: filter, callback: {(results, error) -> Void in
+
+        placesClient.findAutocompletePredictions(fromQuery: queryText, bounds: coordinateBounds(), boundsMode: GMSAutocompleteBoundsMode.bias, filter: filter, sessionToken: token, callback: {(results, error) -> Void in
             if let error = error {
                 Helpers().myPrint(text: "Autocomplete error \(error)")
                 return

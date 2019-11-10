@@ -18,7 +18,7 @@ class CIOHomeViewController: UIViewController   {
     //Get firebase auth reference, nil if user signed in with FaceBook (Or no signed in at all)
 //    let firAuth = FIRAuth.auth()
     //Listener returned on firAuth block
-    var handle:FIRAuthStateDidChangeListenerHandle?
+    var handle:AuthStateDidChangeListenerHandle?
     
     var providerId: String?     //Extract the type of auth process that was used
     
@@ -39,14 +39,14 @@ class CIOHomeViewController: UIViewController   {
     //Check if user has logged in and force login if not, modal segues must be performed in viewDidAppear
     override func viewDidAppear(_ animated: Bool) {
         let currUser = Helpers().currUser
-        let friendsRef = FIRDatabase.database().reference().child("users/\(currUser)/friends")
+        let friendsRef = Database.database().reference().child("users/\(currUser)/friends")
         var currentlyDisplaying = 0
         
         super.viewDidAppear(animated)
         let onboardingCompleted = Helpers().onboardCompleteDefault
         //Check if the user needs to be logged out pending new update
         let shouldLogout = Helpers().logoutDefault
-        let providerData = Helpers().firAuth?.currentUser?.providerData
+        let providerData = Helpers().firAuth.currentUser?.providerData
         if let pData = providerData{
             //pData[0].uid will give me the facebook uid
             //user.providerID will return either "facebook.com" or "password"
@@ -59,7 +59,7 @@ class CIOHomeViewController: UIViewController   {
         
             //If user is not authenicated through either system then show login screen
             //I have to check that even if the currentUser is not nil I have to make sure that it was an email verified auth user. Only want this to be true if the user is not signed in through facebook and the user is not signed in through firebase (isEmailed verfified is false of nil)
-        if ((FBSDKAccessToken.current() == nil) && (Helpers().firAuth?.currentUser == nil /*&& (self.providerId ?? "") == "password")*/))
+        if ((FBSDKAccessToken.current() == nil) && (Helpers().firAuth.currentUser == nil /*&& (self.providerId ?? "") == "password")*/))
         {
             self.performSegue(withIdentifier: "newUserLogin", sender: self)
         }else if(shouldLogout == NSNumber(value: 1) || onboardingCompleted == NSNumber(value: 0) ){//The NSUserDefault shouldLogut is also checked if the user needs to be forced to login again (will force logout if onboarding not completed either
@@ -87,7 +87,7 @@ class CIOHomeViewController: UIViewController   {
         }
         
         if(Helpers().numFriendValDefault == NSNumber(value:0)){
-            Helpers().retrieveMyFriends(friendsRef: FIRDatabase.database().reference().child("users/\(Helpers().currUser as String)/friends")) {(friendStr:[String], friendId:[String]) in
+            Helpers().retrieveMyFriends(friendsRef: Database.database().reference().child("users/\(Helpers().currUser as String)/friends")) {(friendStr:[String], friendId:[String]) in
                 //Keep track of the number of user's friends in firebase each time they are retrieved
                 Helpers().numFriendsDefault = NSNumber(value: friendStr.count)
                 self.FollowingNumLabel.text = "\(Helpers().numFriendsDefault)"
@@ -158,7 +158,7 @@ class CIOHomeViewController: UIViewController   {
                 
             if ((notification.userInfo?[FBSDKAccessTokenDidChangeUserID] ?? NSNumber(booleanLiteral: false)) as! NSNumber == NSNumber(booleanLiteral: true)) {
                 // Update facebook user id in backend when user id changed
-                let ref = FIRDatabase.database().reference(withPath:"users")
+                let ref = Database.database().reference(withPath:"users")
                 ref.child(Helpers().currUser as String).updateChildValues(["facebookid" : "\(Helpers().FBUserId)"])
                 }
             })
@@ -168,7 +168,7 @@ class CIOHomeViewController: UIViewController   {
     func getFIRLoginState(_ completionClosure: @escaping ( _ loggedIn: Bool) -> Void){
         //get firebase user and see if they are logged in
         var firebaseLoggedIn = false
-        self.handle = Helpers().firAuth?.addStateDidChangeListener {auth, user in
+        self.handle = Helpers().firAuth.addStateDidChangeListener {auth, user in
             if let user = user{
                 Helpers().myPrint(text: user.uid)
                 firebaseLoggedIn = true
@@ -200,11 +200,11 @@ class CIOHomeViewController: UIViewController   {
     func logoutUser(){
 //        If current user is an email user I need to log out of Firebase
         if((self.providerId ?? "") == "password"){
-            try! Helpers().firAuth!.signOut()
+            try! Helpers().firAuth.signOut()
         }else{
             let loginManager = FBSDKLoginManager()
             loginManager.logOut()
-            try! Helpers().firAuth!.signOut()
+            try! Helpers().firAuth.signOut()
         }
         performSegue(withIdentifier: "newUserLogin", sender: self)
     }

@@ -27,13 +27,13 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
     var myFriends:[String] = []
     var myFriendIds: [NSString] = []    //list of Facebook Id's with matching index to myFriends array
     var friendCities:[String] = []
-    var friendsRef: FIRDatabaseReference!
-    var cityRef: FIRDatabaseReference!
+    var friendsRef: DatabaseReference!
+    var cityRef: DatabaseReference!
     //Handle to the reference observer that needs to be removed when popping the VC from the stack
-    var friendHandler, cityHandler: FIRDatabaseHandle?
+    var friendHandler, cityHandler: DatabaseHandle?
 
 //    let refChecked = Firebase(url:"https://check-inout.firebaseio.com/checked/")
-    let refChecked = FIRDatabase.database().reference().child("checked")
+    let refChecked = Database.database().reference().child("checked")
     let currUserDefaultKey = "FBloginVC.currUser"
     //Retrieve curr user from User Defaults
     var currUser = Helpers().currUser
@@ -131,9 +131,9 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
         activityIndicator.startAnimating()
         
 //        friendsRef = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
-        friendsRef = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
+        friendsRef = Database.database().reference().child("users/\(self.currUser)/friends")
 //         cityRef = Firebase(url:"https://check-inout.firebaseio.com/checked")
-        cityRef = FIRDatabase.database().reference().child("checked")
+        cityRef = Database.database().reference().child("checked")
         retrieveFromFirebase{(finished:Bool)
             in
             if(finished){

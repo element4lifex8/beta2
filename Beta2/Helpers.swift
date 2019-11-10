@@ -299,7 +299,7 @@ class Helpers{
     }
     
     //Get firebase auth reference, nil if user signed in with FaceBook (Or no signed in at all)
-    let firAuth = FIRAuth.auth()
+    let firAuth = Auth.auth()
     
     
     //Function used to only print to console for debug builds which use the -D DEBUG flag:
@@ -371,7 +371,7 @@ class Helpers{
     //Return the user's login type, username, and displayname
     func emailCheck(email: String, _ completionClosure: @escaping (_ type:  Helpers.userType, _ userName: NSString, _ displayName: NSString) -> Void)
     {
-        let userRef = FIRDatabase.database().reference(withPath:"users")
+        let userRef = Database.database().reference(withPath:"users")
         var returnType : Helpers.userType = Helpers.userType.new
         var returnUser: NSString = ""
         var returnName: NSString = ""
@@ -379,7 +379,7 @@ class Helpers{
         userRef.queryOrdered(byChild: "email").queryEqual(toValue: email.lowercased()).observeSingleEvent(of: .value, with: { snapshot in
             //snapshot is the user id of the matching user, email should be unique so only 1 entry should be returned but to only return the items beneath the user id I "loop" over the snapshots child, and if no children return default returnType of userType.new
             for child in snapshot.children{
-                let rootNode = child as! FIRDataSnapshot
+                let rootNode = child as! DataSnapshot
                 //If we have no children then its most certain that the current user doesn't exist
                 //Node dict is the items beneath the user id
                 if let nodeDict = rootNode.value as? NSDictionary{
@@ -414,9 +414,9 @@ class Helpers{
     }
     
     //retrieve a list of all the user's friends from the database and return the firebase handle created by the query
-    func retrieveMyFriends(friendsRef: FIRDatabaseReference, _ completionClosure: @escaping (_ friendStr: [String], _ friendId:[String]) -> Void) -> FIRDatabaseHandle? {
+    func retrieveMyFriends(friendsRef: DatabaseReference, _ completionClosure: @escaping (_ friendStr: [String], _ friendId:[String]) -> Void) -> DatabaseHandle? {
         //FIR database handler for removing reference if I decide to user observe instead of observeSingleEvent
-        var friendHandler: FIRDatabaseHandle?
+        var friendHandler: DatabaseHandle?
         
         //Retrieve a list of the user's current check in list
         //Stop leaving the observe handle active because changes in the back end were triggering this functin then calling the completion closure at the end which was creashing the app
@@ -450,11 +450,11 @@ class Helpers{
     }
     
     //Retrieve a list of all of the cities the user's friends have
-    func retrieveFriendCity(cityRef: FIRDatabaseReference, friendsList: [String], _  completionClosure: @escaping (_ completedArr: [String]) -> Void) -> FIRDatabaseHandle? {
+    func retrieveFriendCity(cityRef: DatabaseReference, friendsList: [String], _  completionClosure: @escaping (_ completedArr: [String]) -> Void) -> DatabaseHandle? {
         var localCityArr = [String]()
         var loopCount = 0
         //FIR database handler for removing reference if I decide to user observe instead of observeSingleEvent
-        var cityHandler: FIRDatabaseHandle?
+        var cityHandler: DatabaseHandle?
         
         //Loop over all the user's friends to get a list of their cities
         for friendId in friendsList{
@@ -462,7 +462,7 @@ class Helpers{
             cityHandler = cityRef.child(friendId).queryOrdered(byChild: "city").observe( .value, with: { snapshot in
                 
                 for child in (snapshot.children) {    //each child is either city, cat or place ID
-                    let rootNode = child as! FIRDataSnapshot
+                    let rootNode = child as! DataSnapshot
                     
                     //force downcast only works if root node has children, otherwise value will only be a string
                     //If nodeDict can't be unwrapped then the key value pair is the google place id
@@ -494,7 +494,7 @@ class Helpers{
 
     //retrieve a list of all the user's friends from the database and return the firebase handle created by the query
     func retrieveCheckInCount(currUser: NSString, _ completionClosure: @escaping (_ checkInCount: Int) -> Void) -> Void {
-        let currRef = FIRDatabase.database().reference().child("checked/\(currUser)")
+        let currRef = Database.database().reference().child("checked/\(currUser)")
         var checkCount = 0
         
         MyListViewController().retrieveWithRef(currRef){ (placeNodeArr: [placeNode]) in
@@ -508,18 +508,18 @@ class Helpers{
     }
     
     func addNewFriend(friendId: NSString, friendName: String) -> Void{
-        let userChecked = FIRDatabase.database().reference().child("users/\(Helpers().currUser)/friends")
+        let userChecked = Database.database().reference().child("users/\(Helpers().currUser)/friends")
         let currInfo = ["displayName1" : Helpers().currDisplayName as String]
 
         //Add id of curr friend with their display name stored underneath
         let friendInfo = ["displayName1" : friendName]
         //add friend to Curr user's list
-        userChecked.child(byAppendingPath: friendId as String).setValue(friendInfo)
+        userChecked.child(friendId as String).setValue(friendInfo)
         //Add curr user to their new friend's list
-        let friendChecked = FIRDatabase.database().reference().child("users/\(friendId)/followers")
+        let friendChecked = Database.database().reference().child("users/\(friendId)/followers")
         
         //add friend to Curr user's list
-        friendChecked.child(byAppendingPath: Helpers().currUser as String).setValue(currInfo)
+        friendChecked.child(Helpers().currUser as String).setValue(currInfo)
     }
 }
 

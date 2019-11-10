@@ -16,7 +16,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
     var unwindPerformed = false
 //    let currUserDefaultKey = "FBloginVC.currUser"
 //    fileprivate let sharedFbUser = UserDefaults.standard
-    let authRef = FIRAuth.auth()
+    //let authRef = Auth.auth()
 
     var userEmail: String?
     var userPassword: String?
@@ -80,10 +80,10 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                 activityIndicator.stopAnimating()
                 loadingView.removeFromSuperview()
             } else {    
-                let credential = FIRFacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
+                let credential = FacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
                 
                 //use current access token from logged in user to pass to firebase's login auth func
-                Helpers().firAuth?.signIn(with: credential) { (user, error) in
+                Helpers().firAuth.signIn(with: credential) { (user, error) in
                     if error != nil
                     {
                         Helpers().myPrint(text: "Login failed \(error)")
@@ -104,7 +104,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                         {
                             friendsFB = "revoked"
                         }
-                        if let authUser = self.authRef?.currentUser{
+                        if let authUser = Helpers().firAuth.currentUser{
                            
                             Helpers().currUser = authUser.uid as NSString
                             //facebook doesn't provide an email if the user logged in with phone number
@@ -126,12 +126,10 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                         
                         //Previously used Facebook's explicitly returned object as the user's id to store / get user info, now using Firebase object per above code, need to retain facebook id too for retrieval of facebook auth friends and converting to firebase id
                         //Provider data is an optional array, unwrap the optional then iterate over the 1 expected array entry to gather uid, displayName, and email parameters
-                        if let providerData = user?.providerData {
+                        if let providerData = user?.user {
 //                            //The entry will contain the following items: providerID (facebook.com), userId($uid), displayName (from facebook), photoURL(also from FB), email
-                            for entry in providerData{  //Expect only 1 entry
-                                Helpers().FBUserId = entry.uid as NSString
-                                Helpers().myPrint(text: "\(Helpers().FBUserId)")
-                            }
+                            Helpers().FBUserId = providerData.uid as NSString
+                            Helpers().myPrint(text: "\(Helpers().FBUserId)")
                         }
                         
                         self.isCurrentUser() {(isUser: Bool) in
@@ -205,12 +203,12 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                     break
                 case(.email):
                     //Attempt Login with email
-                    Helpers().firAuth!.signIn(withEmail: email, password: password) { (user, error) in
+                    Helpers().firAuth.signIn(withEmail: email, password: password) { (user, error) in
                         
                         if(error != nil){
                             if let errorNS = error as NSError?{ //Cast to NSError so I can retrieve components
                                 let errorDict = errorNS.userInfo as NSDictionary   //User info dictionary provided by firebase with additional error info
-                                if let errorStr = errorDict[FIRAuthErrorNameKey] as? String{
+                                if let errorStr = errorDict[AuthErrorUserInfoNameKey] as? String{
                                     //error object provided a specific error name
                                     errorName = errorStr
                                 }
@@ -250,7 +248,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                             //Update login type to user defaults since i'm logging in, new users update this item in NSDefaults in the Onboard details VC
                             Helpers().loginType = self.loginType!.rawValue
                             //Here i'm trusting Firebase to always retrun a user if no error so I use optional chaining instead of unwrapping user variabe
-                            Helpers().currUser = user?.uid as! NSString
+                            Helpers().currUser = user?.user.uid as! NSString
                             Helpers().displayActMon(display: false, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
                         
                             //Also need to update the username & display name in User defaults in case this is a new install or a different user from the last login
@@ -384,7 +382,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
             loginFailMsg(error: "missing_email")
             return
         }
-        Helpers().firAuth!.sendPasswordReset(withEmail: email) { error in
+        Helpers().firAuth.sendPasswordReset(withEmail: email) { error in
             if(error != nil){
                 if let errorNS = error as NSError?{ //Cast to NSError so I can retrieve components
                     let errorDict = errorNS.userInfo as NSDictionary   //User info dictionary provided by firebase with additional error info
@@ -478,7 +476,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         //Async queue for synchronization
         let queue = DispatchQueue(label: "com.checkinoutlists.checkinout.isCurrentUser", attributes: .concurrent, target: .main)
         
-        let userRef = FIRDatabase.database().reference(withPath: "users").child(Helpers().currUser as String)
+        let userRef = Database.database().reference(withPath: "users").child(Helpers().currUser as String)
         var user = false
         
         //Create async group so I don't call completion closure til both calls are done
@@ -488,7 +486,7 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
                 
                 //Previously I would loop over all users to compare if the curr user existed
 
-                let rootNode = snapshot as FIRDataSnapshot
+                let rootNode = snapshot as DataSnapshot
                 //force downcast only works if root node has children, otherwise value will only be a string
                 
                 //If we have no children then its most certain that the current user doesn't exist

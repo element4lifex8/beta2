@@ -129,7 +129,7 @@ class UpdateCatsViewController: UIViewController, UITableViewDelegate, UITableVi
             performSegue(withIdentifier: "unwindFromCat", sender: self)
             return
         }
-        let userCatRef = FIRDatabase.database().reference().child("checked/\(Helpers().currUser)/\(checkInName)/category")
+        let userCatRef = Database.database().reference().child("checked/\(Helpers().currUser)/\(checkInName)/category")
         
         //Check if the previously stored categories was updated and that at least 1 category is selected
         if(selectedCatButt.count > 0){

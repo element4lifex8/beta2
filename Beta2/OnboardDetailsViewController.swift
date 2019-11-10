@@ -161,11 +161,11 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                             //Continue if Username unique, no special chars,  and > 3 chars long
                             if(valid){
                                 //All fields look good, try to create new user
-                                Helpers().firAuth?.createUser(withEmail: email, password: password) { (user, error) in
+                                Helpers().firAuth.createUser(withEmail: email, password: password) { (user, error) in
                                     if(error != nil){
                                         if let errorNS = error as NSError?{ //Cast to NSError so I can retrieve components
                                             let errorDict = errorNS.userInfo as NSDictionary   //User info dictionary provided by firebase with additional error info
-                                            if let errorStr = errorDict[FIRAuthErrorNameKey] as? String{
+                                            if let errorStr = errorDict[AuthErrorUserInfoNameKey] as? String{
                                                 //error object provided a specific error name
                                                 errorName = errorStr
                                             }
@@ -193,7 +193,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                                         sender.isEnabled = true
                                     }else{  //No Error, create user in database
                                         //Store user ID in NSUserDefaults
-                                        Helpers().currUser = user?.uid as! NSString
+                                        Helpers().currUser = user?.user.uid as! NSString
                                         //Store user's name in UserDefaults
                                         Helpers().currDisplayName = "\(firstName) \(lastName)" as NSString
                                         Helpers().currUserName = userName as NSString
@@ -202,7 +202,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                                         //Lowercase the email address to make searching standard
                                         let newUser = ["displayName1": "\(firstName) \(lastName)",
                                                        "email": email.lowercased(), "username": userName, "friends" : "true", "type" : "email"]
-                                        let ref = FIRDatabase.database().reference(withPath:"users")
+                                        let ref = Database.database().reference(withPath:"users")
                                         //Append user id as root of node and newUser dict nested beneath
                                         ref.child(Helpers().currUser as String).setValue(newUser)
                                         
@@ -252,7 +252,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
                         let newUser = ["displayName1": "\(firstName) \(lastName)",
                             "email": email.lowercased() , "username": userName, "friends" : "true", "type" : "facebook", "facebookid": "\(Helpers().FBUserId)" ]
                         
-                        let ref = FIRDatabase.database().reference(withPath:"users")
+                        let ref = Database.database().reference(withPath:"users")
                         //Append user id as root of node and newUser dict nested beneath
                         ref.child(Helpers().currUser as String).setValue(newUser)
                         
@@ -358,7 +358,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
     //check if the current username exists in the system and return true if it does
     func usernameValid(name: String, _ completionClosure: @escaping (_ valid:  Bool) -> Void)
     {
-        let userRef = FIRDatabase.database().reference(withPath:"users")
+        let userRef = Database.database().reference(withPath:"users")
         //Keep track of whether the user exists but only return is the userName is valid (doesn't exists and proper format
         var exists: Bool = false
         var valid: Bool = true
@@ -378,7 +378,7 @@ class OnboardDetailsViewController: UIViewController, UITextFieldDelegate {
             userRef.queryOrdered(byChild: "username").queryEqual(toValue: name).observeSingleEvent(of: .value, with: { snapshot in
                 //snapshot is the user id of the matching username, each username is unique so only 1 entry should be returned but to only return the items beneath the user id I "loop" over the snapshots child, and if no children return false (username is unique)
                 for child in snapshot.children{
-                    let rootNode = child as! FIRDataSnapshot
+                    let rootNode = child as! DataSnapshot
                     //If we have no children then its most certain that the current username doesn't exist
                     //Node dict is the items beneath the user id, If downcast fails then username doesn't exist
                     if let nodeDict = rootNode.value as? NSDictionary{

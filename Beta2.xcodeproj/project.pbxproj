@@ -24,6 +24,7 @@
 		EB0656501BEE3BF200CF8376 /* CIOHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */; };
 		EB1405C41D300526001D3924 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB85D5641C5982F000F2E29F /* CoreData.framework */; };
 		EB1405C71D3007B1001D3924 /* CheckedCoreData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = EB1405C51D3007B1001D3924 /* CheckedCoreData.xcdatamodeld */; };
+		EB15805A237792FA00D471F1 /* GoogleAPIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB1580572377905A00D471F1 /* GoogleAPIKeys.swift */; };
 		EB1959C41C62C56B001E0F62 /* libicucore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C31C62C56B001E0F62 /* libicucore.tbd */; };
 		EB1959C61C62C575001E0F62 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C51C62C575001E0F62 /* libc++.tbd */; };
 		EB1959C81C62C57E001E0F62 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1959C71C62C57E001E0F62 /* CFNetwork.framework */; };
@@ -124,6 +125,7 @@
 		EB06564D1BEE3B4900CF8376 /* CIOHomeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CIOHomeViewController.swift; path = ../CIOHomeViewController.swift; sourceTree = "<group>"; };
 		EB06564F1BEE3BF200CF8376 /* CIOHomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIOHomeView.swift; sourceTree = "<group>"; };
 		EB1405C61D3007B1001D3924 /* CheckedCoreData.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CheckedCoreData.xcdatamodel; sourceTree = "<group>"; };
+		EB1580572377905A00D471F1 /* GoogleAPIKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleAPIKeys.swift; sourceTree = "<group>"; };
 		EB1959C31C62C56B001E0F62 /* libicucore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.tbd; path = usr/lib/libicucore.tbd; sourceTree = SDKROOT; };
 		EB1959C51C62C575001E0F62 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		EB1959C71C62C57E001E0F62 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -291,6 +293,7 @@
 			children = (
 				EBC29B741FD76B9300E55C6B /* Profile */,
 				EB86294A1F5CBF7C00AB72DA /* Assets.xcassets */,
+				EB1580572377905A00D471F1 /* GoogleAPIKeys.swift */,
 				EB06561B1BEE37F300CF8376 /* AppDelegate.swift */,
 				EBA11B761E5FBF6800114D56 /* Helpers.swift */,
 				EB03B8361E06D06E0002098C /* Beta2.entitlements */,
@@ -519,9 +522,9 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Beta2/Pods-Beta2-resources.sh",
-				"${PODS_ROOT}/GoogleMaps/Maps/Frameworks/GoogleMaps.framework/Versions/A/Resources/GoogleMaps.bundle",
-				"${PODS_ROOT}/GooglePlacePicker/Frameworks/GooglePlacePicker.framework/Versions/A/Resources/GooglePlacePicker.bundle",
-				"${PODS_ROOT}/GooglePlaces/Frameworks/GooglePlaces.framework/Versions/A/Resources/GooglePlaces.bundle",
+				"${PODS_ROOT}/GoogleMaps/Maps/Frameworks/GoogleMaps.framework/Resources/GoogleMaps.bundle",
+				"${PODS_ROOT}/GooglePlacePicker/Frameworks/GooglePlacePicker.framework/Resources/GooglePlacePicker.bundle",
+				"${PODS_ROOT}/GooglePlaces/Frameworks/GooglePlaces.framework/Resources/GooglePlaces.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
@@ -596,12 +599,16 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Beta2/Pods-Beta2-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -643,6 +650,7 @@
 				EB06564E1BEE3B4900CF8376 /* CIOHomeViewController.swift in Sources */,
 				EBBA52E21CFE62730047E22A /* SubheaderTableViewCell.swift in Sources */,
 				EB30D8CF2318A9C300046E3A /* MapVC.swift in Sources */,
+				EB15805A237792FA00D471F1 /* GoogleAPIKeys.swift in Sources */,
 				EB4B128D1D57B9C500F8B62C /* MyListViewController.swift in Sources */,
 				EB489D271FB8EE7400C0CB6C /* CategoryTableViewCell.swift in Sources */,
 				EB61CD681DC5025400297225 /* SegueFromRight.swift in Sources */,

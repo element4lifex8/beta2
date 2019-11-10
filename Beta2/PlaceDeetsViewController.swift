@@ -40,7 +40,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
     //Google places client
     var placesClient: GMSPlacesClient!
     //Google places web api uses different api key than ios app
-    var googleAPIkey = "AIzaSyBkZgZI20bfFpBBC-t-AGKTpXRcQZPS9ck"
+    var googleAPIkey = GoogleAPIKeys().GoogleApiWebPlacesKey
     //use dispatch groups to make async call using google places web api and google places ios api then fire async call to reload tableview
     var myGroup = DispatchGroup()
     
@@ -192,7 +192,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
         //Array to hold friends that will be returned by completion closure
         var tempFriends: [String: String] = [String: String]()
         //firebase ref to current user's friends
-        let friendRef = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
+        let friendRef = Database.database().reference().child("users/\(self.currUser)/friends")
         friendRef.observeSingleEvent(of: .value, with: { snapshot in
             //Each item under friends is a user:"true" dictionary item
             if let friendList = snapshot.value as? NSDictionary{
@@ -222,7 +222,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
         var numFriends = 0
         var matchedDict: [String: String] = [String: String]()
         //Reference to master list
-        let refCheckedPlaces = FIRDatabase.database().reference().child("places")
+        let refCheckedPlaces = Database.database().reference().child("places")
         guard let placeName = self.titleText else {return}
         let myRef = refCheckedPlaces.child(placeName).child("users")
         //Get a list of all of my current friends:
@@ -259,7 +259,7 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
     func gatherFriendComments(friendList:[String: String]){
         
         guard let placeName = self.titleText else {return}
-        let refCheckedPlaces = FIRDatabase.database().reference().child("checked")
+        let refCheckedPlaces = Database.database().reference().child("checked")
 //        let userRef = refCheckedPlaces.child(placeName).child("users")
         //Get a list of all of my current friends:
         

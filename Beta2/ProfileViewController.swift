@@ -29,8 +29,8 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
 //    var loadingView: UIView = UIView()
     
     //When cities change I'll re-check the number of cities
-    var cityHandler: FIRDatabaseHandle?
-    var cityRef: FIRDatabaseReference!
+    var cityHandler: DatabaseHandle?
+    var cityRef: DatabaseReference!
     
     var progMenuView: UIView = UIView()
     let menuWidth: CGFloat = 187.0
@@ -110,8 +110,8 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         //Perform backend access and configure activity monitor in viewDidAppear so frame sizes are known
         
         //Display the number of friends and their cities retrieved from firebase for the curr user
-        let friendsRef = FIRDatabase.database().reference().child("users/\(Helpers().currUser)/friends")
-        self.cityRef = FIRDatabase.database().reference().child("checked")
+        let friendsRef = Database.database().reference().child("users/\(Helpers().currUser)/friends")
+        self.cityRef = Database.database().reference().child("checked")
         
         let citySpinner = displayActivityMonitor(thisButton: self.cityButton)
         let peopleSpinner = displayActivityMonitor(thisButton: self.peopleButton)
@@ -398,11 +398,11 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         case 4 :
             //If current user is an email user I need to log out of Firebase
             if(Helpers().loginType == Helpers.userType.email.rawValue){
-                try! Helpers().firAuth!.signOut()
+                try! Helpers().firAuth.signOut()
             }else{
                 let loginManager = FBSDKLoginManager()
                 loginManager.logOut()
-                try! Helpers().firAuth!.signOut()
+                try! Helpers().firAuth.signOut()
             }
             performSegue(withIdentifier: "LoginScreen", sender: self)
         default:

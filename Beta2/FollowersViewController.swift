@@ -18,7 +18,7 @@ class FollowersViewController: UIViewController, UITableViewDelegate, UITableVie
     var frienddName:[String] = []
     var friendId:[String] = []
     var friendsValid = 0
-    var followerHandler: FIRDatabaseHandle?
+    var followerHandler: DatabaseHandle?
     
     override func viewDidLoad() {
         
@@ -48,7 +48,7 @@ class FollowersViewController: UIViewController, UITableViewDelegate, UITableVie
         Helpers().displayActMon(display: true, superView: self.view, loadingView: &loadingView, activityIndicator: &activityIndicator)
         
         //Retrieve list of friends from Firebase to compare to the retrieved followers
-        let _ = Helpers().retrieveMyFriends(friendsRef: FIRDatabase.database().reference().child("users/\(Helpers().currUser as String)/friends")) {(friendStr:[String], friendId:[String]) in
+        let _ = Helpers().retrieveMyFriends(friendsRef: Database.database().reference().child("users/\(Helpers().currUser as String)/friends")) {(friendStr:[String], friendId:[String]) in
             self.friendId = friendId
             self.frienddName = friendStr
             self.friendsValid = 1   //mark friend arrays as having been filled from firebase
@@ -81,7 +81,7 @@ class FollowersViewController: UIViewController, UITableViewDelegate, UITableVie
     }
     
     func retrieveFollowersFromFirebase(_ completionClosure: @escaping (_ finished: Bool, _ friendCount: Int) -> Void) {
-        let followerRef = FIRDatabase.database().reference().child("users/\(Helpers().currUser)/followers")
+        let followerRef = Database.database().reference().child("users/\(Helpers().currUser)/followers")
         var friendCount = 0
         self.followerHandler = followerRef.queryOrdered(byChild: "displayName1").observe(.value, with: { snapshot in
         

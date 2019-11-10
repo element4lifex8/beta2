@@ -100,8 +100,8 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     var myFriendIds: [String] = []    //list of Facebook Id's with matching index to myFriends array
     var selectedAccessButt: [Int] = []     //List of users who are selected to add as friends
     var selectedIds: [String] = []     //List of users id's who are selected to add as friends
-    var friendsRef: FIRDatabaseReference!
-    var friendHandler: FIRDatabaseHandle?
+    var friendsRef: DatabaseReference!
+    var friendHandler: DatabaseHandle?
     //Dispatch group used to sync firebase and facebook api call
     var myGroup = DispatchGroup()
     var currUser = Helpers().currUser
@@ -452,7 +452,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         activityIndicator.startAnimating()
         
 //        friendsRef = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
-        friendsRef = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
+        friendsRef = Database.database().reference().child("users/\(self.currUser)/friends")
         
         //Had to create the queue and add the async closure because I was getting EXC_BAD_INSTRUCTION when calling myGroup.leave otherwise
         queue.async(group: myGroup) {
@@ -710,7 +710,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         //Retrieve a list of the user's current check in list
         self.friendsRef.queryOrdered(byChild: "displayName1").observeSingleEvent(of: .value, with: { snapshot in
                 for child in (snapshot.children) {    //each child should be a root node named by the users friend ID
-                    let rootNode = child as! FIRDataSnapshot
+                    let rootNode = child as! DataSnapshot
                     let nodeDict = rootNode.value as! NSDictionary
                     //key = "displayName1", value = friend's name
                     for ( _ , value ) in nodeDict{
@@ -726,7 +726,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     }
     
     func equateFacebook2Firebase(_ completionClosure: @escaping (_ finished: Bool ) -> Void){
-        let userRef = FIRDatabase.database().reference(withPath:"users")
+        let userRef = Database.database().reference(withPath:"users")
         
         if(self.facebookAuthIds.count > 0){
             for (index, facebookId) in self.facebookAuthIds.enumerated(){
@@ -735,7 +735,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
                    //snapshot is the user rootnode and query equal will return no nodes beneath the snapshot if there is no matching id to a "facebookid" key
                     //each user is unique so only 1 entry should be returned but to only return the items beneath the user id I "loop" over the snapshots child, and if no children the user doesn't have an updated account with their FB id stored in the backend
                     for child in (snapshot.children) {    //each child should be a root node named by the users friend ID
-                        let rootNode = child as! FIRDataSnapshot
+                        let rootNode = child as! DataSnapshot
                         //store the user id key of the current node
                         let firebaseId = rootNode.key
                         let nodeDict = rootNode.value as! NSDictionary
@@ -763,7 +763,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
     func findUser(input: String, _ completionClosure: @escaping (_ exists:  Bool) -> Void)
     {
         
-        let userRef = FIRDatabase.database().reference(withPath:"users")
+        let userRef = Database.database().reference(withPath:"users")
         var nameExists = false
         var childString = ""    //either email or username child is searched
         
@@ -779,7 +779,7 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         userRef.queryOrdered(byChild: childString).queryEqual(toValue: input).observeSingleEvent(of: .value, with: { snapshot in
             //snapshot is the user id/email of the matching name, each user is unique so only 1 entry should be returned but to only return the items beneath the user id I "loop" over the snapshots child, and if no children return false (username is unique)
             for child in snapshot.children{
-                let rootNode = child as! FIRDataSnapshot
+                let rootNode = child as! DataSnapshot
                 //If we have no children then its most certain that the current username doesn't exist
                 //Node dict is the items beneath the user id
                 if let nodeDict = rootNode.value as? NSDictionary{
@@ -943,19 +943,19 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
 
      @IBAction func submitSelected(_ sender: UIButton) {
 //         let userChecked = Firebase(url:"https://check-inout.firebaseio.com/users/\(self.currUser)/friends")
-        let userChecked = FIRDatabase.database().reference().child("users/\(self.currUser)/friends")
+        let userChecked = Database.database().reference().child("users/\(self.currUser)/friends")
         let currInfo = ["displayName1" : Helpers().currDisplayName as String]
         for friend in self.selectedFBfriends{
             if let name = friend.displayName, let id = friend.id{
                 //Add id of curr friend with their display name stored underneath
                 let friendInfo = ["displayName1" : name]
                 //add friend to Curr user's list
-                userChecked.child(byAppendingPath: id).setValue(friendInfo)
+                userChecked.child(id).setValue(friendInfo)
                 //Add curr user to their new friend's followers list
-                let friendChecked = FIRDatabase.database().reference().child("users/\(id)/followers")
+                let friendChecked = Database.database().reference().child("users/\(id)/followers")
                 
                 //add friend to Curr user's list
-                friendChecked.child(byAppendingPath: Helpers().currUser as String).setValue(currInfo)
+                friendChecked.child(Helpers().currUser as String).setValue(currInfo)
             }else{
                 Helpers().myPrint(text: "No id was found for the following friend: \(friend.displayName ?? "friend name failed too")")
             }
