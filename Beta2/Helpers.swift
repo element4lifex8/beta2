@@ -31,6 +31,9 @@ class Helpers{
     static let numFriendValDefaultKey = "CIOHomeVC.numFriendValid"    //Key to reference the number if user friends num is current
     static let followNoteDefaultKey = "FollowersVC.followNote"    //Key for flag to display new follower notification
     
+    
+    let catButtonList = ["Bar",  "Beaches", "Breakfast", "Brewery", "Brunch", "Bucket List", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lodging", "Lunch", "Museums", "Night Club", "Parks", "Sightseeing", "Winery"]
+    
     //retrieve the current app user from NSUserDefaults
     var currUser: NSString {
         get{

@@ -9,8 +9,9 @@
 import UIKit
 import FirebaseDatabase
 import Foundation
+import GoogleMaps
 
-class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UICollectionViewDataSource, UICollectionViewDelegate      {
+class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UICollectionViewDataSource, UICollectionViewDelegate, CLLocationManagerDelegate, GMSMapViewDelegate      {
 
     var placesArr = [String]()
     var tableData = [String]()
@@ -41,6 +42,11 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var myListHeaderLabel: UILabel!
+    
+    //Google map view
+    var mapHidden = true
+    @IBOutlet weak var mapView: GMSMapView!
+    var locationManager: CLLocationManager? = nil
     
     let currUserDefaultKey = "FBloginVC.currUser"
     fileprivate let sharedFbUser = UserDefaults.standard
@@ -83,6 +89,9 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         var userRetrievalCount:Int = 0     //Count the number of user's with their info pulled from the dataBase
         super.viewDidLoad()
 
+        //Init and Remove mapview from screen
+        initMap()
+        
         userRef = Database.database().reference().child("checked/\(defaultUser)")
 //        //If another user's list was requested then requestedUser will be set
         if let userIds = myFriendIds{
@@ -1049,6 +1058,85 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
     }
     
+    //Map functions
+    //Init map and hide from view
+    func initMap()
+    {
+        self.mapView.isHidden = self.mapHidden
+        self.view.sendSubview(toBack: mapView)
+        self.mapView.settings.compassButton = true
+        var coordinates: CLLocationCoordinate2D?
+        
+        //Initialize CL Location manager so a users current location can be determined
+        self.locationManager = CLLocationManager()
+        
+        if CLLocationManager.authorizationStatus() == .notDetermined{
+            self.locationManager?.requestWhenInUseAuthorization()
+        }
+        
+        locationManager?.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager?.distanceFilter = 200   //To do see if 200 is too zoomed out
+        locationManager?.delegate = self
+        //Don't start updating if user hasn't granted permission so they are not prompted
+        if (CLLocationManager.locationServicesEnabled()){
+            startUpdatingLocation()
+        }
+        
+        
+        //Only grab the user coordinates if their location services are enabled so we don't prompt them every time to enable them
+        if(CLLocationManager.locationServicesEnabled()){
+            coordinates = locationManager?.location?.coordinate//CLLocationCoordinate2D(latitude: 37.788204, longitude: -122.411937)
+        }else{
+            coordinates = nil
+        }
+        
+        //Map view delegate:
+        mapView.delegate = self
+        
+        
+        if let center = coordinates{
+            //Change the view on the map to the user's current location
+            mapView.camera = GMSCameraPosition(target: center, zoom: 15, bearing: 0, viewingAngle: 0)
+        }else{
+            let coordNone = CLLocationCoordinate2D(latitude: CLLocationDegrees(0), longitude: CLLocationDegrees(0))
+            mapView.camera = GMSCameraPosition(target: coordNone, zoom: 15, bearing: 0, viewingAngle: 0)
+        }
+        
+        //Enable blue dot on map
+        mapView.isMyLocationEnabled = true
+        //Enable button to center around location
+        mapView.settings.myLocationButton = true
+    }
+    
+    //Confirm to CL location delegate
+    func startUpdatingLocation() {
+        self.locationManager?.startUpdatingLocation()
+    }
+    
+    func stopUpdatingLocation() {
+        self.locationManager?.stopUpdatingLocation()
+    }
+
+    
+    @IBAction func swapButton(_ sender: UIButton) {
+        mapHidden = !mapHidden
+        self.mapView.isHidden = mapHidden
+        if(mapHidden){
+            self.view.sendSubview(toBack: mapView)
+        } else {
+            self.view.bringSubview(toFront: mapView)
+        }
+        
+        //Show example place
+        // Creates a marker in the center of the map.
+        let marker = GMSMarker()
+        let treeRet = self.placeNodeTreeRoot.children![1].returnNodeAtIndex(1)
+        let placeId = treeRet?.nodePlaceId
+        marker.position = CLLocationCoordinate2D(latitude: -33.86, longitude: 151.20)
+        marker.title = "Sydney"
+        marker.snippet = "Australia"
+        marker.map = mapView
+    }
     // Unwind seque from my PlaceDeets
     @IBAction func unwindFromPlaceDeets(_ sender: UIStoryboardSegue) {
         // empty

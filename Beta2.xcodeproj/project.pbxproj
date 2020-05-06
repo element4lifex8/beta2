@@ -320,6 +320,7 @@
 				EB3C7E9F1EB93182004E417E /* GoogleService-Info.plist */,
 				EB9EE2CA1DD2A88900AC1FF0 /* Launch Screen.storyboard */,
 				EB0656271BEE37F300CF8376 /* Info.plist */,
+				EB697769239179FC004C02FA /* New Group */,
 			);
 			path = Beta2;
 			sourceTree = "<group>";
@@ -363,6 +364,13 @@
 				EBEA7D871F3FBA7300A15461 /* OnboardDetailsViewController.swift */,
 			);
 			name = Onboarding;
+			sourceTree = "<group>";
+		};
+		EB697769239179FC004C02FA /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "New Group";
 			sourceTree = "<group>";
 		};
 		EBC29B741FD76B9300E55C6B /* Profile */ = {

@@ -8,15 +8,20 @@
 import UIKit
 import GoogleMaps
 
-class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate {
+class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate {
 
     @IBOutlet weak var mapView: GMSMapView!
+    @IBOutlet weak var collectionView: UICollectionView!
     
     var locationManager: CLLocationManager? = nil
+    var selectedCollection = [Int]()
+    var selectedFilters = [String]()
+    
+    var catButtonList = ["Bar",  "Beaches", "Breakfast", "Brewery", "Brunch", "Bucket List", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lodging", "Lunch", "Museums", "Night Club", "Parks", "Sightseeing", "Winery"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        print("Cat num: \(catButtonList.count)")
         var coordinates: CLLocationCoordinate2D?
         
         //Initialize CL Location manager so a users current location can be determined
@@ -44,7 +49,6 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate {
         
         //Map view delegate:
         mapView.delegate = self
-
         
          if let center = coordinates{
             //Change the view on the map to the user's current location
@@ -65,8 +69,18 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate {
         
         //List user's checkin's on map:
 //        let marker = GMSMarker(
+        
+        //Collection view
+        collectionView.delegate = self
+
+        collectionView?.allowsMultipleSelection = true
+        collectionView.showsHorizontalScrollIndicator = false
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+        collectionView.reloadData()
+    }
 
     //Confirm to CL location delegate
     func startUpdatingLocation() {
@@ -76,10 +90,119 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate {
     func stopUpdatingLocation() {
         self.locationManager?.stopUpdatingLocation()
     }
+    
+    //    Collection view functions
+    
+    // MARK: - UICollectionViewDataSource protocol
+    
+    // tell the collection view how many cells to make
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        print ("returning \(self.catButtonList.count) cat items")
+        return self.catButtonList.count
+    }
+    
+    // make a cell for each cell index path
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let reuseIdentifier = "collCell"
+        print("next butt")
+        // get a reference to our storyboard cell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! RoundButtCollectionViewCell
+        //        Outlet no longer used and label created in code
+        // Use the outlet in our custom class to get a reference to the UILabel in the cell
+        //        cell.myLabel.text = catButtonList[indexPath.item]
+        //        cell.myLabel.sizeToFit()
+        
+        //Create label here since autolayout only worked after scroll
+        let catLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 86, height: 25))
+        catLabel.center = CGPoint(x: 50, y: 50)
+        catLabel.textAlignment = NSTextAlignment.center
+        catLabel.text = self.catButtonList[indexPath.item]
+        //Adjust font size to fit larger words, and truncate at end
+        catLabel.adjustsFontSizeToFitWidth = true
+        catLabel.minimumScaleFactor = 0.6
+        catLabel.lineBreakMode = .byTruncatingTail
+        
+        catLabel.textColor = UIColor.white
+        cell.contentView.addSubview(catLabel)
+        //set cell properties
+        cell.backgroundColor = UIColor.clear
+        cell.layer.borderColor = UIColor.white.cgColor
+        cell.layer.borderWidth = 2
+        cell.layer.cornerRadius = 0.5 * cell.bounds.size.width
+        
+//        if(selectedCollection.contains(indexPath.item)){
+//            selectCell(cell, indexPath: indexPath)
+//        }
+        
+        return cell
+    }
+    
+    // MARK: - UICollectionViewDelegate protocol
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        var currSection: Int = 0
+        //Keep track of whether a section exists to scroll to
+        var canScroll: Bool = false
+
+        if let cell = collectionView.cellForItem(at: indexPath){
+            selectCell(cell, indexPath: indexPath)
+        }
+        //Keep track of selected items. Items are deselected when scrolled out of view
+        selectedCollection.append(indexPath.item)
+        selectedFilters.append(Helpers().catButtonList[indexPath.item])
+        //        print("Coll \(selectedCollection)")
+
+        //TODO: filter map pins to all categories not matching the selected category
+
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        var currSection: Int = 0
+        //Keep track of whether a section exists to scroll to
+        var canScroll: Bool = false
+        
+        let cell = collectionView.cellForItem(at: indexPath)
+        if let imageViews = cell?.contentView.subviews{
+            for case let image as UIImageView in imageViews{
+                image.removeFromSuperview()
+            }
+        }
+        cell?.backgroundColor = UIColor.clear
+        //Remove selected item from list Keeping track of selected items' index path
+        if let index = selectedCollection.index(of: indexPath.item){
+            selectedCollection.remove(at: index)
+        }
+        //Remove selected item from list Keeping track of selected items' nodeValue string
+        if let index = selectedFilters.index(of: catButtonList[indexPath.item]){
+            selectedFilters.remove(at: index)
+        }
+        
+        //TODO - un filter map display
+    }
+
+    // change background color when user touches cell
+    func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath)
+        cell?.backgroundColor = UIColor(red: 0x60/255, green: 0x60/255, blue: 0x60/255, alpha: 1.0)
+    }
+
+    // change background color back when user releases touch
+    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath)
+        cell?.backgroundColor = UIColor.clear
+    }
+
+    func selectCell(_ cell: UICollectionViewCell, indexPath: IndexPath)
+    {
+        let checkImage = UIImage(named: "Check Symbol")
+        let checkImageView = UIImageView(image: checkImage)
+
+        //center check image at point 50,75
+        checkImageView.frame = CGRect(x: 45, y: 70, width: 15, height: 15)
+        //add check image
+        cell.contentView.addSubview(checkImageView)
+        cell.backgroundColor = UIColor(white: 1, alpha: 0.5)
+    }
 
 }
 
-//// MARK: - GMSMapViewDelegate
-//extension MapViewController: GMSMapViewDelegate {
-//    
-//}
