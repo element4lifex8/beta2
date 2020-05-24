@@ -526,3 +526,65 @@ class Helpers{
     }
 }
 
+//Retrieve list of all checked in places for curr user
+func retrieveWithRef(_ myRef: DatabaseReference, completionClosure: @escaping (_ placeNodeArr: [placeNode]) -> Void) {
+    var locPlaceNodeArr = [placeNode]()
+    var locPlaceNodeObj:placeNode = placeNode()
+    
+    //Retrieve a list of the user's current check in list
+    let myfriendHandler = myRef.observe(.value, with: {snapshot in
+        //        self.friendHandler = myRef.observe(of: .value, with: { snapshot in
+        //Clear previous values in localPlaceNodeArr if any
+        locPlaceNodeArr.removeAll()
+        
+        //rootNode now contains a list of all the places from the current user's Reference
+        let rootNode = snapshot as DataSnapshot
+        //force downcast only works if root node has children, otherwise user has no valid check in entries
+        //each entry in nodeDict now has a key of the check in's place name and a value of the city/category attributes
+        guard let nodeDict = rootNode.value as? NSDictionary else{
+            //Call Completion cloures with empty node array
+            completionClosure(locPlaceNodeArr)
+            return
+        }
+        //Loop over each check in Place and parse its attributes
+        for (key, _ ) in nodeDict{
+            //Create new place node to store the current place's info
+            locPlaceNodeObj = placeNode()
+            locPlaceNodeObj.place = key as? String
+            //Get a snapshot of the current place to iterate over its attributes
+            let placeSnap = snapshot.childSnapshot(forPath: key as! String)
+            //Iterate over each city and category child of the place's check in
+            for placeChild in placeSnap.children{
+                let currNode = placeChild as! DataSnapshot
+                //If Place dict can be unwrapped as NSDictionary then it now has key of the city or cat attribute, and the value is always "true"
+                //If place Dict can't be unwrapped then the key value pair is the google place id
+                if let placeDict = currNode.value as? NSDictionary{
+                    //The placeChild key tells us which type of attribute data we are currently looping over
+                    for (attrKey, _ ) in placeDict{
+                        if((placeChild as AnyObject).key == "city"){
+                            locPlaceNodeObj.addCity(attrKey as! String)
+                        }
+                        else if((placeChild as AnyObject).key == "category"){
+                            locPlaceNodeObj.addCategory(attrKey as! String)
+                        }
+                    }
+                }else{
+                    if let placeId = currNode.value as? String{
+                        locPlaceNodeObj.placeId = placeId
+                    }else{
+                        Helpers().myPrint(text: "Malformed firebase entry for \(locPlaceNodeObj.place)")
+                    }
+                    
+                }
+            }
+            
+            locPlaceNodeArr.append(locPlaceNodeObj)
+            //Previous code block was in an if let optional chain block, but now FIR snaps are not optionals
+            //                else{
+            //                    print("Created place node with no attributes. Child snapshot of \(key as!String) was nil")
+            //                }
+        }
+        //Call Completion cloures on completed list of place nodes from the current user's checkins
+        completionClosure(locPlaceNodeArr)
+    })
+}

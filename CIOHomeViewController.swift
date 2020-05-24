@@ -257,12 +257,21 @@ class CIOHomeViewController: UIViewController   {
         // empty
     }
     
+    // Unwind seque from my CheckOutMapView
+    @IBAction func unwindFromMapCheckOut(_ sender: UIStoryboardSegue) {
+        // empty
+    }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         //Check if transitioning to check out screen and if doing so from add friends button
         if(segue.identifier == "segueToFriends")
         {
             let destinationVC = segue.destination as! CheckOutContainedViewController
             destinationVC.callerWantsToShowPeople = true
+        }
+        //Check if transitioning to check out Map screen and if doing so from add slider button
+        else if(segue.identifier == "segueToCOMap"){
+                let destinationVC = segue.destination as! MapVC
+                destinationVC.callerWantsCheckOut = true
         }
     }
 }

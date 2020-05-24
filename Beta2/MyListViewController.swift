@@ -1141,5 +1141,10 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBAction func unwindFromPlaceDeets(_ sender: UIStoryboardSegue) {
         // empty
     }
+    
+    // Unwind seque from map view
+    @IBAction func unwindFromMap(_ sender: UIStoryboardSegue) {
+        // empty
+    }
 }
 

@@ -212,13 +212,6 @@
                                             <segue destination="vYS-qE-3QG" kind="custom" identifier="TermsSegue" customClass="SegueFromRight" customModule="Beta2" customModuleProvider="target" id="kRf-9H-gV3"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gD2-Yo-mC9">
-                                        <rect key="frame" x="281" y="553" width="30" height="30"/>
-                                        <state key="normal" title="Map"/>
-                                        <connections>
-                                            <segue destination="q1I-h2-lDi" kind="custom" customClass="SegueFromRight" customModule="Beta2" customModuleProvider="target" id="NPb-VT-kch"/>
-                                        </connections>
-                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VsO-b3-eIN">
                                         <rect key="frame" x="270" y="450" width="50" height="30"/>
                                         <state key="normal" title="My List"/>
@@ -239,7 +232,6 @@
                                     <constraint firstItem="QcC-lc-MSW" firstAttribute="top" secondItem="9m6-7z-arl" secondAttribute="top" priority="600" constant="56" id="M5f-oR-JDX"/>
                                     <constraint firstAttribute="trailing" secondItem="H9h-zq-JRL" secondAttribute="trailing" constant="20" id="OAC-Ji-4lX"/>
                                     <constraint firstItem="y4B-LZ-E3r" firstAttribute="centerX" secondItem="9m6-7z-arl" secondAttribute="centerX" id="OrT-pO-s1p"/>
-                                    <constraint firstItem="gD2-Yo-mC9" firstAttribute="leading" secondItem="y4B-LZ-E3r" secondAttribute="trailing" constant="20" id="SrG-ta-JQQ"/>
                                     <constraint firstItem="QcC-lc-MSW" firstAttribute="centerX" secondItem="1K4-xm-BPv" secondAttribute="centerX" id="TLL-aG-Lt6"/>
                                     <constraint firstItem="1K4-xm-BPv" firstAttribute="centerX" secondItem="9m6-7z-arl" secondAttribute="centerX" id="Ta3-NE-AZb"/>
                                     <constraint firstItem="5FB-A0-M6E" firstAttribute="top" secondItem="VsO-b3-eIN" secondAttribute="bottom" constant="16" id="WF4-NM-l9q"/>
@@ -247,7 +239,6 @@
                                     <constraint firstItem="Hlm-OJ-mOi" firstAttribute="centerX" secondItem="9m6-7z-arl" secondAttribute="centerX" id="aqr-Lm-AhS"/>
                                     <constraint firstItem="PTT-0U-xXp" firstAttribute="centerY" secondItem="h3a-uz-KsF" secondAttribute="centerY" id="dhI-m1-gHM"/>
                                     <constraint firstItem="ZhA-KV-ty2" firstAttribute="leading" secondItem="h3a-uz-KsF" secondAttribute="trailing" constant="4" id="eBn-Xo-GJn"/>
-                                    <constraint firstItem="gD2-Yo-mC9" firstAttribute="top" secondItem="5FB-A0-M6E" secondAttribute="bottom" constant="13" id="exH-YR-oIM"/>
                                     <constraint firstItem="Hlm-OJ-mOi" firstAttribute="top" secondItem="1K4-xm-BPv" secondAttribute="bottom" constant="20" id="hXo-Vj-S8g"/>
                                     <constraint firstItem="h3a-uz-KsF" firstAttribute="centerX" secondItem="9m6-7z-arl" secondAttribute="centerX" id="ir1-En-fw8"/>
                                     <constraint firstItem="QcC-lc-MSW" firstAttribute="top" relation="greaterThanOrEqual" secondItem="9m6-7z-arl" secondAttribute="top" constant="35" id="lcn-Hc-kL7"/>
@@ -767,7 +758,7 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <segue destination="F5Z-PP-fCT" kind="custom" customClass="SegueFromRight" customModule="Beta2" customModuleProvider="target" id="VL1-aN-paN"/>
+                                    <segue destination="wPd-KL-wVR" kind="custom" identifier="segueToCOMap" customClass="SegueFromRight" customModule="Beta2" customModuleProvider="target" id="hds-Um-0P9"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MEW-hZ-0Md">
@@ -2030,11 +2021,12 @@ Cg
                                         <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="id8-Wa-7hj">
-                                        <rect key="frame" x="326" y="35" width="38" height="30"/>
-                                        <state key="normal" title="Swap"/>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="id8-Wa-7hj">
+                                        <rect key="frame" x="332" y="35" width="32" height="32"/>
+                                        <state key="normal" image="mapIcon"/>
                                         <connections>
                                             <action selector="swapButton:" destination="dny-DR-OUK" eventType="touchUpInside" id="4ck-6S-oJD"/>
+                                            <segue destination="wPd-KL-wVR" kind="custom" customClass="SegueFromRight" customModule="Beta2" customModuleProvider="target" id="rtq-sb-6aD"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -7268,10 +7260,10 @@ Email: anuj@checkinoutlists.com
             </objects>
             <point key="canvasLocation" x="1908" y="231"/>
         </scene>
-        <!--MapVC-->
+        <!--View Controller-->
         <scene sceneID="n41-QC-5an">
             <objects>
-                <viewController automaticallyAdjustsScrollViewInsets="NO" id="q1I-h2-lDi" customClass="MapVC" customModule="Beta2" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="q1I-h2-lDi" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="nNo-sC-Iim">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -7293,14 +7285,14 @@ Email: anuj@checkinoutlists.com
                                 </state>
                                 <variation key="default">
                                     <mask key="constraints">
-                                        <exclude reference="cgf-cc-1hp"/>
                                         <exclude reference="EPo-9u-dwg"/>
+                                        <exclude reference="cgf-cc-1hp"/>
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=regular-widthClass=compact">
                                     <mask key="constraints">
-                                        <include reference="cgf-cc-1hp"/>
                                         <include reference="EPo-9u-dwg"/>
+                                        <include reference="cgf-cc-1hp"/>
                                     </mask>
                                 </variation>
                                 <connections>
@@ -7394,6 +7386,80 @@ Email: anuj@checkinoutlists.com
             </objects>
             <point key="canvasLocation" x="901.60000000000002" y="-579.76011994002999"/>
         </scene>
+        <!--MapVC-->
+        <scene sceneID="bua-lV-g0k">
+            <objects>
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="wPd-KL-wVR" customClass="MapVC" customModule="Beta2" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="OHG-dq-hWU">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lZu-D8-azn" customClass="GMSMapView">
+                                <rect key="frame" x="0.0" y="20" width="375" height="647"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RHj-Mc-kdx">
+                                <rect key="frame" x="15" y="36" width="40" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="40" id="8FO-1d-qBy"/>
+                                    <constraint firstAttribute="height" constant="30" id="wgV-LY-9kw"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="heavy" pointSize="27"/>
+                                <inset key="contentEdgeInsets" minX="0.0" minY="0.0" maxX="10" maxY="0.0"/>
+                                <state key="normal" image="backArrowMapView">
+                                    <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="8FO-1d-qBy"/>
+                                        <exclude reference="wgV-LY-9kw"/>
+                                    </mask>
+                                </variation>
+                                <variation key="heightClass=regular-widthClass=compact">
+                                    <mask key="constraints">
+                                        <include reference="8FO-1d-qBy"/>
+                                        <include reference="wgV-LY-9kw"/>
+                                    </mask>
+                                </variation>
+                                <connections>
+                                    <segue destination="0CD-Lw-OZB" kind="unwind" unwindAction="unwindFromMapCheckOut:" id="KM9-b8-AzR"/>
+                                </connections>
+                            </button>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="PX0-ht-LvE">
+                                <rect key="frame" x="162.5" y="114" width="52" height="31"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="50" id="6FE-Qf-Jxg"/>
+                                </constraints>
+                                <color key="onTintColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="thumbTintColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </switch>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="RHj-Mc-kdx" firstAttribute="top" secondItem="Mov-92-hJi" secondAttribute="top" constant="16" id="DDQ-o0-LRP"/>
+                            <constraint firstItem="RHj-Mc-kdx" firstAttribute="leading" secondItem="Mov-92-hJi" secondAttribute="leading" constant="15" id="Dxy-eK-D78"/>
+                            <constraint firstItem="Mov-92-hJi" firstAttribute="top" secondItem="PX0-ht-LvE" secondAttribute="bottom" constant="-125" id="GBK-iU-7Qs"/>
+                            <constraint firstItem="lZu-D8-azn" firstAttribute="top" secondItem="Mov-92-hJi" secondAttribute="top" constant="100" id="Uz0-xs-EtU"/>
+                            <constraint firstItem="Mov-92-hJi" firstAttribute="trailing" secondItem="lZu-D8-azn" secondAttribute="trailing" id="ZaM-J1-xhV"/>
+                            <constraint firstItem="PX0-ht-LvE" firstAttribute="centerX" secondItem="OHG-dq-hWU" secondAttribute="centerX" id="eBz-oh-ahu"/>
+                            <constraint firstItem="Mov-92-hJi" firstAttribute="bottom" secondItem="lZu-D8-azn" secondAttribute="bottom" id="ig7-SR-M2o"/>
+                            <constraint firstItem="lZu-D8-azn" firstAttribute="leading" secondItem="Mov-92-hJi" secondAttribute="leading" id="n16-pY-ZlB"/>
+                            <constraint firstItem="lZu-D8-azn" firstAttribute="top" secondItem="Mov-92-hJi" secondAttribute="top" id="s3u-4t-4c8"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="Mov-92-hJi"/>
+                    </view>
+                    <connections>
+                        <outlet property="MapView" destination="lZu-D8-azn" id="ba0-Nn-AR0"/>
+                        <outlet property="SwitchIcon" destination="PX0-ht-LvE" id="mse-o1-USr"/>
+                        <outlet property="mapView" destination="lZu-D8-azn" id="4P5-uF-eLb"/>
+                        <segue destination="0CD-Lw-OZB" kind="unwind" identifier="UnwindPriv2Profile" unwindAction="unwindPrivPol:" id="aiq-EG-9xC"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="14v-hH-Rr7" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="0CD-Lw-OZB" userLabel="Exit" sceneMemberID="exit"/>
+            </objects>
+            <point key="canvasLocation" x="4012" y="984"/>
+        </scene>
     </scenes>
     <resources>
         <image name="Grey Background" width="375" height="667"/>
@@ -7407,6 +7473,7 @@ Email: anuj@checkinoutlists.com
         <image name="cityButton" width="375" height="60"/>
         <image name="facebook" width="248" height="44"/>
         <image name="locationIcon" width="15" height="20"/>
+        <image name="mapIcon" width="32" height="32"/>
         <image name="myListIcon" width="30" height="27"/>
         <image name="myListIconMapView" width="40" height="40"/>
         <image name="page1Background" width="375" height="667"/>
@@ -7415,11 +7482,12 @@ Email: anuj@checkinoutlists.com
         <image name="pagenation page2" width="55" height="10"/>
     </resources>
     <inferredMetricsTieBreakers>
+        <segue reference="hds-Um-0P9"/>
         <segue reference="kRf-9H-gV3"/>
         <segue reference="1ju-Nu-XO4"/>
         <segue reference="7eM-Un-hJZ"/>
-        <segue reference="0W0-tu-1ts"/>
-        <segue reference="4dT-ym-Lmj"/>
+        <segue reference="6bs-N6-6yd"/>
+        <segue reference="8zc-AM-fSt"/>
         <segue reference="5by-zv-PsO"/>
         <segue reference="1EQ-Cd-qfT"/>
     </inferredMetricsTieBreakers>

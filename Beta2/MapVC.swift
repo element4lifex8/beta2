@@ -7,21 +7,29 @@
 
 import UIKit
 import GoogleMaps
+import FirebaseDatabase
+import GooglePlaces
 
 class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate {
 
     @IBOutlet weak var mapView: GMSMapView!
-    @IBOutlet weak var collectionView: UICollectionView!
+    //    @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var SwitchIcon: UISwitch!
+    
+    //If transition to this screen wants to checkout instead of my list, update this var
+    //Info from login screen that will be populated here
+    var callerWantsCheckOut: Bool?
     
     var locationManager: CLLocationManager? = nil
     var selectedCollection = [Int]()
     var selectedFilters = [String]()
+    var placeCoordinates: CLLocationCoordinate2D?
     
     var catButtonList = ["Bar",  "Beaches", "Breakfast", "Brewery", "Brunch", "Bucket List", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lodging", "Lunch", "Museums", "Night Club", "Parks", "Sightseeing", "Winery"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("Cat num: \(catButtonList.count)")
+        
         var coordinates: CLLocationCoordinate2D?
         
         //Initialize CL Location manager so a users current location can be determined
@@ -66,20 +74,67 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
 //        mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
         
+        //gooogle Places setup
+        let placesClient = GMSPlacesClient.shared()
         
         //List user's checkin's on map:
 //        let marker = GMSMarker(
+        //Assign my user's ref
+        let currRef = Database.database().reference().child("checked/\(Helpers().currUser)")
+        retrieveWithRef(currRef){ (placeNodeArr: [placeNode]) in
+            //Grab place id and use to set marker
+            for node in placeNodeArr{
+                if let placeId = node.placeId{
+                    placesClient.lookUpPlaceID(placeId, callback: { (place, error) -> Void in
+                        if let error = error {
+                            Helpers().myPrint(text: "lookup place id query error: \(error.localizedDescription)")
+                            return
+                        }
+                        
+                        guard let place = place else {
+                            Helpers().myPrint(text: "No place details for \(node.placeId)")
+                            return
+                        }
+                        
+                        //Get the place coordinates and then the city, state, country so we can open the maps page reliably
+                        self.placeCoordinates = place.coordinate
+                        if let placeName = node.place, let typeArr = place.types, let placeCoord = self.placeCoordinates{
+                            let marker = GMSMarker(position: placeCoord)    //Dangerous force unwrap
+                            marker.title = "\(placeName)"
+                            //Get the type of place and print with 1st letter capitalized in pop up
+                            let firstType = typeArr[0]
+                            var capType = firstType.uppercased().prefix(1) + firstType.lowercased().dropFirst()
+                            marker.snippet = String(capType)
+                            marker.icon = UIImage(named: "Geo-fence")
+//                            marker.icon = UIImage(named: "locationIcon")
+                            marker.map = self.mapView
+                        }
+                    })
+                } else {
+                    print("can't add custom checkin to mapview")
+                }
+            }
+            
+        }
         
         //Collection view
-        collectionView.delegate = self
-
-        collectionView?.allowsMultipleSelection = true
-        collectionView.showsHorizontalScrollIndicator = false
+//        collectionView.delegate = self
+//
+//        collectionView?.allowsMultipleSelection = true
+//        collectionView.showsHorizontalScrollIndicator = false
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
-        collectionView.reloadData()
+        
+        //Only show toggle when using map for check out screen
+        if let _ = callerWantsCheckOut {
+            //Show toggler
+            mapView.layer.zPosition = mapView.layer.zPosition-1
+        } else {
+            SwitchIcon.isHidden = true
+        }
+//        collectionView.reloadData()
     }
 
     //Confirm to CL location delegate
