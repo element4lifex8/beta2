@@ -13,17 +13,25 @@ import GooglePlaces
 class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate {
 
     @IBOutlet weak var mapView: GMSMapView!
+    let infoMarker = GMSMarker()    //Google's points of interest for GMSMapViewDelegate
     //    @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var SwitchIcon: UISwitch!
     
     //If transition to this screen wants to checkout instead of my list, update this var
     //Info from login screen that will be populated here
-    var callerWantsCheckOut: Bool?
+    var callerWantsCheckOut: Bool?  //Variable set by clalling VC
+    
+    //Store the user that the list items will be retrieved for
+    
+    var myFriends:[String] = []
+    var myFriendIds: [String] = []    //list of Facebook Id's with matching index to myFriends array
     
     var locationManager: CLLocationManager? = nil
     var selectedCollection = [Int]()
     var selectedFilters = [String]()
     var placeCoordinates: CLLocationCoordinate2D?
+    
+    var selectedMarker: Any?    //Treenode Data stored with the marker
     
     var catButtonList = ["Bar",  "Beaches", "Breakfast", "Brewery", "Brunch", "Bucket List", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lodging", "Lunch", "Museums", "Night Club", "Parks", "Sightseeing", "Winery"]
     
@@ -73,50 +81,15 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
         //ToDo: See if this has any effect, zoom is auto enabled so this should only be neccessary for non-storyboard maps
 //        mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
+        //Retrieve checkins from firebase, sync with stored core data, display on map
         
-        //gooogle Places setup
-        let placesClient = GMSPlacesClient.shared()
-        
-        //List user's checkin's on map:
-//        let marker = GMSMarker(
-        //Assign my user's ref
-        let currRef = Database.database().reference().child("checked/\(Helpers().currUser)")
-        retrieveWithRef(currRef){ (placeNodeArr: [placeNode]) in
-            //Grab place id and use to set marker
-            for node in placeNodeArr{
-                if let placeId = node.placeId{
-                    placesClient.lookUpPlaceID(placeId, callback: { (place, error) -> Void in
-                        if let error = error {
-                            Helpers().myPrint(text: "lookup place id query error: \(error.localizedDescription)")
-                            return
-                        }
-                        
-                        guard let place = place else {
-                            Helpers().myPrint(text: "No place details for \(node.placeId)")
-                            return
-                        }
-                        
-                        //Get the place coordinates and then the city, state, country so we can open the maps page reliably
-                        self.placeCoordinates = place.coordinate
-                        if let placeName = node.place, let typeArr = place.types, let placeCoord = self.placeCoordinates{
-                            let marker = GMSMarker(position: placeCoord)    //Dangerous force unwrap
-                            marker.title = "\(placeName)"
-                            //Get the type of place and print with 1st letter capitalized in pop up
-                            let firstType = typeArr[0]
-                            var capType = firstType.uppercased().prefix(1) + firstType.lowercased().dropFirst()
-                            marker.snippet = String(capType)
-                            marker.icon = UIImage(named: "Geo-fence")
-//                            marker.icon = UIImage(named: "locationIcon")
-                            marker.map = self.mapView
-                        }
-                    })
-                } else {
-                    print("can't add custom checkin to mapview")
-                }
+        gatherData(){(finished: Bool) in
+            if(finished){
+                print("Done loading map")
             }
-            
         }
         
+       
         //Collection view
 //        collectionView.delegate = self
 //
@@ -124,18 +97,20 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
 //        collectionView.showsHorizontalScrollIndicator = false
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
-        
-        //Only show toggle when using map for check out screen
-        if let _ = callerWantsCheckOut {
-            //Show toggler
-            mapView.layer.zPosition = mapView.layer.zPosition-1
-        } else {
-            SwitchIcon.isHidden = true
-        }
-//        collectionView.reloadData()
-    }
+
+    //New plans are to fore-go the slider button and have a slide out menu like on the user profile screen (and maspster)
+    //    override func viewDidAppear(_ animated: Bool) {
+//        super.viewDidAppear(true)
+//
+//        //Only show toggle when using map for check out screen
+//        if let _ = callerWantsCheckOut {
+//            //Show toggler
+//            mapView.layer.zPosition = mapView.layer.zPosition-1
+//        } else {
+//            SwitchIcon.isHidden = true
+//        }
+////        collectionView.reloadData()
+//    }
 
     //Confirm to CL location delegate
     func startUpdatingLocation() {
@@ -144,6 +119,188 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
     
     func stopUpdatingLocation() {
         self.locationManager?.stopUpdatingLocation()
+    }
+    
+    
+    // Use GMSMapViewDelegate to Attach an info window to the POI using the GMSMarker. (POI's are the pins google shows by default)
+    func mapView(
+        _ mapView: GMSMapView,
+        didTapPOIWithPlaceID placeID: String,
+        name: String,
+        location: CLLocationCoordinate2D
+        ) {
+//        infoMarker.snippet = "Add me?"
+        infoMarker.userData = placeID //Adding the place id to user data will allow me to use it and transition to the place deets screen
+        infoMarker.position = location
+        infoMarker.title = name
+        infoMarker.opacity = 0;
+        infoMarker.infoWindowAnchor.y = 1
+        infoMarker.map = mapView
+        mapView.selectedMarker = infoMarker
+    }
+    
+    //Function retrieves friends and cities and returns when both retrievals are finished
+    func gatherData(_ completionClosure: @escaping (_ finished: Bool) -> Void) {
+        
+        //Dispatch group used to sync firebase and facebook api call
+        var myGroup = DispatchGroup()
+        //Store the user that the list items will be retrieved for (either friends or just curr user
+        var currUsers: [String]?
+        
+        let friendsRef = Database.database().reference().child("users/\(Helpers().currUser)/friends")
+        var currRef = DatabaseReference()
+        
+        //gooogle Places setup
+        let placesClient = GMSPlacesClient.shared()
+        
+        //Only home screen->check out button sets this, so if nil print curr user's pins
+        if(callerWantsCheckOut ?? false)
+        {
+            //Get list of the user's current friends so they can't add them again
+            myGroup.enter()
+            _ = Helpers().retrieveMyFriends(friendsRef: friendsRef) {(friendStr:[String], friendId:[String]) in
+                self.myFriends = friendStr
+                self.myFriendIds = friendId
+                //Sort the friends and their IDs by combining into tuple, sorting by the myFriends string array (the first item in each tuple) then seperate back out into two arrays (same thing is done for unAddedFriends in the closure below)
+                self.sortFriendArrays(nameArr: &self.myFriends, idArr: &self.myFriendIds)
+                currUsers = self.myFriendIds
+                myGroup.leave()
+            }
+            
+        } else {  //Only the user's list
+            //Fake async request to fire checkin retrieval below
+            myGroup.enter()
+            currUsers = [Helpers().currUser as String]
+            myGroup.leave()
+        }
+        
+        //Retrieve checkins once all user id's are retrieved
+        myGroup.notify(queue: DispatchQueue.main) {
+            //TODO Need to figure out how to only request data in printable map space
+            
+            //Place Details lookups cost $17 per 1000 if contact info (website/phone #) or atmostphere data (reviews, price level) is included, so the following request would get everything and rack up a fortune:                     placesClient.lookUpPlaceID(placeId, callback: {
+            //Quotas to limit the damage are set here:  https://console.cloud.google.com/google/maps-apis/apis/places-backend.googleapis.com/quotas?project=check-in-out-lists
+            
+            //populate Core data with map pin data if not present
+            
+            //Only request basic data from place details and use geometry.location for coordinates (geometry also contains viewport, which contains the preferred viewport when displaying this place on a map as a LatLngBounds if it is known.
+            // Specify the place data types to return.
+            //                    let fields: GMSPlaceField = GMSPlaceField(rawValue: UInt(GMSPlaceField.name.rawValue) |                        UInt(GMSPlaceField.placeID.rawValue))!
+            let fields: GMSPlaceField = GMSPlaceField(rawValue: UInt(GMSPlaceField.name.rawValue) |
+                UInt(GMSPlaceField.coordinate.rawValue) | UInt(GMSPlaceField.types.rawValue))!
+            
+            for friendId in currUsers!{
+                var i = 0
+                currRef = Database.database().reference().child("checked/\(friendId)")
+                retrieveWithRef(currRef){ (placeNodeArr: [placeNode]) in
+                    
+                    //Grab place id for each user checkin, and use to set marker
+                    for node in placeNodeArr{
+                    
+                        if let placeId = node.placeId{
+                            if i < 10
+                            {
+                                //probably need to add a session token for billing
+                                placesClient.fetchPlace(fromPlaceID: placeId, placeFields: fields, sessionToken: nil, callback: { (place: GMSPlace?, error: Error?) in
+                                    if let error = error {
+                                        Helpers().myPrint(text: "lookup place id query error: \(error.localizedDescription)")
+                                        return
+                                    }
+                                    
+                                    guard let place = place else {
+                                        Helpers().myPrint(text: "No place details for \(node.placeId)")
+                                        return
+                                    }
+                                    
+                                    //Get the place coordinates and then the city, state, country so we can open the maps page reliably
+                                    
+                                    //TODO determine visible map area and add when visible
+                                    self.placeCoordinates = place.coordinate
+                                    if let placeName = node.place, let typeArr = node.category, let placeCoord = self.placeCoordinates{
+                                        let marker = GMSMarker(position: placeCoord)    //Dangerous force unwrap
+                                        //Store entire treenode with marker so its details can be retrieved
+                                        marker.userData = node
+                                        marker.title = "\(placeName)"
+                                        //Get the type of place and print with 1st letter capitalized in pop up
+                                        let firstType = typeArr[0]
+                                        var capType = firstType.uppercased().prefix(1) + firstType.lowercased().dropFirst()
+                                        marker.snippet = String(capType)
+                                        //                            marker.icon = UIImage(named: "Geo-fence")
+                                        //                            marker.icon = UIImage(named: "locationIcon")
+                                        marker.map = self.mapView
+                                    }
+                                })
+                            }
+                            i=i+1
+                            
+                        } else {
+                            print("can't add custom checkin to mapview")
+                        }
+                    }
+                }
+            }
+        }
+ 
+    }
+
+        
+    //combine the friends names and Ids so they can be sorted together and then seperate back out
+    //Use "inout" keyword to pass arrays to the function by reference
+    func sortFriendArrays(nameArr: inout [String], idArr: inout [String]){
+        //Combine the Friends names and IDs into a tuple so I can sort by last name
+        // use zip to combine the two arrays and sort that based on the first
+        //$0.0 refers to the the first value of the first tuple, and $0.1 refers to the first value of the 2nd tupe, so each tuple is a [unAddedFriend Name, unAddedFriendID] so I'm looking at the first & second item for each iteration and only considering the unAddedFriend name for sorting
+        let combinedFriends = zip(nameArr, idArr).sorted {$0.0.lastName() < $1.0.lastName()}
+        //Then extract all of the 1st items in each tuple (unAddedFriends names)
+        nameArr = combinedFriends.map{$0.0}
+        //Then extract all of the 2st items in each tuple (unAddedFriends ids)
+        idArr = combinedFriends.map{$0.1}
+    }
+    
+    
+    //    func mapView(_ mapView: GMSMapView, didTap marker: GMSMarker) -> Bool {
+    //            print("Did tap a normal marker")
+    //        return false
+    //    }
+    
+    func mapView(_ mapView: GMSMapView, didTapInfoWindowOf marker: GMSMarker) {
+        //
+        selectedMarker = marker.userData
+        //User data only added for checkins, google maps's POI's will be nil
+        if(selectedMarker != nil){
+            self.performSegue(withIdentifier: "mapToDeets", sender: self)
+        } else {
+            print("Google POI")
+        }
+    }
+    
+    
+    //Pass the placeId of the placeDeets view
+    override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
+        //Don't perform prepare for segue when unwinding from list
+        if(segue.identifier == "mapToDeets"){
+            let destinationVC = segue.destination as! PlaceDeetsViewController
+            //get place id for selected place
+            //Get index path of selected cell then get corresponding tree node
+            if let markerData = selectedMarker as? placeNode{
+                destinationVC.titleText = markerData.place
+                destinationVC.placeId = markerData.placeId
+                destinationVC.categories = markerData.category
+            }
+            //Pass whether this is a current user's list:
+            //TODO - determine my map or other user
+            //                if let _ = nil{
+            destinationVC.isMyPlace = false    //If headerText is set then this is not the user
+            //                }else{
+            //                    destinationVC.isMyPlace = true
+            //                }
+            
+        }
+    }
+    
+    // Unwind seque from placeDeets
+    @IBAction func unwindFromDeetsToMap(_ sender: UIStoryboardSegue) {
+        // empty
     }
     
     //    Collection view functions
@@ -155,6 +312,7 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
         print ("returning \(self.catButtonList.count) cat items")
         return self.catButtonList.count
     }
+  
     
     // make a cell for each cell index path
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -258,6 +416,7 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
         cell.contentView.addSubview(checkImageView)
         cell.backgroundColor = UIColor(white: 1, alpha: 0.5)
     }
+    
 
 }
 
