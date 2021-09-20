@@ -459,5 +459,9 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
 
+    //Set status bar to same color as background
+    override var preferredStatusBarStyle: UIStatusBarStyle{
+        return .lightContent
+    }
 
 }

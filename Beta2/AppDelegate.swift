@@ -28,13 +28,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //Enable the google maps api key
         GMSServices.provideAPIKey(GoogleAPIKeys().GoogleApiGMServicesKey)
         //change status bar background to solid color so that images can scroll behind it without affecting the status text
-        let statusBar: UIView = UIApplication.shared.value(forKey: "statusBar") as! UIView
-        if statusBar.responds(to:#selector(setter: UIView.backgroundColor)) {
-            statusBar.backgroundColor = UIColor.black
-        }
-        //Change status bar text  to light color
-        UIApplication.shared.statusBarStyle = .lightContent
-        
+//        let statusBar: UIView = UIApplication.shared.value(forKey: "statusBar") as! UIView
+//        if statusBar.responds(to:#selector(setter: UIView.backgroundColor)) {
+//            statusBar.backgroundColor = UIColor(red: 0x64/255, green: 0x64/255, blue: 0x64/255, alpha: 0.7)
+//        }
+//        //Change status bar text  to light color
+//        UIApplication.shared.statusBarStyle = .lightContent
+
         //Configure Firebase
         FirebaseApp.configure()
         

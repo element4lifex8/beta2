@@ -205,10 +205,11 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
             let headerToBottom = NSLayoutConstraint(item: bottomLayoutGuide, attribute: .top, relatedBy: .greaterThanOrEqual, toItem: HeaderView, attribute: .bottom, multiplier: 1.0, constant: 400)
             view.addConstraint(headerToBottom)
             
-        }else{//set header view height to 100
+        }else{//set header view height to 144
             HeaderView.translatesAutoresizingMaskIntoConstraints = false
-            let headerHeight = HeaderView.heightAnchor.constraint(equalToConstant: 100)    //Header height is 170 to match other onboarding heights
-            NSLayoutConstraint.activate([headerHeight])
+            let headerHeight = HeaderView.heightAnchor.constraint(equalToConstant: 144)    //Header height is 170 to match other onboarding heights
+            let headerToTop = NSLayoutConstraint(item: view, attribute: .top, relatedBy: .equal, toItem: HeaderView, attribute: .top, multiplier: 1.0, constant: 0)
+            NSLayoutConstraint.activate([headerHeight, headerToTop])
 
         }
 
@@ -1443,4 +1444,8 @@ class AddPeopleViewCntroller: UIViewController, UITableViewDelegate, UITableView
         deregisterFromKeyboardNotifications()
     }
 
+    //Set status bar to same color as background
+    override var preferredStatusBarStyle: UIStatusBarStyle{
+        return .lightContent
+    }
 }

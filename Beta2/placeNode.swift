@@ -15,6 +15,7 @@ public struct placeNode {
     var placeId: String?
     var category: [String]?
     var city: [String]?
+    var location: [String:Double]?   //Dictionary with [lat: xx.xx, lng: xx.xx] structure
     let ref: DatabaseReference?
     
     // Initialize from arbitrary data
@@ -23,6 +24,7 @@ public struct placeNode {
         self.placeId = nil
         self.category = category
         self.city = city
+        self.location = nil
         self.ref = nil
     }
     
@@ -31,6 +33,7 @@ public struct placeNode {
         self.placeId = nil
         self.category = nil
         self.city = nil
+        self.location = nil
         self.ref = nil
     }
     
@@ -54,6 +57,17 @@ public struct placeNode {
         }
     }
     
+    //Pass dict with [lat: xx.xx, lng: xx.xx] structure
+    mutating func addLocation(_ coord: NSDictionary)
+    {
+        var myDict = [String: Double] ()
+        myDict["lat"]=coord["lat"] as! Double
+        myDict["lng"] = coord["lng"] as! Double
+        self.location = myDict
+//        for (name, value) in coord{
+//            self.location?[name as! String] = value as? Double
+//        }
+    }
     
 //    init(snapshot: FDataSnapshot) {
 //        key = snapshot.key

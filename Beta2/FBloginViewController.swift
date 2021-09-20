@@ -663,4 +663,9 @@ class FBloginViewController: UIViewController, UITextFieldDelegate{
         // empty
     }
     
+    //Set status bar to same color as background
+    override var preferredStatusBarStyle: UIStatusBarStyle{
+        return .lightContent
+    }
+    
 }

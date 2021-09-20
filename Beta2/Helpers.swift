@@ -567,6 +567,9 @@ func retrieveWithRef(_ myRef: DatabaseReference, completionClosure: @escaping (_
                         else if((placeChild as AnyObject).key == "category"){
                             locPlaceNodeObj.addCategory(attrKey as! String)
                         }
+                        else if((placeChild as AnyObject).key == "location"){
+                            locPlaceNodeObj.addLocation(placeDict)
+                        }
                     }
                 }else{
                     if let placeId = currNode.value as? String{

@@ -10,12 +10,15 @@ import GoogleMaps
 import FirebaseDatabase
 import GooglePlaces
 
-class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate {
-
+class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UITableViewDelegate, UITableViewDataSource {
+    
+    @IBOutlet weak var menuButton: UIButton!
+    
+    
     @IBOutlet weak var mapView: GMSMapView!
     let infoMarker = GMSMarker()    //Google's points of interest for GMSMapViewDelegate
     //    @IBOutlet weak var collectionView: UICollectionView!
-    @IBOutlet weak var SwitchIcon: UISwitch!
+
     
     //If transition to this screen wants to checkout instead of my list, update this var
     //Info from login screen that will be populated here
@@ -35,9 +38,15 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
     
     var catButtonList = ["Bar",  "Beaches", "Breakfast", "Brewery", "Brunch", "Bucket List", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lodging", "Lunch", "Museums", "Night Club", "Parks", "Sightseeing", "Winery"]
     
+    var progMenuView: UIView = UIView()
+    let menuWidth: CGFloat = 187.0
+    //Table view holds items in list
+    var tableView: UITableView = UITableView()
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+    
         var coordinates: CLLocationCoordinate2D?
         
         //Initialize CL Location manager so a users current location can be determined
@@ -85,11 +94,10 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
         
         gatherData(){(finished: Bool) in
             if(finished){
-                print("Done loading map")
+                Helpers().myPrint(text: "Done loading map")
             }
         }
         
-       
         //Collection view
 //        collectionView.delegate = self
 //
@@ -99,9 +107,17 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
     
 
     //New plans are to fore-go the slider button and have a slide out menu like on the user profile screen (and maspster)
-    //    override func viewDidAppear(_ animated: Bool) {
-//        super.viewDidAppear(true)
-//
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+        
+        createMenuView()
+        
+        //Connect tableview delegate
+        self.tableView.dataSource=self
+        self.tableView.delegate=self
+        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        
+
 //        //Only show toggle when using map for check out screen
 //        if let _ = callerWantsCheckOut {
 //            //Show toggler
@@ -109,8 +125,8 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
 //        } else {
 //            SwitchIcon.isHidden = true
 //        }
-////        collectionView.reloadData()
-//    }
+//        collectionView.reloadData()
+    }
 
     //Confirm to CL location delegate
     func startUpdatingLocation() {
@@ -130,7 +146,7 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
         location: CLLocationCoordinate2D
         ) {
 //        infoMarker.snippet = "Add me?"
-        infoMarker.userData = placeID //Adding the place id to user data will allow me to use it and transition to the place deets screen
+        infoMarker.userData = [placeID, name] //Adding the place id to user data will allow me to use it and transition to the place deets screen
         infoMarker.position = location
         infoMarker.title = name
         infoMarker.opacity = 0;
@@ -190,51 +206,32 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
                 UInt(GMSPlaceField.coordinate.rawValue) | UInt(GMSPlaceField.types.rawValue))!
             
             for friendId in currUsers!{
-                var i = 0
                 currRef = Database.database().reference().child("checked/\(friendId)")
                 retrieveWithRef(currRef){ (placeNodeArr: [placeNode]) in
                     
                     //Grab place id for each user checkin, and use to set marker
                     for node in placeNodeArr{
+                        //Add pin to map if place node location is available
                     
-                        if let placeId = node.placeId{
-                            if i < 10
-                            {
-                                //probably need to add a session token for billing
-                                placesClient.fetchPlace(fromPlaceID: placeId, placeFields: fields, sessionToken: nil, callback: { (place: GMSPlace?, error: Error?) in
-                                    if let error = error {
-                                        Helpers().myPrint(text: "lookup place id query error: \(error.localizedDescription)")
-                                        return
-                                    }
-                                    
-                                    guard let place = place else {
-                                        Helpers().myPrint(text: "No place details for \(node.placeId)")
-                                        return
-                                    }
-                                    
-                                    //Get the place coordinates and then the city, state, country so we can open the maps page reliably
-                                    
-                                    //TODO determine visible map area and add when visible
-                                    self.placeCoordinates = place.coordinate
-                                    if let placeName = node.place, let typeArr = node.category, let placeCoord = self.placeCoordinates{
-                                        let marker = GMSMarker(position: placeCoord)    //Dangerous force unwrap
-                                        //Store entire treenode with marker so its details can be retrieved
-                                        marker.userData = node
-                                        marker.title = "\(placeName)"
-                                        //Get the type of place and print with 1st letter capitalized in pop up
-                                        let firstType = typeArr[0]
-                                        var capType = firstType.uppercased().prefix(1) + firstType.lowercased().dropFirst()
-                                        marker.snippet = String(capType)
-                                        //                            marker.icon = UIImage(named: "Geo-fence")
-                                        //                            marker.icon = UIImage(named: "locationIcon")
-                                        marker.map = self.mapView
-                                    }
-                                })
-                            }
-                            i=i+1
-                            
+                        //Get the place coordinates and then the city, state, country so we can open the maps page reliably
+                        
+                        //TODO determine visible map area and add when visible
+                        if let placeName = node.place, let typeArr = node.category, let placeCoord = node.location {
+                            let coord = CLLocationCoordinate2D(latitude: placeCoord["lat"]!, longitude: placeCoord["lng"]!)
+                            let marker = GMSMarker(position: coord)
+                            //Store entire treenode with marker so its details can be retrieved
+                            marker.userData = node
+                            marker.title = "\(placeName)"
+                            //Get the type of place and print with 1st letter capitalized in pop up
+                            let firstType = typeArr[0]
+                            var capType = firstType.uppercased().prefix(1) + firstType.lowercased().dropFirst()
+                            marker.snippet = String(capType)
+                            //                            marker.icon = UIImage(named: "Geo-fence")
+                            //                            marker.icon = UIImage(named: "locationIcon")
+                            marker.map = self.mapView
+                        
                         } else {
-                            print("can't add custom checkin to mapview")
+                            Helpers().myPrint(text: "can't add custom checkin to mapview")
                         }
                     }
                 }
@@ -266,12 +263,8 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
     func mapView(_ mapView: GMSMapView, didTapInfoWindowOf marker: GMSMarker) {
         //
         selectedMarker = marker.userData
-        //User data only added for checkins, google maps's POI's will be nil
-        if(selectedMarker != nil){
-            self.performSegue(withIdentifier: "mapToDeets", sender: self)
-        } else {
-            print("Google POI")
-        }
+        self.performSegue(withIdentifier: "mapToDeets", sender: self)
+
     }
     
     
@@ -286,6 +279,10 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
                 destinationVC.titleText = markerData.place
                 destinationVC.placeId = markerData.placeId
                 destinationVC.categories = markerData.category
+            } else if let poiData = selectedMarker as? [String] {    //If I don't have a place node from a check in I should have a [place id,place name] string array from a google place of interest
+                destinationVC.placeId = poiData[0]
+                destinationVC.titleText = poiData[1]
+                destinationVC.categories = [""]
             }
             //Pass whether this is a current user's list:
             //TODO - determine my map or other user
@@ -349,6 +346,134 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
         
         return cell
     }
+    
+    //Slide out Menu to categorize
+    func createMenuView(){
+        //Label height is 60 and y offset is 20 to display below menu bar
+        let labelHeight: CGFloat = 60.0
+        let labelOffset: CGFloat = 20.0
+        let borderWidth: CGFloat = 2
+        //Use safe area for ios11 devices to put menu view below status bar otherwise assume the 20pt status bar height of non iphone X phones
+        if #available(iOS 11, *) {
+            self.progMenuView = UIView(frame: CGRect(x: self.view.frame.maxX, y: self.view.safeAreaInsets.top, width: self.menuWidth, height: self.view.frame.height))
+        }else{
+            self.progMenuView = UIView(frame: CGRect(x: self.view.frame.maxX, y: labelOffset, width: self.menuWidth, height: self.view.frame.height))
+        }
+        self.progMenuView.backgroundColor = .white
+        self.progMenuView.layer.borderWidth = borderWidth
+        self.progMenuView.layer.borderColor = UIColor.black.cgColor
+        
+        //Create Cat label at top of menu but start beneath status bar
+        let labelView = UIView(frame: CGRect(x: 0, y: 0, width: self.progMenuView.frame.width, height: labelHeight))
+        labelView.layer.borderWidth = borderWidth
+        labelView.layer.borderColor = UIColor.black.cgColor
+        //        let settingsLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.progMenuView.frame.width, height: labelHeight))
+        
+        let settingsLabel = UILabel()
+        settingsLabel.font = UIFont(name: "Avenir-Light", size: 24)
+        settingsLabel.text = "Categories"
+        settingsLabel.sizeToFit()
+        //labelview.center wasn't centering so manually created center point
+        let myPoint = CGPoint(x: labelView.frame.width / 2, y: labelView.frame.height / 2)
+        settingsLabel.center = myPoint
+        //Add view heirarchy
+        labelView.addSubview(settingsLabel)
+        self.progMenuView.addSubview(labelView)
+        
+        //Calculate Table view to sit beneath label and extend to bottom of screen
+        tableView = UITableView(frame: CGRect(x: 0, y: labelHeight + borderWidth, width: self.progMenuView.frame.width, height: self.progMenuView.frame.height - (labelHeight + borderWidth)))
+        //Remove seperator lines
+        self.tableView.separatorStyle = .none
+        //Stop table view from bouncing since cells will not fill the screen
+        self.tableView.alwaysBounceVertical = false
+        self.progMenuView.addSubview(tableView)
+        //        tableView.reloadData()
+        
+    }
+    @IBAction func requestMenu(_ sender: UIButton) {
+        animateMenu(dismiss: false)
+        self.Á.isEnabled = false   //Disable settings button so it can't be double pressed
+        
+    }
+    
+    func animateMenu(dismiss: Bool){
+        //When dismissing I increase X to push the view off the screen
+        let xOffset = dismiss ? self.progMenuView.frame.origin.x + self.menuWidth : self.progMenuView.frame.origin.x - self.menuWidth
+        //If displaying menu first add to super view
+        if(!dismiss){
+            self.view.addSubview(self.progMenuView)
+        }
+        
+        UIView.animate(withDuration: 0.3, delay: 0.0, options: UIViewAnimationOptions(), animations: {
+            self.progMenuView.frame.origin.x = xOffset
+        },completion: {finished in
+            //Remove from superview if dismissing
+            if(dismiss){
+                self.progMenuView.removeFromSuperview()
+                self.menuButton.isEnabled = true   //re-enable menu button
+            }
+        })
+        
+    }
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        //5 defined settings options
+        return 5
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
+    {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        switch(indexPath.row){
+        case 0 :
+            cell.textLabel?.text = "Share the app"
+        case 1 :
+            cell.textLabel?.text = "Frequent Questions"
+        case 2 :
+            cell.textLabel?.text = "Privacy Policy"
+        case 3 :
+            cell.textLabel?.text = "Terms of Use"
+        case 4 :
+            cell.textLabel?.text = "Logout"
+        default:
+            cell.textLabel?.text = "Settings stuff"
+            
+        }
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        //Deselect selected row after the selection is made
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+//        switch(indexPath.row){
+//        case 0 :
+//        default:
+//            Helpers().myPrint(text: "Invalid cell in settings table")
+    }
+    
+
+    //Detect when user taps outside the menu view and dismiss the menu if it is present
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        super.touchesBegan(touches, with: event)
+        
+        if let touch: UITouch = touches.first{
+            if (touch.view == self.view){
+                //dismiss menu if present
+                if(self.view.bounds.contains(self.progMenuView.frame.origin)){
+                    animateMenu(dismiss: true)
+                }
+            }
+        }
+    }
+
+    
+    //For now collection view seems to be axed
     
     // MARK: - UICollectionViewDelegate protocol
     
@@ -417,6 +542,10 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
         cell.backgroundColor = UIColor(white: 1, alpha: 0.5)
     }
     
+    //Set status bar to same color as background
+    override var preferredStatusBarStyle: UIStatusBarStyle{
+        return .default
+    }
 
 }
 

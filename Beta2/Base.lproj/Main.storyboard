@@ -2696,7 +2696,7 @@ Cg
                             <constraint firstItem="FtQ-Xg-oGf" firstAttribute="leading" secondItem="9ok-DO-hEj" secondAttribute="leading" id="1OK-qN-f07"/>
                             <constraint firstItem="ZQM-j2-hkd" firstAttribute="leading" secondItem="9ok-DO-hEj" secondAttribute="leading" id="Kg5-Ik-0zi"/>
                             <constraint firstItem="9ok-DO-hEj" firstAttribute="trailing" secondItem="FtQ-Xg-oGf" secondAttribute="trailing" id="WE0-gC-Sb2"/>
-                            <constraint firstItem="9ok-DO-hEj" firstAttribute="bottom" secondItem="ZQM-j2-hkd" secondAttribute="bottom" id="ejR-jW-oLi"/>
+                            <constraint firstAttribute="bottom" secondItem="ZQM-j2-hkd" secondAttribute="bottom" id="ejR-jW-oLi"/>
                             <constraint firstItem="FtQ-Xg-oGf" firstAttribute="top" secondItem="StS-FM-8aV" secondAttribute="topMargin" id="hLO-DD-Whx"/>
                             <constraint firstItem="9ok-DO-hEj" firstAttribute="trailing" secondItem="ZQM-j2-hkd" secondAttribute="trailing" id="xNm-hU-Pz2"/>
                             <constraint firstItem="ZQM-j2-hkd" firstAttribute="top" secondItem="FtQ-Xg-oGf" secondAttribute="bottom" id="zdb-4f-DxG"/>
@@ -2723,7 +2723,7 @@ Cg
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FoK-xb-Kqs" userLabel="HeaderView">
-                                <rect key="frame" x="0.0" y="20" width="375" height="169"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="169"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="page3TopImage" translatesAutoresizingMaskIntoConstraints="NO" id="MCB-2m-EnD">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="169"/>
@@ -2838,7 +2838,7 @@ Cg
                                 </connections>
                             </button>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="NPv-hk-mtB">
-                                <rect key="frame" x="0.0" y="239" width="375" height="428"/>
+                                <rect key="frame" x="0.0" y="219" width="375" height="448"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="friendCell" id="jvc-FY-kaZ" customClass="FriendTableViewCell" customModule="Beta2" customModuleProvider="target">
@@ -2949,7 +2949,7 @@ Cg
                                 </constraints>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5pw-Nk-ea8">
-                                <rect key="frame" x="0.0" y="189" width="375" height="50"/>
+                                <rect key="frame" x="0.0" y="169" width="375" height="50"/>
                                 <subviews>
                                     <tabBar opaque="NO" contentMode="scaleToFill" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NOy-Cl-4JB">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="50"/>
@@ -2975,7 +2975,7 @@ Cg
                         <constraints>
                             <constraint firstItem="WJZ-ma-aEg" firstAttribute="trailing" secondItem="NPv-hk-mtB" secondAttribute="trailing" id="2Vv-UI-zyD"/>
                             <constraint firstItem="5pw-Nk-ea8" firstAttribute="leading" secondItem="WJZ-ma-aEg" secondAttribute="leading" id="4Mo-a1-m1f"/>
-                            <constraint firstItem="FoK-xb-Kqs" firstAttribute="top" secondItem="WJZ-ma-aEg" secondAttribute="top" id="Cza-7a-LVI"/>
+                            <constraint firstItem="FoK-xb-Kqs" firstAttribute="top" secondItem="YDU-FK-zNN" secondAttribute="top" id="Cza-7a-LVI"/>
                             <constraint firstItem="WJZ-ma-aEg" firstAttribute="bottom" secondItem="NPv-hk-mtB" secondAttribute="bottom" id="DfL-nE-Yaa"/>
                             <constraint firstItem="WJZ-ma-aEg" firstAttribute="bottom" secondItem="UCq-iM-E7m" secondAttribute="bottom" constant="11" id="Frd-fG-HgJ"/>
                             <constraint firstItem="UCq-iM-E7m" firstAttribute="centerX" secondItem="WJZ-ma-aEg" secondAttribute="centerX" id="Hxz-ay-5aG"/>
@@ -2998,11 +2998,11 @@ Cg
                             <mask key="constraints">
                                 <exclude reference="Cza-7a-LVI"/>
                                 <exclude reference="qNv-Rz-Fjf"/>
+                                <exclude reference="kcD-WA-r3F"/>
                                 <exclude reference="2Vv-UI-zyD"/>
                                 <exclude reference="DfL-nE-Yaa"/>
                                 <exclude reference="xo1-ef-nOn"/>
                                 <exclude reference="Pw3-Ka-lt6"/>
-                                <exclude reference="kcD-WA-r3F"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=regular-widthClass=compact">
@@ -3013,11 +3013,11 @@ Cg
                             <mask key="constraints">
                                 <include reference="Cza-7a-LVI"/>
                                 <include reference="qNv-Rz-Fjf"/>
+                                <include reference="kcD-WA-r3F"/>
                                 <include reference="2Vv-UI-zyD"/>
                                 <include reference="DfL-nE-Yaa"/>
                                 <include reference="xo1-ef-nOn"/>
                                 <exclude reference="Pw3-Ka-lt6"/>
-                                <include reference="kcD-WA-r3F"/>
                             </mask>
                         </variation>
                     </view>
@@ -7130,7 +7130,7 @@ Email: anuj@checkinoutlists.com
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Grey Background" translatesAutoresizingMaskIntoConstraints="NO" id="p8j-kE-247">
-                                <rect key="frame" x="0.0" y="20" width="375" height="647"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                             </imageView>
                             <view contentMode="scaleToFill" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="C1K-0O-4sx">
                                 <rect key="frame" x="0.0" y="20" width="375" height="100"/>
@@ -7244,7 +7244,7 @@ Email: anuj@checkinoutlists.com
                             <constraint firstItem="dgn-NN-Rqt" firstAttribute="trailing" secondItem="C1K-0O-4sx" secondAttribute="trailing" id="fwW-PP-q9Z"/>
                             <constraint firstItem="C1K-0O-4sx" firstAttribute="leading" secondItem="dgn-NN-Rqt" secondAttribute="leading" id="gBe-0o-Y3y"/>
                             <constraint firstItem="p8j-kE-247" firstAttribute="leading" secondItem="dgn-NN-Rqt" secondAttribute="leading" id="sb6-nS-vN5"/>
-                            <constraint firstItem="p8j-kE-247" firstAttribute="top" secondItem="dgn-NN-Rqt" secondAttribute="top" id="tI9-OO-ph7"/>
+                            <constraint firstItem="p8j-kE-247" firstAttribute="top" secondItem="zwf-aa-haX" secondAttribute="top" id="tI9-OO-ph7"/>
                             <constraint firstItem="dgn-NN-Rqt" firstAttribute="trailing" secondItem="LVN-Sx-qrR" secondAttribute="trailing" id="vjs-WW-Faw"/>
                             <constraint firstItem="dgn-NN-Rqt" firstAttribute="trailing" secondItem="p8j-kE-247" secondAttribute="trailing" id="yDq-2K-enp"/>
                         </constraints>
@@ -7395,7 +7395,7 @@ Email: anuj@checkinoutlists.com
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lZu-D8-azn" customClass="GMSMapView">
-                                <rect key="frame" x="0.0" y="20" width="375" height="647"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RHj-Mc-kdx">
@@ -7425,32 +7425,28 @@ Email: anuj@checkinoutlists.com
                                     <segue destination="0CD-Lw-OZB" kind="unwind" unwindAction="unwindFromMapCheckOut:" id="KM9-b8-AzR"/>
                                 </connections>
                             </button>
-                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="PX0-ht-LvE">
-                                <rect key="frame" x="162.5" y="114" width="52" height="31"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="50" id="6FE-Qf-Jxg"/>
-                                </constraints>
-                                <color key="onTintColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <color key="thumbTintColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            </switch>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8Gg-8U-sws">
+                                <rect key="frame" x="332" y="40" width="23" height="22"/>
+                                <state key="normal" image="categoryIcon"/>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="RHj-Mc-kdx" firstAttribute="top" secondItem="Mov-92-hJi" secondAttribute="top" constant="16" id="DDQ-o0-LRP"/>
                             <constraint firstItem="RHj-Mc-kdx" firstAttribute="leading" secondItem="Mov-92-hJi" secondAttribute="leading" constant="15" id="Dxy-eK-D78"/>
-                            <constraint firstItem="Mov-92-hJi" firstAttribute="top" secondItem="PX0-ht-LvE" secondAttribute="bottom" constant="-125" id="GBK-iU-7Qs"/>
                             <constraint firstItem="Mov-92-hJi" firstAttribute="trailing" secondItem="lZu-D8-azn" secondAttribute="trailing" id="ZaM-J1-xhV"/>
-                            <constraint firstItem="PX0-ht-LvE" firstAttribute="centerX" secondItem="OHG-dq-hWU" secondAttribute="centerX" id="eBz-oh-ahu"/>
-                            <constraint firstItem="Mov-92-hJi" firstAttribute="bottom" secondItem="lZu-D8-azn" secondAttribute="bottom" id="ig7-SR-M2o"/>
+                            <constraint firstItem="Mov-92-hJi" firstAttribute="trailing" secondItem="8Gg-8U-sws" secondAttribute="trailing" constant="20" id="dSo-XH-4T4"/>
+                            <constraint firstAttribute="bottom" secondItem="lZu-D8-azn" secondAttribute="bottom" id="ig7-SR-M2o"/>
                             <constraint firstItem="lZu-D8-azn" firstAttribute="leading" secondItem="Mov-92-hJi" secondAttribute="leading" id="n16-pY-ZlB"/>
-                            <constraint firstItem="lZu-D8-azn" firstAttribute="top" secondItem="Mov-92-hJi" secondAttribute="top" id="s3u-4t-4c8"/>
+                            <constraint firstItem="8Gg-8U-sws" firstAttribute="top" secondItem="Mov-92-hJi" secondAttribute="top" constant="20" id="oXP-SR-QdS"/>
+                            <constraint firstItem="lZu-D8-azn" firstAttribute="top" secondItem="OHG-dq-hWU" secondAttribute="top" id="s3u-4t-4c8"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="Mov-92-hJi"/>
                     </view>
                     <connections>
                         <outlet property="MapView" destination="lZu-D8-azn" id="ba0-Nn-AR0"/>
-                        <outlet property="SwitchIcon" destination="PX0-ht-LvE" id="mse-o1-USr"/>
                         <outlet property="mapView" destination="lZu-D8-azn" id="4P5-uF-eLb"/>
+                        <outlet property="menuButton" destination="8Gg-8U-sws" id="v9g-LQ-FYN"/>
                         <segue destination="0CD-Lw-OZB" kind="unwind" identifier="UnwindPriv2Profile" unwindAction="unwindPrivPol:" id="aiq-EG-9xC"/>
                         <segue destination="cle-el-spY" kind="custom" identifier="mapToDeets" customClass="SegueFromRight" customModule="Beta2" customModuleProvider="target" id="k0a-0D-hyV"/>
                     </connections>
@@ -7458,7 +7454,7 @@ Email: anuj@checkinoutlists.com
                 <placeholder placeholderIdentifier="IBFirstResponder" id="14v-hH-Rr7" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="0CD-Lw-OZB" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="4012" y="984"/>
+            <point key="canvasLocation" x="4012" y="983.65817091454278"/>
         </scene>
     </scenes>
     <resources>
@@ -7470,6 +7466,7 @@ Email: anuj@checkinoutlists.com
         <image name="Settings Icon" width="32" height="30"/>
         <image name="backArrow" width="21" height="23"/>
         <image name="backArrowMapView" width="40" height="30"/>
+        <image name="categoryIcon" width="23" height="19"/>
         <image name="cityButton" width="375" height="60"/>
         <image name="facebook" width="248" height="44"/>
         <image name="locationIcon" width="15" height="20"/>
@@ -7482,14 +7479,14 @@ Email: anuj@checkinoutlists.com
         <image name="pagenation page2" width="55" height="10"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="hds-Um-0P9"/>
+        <segue reference="rtq-sb-6aD"/>
         <segue reference="kRf-9H-gV3"/>
         <segue reference="1ju-Nu-XO4"/>
-        <segue reference="7eM-Un-hJZ"/>
+        <segue reference="rhf-K9-h3B"/>
         <segue reference="6bs-N6-6yd"/>
         <segue reference="k0a-0D-hyV"/>
-        <segue reference="pC0-bG-BYT"/>
-        <segue reference="5by-zv-PsO"/>
+        <segue reference="RIy-zc-3OS"/>
+        <segue reference="o1O-Sv-gBK"/>
         <segue reference="1EQ-Cd-qfT"/>
     </inferredMetricsTieBreakers>
 </document>

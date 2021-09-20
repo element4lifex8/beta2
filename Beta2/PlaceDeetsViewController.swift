@@ -822,4 +822,9 @@ class PlaceDeetsViewController: UIViewController, UITableViewDelegate, UITableVi
         }
     }
     
+    //Set status bar text color
+    override var preferredStatusBarStyle: UIStatusBarStyle{
+        return .lightContent
+    }
+    
 }

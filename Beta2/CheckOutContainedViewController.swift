@@ -438,4 +438,8 @@ class CheckOutContainedViewController: UIViewController, UITableViewDelegate, UI
             SegueFromLeft(identifier: identifier, source: fromViewController, destination: toViewController)
     }*/
     
+    //Set status bar to same color as background
+    override var preferredStatusBarStyle: UIStatusBarStyle{
+        return .lightContent
+    }
 }

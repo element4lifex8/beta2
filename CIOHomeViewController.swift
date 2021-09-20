@@ -274,4 +274,9 @@ class CIOHomeViewController: UIViewController   {
                 destinationVC.callerWantsCheckOut = true
         }
     }
+    
+    //Set status bar text color
+    override var preferredStatusBarStyle: UIStatusBarStyle{
+        return .lightContent
+    }
 }

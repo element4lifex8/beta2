@@ -1922,5 +1922,10 @@ class CheckInViewController: UIViewController, UIScrollViewDelegate, UITextField
         }
 
     }
+    
+    //Set status bar text color
+    override var preferredStatusBarStyle: UIStatusBarStyle{
+        return .lightContent
+    }
 
 }

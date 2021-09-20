@@ -1129,13 +1129,13 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
         //Show example place
         // Creates a marker in the center of the map.
-        let marker = GMSMarker()
-        let treeRet = self.placeNodeTreeRoot.children![1].returnNodeAtIndex(1)
-        let placeId = treeRet?.nodePlaceId
-        marker.position = CLLocationCoordinate2D(latitude: -33.86, longitude: 151.20)
-        marker.title = "Sydney"
-        marker.snippet = "Australia"
-        marker.map = mapView
+//        let marker = GMSMarker()
+//        let treeRet = self.placeNodeTreeRoot.children![1].returnNodeAtIndex(1)
+//        let placeId = treeRet?.nodePlaceId
+//        marker.position = CLLocationCoordinate2D(latitude: -33.86, longitude: 151.20)
+//        marker.title = "Sydney"
+//        marker.snippet = "Australia"
+//        marker.map = mapView
     }
     // Unwind seque from my PlaceDeets
     @IBAction func unwindFromPlaceDeets(_ sender: UIStoryboardSegue) {
@@ -1145,6 +1145,11 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
     // Unwind seque from map view
     @IBAction func unwindFromMap(_ sender: UIStoryboardSegue) {
         // empty
+    }
+    
+    //Set status bar to same color as background
+    override var preferredStatusBarStyle: UIStatusBarStyle{
+        return .lightContent
     }
 }
 
