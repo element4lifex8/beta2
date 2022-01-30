@@ -524,70 +524,153 @@ class Helpers{
         //add friend to Curr user's list
         friendChecked.child(Helpers().currUser as String).setValue(currInfo)
     }
-}
 
-//Retrieve list of all checked in places for curr user
-func retrieveWithRef(_ myRef: DatabaseReference, completionClosure: @escaping (_ placeNodeArr: [placeNode]) -> Void) {
-    var locPlaceNodeArr = [placeNode]()
-    var locPlaceNodeObj:placeNode = placeNode()
-    
-    //Retrieve a list of the user's current check in list
-    let myfriendHandler = myRef.observe(.value, with: {snapshot in
-        //        self.friendHandler = myRef.observe(of: .value, with: { snapshot in
-        //Clear previous values in localPlaceNodeArr if any
-        locPlaceNodeArr.removeAll()
+    //Retrieve list of all checked in places for curr user
+    func retrieveWithRef(_ myRef: DatabaseReference, completionClosure: @escaping (_ placeNodeArr: [placeNode]) -> Void) {
+        var locPlaceNodeArr = [placeNode]()
+        var locPlaceNodeObj:placeNode = placeNode()
         
-        //rootNode now contains a list of all the places from the current user's Reference
-        let rootNode = snapshot as DataSnapshot
-        //force downcast only works if root node has children, otherwise user has no valid check in entries
-        //each entry in nodeDict now has a key of the check in's place name and a value of the city/category attributes
-        guard let nodeDict = rootNode.value as? NSDictionary else{
-            //Call Completion cloures with empty node array
-            completionClosure(locPlaceNodeArr)
-            return
-        }
-        //Loop over each check in Place and parse its attributes
-        for (key, _ ) in nodeDict{
-            //Create new place node to store the current place's info
-            locPlaceNodeObj = placeNode()
-            locPlaceNodeObj.place = key as? String
-            //Get a snapshot of the current place to iterate over its attributes
-            let placeSnap = snapshot.childSnapshot(forPath: key as! String)
-            //Iterate over each city and category child of the place's check in
-            for placeChild in placeSnap.children{
-                let currNode = placeChild as! DataSnapshot
-                //If Place dict can be unwrapped as NSDictionary then it now has key of the city or cat attribute, and the value is always "true"
-                //If place Dict can't be unwrapped then the key value pair is the google place id
-                if let placeDict = currNode.value as? NSDictionary{
-                    //The placeChild key tells us which type of attribute data we are currently looping over
-                    for (attrKey, _ ) in placeDict{
-                        if((placeChild as AnyObject).key == "city"){
-                            locPlaceNodeObj.addCity(attrKey as! String)
+        //Retrieve a list of the user's current check in list
+        let myfriendHandler = myRef.observe(.value, with: {snapshot in
+            //        self.friendHandler = myRef.observe(of: .value, with: { snapshot in
+            //Clear previous values in localPlaceNodeArr if any
+            locPlaceNodeArr.removeAll()
+            
+            //rootNode now contains a list of all the places from the current user's Reference
+            let rootNode = snapshot as DataSnapshot
+            //force downcast only works if root node has children, otherwise user has no valid check in entries
+            //each entry in nodeDict now has a key of the check in's place name and a value of the city/category attributes
+            guard let nodeDict = rootNode.value as? NSDictionary else{
+                //Call Completion cloures with empty node array
+                completionClosure(locPlaceNodeArr)
+                return
+            }
+            //Loop over each check in Place and parse its attributes
+            for (key, _ ) in nodeDict{
+                //Create new place node to store the current place's info
+                locPlaceNodeObj = placeNode()
+                locPlaceNodeObj.place = key as? String
+                //Get a snapshot of the current place to iterate over its attributes
+                let placeSnap = snapshot.childSnapshot(forPath: key as! String)
+                //Iterate over each city and category child of the place's check in
+                for placeChild in placeSnap.children{
+                    let currNode = placeChild as! DataSnapshot
+                    //If Place dict can be unwrapped as NSDictionary then it now has key of the city or cat attribute, and the value is always "true"
+                    //If place Dict can't be unwrapped then the key value pair is the google place id
+                    if let placeDict = currNode.value as? NSDictionary{
+                        //The placeChild key tells us which type of attribute data we are currently looping over
+                        for (attrKey, _ ) in placeDict{
+                            if((placeChild as AnyObject).key == "city"){
+                                locPlaceNodeObj.addCity(attrKey as! String)
+                            }
+                            else if((placeChild as AnyObject).key == "category"){
+                                locPlaceNodeObj.addCategory(attrKey as! String)
+                            }
+                            else if((placeChild as AnyObject).key == "location"){
+                                locPlaceNodeObj.addLocation(placeDict)
+                            }
                         }
-                        else if((placeChild as AnyObject).key == "category"){
-                            locPlaceNodeObj.addCategory(attrKey as! String)
-                        }
-                        else if((placeChild as AnyObject).key == "location"){
-                            locPlaceNodeObj.addLocation(placeDict)
-                        }
-                    }
-                }else{
-                    if let placeId = currNode.value as? String{
-                        locPlaceNodeObj.placeId = placeId
                     }else{
-                        Helpers().myPrint(text: "Malformed firebase entry for \(locPlaceNodeObj.place)")
+                        if let placeId = currNode.value as? String{
+                            locPlaceNodeObj.placeId = placeId
+                        }else{
+                            Helpers().myPrint(text: "Malformed firebase entry for \(locPlaceNodeObj.place)")
+                        }
+                        
+                    }
+                }
+                
+                locPlaceNodeArr.append(locPlaceNodeObj)
+                //Previous code block was in an if let optional chain block, but now FIR snaps are not optionals
+                //                else{
+                //                    print("Created place node with no attributes. Child snapshot of \(key as!String) was nil")
+                //                }
+            }
+            //Call Completion cloures on completed list of place nodes from the current user's checkins
+            completionClosure(locPlaceNodeArr)
+        })
+    }
+
+//Treenode generation functions
+    
+    //Tree generation functions
+    func generateTree(_ nodeArr: [placeNode], cityFilterEn: Bool?, cityFilterText: String?) -> PlaceNodeTree{
+        //Clear current place node tree
+        var placeNodeTreeRoot = PlaceNodeTree()
+        //Loop through all place nodes, and iterate over array of categories and cities
+        for placeNode in nodeArr{
+            var siblings:[String]? = nil    //Memory is cheap, just redefine the var for each iteration
+            //I can have multiple cities for a single placeNode, or city can be nil
+            if let cities = placeNode.city{
+                for city in cities{
+                    //Don't add city to tree if only displaying a certain city (showAllCities only true when showing all user's checkins for a single city)
+                    //First case: if showing only certain city then the city must match the header label, if show all cities is nil then just falisfy this side of the expression to remove it from being considered
+                    //Second case: show all cities is nil, then evaluate to true and print all cities
+                    //Second case: show all cities is true, then evaluate to false to put the burden on the left expression
+                    
+                    //Tediously unwrap headerText so I don't have to guard or if let
+                    var headerUnwrapped = ""
+                    if(cityFilterText != nil){
+                        headerUnwrapped = cityFilterText!
                     }
                     
+                    if( ((cityFilterEn ?? false) && (headerUnwrapped == city)) || !(cityFilterEn ?? false) ){
+                        if (cities.count > 1){  //If multiple cities exist keep a reference to all cities
+                            if let currCityIndex = cities.index(of: city){
+                                var mySiblings = cities
+                                mySiblings.remove(at: currCityIndex)
+                                siblings = mySiblings
+                            }
+                        }
+                        if let existingCity = placeNodeTreeRoot.search(city)
+                        {
+                            addTreeNodeToCity(placeNode, cityNode: existingCity, siblings: siblings)
+                        }else{//Currenty city does not exist
+                            let newCityNode = PlaceNodeTree(nodeVal: city)
+                            placeNodeTreeRoot.addChild(newCityNode)
+                            addTreeNodeToCity(placeNode, cityNode: newCityNode, siblings: siblings)
+                            
+                        }
+                    }
                 }
             }
-            
-            locPlaceNodeArr.append(locPlaceNodeObj)
-            //Previous code block was in an if let optional chain block, but now FIR snaps are not optionals
-            //                else{
-            //                    print("Created place node with no attributes. Child snapshot of \(key as!String) was nil")
-            //                }
         }
-        //Call Completion cloures on completed list of place nodes from the current user's checkins
-        completionClosure(locPlaceNodeArr)
-    })
-}
+        return placeNodeTreeRoot
+    }
+    
+    func addTreeNodeToCity(_ nodeStruct: placeNode, cityNode: PlaceNodeTree, siblings: [String]?){
+        var childNode: PlaceNodeTree
+        
+        //Add place to existing city for each category
+        if let categories = nodeStruct.category{
+            for category in categories{
+                if let existingCategory = cityNode.search(category){
+                    //create PlaceNodeTree object depending on whether the user used google Autocomplete which provides a google place id
+                    //Couldn't create the placeNodeTree obj as variable or the generate tree func was failing
+                    if let placeId = nodeStruct.placeId{
+                        childNode = existingCategory.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!, placeId: placeId, categories: categories))
+                    }else{
+                        childNode = existingCategory.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!))
+                    }
+                }else{//category does not exist
+                    let newCategoryNode = PlaceNodeTree(nodeVal: category)
+                    //Add child returns a refence to the node that now resides in the tree
+                    let _ = cityNode.addChild(newCategoryNode)
+                    if let placeId = nodeStruct.placeId{
+                        var tempTree = PlaceNodeTree(nodeVal: nodeStruct.place!, placeId: placeId, categories: categories)
+                        tempTree.location = nodeStruct.location
+                        childNode = newCategoryNode.addChild(tempTree)
+                    }else{
+                        childNode = newCategoryNode.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!))
+                    }
+                }
+                if(siblings != nil){
+                    childNode.addSibling(siblings!)
+                }
+            }
+        }
+    }
+
+    
+} //end of Helpers class
+

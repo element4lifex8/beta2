@@ -14,18 +14,20 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
     
     @IBOutlet weak var menuButton: UIButton!
     
+    @IBOutlet weak var statusBarBackground: UIView!
     
     @IBOutlet weak var mapView: GMSMapView!
     let infoMarker = GMSMarker()    //Google's points of interest for GMSMapViewDelegate
     //    @IBOutlet weak var collectionView: UICollectionView!
 
-    
+    var pNodeArr = [placeNode()]
+
     //If transition to this screen wants to checkout instead of my list, update this var
     //Info from login screen that will be populated here
     var callerWantsCheckOut: Bool?  //Variable set by clalling VC
     
     //Store the user that the list items will be retrieved for
-    
+
     var myFriends:[String] = []
     var myFriendIds: [String] = []    //list of Facebook Id's with matching index to myFriends array
     
@@ -36,7 +38,9 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
     
     var selectedMarker: Any?    //Treenode Data stored with the marker
     
-    var catButtonList = ["Bar",  "Beaches", "Breakfast", "Brewery", "Brunch", "Bucket List", "Coffee Shop", "Dessert", "Dinner", "Food Truck", "Hikes", "Lodging", "Lunch", "Museums", "Night Club", "Parks", "Sightseeing", "Winery"]
+    //Put retrieved data in Tree to filter by category
+    var placeNodeTreeRoot = PlaceNodeTree()
+    var catFilters = [String]()
     
     var progMenuView: UIView = UIView()
     let menuWidth: CGFloat = 187.0
@@ -46,7 +50,10 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
     
     override func viewDidLoad() {
         super.viewDidLoad()
-    
+        var leonNode = placeNode(place:"LEON\'s Full Service", category: ["Bar"], city: ["Decatur, GA"])
+        leonNode.location = [ "lat": 33.775381799999998, "lng": -84.295115699999997]
+        var pNodeArr = [leonNode]
+        
         var coordinates: CLLocationCoordinate2D?
         
         //Initialize CL Location manager so a users current location can be determined
@@ -105,11 +112,28 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
 //        collectionView.showsHorizontalScrollIndicator = false
     }
     
-
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        //Grab value of weather the phone has the top notch by checking size of top safe area
+        var hasTopNotch: Bool {
+            if #available(iOS 13.0,  *) {
+                return UIApplication.shared.windows.filter {$0.isKeyWindow}.first?.safeAreaInsets.top ?? 0 > 20
+            }else{
+                return UIApplication.shared.delegate?.window??.safeAreaInsets.top ?? 0 > 20
+            }
+        }
+        //Change height of uiview behind status for non top-notch phones
+        if(!hasTopNotch){
+            statusBarBackground.heightAnchor.constraint(equalToConstant: CGFloat(integerLiteral: 20)).isActive = true
+        }
+        //Have to also set auto layout in addition to frame height for supporting iPhone X
+//        self.heightConstraint = self.autoCompleteTableView?.heightAnchor.constraint(equalToConstant: CGFloat(self.autoCompleteFrameMaxHeight))
+//        NSLayoutConstraint.activate([widthConstraint!, self.heightConstraint!])
+    }
     //New plans are to fore-go the slider button and have a slide out menu like on the user profile screen (and maspster)
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
-        
+
         createMenuView()
         
         //Connect tableview delegate
@@ -146,6 +170,7 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
         location: CLLocationCoordinate2D
         ) {
 //        infoMarker.snippet = "Add me?"
+        print("tapped poi")
         infoMarker.userData = [placeID, name] //Adding the place id to user data will allow me to use it and transition to the place deets screen
         infoMarker.position = location
         infoMarker.title = name
@@ -153,6 +178,11 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
         infoMarker.infoWindowAnchor.y = 1
         infoMarker.map = mapView
         mapView.selectedMarker = infoMarker
+        
+        //remove menu icon even if POI tapped
+        if(self.view.bounds.contains(self.progMenuView.frame.origin)){
+            animateMenu(dismiss: true)
+        }
     }
     
     //Function retrieves friends and cities and returns when both retrievals are finished
@@ -162,10 +192,11 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
         var myGroup = DispatchGroup()
         //Store the user that the list items will be retrieved for (either friends or just curr user
         var currUsers: [String]?
-        
+        var myPlaceNodes: [placeNode] = []
+        var userRetrievalCount:Int = 0     //Count the number of user's with their info pulled from the dataBase
         let friendsRef = Database.database().reference().child("users/\(Helpers().currUser)/friends")
         var currRef = DatabaseReference()
-        
+        self.placeNodeTreeRoot.empty()
         //gooogle Places setup
         let placesClient = GMSPlacesClient.shared()
         
@@ -202,44 +233,64 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
             //Only request basic data from place details and use geometry.location for coordinates (geometry also contains viewport, which contains the preferred viewport when displaying this place on a map as a LatLngBounds if it is known.
             // Specify the place data types to return.
             //                    let fields: GMSPlaceField = GMSPlaceField(rawValue: UInt(GMSPlaceField.name.rawValue) |                        UInt(GMSPlaceField.placeID.rawValue))!
-            let fields: GMSPlaceField = GMSPlaceField(rawValue: UInt(GMSPlaceField.name.rawValue) |
-                UInt(GMSPlaceField.coordinate.rawValue) | UInt(GMSPlaceField.types.rawValue))!
+//            let fields: GMSPlaceField = GMSPlaceField(rawValue: UInt(GMSPlaceField.name.rawValue) |
+//                UInt(GMSPlaceField.coordinate.rawValue) | UInt(GMSPlaceField.types.rawValue))!
             
             for friendId in currUsers!{
                 currRef = Database.database().reference().child("checked/\(friendId)")
-                retrieveWithRef(currRef){ (placeNodeArr: [placeNode]) in
-                    
+                Helpers().retrieveWithRef(currRef){ (placeNodeArr: [placeNode]) in
+                    userRetrievalCount += 1     //finished retrieving current user's check in info
                     //Grab place id for each user checkin, and use to set marker
-                    for node in placeNodeArr{
-                        //Add pin to map if place node location is available
-                    
-                        //Get the place coordinates and then the city, state, country so we can open the maps page reliably
+                     for node in placeNodeArr{
                         
-                        //TODO determine visible map area and add when visible
-                        if let placeName = node.place, let typeArr = node.category, let placeCoord = node.location {
-                            let coord = CLLocationCoordinate2D(latitude: placeCoord["lat"]!, longitude: placeCoord["lng"]!)
-                            let marker = GMSMarker(position: coord)
-                            //Store entire treenode with marker so its details can be retrieved
-                            marker.userData = node
-                            marker.title = "\(placeName)"
-                            //Get the type of place and print with 1st letter capitalized in pop up
-                            let firstType = typeArr[0]
-                            var capType = firstType.uppercased().prefix(1) + firstType.lowercased().dropFirst()
-                            marker.snippet = String(capType)
-                            //                            marker.icon = UIImage(named: "Geo-fence")
-                            //                            marker.icon = UIImage(named: "locationIcon")
-                            marker.map = self.mapView
-                        
-                        } else {
-                            Helpers().myPrint(text: "can't add custom checkin to mapview")
+                        //Add place node to my model unless if already exists in my model
+                        //This would happen if viewing a checkout screen and multiple friends checked into the same place
+                        //Custom checkins are a special case where the nil placeID could match the nil entry that the myPlaceNodes array is initialized with, so I unwrap and if both entries are nil then one becomes false and one becomes true so they never match
+                        if(!myPlaceNodes.contains(where: {element in return ((element.placeId ?? "false") == (node.placeId ?? "true"))}))
+                        {
+                            myPlaceNodes.append(node)
                         }
+                    }
+                    
+                    if(userRetrievalCount >= (currUsers?.count)! ){  //When data from all friendIds is gathered then generate tree
+                        self.placeNodeTreeRoot = Helpers().generateTree(myPlaceNodes, cityFilterEn: false, cityFilterText: nil)
+                        self.placeNodeTreeRoot.sortChildNodes()
+                        self.reloadMap(treeRoot: self.placeNodeTreeRoot)
                     }
                 }
             }
         }
  
     }
+    
+    //Add pin to map if place node location is available
+    func reloadMap(treeRoot: PlaceNodeTree){
+        //Clear all current pins
+        mapView.clear()
 
+        let nodeArr = treeRoot.getTreeNodes()
+        for node in nodeArr{        //Get the place coordinates and then the city, state, country so we can open the maps page reliably
+        
+            //TODO determine visible map area and add when visible
+            if let placeName = node.place, let typeArr = node.category, let placeCoord = node.location {
+                let coord = CLLocationCoordinate2D(latitude: placeCoord["lat"]!, longitude: placeCoord["lng"]!)
+                let marker = GMSMarker(position: coord)
+                //Store entire treenode with marker so its details can be retrieved
+                marker.userData = node
+                marker.title = "\(placeName)"
+                //Get the type of place and print with 1st letter capitalized in pop up
+                let firstType = typeArr[0]
+                var capType = firstType.uppercased().prefix(1) + firstType.lowercased().dropFirst()
+                marker.snippet = String(capType)
+                //                            marker.icon = UIImage(named: "Geo-fence")
+                //                            marker.icon = UIImage(named: "locationIcon")
+                marker.map = self.mapView
+                
+            } else {
+                Helpers().myPrint(text: "can't add custom checkin to mapview")
+            }
+        }
+    }
         
     //combine the friends names and Ids so they can be sorted together and then seperate back out
     //Use "inout" keyword to pass arrays to the function by reference
@@ -253,18 +304,33 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
         //Then extract all of the 2st items in each tuple (unAddedFriends ids)
         idArr = combinedFriends.map{$0.1}
     }
-    
-    
-    //    func mapView(_ mapView: GMSMapView, didTap marker: GMSMarker) -> Bool {
-    //            print("Did tap a normal marker")
-    //        return false
-    //    }
+
     
     func mapView(_ mapView: GMSMapView, didTapInfoWindowOf marker: GMSMarker) {
-        //
+        if(self.view.bounds.contains(self.progMenuView.frame.origin)){
+            animateMenu(dismiss: true)
+        }
         selectedMarker = marker.userData
         self.performSegue(withIdentifier: "mapToDeets", sender: self)
 
+    }
+    
+    //will detect whenever an empty map spot is tapped, need to also check when I click on a place that i didn't add!
+    func mapView(_ mapView: GMSMapView, didTapAt coordinate: CLLocationCoordinate2D) {
+        print("tapped non icon")
+        if(self.view.bounds.contains(self.progMenuView.frame.origin)){
+            animateMenu(dismiss: true)
+        }
+    }
+    
+    
+    
+    func mapView(_ mapView: GMSMapView, didTap marker: GMSMarker) -> Bool {
+        print("TAPPED MARKER")
+        if(self.view.bounds.contains(self.progMenuView.frame.origin)){
+            animateMenu(dismiss: true)
+        }
+        return false
     }
     
     
@@ -306,8 +372,8 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
     
     // tell the collection view how many cells to make
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print ("returning \(self.catButtonList.count) cat items")
-        return self.catButtonList.count
+        print ("returning \(Helpers().catButtonList.count) cat items")
+        return Helpers().catButtonList.count
     }
   
     
@@ -326,7 +392,7 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
         let catLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 86, height: 25))
         catLabel.center = CGPoint(x: 50, y: 50)
         catLabel.textAlignment = NSTextAlignment.center
-        catLabel.text = self.catButtonList[indexPath.item]
+        catLabel.text = Helpers().catButtonList[indexPath.item]
         //Adjust font size to fit larger words, and truncate at end
         catLabel.adjustsFontSizeToFitWidth = true
         catLabel.minimumScaleFactor = 0.6
@@ -386,13 +452,14 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
         self.tableView.separatorStyle = .none
         //Stop table view from bouncing since cells will not fill the screen
         self.tableView.alwaysBounceVertical = false
+        self.tableView.allowsMultipleSelection = true
         self.progMenuView.addSubview(tableView)
         //        tableView.reloadData()
         
     }
     @IBAction func requestMenu(_ sender: UIButton) {
         animateMenu(dismiss: false)
-        self.Á.isEnabled = false   //Disable settings button so it can't be double pressed
+        self.menuButton.isEnabled = false   //Disable settings button so it can't be double pressed
         
     }
     
@@ -422,129 +489,135 @@ class MapVC: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate, UI
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         //5 defined settings options
-        return 5
+        return Helpers().catButtonList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        switch(indexPath.row){
-        case 0 :
-            cell.textLabel?.text = "Share the app"
-        case 1 :
-            cell.textLabel?.text = "Frequent Questions"
-        case 2 :
-            cell.textLabel?.text = "Privacy Policy"
-        case 3 :
-            cell.textLabel?.text = "Terms of Use"
-        case 4 :
-            cell.textLabel?.text = "Logout"
-        default:
-            cell.textLabel?.text = "Settings stuff"
-            
-        }
+        cell.textLabel?.text = Helpers().catButtonList[indexPath.row]
+        
         return cell
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //Deselect selected row after the selection is made
-        tableView.deselectRow(at: indexPath, animated: true)
+    //Will select and deselect functions added to control when to change category filter
+    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        //Determine category at current index
+        catFilters.append(Helpers().catButtonList[indexPath.row])
         
-//        switch(indexPath.row){
-//        case 0 :
-//        default:
-//            Helpers().myPrint(text: "Invalid cell in settings table")
+        //filter tree to all categories not matching the selected category
+        self.placeNodeTreeRoot.displayNodeFilter(catFilters)
+        reloadMap(treeRoot: self.placeNodeTreeRoot)
+        
+        tableView.selectRow(at: indexPath, animated: true, scrollPosition: UITableViewScrollPosition.none)
+        return indexPath
     }
+    func tableView(_ tableView: UITableView, willDeselectRowAt indexPath: IndexPath) -> IndexPath? {
+        //Remove selected item from list Keeping track of selected items' nodeValue string
+        if let index = catFilters.index(of: Helpers().catButtonList[indexPath.item]){
+            catFilters.remove(at: index)
+        }
+        
+        //filter tree to all categories not matching the selected category
+        self.placeNodeTreeRoot.displayNodeFilter(catFilters)
+        reloadMap(treeRoot: self.placeNodeTreeRoot)
+        
+        tableView.deselectRow(at: indexPath, animated: true)
+        return indexPath
+    }
+    
+//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//    }
     
 
     //Detect when user taps outside the menu view and dismiss the menu if it is present
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
-        super.touchesBegan(touches, with: event)
-        
-        if let touch: UITouch = touches.first{
-            if (touch.view == self.view){
-                //dismiss menu if present
-                if(self.view.bounds.contains(self.progMenuView.frame.origin)){
-                    animateMenu(dismiss: true)
-                }
-            }
-        }
-    }
+//    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+//        print("touches began")
+//        super.touchesBegan(touches, with: event)
+//
+//        if let touch: UITouch = touches.first{
+//            if (touch.view == self.view){
+//                //dismiss menu if present
+//                if(self.view.bounds.contains(self.progMenuView.frame.origin)){
+//                    animateMenu(dismiss: true)
+//                }
+//            }
+//        }
+//    }
 
-    
-    //For now collection view seems to be axed
-    
-    // MARK: - UICollectionViewDelegate protocol
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        var currSection: Int = 0
-        //Keep track of whether a section exists to scroll to
-        var canScroll: Bool = false
-
-        if let cell = collectionView.cellForItem(at: indexPath){
-            selectCell(cell, indexPath: indexPath)
-        }
-        //Keep track of selected items. Items are deselected when scrolled out of view
-        selectedCollection.append(indexPath.item)
-        selectedFilters.append(Helpers().catButtonList[indexPath.item])
-        //        print("Coll \(selectedCollection)")
-
-        //TODO: filter map pins to all categories not matching the selected category
-
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        var currSection: Int = 0
-        //Keep track of whether a section exists to scroll to
-        var canScroll: Bool = false
-        
-        let cell = collectionView.cellForItem(at: indexPath)
-        if let imageViews = cell?.contentView.subviews{
-            for case let image as UIImageView in imageViews{
-                image.removeFromSuperview()
-            }
-        }
-        cell?.backgroundColor = UIColor.clear
-        //Remove selected item from list Keeping track of selected items' index path
-        if let index = selectedCollection.index(of: indexPath.item){
-            selectedCollection.remove(at: index)
-        }
-        //Remove selected item from list Keeping track of selected items' nodeValue string
-        if let index = selectedFilters.index(of: catButtonList[indexPath.item]){
-            selectedFilters.remove(at: index)
-        }
-        
-        //TODO - un filter map display
-    }
-
-    // change background color when user touches cell
-    func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath)
-        cell?.backgroundColor = UIColor(red: 0x60/255, green: 0x60/255, blue: 0x60/255, alpha: 1.0)
-    }
-
-    // change background color back when user releases touch
-    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath)
-        cell?.backgroundColor = UIColor.clear
-    }
-
-    func selectCell(_ cell: UICollectionViewCell, indexPath: IndexPath)
-    {
-        let checkImage = UIImage(named: "Check Symbol")
-        let checkImageView = UIImageView(image: checkImage)
-
-        //center check image at point 50,75
-        checkImageView.frame = CGRect(x: 45, y: 70, width: 15, height: 15)
-        //add check image
-        cell.contentView.addSubview(checkImageView)
-        cell.backgroundColor = UIColor(white: 1, alpha: 0.5)
-    }
-    
+//
+//    //For now collection view seems to be axed
+//
+//    // MARK: - UICollectionViewDelegate protocol
+//
+//    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+//        var currSection: Int = 0
+//        //Keep track of whether a section exists to scroll to
+//        var canScroll: Bool = false
+//
+//        if let cell = collectionView.cellForItem(at: indexPath){
+//            selectCell(cell, indexPath: indexPath)
+//        }
+//        //Keep track of selected items. Items are deselected when scrolled out of view
+//        selectedCollection.append(indexPath.item)
+//        selectedFilters.append(Helpers().catButtonList[indexPath.item])
+//        //        print("Coll \(selectedCollection)")
+//
+//        //TODO: filter map pins to all categories not matching the selected category
+//
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+//        var currSection: Int = 0
+//        //Keep track of whether a section exists to scroll to
+//        var canScroll: Bool = false
+//
+//        let cell = collectionView.cellForItem(at: indexPath)
+//        if let imageViews = cell?.contentView.subviews{
+//            for case let image as UIImageView in imageViews{
+//                image.removeFromSuperview()
+//            }
+//        }
+//        cell?.backgroundColor = UIColor.clear
+//        //Remove selected item from list Keeping track of selected items' index path
+//        if let index = selectedCollection.index(of: indexPath.item){
+//            selectedCollection.remove(at: index)
+//        }
+//        //Remove selected item from list Keeping track of selected items' nodeValue string
+//        if let index = selectedFilters.index(of: catButtonList[indexPath.item]){
+//            selectedFilters.remove(at: index)
+//        }
+//
+//        //TODO - un filter map display
+//    }
+//
+//    // change background color when user touches cell
+//    func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
+//        let cell = collectionView.cellForItem(at: indexPath)
+//        cell?.backgroundColor = UIColor(red: 0x60/255, green: 0x60/255, blue: 0x60/255, alpha: 1.0)
+//    }
+//
+//    // change background color back when user releases touch
+//    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
+//        let cell = collectionView.cellForItem(at: indexPath)
+//        cell?.backgroundColor = UIColor.clear
+//    }
+//
+//    func selectCell(_ cell: UICollectionViewCell, indexPath: IndexPath)
+//    {
+//        let checkImage = UIImage(named: "Check Symbol")
+//        let checkImageView = UIImageView(image: checkImage)
+//
+//        //center check image at point 50,75
+//        checkImageView.frame = CGRect(x: 45, y: 70, width: 15, height: 15)
+//        //add check image
+//        cell.contentView.addSubview(checkImageView)
+//        cell.backgroundColor = UIColor(white: 1, alpha: 0.5)
+//    }
+//
     //Set status bar to same color as background
     override var preferredStatusBarStyle: UIStatusBarStyle{
-        return .default
+        return .lightContent
     }
 
 }

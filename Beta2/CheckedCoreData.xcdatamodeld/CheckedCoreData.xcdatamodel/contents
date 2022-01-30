@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="11759" systemVersion="16A323" minimumToolsVersion="Xcode 7.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14460.32" systemVersion="17G14033" minimumToolsVersion="Xcode 7.0" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="CityButton" syncable="YES">
         <attribute name="city" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="homeCity" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
+    <entity name="FriendMapPins" syncable="YES">
+        <relationship name="relationship" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserMapPins" syncable="YES"/>
+    </entity>
+    <entity name="UserMapPins" syncable="YES">
+        <attribute name="coord" optional="YES" attributeType="Transformable" customClassName="[Double]" syncable="YES"/>
+        <attribute name="placeId" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
     <elements>
         <element name="CityButton" positionX="-63" positionY="-18" width="128" height="75"/>
+        <element name="UserMapPins" positionX="-63" positionY="0" width="128" height="75"/>
+        <element name="FriendMapPins" positionX="-63" positionY="9" width="128" height="60"/>
     </elements>
 </model>

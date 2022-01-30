@@ -31,6 +31,7 @@ class PlaceNodeTree{
     var sibling: [String]?
     var categories: [String]?
     var displayNode: Bool   //Used for sorting, parent does not display children when false
+    var location: [String:Double]?   //Dictionary with [lat: xx.xx, lng: xx.xx] structure
     
     //create root node
     init()
@@ -43,6 +44,7 @@ class PlaceNodeTree{
         self.categories = nil
         self.depth = 0
         self.displayNode = true
+        self.location = nil
     }
     
     init(nodeVal: String)
@@ -55,6 +57,7 @@ class PlaceNodeTree{
         self.categories = nil
         self.depth = 0
         self.displayNode = true
+        self.location = nil
     }
     
     init(nodeVal: String, placeId: String)
@@ -67,6 +70,7 @@ class PlaceNodeTree{
         self.categories = nil
         self.depth = 0
         self.displayNode = true
+        self.location = nil
     }
     
     init(nodeVal: String, placeId: String, categories: [String])
@@ -79,6 +83,7 @@ class PlaceNodeTree{
         self.categories = categories
         self.depth = 0
         self.displayNode = true
+        self.location = nil
     }
     
     func setVal(_ nodeVal: String){
@@ -191,6 +196,48 @@ class PlaceNodeTree{
         
     }
     
+    func getTreeNodes() -> [placeNode] {
+        if(self.children == nil)
+        {
+            return [placeNode()]
+        }else{
+            return breadthNodeTraverse([self], nodeArr: [])
+        }
+    }
+    
+    //    Breadth width recursion of the tree starting at the passed root node
+    //Each succesive recursivve itertion is the next depth level
+    //add all non-filtered nodes to place node array to display
+    func breadthNodeTraverse(_ queue: [PlaceNodeTree], nodeArr: [placeNode]) -> [placeNode]{
+        var newNodes = [placeNode()]
+        var queueNext:[PlaceNodeTree] = []
+        
+        for node in queue{
+            if let nodeChille = node.children{
+                for child in nodeChille {
+                    if(child.displayNode == true){   //Don't count child nodes that have been turned off with filtering
+                        //Only append the places which are the leaf nodes of the tree
+                        if(child.depth == 3){
+                            var tempNode = placeNode(place: child.nodeValue ?? "MyPlace", category: child.categories ?? ["Home"], city: [])
+                            tempNode.location = child.location
+                            tempNode.placeId = child.nodePlaceId
+                            newNodes.append(tempNode)
+                        }
+                        else{  //Only add children if current depth hasn't been reached
+                            queueNext.append(child)
+                        }
+                    }
+                }
+            }
+        }
+        if (queueNext.count == 0){  //return the count of all nodes down to this branch.
+            return nodeArr + newNodes //newCount is the current leaves, and count is all the parents on the path to this leaf
+        }else{
+            return breadthNodeTraverse(queueNext, nodeArr: newNodes)   //Only need the count for one level so I don't have to add the count argument from current function call
+        }
+        
+    }
+            
     //Function take string of nodeValue that should be removed/returned to table data. If no filter is applied return tree to default sort
     func displayNodeFilter(_ filterStrings: [String]){
         recursiveBreadthFilter([self], filter: filterStrings)

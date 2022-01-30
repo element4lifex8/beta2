@@ -167,7 +167,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     }else{
                         //Update total count of all checkins stored in core data
                         Helpers().numCheckInDefault = NSNumber(value: self.myPlaceNodes.count)
-                        self.generateTree(self.myPlaceNodes)
+                        self.placeNodeTreeRoot = Helpers().generateTree(self.myPlaceNodes, cityFilterEn: self.showAllCities, cityFilterText: self.headerText)
                         self.placeNodeTreeRoot.sortChildNodes()
                         self.tableView.reloadData()
                         self.myPlaceNodes.removeAll()
@@ -253,8 +253,8 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
         })
     }
     
-    
-//Tree generation functions
+    #if false
+////Tree generation functions
     func generateTree(_ nodeArr: [placeNode]){
         //Clear current place node tree
         self.placeNodeTreeRoot.empty()
@@ -268,7 +268,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     //First case: if showing only certain city then the city must match the header label, if show all cities is nil then just falisfy this side of the expression to remove it from being considered
                     //Second case: show all cities is nil, then evaluate to true and print all cities
                     //Second case: show all cities is true, then evaluate to false to put the burden on the left expression
-                    
+
                     //Tediously unwrap headerText so I don't have to guard or if let
                     var headerUnwrapped = ""
                     if(self.headerText != nil){
@@ -290,23 +290,23 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
                             let newCityNode = PlaceNodeTree(nodeVal: city)
                             placeNodeTreeRoot.addChild(newCityNode)
                             addTreeNodeToCity(placeNode, cityNode: newCityNode, siblings: siblings)
-                            
+
                         }
                     }
                 }
             }
         }
     }
-    
+
     func addTreeNodeToCity(_ nodeStruct: placeNode, cityNode: PlaceNodeTree, siblings: [String]?){
         var childNode: PlaceNodeTree
-        
+
         //Add place to existing city for each category
         if let categories = nodeStruct.category{
             for category in categories{
                 if let existingCategory = cityNode.search(category){
                     //create PlaceNodeTree object depending on whether the user used google Autocomplete which provides a google place id
-                    //Couldn't create the placeNodeTree obj as variable or the generate tree func was failing 
+                    //Couldn't create the placeNodeTree obj as variable or the generate tree func was failing
                     if let placeId = nodeStruct.placeId{
                         childNode = existingCategory.addChild(PlaceNodeTree(nodeVal: nodeStruct.place!, placeId: placeId, categories: categories))
                     }else{
@@ -328,6 +328,7 @@ class MyListViewController: UIViewController, UITableViewDelegate, UITableViewDa
             }
         }
     }
+    #endif
     
     
 //    Unused dict func

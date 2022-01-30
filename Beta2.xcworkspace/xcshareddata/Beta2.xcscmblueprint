@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "6C72C851E003D7AEA153C877AF6AC8F3A6A6EA39",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "6C72C851E003D7AEA153C877AF6AC8F3A6A6EA39" : 9223372036854775807,
+    "1E07A51FF819C1B5A1801234BF0F73CA0885E8F0" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "BEC759AB-C414-4864-B4CB-D41D7E788201",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "6C72C851E003D7AEA153C877AF6AC8F3A6A6EA39" : "Beta2\/",
+    "1E07A51FF819C1B5A1801234BF0F73CA0885E8F0" : ""
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "Beta2",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "Beta2.xcworkspace",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/kostiakoval\/SpeedLog.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "1E07A51FF819C1B5A1801234BF0F73CA0885E8F0"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/element4lifex8\/beta2.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "6C72C851E003D7AEA153C877AF6AC8F3A6A6EA39"
+    }
+  ]
+}
